@@ -1,7 +1,7 @@
 {
   "status": "passed",
-  "version": "3.3",
-  "passCount": 18,
+  "version": "3.4",
+  "passCount": 23,
   "failureCount": 0,
   "checks": [
     {
@@ -70,6 +70,26 @@
     },
     {
       "name": "skip count shown",
+      "status": "passed"
+    },
+    {
+      "name": "profile section in topbar",
+      "status": "passed"
+    },
+    {
+      "name": "profiles management section on trainer dashboard",
+      "status": "passed"
+    },
+    {
+      "name": "can create and switch to a new user profile",
+      "status": "passed"
+    },
+    {
+      "name": "user profiles maintain separate, isolated workspaces",
+      "status": "passed"
+    },
+    {
+      "name": "can safely delete user profiles",
       "status": "passed"
     },
     {

@@ -3823,8 +3823,468 @@ This app is static and local to the browser. It does not connect to Amazon Ads, 
       render();
     };
 
-    v33EnsureState();
+    /* --- V3.4 Multi-User Profiles & Unique Profiles System Layer --- */
 
+    let isProfileMenuOpen = false;
+    let activeProfileId = 'p-default';
+    let profilesIndex = [
+      { id: 'p-default', name: 'Trainee 1', createdAt: new Date().toISOString(), lastActiveAt: new Date().toISOString() }
+    ];
+
+    function resetProfileState(profileName) {
+      state.campaigns = copy(initialCampaigns);
+      state.selectedCampaignId = '';
+      state.selectedTab = 'campaigns';
+      state.filterType = 'All';
+      state.filterStatus = 'All';
+      state.search = '';
+      state.draft = makeDraft();
+      state.wizardStep = 1;
+      state.actionLog = [];
+      state.feedbackLog = [];
+      state.bulkPreview = [];
+      state.bulkInput = V31_BULK_TEMPLATE;
+      state.activeScenarioId = '';
+      state.generatedScenarios = [];
+      state.reportQueue = [];
+      state.selectedReportId = '';
+      state.integrityLastRun = '';
+      state.simulationDays = 0;
+
+      // Guided navigation drills state
+      state.activeNavigationDrillId = '';
+      state.navigationDrillStep = 0;
+      state.navigationDrillMistakes = 0;
+      state.navigationDrillSkips = 0;
+      state.navigationDrillLog = [];
+      state.navigationDrillResults = [];
+      state.navigationDrillStartedAt = '';
+      state.navigationDrillCompleted = false;
+
+      state.traineeName = profileName || 'Trainee 1';
+      state.trainerNotes = '';
+      normalizeState();
+    }
+
+    function profileEnsureStateAndIndex() {
+      try {
+        const rawIndex = localStorage.getItem('amazonPpcSimulator.profilesIndex');
+        const rawActiveId = localStorage.getItem('amazonPpcSimulator.activeProfileId');
+
+        if (rawIndex && rawActiveId) {
+          profilesIndex = JSON.parse(rawIndex);
+          activeProfileId = rawActiveId;
+        } else {
+          // Backward compatibility check
+          const legacyRaw = localStorage.getItem(STORAGE_KEY);
+          if (legacyRaw) {
+            const saved = JSON.parse(legacyRaw);
+            const legacyName = saved.traineeName || 'Trainee 1';
+            activeProfileId = 'p-default';
+            profilesIndex = [{ id: 'p-default', name: legacyName, createdAt: new Date().toISOString(), lastActiveAt: new Date().toISOString() }];
+
+            localStorage.setItem('amazonPpcSimulator.profile.p-default', legacyRaw);
+            localStorage.setItem('amazonPpcSimulator.profilesIndex', JSON.stringify(profilesIndex));
+            localStorage.setItem('amazonPpcSimulator.activeProfileId', activeProfileId);
+          } else {
+            activeProfileId = 'p-default';
+            profilesIndex = [{ id: 'p-default', name: 'Trainee 1', createdAt: new Date().toISOString(), lastActiveAt: new Date().toISOString() }];
+
+            const startStr = JSON.stringify(serializableState());
+            localStorage.setItem('amazonPpcSimulator.profile.p-default', startStr);
+            localStorage.setItem('amazonPpcSimulator.profilesIndex', JSON.stringify(profilesIndex));
+            localStorage.setItem('amazonPpcSimulator.activeProfileId', activeProfileId);
+          }
+        }
+      } catch (e) {
+        console.error('Error initializing profile system', e);
+      }
+    }
+
+    const v34PersistStateBase = persistState;
+    persistState = function() {
+      // Keep legacy/standard key updated for tests and basic fallback
+      v34PersistStateBase();
+
+      try {
+        // Save to active profile's specific key
+        const stateStr = JSON.stringify(serializableState());
+        localStorage.setItem('amazonPpcSimulator.profile.' + activeProfileId, stateStr);
+
+        // Update active profile name and last active date
+        const profile = profilesIndex.find(p => p.id === activeProfileId);
+        if (profile) {
+          profile.name = state.traineeName || 'Trainee 1';
+          profile.lastActiveAt = new Date().toISOString();
+        }
+        localStorage.setItem('amazonPpcSimulator.profilesIndex', JSON.stringify(profilesIndex));
+        localStorage.setItem('amazonPpcSimulator.activeProfileId', activeProfileId);
+      } catch (e) {
+        console.error('Error persisting profile state', e);
+      }
+    };
+
+    const v34HydrateStateBase = hydrateState;
+    hydrateState = function() {
+      profileEnsureStateAndIndex();
+
+      try {
+        const rawProfileState = localStorage.getItem('amazonPpcSimulator.profile.' + activeProfileId);
+        if (rawProfileState) {
+          const saved = JSON.parse(rawProfileState);
+          Object.keys(saved).forEach(k => {
+            if (k in state && k !== 'toasts') state[k] = saved[k];
+          });
+          state.toasts = [];
+        } else {
+          const profile = profilesIndex.find(p => p.id === activeProfileId);
+          resetProfileState(profile ? profile.name : 'Trainee 1');
+        }
+      } catch (e) {
+        console.error('Error hydrating profile state', e);
+      }
+    };
+
+    function v34CreateProfile(name) {
+      name = (name || '').trim();
+      if (!name) {
+        toast('Please enter a valid trainee profile name.', 'bad');
+        return;
+      }
+      if (name.length > 25) name = name.slice(0, 25);
+
+      // Save current active profile first
+      persistState();
+
+      // Create new profile object
+      const newId = uid('P');
+      const newProfileObj = {
+        id: newId,
+        name: name,
+        createdAt: new Date().toISOString(),
+        lastActiveAt: new Date().toISOString()
+      };
+
+      profilesIndex.push(newProfileObj);
+      activeProfileId = newId;
+
+      // Reset state for new profile
+      resetProfileState(name);
+
+      // Persist new state and index
+      persistState();
+
+      toast(`Created and switched to profile: ${name}`, 'good');
+      logAction('profile_created', name, 'good');
+
+      isProfileMenuOpen = false;
+      render();
+    }
+
+    function v34SwitchProfile(profileId) {
+      if (profileId === activeProfileId) return;
+
+      // Save current state
+      persistState();
+
+      const target = profilesIndex.find(p => p.id === profileId);
+      if (!target) {
+        toast('Profile not found.', 'bad');
+        return;
+      }
+
+      activeProfileId = profileId;
+      target.lastActiveAt = new Date().toISOString();
+      localStorage.setItem('amazonPpcSimulator.activeProfileId', activeProfileId);
+      localStorage.setItem('amazonPpcSimulator.profilesIndex', JSON.stringify(profilesIndex));
+
+      // Hydrate target state
+      hydrateState();
+
+      toast(`Switched to profile: ${target.name}`, 'good');
+      logAction('profile_switched', target.name, 'good');
+
+      isProfileMenuOpen = false;
+      render();
+    }
+
+    function v34RenameProfile(profileId, newName) {
+      newName = (newName || '').trim();
+      if (!newName) {
+        toast('Profile name cannot be empty.', 'bad');
+        return;
+      }
+      if (newName.length > 25) newName = newName.slice(0, 25);
+
+      const target = profilesIndex.find(p => p.id === profileId);
+      if (!target) return;
+
+      target.name = newName;
+      if (profileId === activeProfileId) {
+        state.traineeName = newName;
+      }
+
+      localStorage.setItem('amazonPpcSimulator.profilesIndex', JSON.stringify(profilesIndex));
+      persistState();
+
+      toast(`Profile renamed to: ${newName}`, 'good');
+      render();
+    }
+
+    function v34DeleteProfile(profileId) {
+      if (profilesIndex.length <= 1) {
+        toast('You must keep at least one profile.', 'bad');
+        return;
+      }
+
+      const target = profilesIndex.find(p => p.id === profileId);
+      if (!target) return;
+
+      if (profileId === activeProfileId) {
+        const nextProfile = profilesIndex.find(p => p.id !== profileId);
+        v34SwitchProfile(nextProfile.id);
+      }
+
+      profilesIndex = profilesIndex.filter(p => p.id !== profileId);
+      localStorage.setItem('amazonPpcSimulator.profilesIndex', JSON.stringify(profilesIndex));
+      localStorage.removeItem('amazonPpcSimulator.profile.' + profileId);
+
+      toast(`Profile "${target.name}" deleted.`, 'warn');
+      render();
+    }
+
+    // --- V3.4 UI integration overrides ---
+
+    // 1. Override renderTopbar to include profile dropdown
+    renderTopbar = function() {
+      return `
+        <header class="topbar">
+          <div class="brand">
+            <div class="brand-mark">PPC</div>
+            <div>
+              Ads Console Training Simulator
+              <small>Unofficial sandbox for VA navigation and operations practice</small>
+            </div>
+          </div>
+          <div class="top-actions">
+            <span class="sandbox-badge">V${APP_VERSION} Multi-User Sandbox</span>
+
+            <!-- Dynamic Profile Switcher Dropdown -->
+            <div class="profile-dropdown-container" style="position: relative; display: inline-block;">
+              <button class="account-pill" style="cursor: pointer; border: 1px solid var(--orange); display: flex; align-items: center; gap: 6px; padding: 7px 12px; background: #1b2530;" data-action="profileToggleDropdown">
+                👤 Trainee: <strong>${safe(state.traineeName)}</strong> <span style="font-size: 10px;">▼</span>
+              </button>
+
+              <div id="profileDropdownMenu" class="card" style="display: ${isProfileMenuOpen ? 'block' : 'none'}; position: absolute; right: 0; top: 38px; width: 280px; z-index: 1000; box-shadow: var(--shadow); border: 1px solid var(--line); background: white; padding: 14px; color: var(--ink); border-radius: var(--radius); text-align: left;">
+                <h4 style="margin: 0 0 10px; font-size: 11px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.05em; border-bottom: 1px solid var(--line); padding-bottom: 6px;">Switch User Profile</h4>
+
+                <div class="profile-list" style="max-height: 200px; overflow-y: auto; margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px;">
+                  ${profilesIndex.map(p => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 4px; padding: 4px 0;">
+                      <button class="btn text-left" style="flex: 1; text-align: left; padding: 8px 10px; font-size: 13px; border: 1px solid ${p.id === activeProfileId ? 'var(--blue)' : 'var(--line)'}; background: ${p.id === activeProfileId ? '#e7f1f8' : 'transparent'}; border-radius: 6px; font-weight: ${p.id === activeProfileId ? '700' : '400'}; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 190px;" data-action="profileSwitch" data-id="${p.id}">
+                        ${safe(p.name)}
+                      </button>
+                      ${profilesIndex.length > 1 ? `
+                        <button class="btn danger small" style="padding: 6px 8px; font-size: 12px;" data-action="profileDelete" data-id="${p.id}" title="Delete profile">🗑</button>
+                      ` : ''}
+                    </div>
+                  `).join('')}
+                </div>
+
+                <div style="border-top: 1px solid var(--line); padding-top: 10px; margin-top: 6px; display: flex; flex-direction: column; gap: 8px;">
+                  <div style="display: flex; gap: 6px;">
+                    <input class="input small" id="newProfileNameInput" placeholder="New trainee name" style="flex: 1; padding: 6px 8px; font-size: 13px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink);" />
+                    <button class="btn small primary" data-action="profileCreate" style="padding: 6px 12px;">Create</button>
+                  </div>
+                  <button class="btn small" style="width: 100%; text-align: center;" data-view="trainer">⚙ Manage all profiles</button>
+                </div>
+              </div>
+            </div>
+
+            <span class="account-pill">Training Account: Coffee Accessories US</span>
+            <button class="btn small primary" data-action="newCampaign">Create campaign</button>
+          </div>
+        </header>`;
+    };
+
+    // 2. Override renderTrainerDashboard to include Profile Management Section
+    const v34RenderTrainerDashboardBase = renderTrainerDashboard;
+    renderTrainerDashboard = function() {
+      const html = v34RenderTrainerDashboardBase();
+
+      const adminBlock = `
+        <div class="card pad" style="margin-top: 14px;">
+          <div class="card-title">
+            <h2>Trainee Profiles Management</h2>
+            <span class="pill orange">${profilesIndex.length} Active Profile(s)</span>
+          </div>
+          <p class="muted" style="margin-bottom: 12px;">Create, switch, rename, or delete trainee profiles. Each trainee gets a completely independent workspace state including active campaigns, historical metrics, training missions, and drill scores.</p>
+
+          <div style="background: #f8fafc; border: 1px solid var(--line); border-radius: 8px; padding: 14px; margin-bottom: 14px;">
+            <h3 style="margin-top: 0; margin-bottom: 8px; font-size: 14px; color: var(--ink);">Create New Trainee Profile</h3>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <input class="input" id="dashboardNewProfileInput" placeholder="Enter trainee name (e.g. Jane Smith)" style="max-width: 300px; color: var(--ink);" />
+              <button class="btn primary" data-action="profileDashboardCreate">＋ Create Profile</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="drill-result-table">
+              <thead>
+                <tr>
+                  <th>Profile Name</th>
+                  <th>Created At</th>
+                  <th>Last Active</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${profilesIndex.map(p => {
+                  const isActive = p.id === activeProfileId;
+                  return `
+                    <tr>
+                      <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <span style="font-size: 14px; font-weight: ${isActive ? '700' : '400'}; color: ${isActive ? 'var(--blue)' : 'var(--ink)'};">
+                            ${safe(p.name)}
+                          </span>
+                          ${isActive ? '<span class="pill green" style="padding: 2px 6px; font-size: 10px;">Active</span>' : ''}
+                        </div>
+                      </td>
+                      <td class="muted" style="font-size: 12px;">${fmt.date(p.createdAt)}</td>
+                      <td class="muted" style="font-size: 12px;">${fmt.date(p.lastActiveAt)}</td>
+                      <td>
+                        <span style="font-size: 12px; color: ${isActive ? 'var(--green)' : 'var(--muted)'};">
+                          ${isActive ? 'Working' : 'Idle'}
+                        </span>
+                      </td>
+                      <td>
+                        <div style="display: flex; gap: 6px;">
+                          ${!isActive ? `<button class="btn small primary" data-action="profileSwitch" data-id="${p.id}">Switch to</button>` : ''}
+                          <button class="btn small" data-action="profileDashboardRename" data-id="${p.id}">Rename</button>
+                          ${profilesIndex.length > 1 ? `<button class="btn danger small" data-action="profileDelete" data-id="${p.id}">Delete</button>` : ''}
+                        </div>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+      return html + adminBlock;
+    };
+
+    // 3. Override saveTrainee to keep profile name in sync when renaming from standard input field
+    const v34SaveTraineeBase = saveTrainee;
+    saveTrainee = function() {
+      const oldName = state.traineeName;
+      v34SaveTraineeBase();
+      const newName = state.traineeName;
+      if (oldName !== newName) {
+        const profile = profilesIndex.find(p => p.id === activeProfileId);
+        if (profile) {
+          profile.name = newName;
+          localStorage.setItem('amazonPpcSimulator.profilesIndex', JSON.stringify(profilesIndex));
+        }
+      }
+    };
+
+    // 4. Override handleAction to route profile events
+    const v34HandleActionBase = handleAction;
+    handleAction = function(e, action, el) {
+      if (action && action.startsWith('profile')) {
+        e.stopPropagation();
+
+        if (action === 'profileToggleDropdown') {
+          isProfileMenuOpen = !isProfileMenuOpen;
+          render();
+          return;
+        }
+
+        if (action === 'profileCreate') {
+          const nameEl = $('#newProfileNameInput');
+          const name = nameEl ? nameEl.value : '';
+          v34CreateProfile(name);
+          return;
+        }
+
+        if (action === 'profileDashboardCreate') {
+          const nameEl = $('#dashboardNewProfileInput');
+          const name = nameEl ? nameEl.value : '';
+          v34CreateProfile(name);
+          return;
+        }
+
+        if (action === 'profileSwitch') {
+          const id = el.dataset.id;
+          v34SwitchProfile(id);
+          return;
+        }
+
+        if (action === 'profileDelete') {
+          const id = el.dataset.id;
+          const p = profilesIndex.find(x => x.id === id);
+          if (p && confirm(`Are you sure you want to permanently delete the profile "${p.name}"? This will delete all their campaigns and logs.`)) {
+            v34DeleteProfile(id);
+          }
+          return;
+        }
+
+        if (action === 'profileDashboardRename') {
+          const id = el.dataset.id;
+          const p = profilesIndex.find(x => x.id === id);
+          if (p) {
+            const newName = prompt(`Enter new name for profile "${p.name}":`, p.name);
+            if (newName !== null) {
+              v34RenameProfile(id, newName);
+            }
+          }
+          return;
+        }
+
+        return;
+      }
+
+      // Close dropdown if any other action is clicked
+      if (isProfileMenuOpen) {
+        isProfileMenuOpen = false;
+        setTimeout(() => render(), 0);
+      }
+
+      v34HandleActionBase(e, action, el);
+    };
+
+    // 5. Override wrong-click blocking to allow profile-related interaction during active drills
+    const v34NavigationClickGateBase = v33NavigationClickGate;
+    v33NavigationClickGate = function(e) {
+      const target = e.target;
+      if (target && target.closest && target.closest('.profile-dropdown-container, [data-action^="profile"]')) {
+        return; // Bypassed
+      }
+      v34NavigationClickGateBase(e);
+    };
+
+    // 6. Global document click listener to close profile dropdown
+    if (typeof document.addEventListener === 'function') {
+      document.addEventListener('click', function(e) {
+        if (isProfileMenuOpen) {
+          const dropdown = $('#profileDropdownMenu');
+          const toggleBtn = $('[data-action="profileToggleDropdown"]');
+          if (dropdown && !dropdown.contains(e.target) && toggleBtn && !toggleBtn.contains(e.target)) {
+            isProfileMenuOpen = false;
+            render();
+          }
+        }
+      });
+    }
+
+    // Call hydration to initialize with profiles
+    hydrateState();
+
+    v33EnsureState();
 
     if (!state.bulkInput || !state.bulkInput.includes('entity,operation')) state.bulkInput = V31_BULK_TEMPLATE;
 

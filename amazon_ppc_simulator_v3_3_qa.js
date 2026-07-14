@@ -1,6 +1,11 @@
 const fs = require('fs');
 const vm = require('vm');
-const html = fs.readFileSync('/mnt/data/amazon_ppc_simulator.html', 'utf8');
+
+let htmlPath = '/mnt/data/amazon_ppc_simulator.html';
+if (!fs.existsSync(htmlPath)) {
+  htmlPath = './amazon_ppc_simulator.html';
+}
+const html = fs.readFileSync(htmlPath, 'utf8');
 const scriptMatch = html.match(/<script>([\s\S]*)<\/script>/);
 if (!scriptMatch) throw new Error('Missing script block');
 const js = scriptMatch[1];
@@ -93,12 +98,49 @@ v33SkipNavigationStep();
 assert(root.innerHTML.includes('Navigation drill complete'), 'Skipped report drill did not complete'); pass('skip path completes drill');
 assert(root.innerHTML.includes('Skips: 3'), 'Skip count not shown after skipped drill'); pass('skip count shown');
 
+// V3.4 Multi-User Profiles validation tests
+assert(root.innerHTML.includes('Trainee:'), 'Topbar rendering is missing user profile section');
+pass('profile section in topbar');
+
+vm.runInContext("setView('trainer');", vmContext, { timeout: 1000 });
+assert(root.innerHTML.includes('Trainee Profiles Management'), 'Trainer dashboard missing profiles management section');
+pass('profiles management section on trainer dashboard');
+
+vm.runInContext("v34CreateProfile('Jane Doe');", vmContext, { timeout: 1000 });
+assert(root.innerHTML.includes('Jane Doe'), 'New profile "Jane Doe" is not active after creation');
+pass('can create and switch to a new user profile');
+
+// Test state isolation between profiles
+vm.runInContext(`
+  // Modify campaign budget in current active profile (Jane Doe)
+  state.campaigns[0].dailyBudget = 999;
+  persistState();
+  // Switch back to default profile
+  v34SwitchProfile('p-default');
+`, vmContext, { timeout: 1000 });
+
+// Default profile budget should remain untouched (original 35)
+const defaultBudget = vm.runInContext("state.campaigns[0].dailyBudget", vmContext);
+assert(defaultBudget === 35, 'Profile switching failed to isolate state data');
+pass('user profiles maintain separate, isolated workspaces');
+
+// Test profile deletion
+vm.runInContext(`
+  const jane = profilesIndex.find(p => p.name === 'Jane Doe');
+  if (jane) {
+    v34DeleteProfile(jane.id);
+  }
+`, vmContext, { timeout: 1000 });
+const finalProfilesLength = vm.runInContext("profilesIndex.length", vmContext);
+assert(finalProfilesLength === 1, 'Profile deletion failed');
+pass('can safely delete user profiles');
+
 vm.runInContext('exportTrainerLog(); exportDocs();', vmContext, { timeout: 3000 });
 pass('trainer log and docs export functions run');
 
 const result = {
   status: 'passed',
-  version: '3.3',
+  version: '3.4',
   passCount: checks.length,
   failureCount: 0,
   checks,
@@ -112,5 +154,9 @@ const result = {
     'Trainer log and docs export execution'
   ]
 };
-fs.writeFileSync('/mnt/data/amazon_ppc_simulator_v3_3_qa_results.json', JSON.stringify(result, null, 2));
+let resultsPath = '/mnt/data/amazon_ppc_simulator_v3_3_qa_results.json';
+if (!fs.existsSync('/mnt/data')) {
+  resultsPath = './amazon_ppc_simulator_v3_3_qa_results.json';
+}
+fs.writeFileSync(resultsPath, JSON.stringify(result, null, 2));
 console.log(JSON.stringify(result, null, 2));
