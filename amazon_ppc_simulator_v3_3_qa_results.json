@@ -5,7 +5,7 @@
   "failureCount": 0,
   "checks": [
     {
-      "name": "version is 3.3",
+      "name": "version is 3.4",
       "status": "passed"
     },
     {

@@ -1,4 +1,4 @@
-# Amazon PPC Training Simulator V3.3 Object Model
+# Amazon PPC Training Simulator V3.4 Object Model
 
 ## Core advertising hierarchy
 
@@ -14,6 +14,22 @@ Portfolio
       -> Creative, for SB and SD
       -> Structured history row
 ```
+
+## Trainee Profile Model
+
+Primary fields:
+
+- id (e.g. `p-default`, `P-XXXXXX`)
+- name (Trainee's name)
+- createdAt (ISO DateTime string)
+- lastActiveAt (ISO DateTime string)
+
+Rules:
+- Profiles are indexed globally under the key `amazonPpcSimulator.profilesIndex`.
+- The active profile is referenced by `amazonPpcSimulator.activeProfileId`.
+- Each profile has its own complete independent copy of the simulator's global state, stored under the key `amazonPpcSimulator.profile.<profileId>`.
+- Deleting a profile deletes its associated state and metadata, and if it was active, switches to another profile.
+- There must always be at least one trainee profile.
 
 ## Campaign
 
@@ -186,7 +202,7 @@ Rules:
 - SB Video needs a video placeholder.
 - Rejected SB or SD creative blocks safe enablement.
 
-## V3.3 navigation drill model
+## V3.4 navigation drill model
 
 ```text
 NavigationDrill
@@ -197,10 +213,10 @@ NavigationDrill
   -> NavigationDrillResult
       -> Trainee
       -> Score
-      -> Mistakes
-      -> Skips
-      -> StartedAt
-      -> CompletedAt
+      * Mistakes
+      * Skips
+      * StartedAt
+      * CompletedAt
 ```
 
 ## NavigationDrill
@@ -250,17 +266,6 @@ Primary fields:
 
 Rules:
 
-- Results are stored in LocalStorage.
+- Results are stored in the active profile's LocalStorage state.
 - Results appear in Trainer dashboard.
 - Results export with the trainer log CSV.
-
-## V3.3 state fields
-
-- activeNavigationDrillId
-- navigationDrillStep
-- navigationDrillMistakes
-- navigationDrillSkips
-- navigationDrillLog
-- navigationDrillResults
-- navigationDrillStartedAt
-- navigationDrillCompleted

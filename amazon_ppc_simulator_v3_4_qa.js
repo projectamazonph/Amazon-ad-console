@@ -15,7 +15,7 @@ function assert(condition, message) {
 const checks = [];
 function pass(name) { checks.push({ name, status: 'passed' }); }
 
-assert(html.includes("const APP_VERSION = '3.3'"), 'APP_VERSION is not 3.3'); pass('version is 3.3');
+assert(html.includes("const APP_VERSION = '3.4'"), 'APP_VERSION is not 3.4'); pass('version is 3.4');
 assert((html.match(/V3\.3 guided navigation drill layer/g) || []).length === 1, 'V3.3 layer should appear exactly once'); pass('single V3.3 layer');
 assert(html.includes("navItem('navDrills'"), 'Guided drills sidebar item missing'); pass('sidebar has Guided drills');
 assert(html.includes('navigationDrillResults'), 'Navigation drill result state missing'); pass('drill result state exists');
