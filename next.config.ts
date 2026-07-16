@@ -3,9 +3,6 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   reactStrictMode: true,
 
-  // Enable standalone output for Docker deployments
-  output: 'standalone',
-
   // Security headers
   async headers() {
     return [
