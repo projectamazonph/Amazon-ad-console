@@ -70,9 +70,8 @@ Added guided click-by-click navigation drills with target highlighting, wrong-cl
 ## QA commands run
 
 ```bash
-node --check /mnt/data/amazon_ppc_simulator_check.js
-node /mnt/data/v33_runtime_smoke.js
-node /mnt/data/amazon_ppc_simulator_v3_3_qa.js
+node --check amazon_ppc_simulator_check.js
+node amazon_ppc_simulator_v3_3_qa.js
 ```
 
 ## QA result
