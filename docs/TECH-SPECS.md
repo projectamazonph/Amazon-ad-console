@@ -85,7 +85,7 @@ Minimal configuration. No custom webpack, no env files, no middleware.
 | `CampaignDetail.tsx` | 436 | Campaign deep-dive view |
 | `CampaignManager.tsx` | 300 | Campaign list view |
 | `CreateCampaignWizard.tsx` | 227 | Campaign creation wizard |
-| `globals.css` | 522 | All styles |
+| `globals.css` | 935 | Amph-v2 Field Manual design system + all styles |
 
 ## Data Architecture
 
@@ -190,30 +190,100 @@ Metrics are distributed across targets proportionally to their existing share of
 - **Memory**: In-memory only — no persistence layer. State resets on page refresh.
 - **Bundle size**: Minimal — 4 runtime deps, no UI library, no chart library
 
+## Portability Guarantees
+
+The engine layer (`src/engine/ad-console/`) is guaranteed to be:
+- **Framework-free**: No React, Vue, Angular imports
+- **Runtime-agnostic**: Works in Node.js, browsers, Web Workers
+- **State-manager agnostic**: Pure functions — can be used with Redux, MobX, React Context, or no state manager
+- **Zero config**: No environment variables, no config files, no build steps required
+- **Type-safe**: Full TypeScript with strict mode
+
+## Compatibility Matrix
+
+| Target Environment | Engine | Store | Components |
+|-------------------|--------|-------|------------|
+| amph-v2 (Next.js 16) | ✅ Copy | ✅ Use directly | ✅ Copy |
+| Standalone Node.js | ✅ Import | ⚠️ Requires zustand | ❌ No DOM |
+| Web Worker | ✅ Import | ⚠️ Requires zustand | ❌ No DOM |
+| React SPA (Vite) | ✅ Import | ✅ Use directly | ✅ Copy with CSS |
+| Legacy HTML | ⚠️ Port functions | ❌ No Zustand | ❌ Rewrite UI |
 ## Styling
 
 ### Design System
-Amazon-themed color palette via CSS custom properties:
+The UI adopts the **amph-v2 "Field Manual"** design system — dense, scannable, utilitarian. Warm off-white surfaces with an orange accent, auto dark mode via `prefers-color-scheme`.
 
-```
---ink-100: #0F1111     (primary text)
---ink-200: #565959     (secondary text)
---ink-300: #8D9096     (muted text)
---surface-100: #FFFFFF (card background)
---surface-200: #F7F8F8 (page background)
---accent-500: #FF9900  (Amazon orange — CTAs, active states)
---accent-600: #E47911  (hover state)
---success: #067D62     (good metrics)
---warning: #B12704     (warning metrics)
---error: #CC0C39       (bad metrics)
-```
+#### Tokens (CSS Custom Properties on `:root`)
+
+**Surfaces**
+| Token | Value | Use |
+|-------|-------|-----|
+| `--surface-0` | `#FAFAF7` | Page background (warm off-white) |
+| `--surface-1` | `#FFFFFF` | Card/panel background |
+| `--surface-2` | `#F4F3EE` | Hover states, subtle fills |
+| `--surface-3` | `#1A1A1A` | Inverted surfaces (dark mode text bg) |
+
+**Ink (Text)**
+| Token | Value | Use |
+|-------|-------|-----|
+| `--ink-900` | `#171717` | Primary text |
+| `--ink-700` | `#404040` | Secondary text |
+| `--ink-500` | `#737373` | Muted/label text |
+| `--ink-300` | `#D4D4D4` | Disabled text |
+
+**Brand**
+| Token | Value | Use |
+|-------|-------|-----|
+| `--accent` | `#FF6B35` | Primary actions, active nav |
+| `--accent-hover` | `#E55A2B` | Hover state |
+| `--accent-soft` | `#FFE5D9` | Active background tint |
+| `--accent-ink` | `#1A1A2E` | Text on accent (navy, WCAG AA) |
+
+**Semantic**
+| Token | Value | Use |
+|-------|-------|-----|
+| `--success` | `#0E7C3A` | Good metrics, positive delta |
+| `--success-soft` | `#DCFCE7` | Success background |
+| `--warning` | `#B45309` | Caution, medium ACoS |
+| `--warning-soft` | `#FEF3C7` | Warning background |
+| `--danger` | `#B91C1C` | Errors, high ACoS |
+| `--danger-soft` | `#FEE2E2` | Error background |
+
+**Typography**
+| Token | Value |
+|-------|-------|
+| `--font-display` | Space Grotesk, system-ui |
+| `--font-body` | Space Grotesk, system-ui |
+| `--font-mono` | JetBrains Mono, ui-monospace |
+
+**Spacing** (4px base): `--space-1` (4px) through `--space-12` (48px)
+
+**Radius**: `--radius-sm` (4px), `--radius-md` (6px), `--radius-lg` (10px), `--radius-full` (9999px)
+
+**Shadows**: `--shadow-sm`, `--shadow-md`, `--shadow-lg` — subtle, low-opacity
+
+**Dark Mode**: Full `prefers-color-scheme: dark` override — surfaces invert, accent-soft becomes deep burnt orange, shadows darken. No manual toggle needed.
 
 ### Layout
-- Sidebar: 220px fixed width
-- Main content: flex-1 with padding
-- Metric cards: CSS Grid, responsive
-- Tables: Full-width with hover states
+- Sidebar: 240px fixed width, sticky, warm white background
+- Topbar: 56px height, sticky, border-bottom separator
+- Main content: flex-1 with `--space-6` padding
+- Metric cards: CSS Grid (`grid-4` responsive), `--radius-lg` borders
+- Tables: Full-width with hover highlight on `--surface-2`
+- Mobile: Sidebar hides below 768px, grids collapse to 2-col then 1-col
 
+### Fonts
+Loaded via `next/font/google`:
+- **Space Grotesk** — display and body text (weights 400–700)
+- **JetBrains Mono** — code, metrics, financial figures
+
+### Component Patterns
+- **Buttons**: `.btn` base with `.primary` (accent), `.danger`, `.ghost` variants; small/medium sizes
+- **Cards**: `.card` with `.pad` variant; border + subtle shadow
+- **Pills/Badges**: `.pill` with semantic color variants (`.active`, `.green`, `.red`, `.amber`)
+- **Inputs**: `.input`, `.select` with accent focus ring
+- **Tabs**: Bottom-border active indicator, accent color
+- **Toasts**: Fixed bottom-right, semantic color backgrounds, slide-in animation
 ## Portability Guarantees
 
 The engine layer (`src/engine/ad-console/`) is guaranteed to be:

@@ -12,7 +12,7 @@ function assert(condition, message) {
 const checks = [];
 function pass(name) { checks.push({ name, status: 'passed' }); }
 
-assert(html.includes("const APP_VERSION = '3.4'"), 'APP_VERSION is not 3.4'); pass('version is 3.4');
+assert(html.includes("APP_VERSION = '3.5'"), 'APP_VERSION is not 3.5'); pass('version is 3.5');
 assert((html.match(/V3\.3 guided navigation drill layer/g) || []).length === 1, 'V3.3 layer should appear exactly once'); pass('single V3.3 layer');
 assert(html.includes("navItem('navDrills'"), 'Guided drills sidebar item missing'); pass('sidebar has Guided drills');
 assert(html.includes('navigationDrillResults'), 'Navigation drill result state missing'); pass('drill result state exists');
@@ -137,7 +137,7 @@ pass('trainer log and docs export functions run');
 
 const result = {
   status: 'passed',
-  version: '3.4',
+  version: '3.5',
   passCount: checks.length,
   failureCount: 0,
   checks,

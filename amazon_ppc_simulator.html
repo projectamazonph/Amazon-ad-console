@@ -266,7 +266,7 @@ const $ = (sel, root = document) => root.querySelector(sel);
 
     const copy = obj => JSON.parse(JSON.stringify(obj));
     const uid = prefix => prefix + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
-    const APP_VERSION = '3.4';
+    APP_VERSION = '3.5';
     const LEGACY_STORAGE_KEYS = ['amazonPpcSimulator.v2'];
 
 
@@ -4290,6 +4290,303 @@ This app is static and local to the browser. It does not connect to Amazon Ads, 
 
     render();
   
-  </script>
+  
+
+
+
+/* --- V3.5 Amazon Console Alignment Layer --- */
+// Version bump
+APP_VERSION = '3.5';
+
+// Initialize v3.5 state vars
+state.filterPortfolio = state.filterPortfolio || 'All';
+state.showAddKeywordForm = state.showAddKeywordForm || false;
+state.addKeywordCampaignId = state.addKeywordCampaignId || '';
+
+// 1. Ensure ad groups have metrics
+const v35NormalizeCampaignBase = normalizeCampaign;
+normalizeCampaign = function(c) {
+  v35NormalizeCampaignBase(c);
+  c.adGroups.forEach(function(ag) {
+    if (!ag.metrics) ag.metrics = { impressions:0, clicks:0, spend:0, sales:0, orders:0 };
+  });
+};
+
+// 2. Override simulateDays to compute ad group metrics from targets
+const v35SimulateDaysBase = simulateDays;
+simulateDays = function() {
+  v35SimulateDaysBase();
+  state.campaigns.forEach(function(c) {
+    if (c.status !== 'Enabled') return;
+    c.adGroups.forEach(function(ag) {
+      var tgts = c.targets.filter(function(t) { return t.adGroupId === ag.id && t.status === 'Enabled'; });
+      if (tgts.length) {
+        ag.metrics = {
+          impressions: tgts.reduce(function(s, t) { return s + Number(t.impressions || 0); }, 0),
+          clicks: tgts.reduce(function(s, t) { return s + Number(t.clicks || 0); }, 0),
+          spend: tgts.reduce(function(s, t) { return s + Number(t.spend || 0); }, 0),
+          sales: tgts.reduce(function(s, t) { return s + Number(t.sales || 0); }, 0),
+          orders: tgts.reduce(function(s, t) { return s + Number(t.orders || 0); }, 0)
+        };
+      } else {
+        ag.metrics = { impressions:0, clicks:0, spend:0, sales:0, orders:0 };
+      }
+    });
+  });
+};
+
+// 3. Override renderAdGroupTable with performance metrics
+const v35RenderAdGroupTableBase = renderAdGroupTable;
+renderAdGroupTable = function(camps) {
+  const rows = camps.flatMap(function(c) { return c.adGroups.map(function(ag) { return { c: c, ag: ag }; }); });
+  if (!rows.length) return '<div class="empty card"><h3>No ad groups found</h3></div>';
+  var html = '<div class="table-wrap"><table><thead><tr><th>Ad group</th><th>Campaign</th><th>Type</th><th>Status</th><th>Default bid</th><th>Impr.</th><th>Clicks</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Targets</th></tr></thead><tbody>';
+  rows.forEach(function(r) {
+    var c = r.c, ag = r.ag;
+    var m = ag.metrics || {impressions:0,clicks:0,spend:0,sales:0,orders:0};
+    var x = calc(m);
+    html += '<tr><td>' + safe(ag.name) + '</td><td><button class="row-link" data-campaign="' + c.id + '">' + safe(c.name) + '</button></td>';
+    html += '<td>' + adTypeTag(c.type) + '</td><td>' + statusHtml(ag.status) + '</td><td>' + fmt.bid(ag.defaultBid) + '</td>';
+    html += '<td class="mono">' + fmt.whole(m.impressions) + '</td><td class="mono">' + fmt.whole(m.clicks) + '</td>';
+    html += '<td class="money">' + fmt.money(m.spend) + '</td><td class="money">' + fmt.money(m.sales) + '</td>';
+    html += '<td class="mono ' + acosClass(x.acos) + '">' + fmt.pct(x.acos) + '</td>';
+    html += '<td>' + c.targets.filter(function(t) { return t.adGroupId === ag.id; }).length + '</td></tr>';
+  });
+  html += '</tbody></table></div>';
+  return html;
+};
+
+// 4. Override renderTargetsTable with keyword add/remove + direct bid edit
+const v35RenderTargetsTableBase = renderTargetsTable;
+renderTargetsTable = function(camps) {
+  var html = '';
+  html += '<div style="margin-bottom:10px;display:flex;gap:8px;align-items:center;">';
+  if (!state.showAddKeywordForm) {
+    html += '<button class="btn primary" data-action="showAddKeyword">+ Add keyword</button>';
+  }
+  html += '</div>';
+
+  if (state.showAddKeywordForm) {
+    var targetCid = state.addKeywordCampaignId || (camps.length === 1 ? camps[0].id : '');
+    html += '<div class="card pad" style="margin-bottom:10px;background:#f8fafc;">';
+    html += '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;">';
+    html += '<div class="field" style="flex:2;min-width:150px;"><label>Keyword</label><input class="input full" id="newKeywordInput" placeholder="Enter keyword" /></div>';
+    html += '<div class="field" style="flex:1;min-width:100px;"><label>Match type</label><select class="select full" id="newKeywordMatch"><option>Exact</option><option>Phrase</option><option>Broad</option></select></div>';
+    html += '<div class="field" style="flex:1;min-width:80px;"><label>Bid</label><input class="input full" id="newKeywordBid" type="number" min="0.02" step="0.01" value="0.75" /></div>';
+    html += '<div class="field" style="flex:2;min-width:120px;"><label>Campaign</label><select class="select full" id="newKeywordCampaign">';
+    state.campaigns.forEach(function(c) {
+      if (c.type !== 'SD' && c.status !== 'Archived') {
+        html += '<option' + (c.id === targetCid ? ' selected' : '') + ' value="' + c.id + '">' + safe(c.name) + '</option>';
+      }
+    });
+    html += '</select></div>';
+    html += '</div>';
+    html += '<div style="margin-top:8px;display:flex;gap:8px;">';
+    html += '<button class="btn primary" data-action="addKeyword">Add keyword</button>';
+    html += '<button class="btn" data-action="cancelAddKeyword">Cancel</button>';
+    html += '</div></div>';
+  }
+
+  var allRows = camps.flatMap(function(c) { return c.targets.map(function(t) { return { c: c, t: t }; }); });
+  if (!allRows.length) {
+    html += '<div class="empty card"><h3>No targets found</h3><p>Add keywords above or create a campaign first.</p></div>';
+    return html;
+  }
+  html += '<div class="table-wrap"><table><thead><tr><th>Target</th><th>Campaign</th><th>Type</th><th>Match</th><th>Status</th><th>Bid</th><th>Clicks</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Actions</th></tr></thead><tbody>';
+  allRows.forEach(function(r) {
+    var c = r.c, t = r.t;
+    var x = calc(t);
+    html += '<tr><td><strong>' + safe(t.value) + '</strong></td><td><button class="row-link" data-campaign="' + c.id + '">' + safe(c.name) + '</button></td>';
+    html += '<td>' + safe(t.type) + '</td><td>' + safe(t.match) + '</td><td>' + statusHtml(t.status) + '</td>';
+    html += '<td><input class="input" style="width:72px;padding:4px 6px;font-size:12px;" type="number" min="0.02" step="0.01" value="' + t.bid + '" data-bid-input="' + t.id + '" /></td>';
+    html += '<td class="mono">' + fmt.whole(t.clicks) + '</td><td class="money">' + fmt.money(t.spend) + '</td><td class="money">' + fmt.money(t.sales) + '</td>';
+    html += '<td class="mono ' + acosClass(x.acos) + '">' + (t.sales ? fmt.pct(x.acos) : 'No sales') + '</td>';
+    html += '<td style="white-space:nowrap;">';
+    html += '<button class="btn small" data-action="bidDown" data-cid="' + c.id + '" data-tid="' + t.id + '">-10%</button> ';
+    html += '<button class="btn small" data-action="bidUp" data-cid="' + c.id + '" data-tid="' + t.id + '">+10%</button> ';
+    html += '<button class="btn small" data-action="setBid" data-cid="' + c.id + '" data-tid="' + t.id + '">Set</button> ';
+    html += '<button class="btn small ' + (t.status === 'Paused' ? 'primary' : '') + '" data-action="pauseTarget" data-cid="' + c.id + '" data-tid="' + t.id + '">' + (t.status === 'Paused' ? 'Enable' : 'Pause') + '</button> ';
+    html += '<button class="btn small danger" data-action="removeTarget" data-cid="' + c.id + '" data-tid="' + t.id + '">Remove</button>';
+    html += '</td></tr>';
+  });
+  html += '</tbody></table></div>';
+  return html;
+};
+
+// 5. Portfolio filter in toolbar
+const v35RenderToolbarBase = renderToolbar;
+renderToolbar = function() {
+  var portfolios = ['All'];
+  state.campaigns.forEach(function(c) {
+    if (c.portfolio && portfolios.indexOf(c.portfolio) === -1) portfolios.push(c.portfolio);
+  });
+  var opts = '';
+  portfolios.forEach(function(x) {
+    opts += '<option' + (state.filterPortfolio === x ? ' selected' : '') + '>' + x + '</option>';
+  });
+  var typeOpts = ['All','SP','SB','SD'].map(function(x) { return '<option' + (state.filterType === x ? ' selected' : '') + '>' + x + '</option>'; }).join('');
+  var statusOpts = ['All','Enabled','Paused','Archived'].map(function(x) { return '<option' + (state.filterStatus === x ? ' selected' : '') + '>' + x + '</option>'; }).join('');
+  var dateOpts = ['Today','Yesterday','Last 7 days','Last 30 days','Month to date','Custom'].map(function(x) { return '<option' + (state.dateRange === x ? ' selected' : '') + '>' + x + '</option>'; }).join('');
+  return '<div class="toolbar">' +
+    '<div class="search"><input data-field="search" placeholder="Search campaigns, portfolio, targeting" value="' + safe(state.search) + '" /></div>' +
+    '<select class="select" data-field="filterType">' + typeOpts + '</select>' +
+    '<select class="select" data-field="filterStatus">' + statusOpts + '</select>' +
+    '<select class="select" data-field="filterPortfolio">' + opts + '</select>' +
+    '<select class="select" data-field="dateRange">' + dateOpts + '</select>' +
+    '<button class="btn" data-action="resetFilters">Reset</button>' +
+    '<button class="btn blue" data-action="simulateDays">Run 7-day simulation</button></div>';
+};
+
+// 6. Portfolio filter integration
+const v35FilteredCampaignsBase = filteredCampaigns;
+filteredCampaigns = function() {
+  var camps = v35FilteredCampaignsBase();
+  if (state.filterPortfolio && state.filterPortfolio !== 'All') {
+    camps = camps.filter(function(c) { return c.portfolio === state.filterPortfolio; });
+  }
+  return camps;
+};
+
+// 7. Portfolio overview on settings page
+const v35RenderSettingsBase = renderSettings;
+renderSettings = function() {
+  var base = v35RenderSettingsBase();
+  var portfolios = [];
+  state.campaigns.forEach(function(c) {
+    if (c.portfolio && portfolios.indexOf(c.portfolio) === -1) portfolios.push(c.portfolio);
+  });
+  portfolios.sort();
+  var ph = '<div class="card pad" style="margin-top:14px;"><div class="card-title"><h2>Portfolio overview</h2><span>' + portfolios.length + ' portfolio(s)</span></div>';
+  if (!portfolios.length) {
+    ph += '<p class="muted">No portfolios yet. Create a campaign with a portfolio name to see it here.</p>';
+  } else {
+    ph += '<div class="table-wrap"><table><thead><tr><th>Portfolio</th><th>Campaigns</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>ROAS</th></tr></thead><tbody>';
+    portfolios.forEach(function(p) {
+      var pc = state.campaigns.filter(function(c) { return c.portfolio === p; });
+      var m = totalMetrics(pc);
+      var x = calc(m);
+      ph += '<tr><td><strong>' + safe(p) + '</strong></td><td>' + pc.length + '</td><td class="money">' + fmt.money(m.spend) + '</td><td class="money">' + fmt.money(m.sales) + '</td>';
+      ph += '<td class="mono ' + acosClass(x.acos) + '">' + fmt.pct(x.acos) + '</td><td class="mono">' + fmt.roas(x.roas) + '</td></tr>';
+    });
+    ph += '</tbody></table></div>';
+  }
+  ph += '</div>';
+  return base + ph;
+};
+
+// 8. Handlers for new actions
+const v35HandleActionBase = handleAction;
+handleAction = function(e, action, el) {
+  switch (action) {
+    case 'resetFilters':
+      state.filterType='All';
+      state.filterStatus='All';
+      state.filterPortfolio='All';
+      state.search='';
+      render();
+      return;
+    case 'showAddKeyword':
+      state.showAddKeywordForm = true;
+      state.addKeywordCampaignId = state.selectedCampaignId || (state.campaigns.length ? state.campaigns[0].id : '');
+      render();
+      return;
+    case 'cancelAddKeyword':
+      state.showAddKeywordForm = false;
+      render();
+      return;
+    case 'addKeyword':
+      v35AddKeyword();
+      return;
+    case 'removeTarget':
+      v35RemoveTarget(el.dataset.cid, el.dataset.tid);
+      return;
+    case 'setBid':
+      v35SetTargetBid(el.dataset.cid, el.dataset.tid);
+      return;
+  }
+  v35HandleActionBase(e, action, el);
+};
+
+function v35AddKeyword() {
+  var kw = $('#newKeywordInput');
+  var match = $('#newKeywordMatch');
+  var bidEl = $('#newKeywordBid');
+  var cidEl = $('#newKeywordCampaign');
+  if (!kw || !kw.value || !kw.value.trim()) { toast('Enter a keyword.', 'bad'); return; }
+  var keyword = kw.value.trim();
+  var matchType = match ? match.value : 'Exact';
+  var bid = Math.max(0.02, Number(bidEl ? bidEl.value : 0.75));
+  var cid = cidEl ? cidEl.value : '';
+  var c = campaignById(state, cid);
+  if (!c) { toast('Select a campaign.', 'bad'); return; }
+  if (c.targets.some(function(t) { return t.value.toLowerCase() === keyword.toLowerCase() && t.status !== 'Archived'; })) {
+    toast('Keyword already exists in this campaign.', 'warn'); return;
+  }
+  var primaryAg = c.adGroups[0];
+  var t = { id: uid('T'), campaignId: c.id, adGroupId: primaryAg ? primaryAg.id : '', type: 'Keyword', value: keyword, match: matchType, bid: bid, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 };
+  c.targets.push(t);
+  c.history.push('Keyword "' + keyword + '" (' + matchType + ', ' + fmt.bid(bid) + ') added');
+  logAction('keyword_added', keyword + ' ' + matchType + ' ' + fmt.bid(bid), 'good');
+  state.showAddKeywordForm = false;
+  toast('Keyword "' + keyword + '" added to ' + c.name + '.', 'good');
+  render();
+}
+
+function v35RemoveTarget(cid, tid) {
+  var c = campaignById(state, cid);
+  if (!c) return;
+  var idx = -1;
+  for (var i = 0; i < c.targets.length; i++) {
+    if (c.targets[i].id === tid) { idx = i; break; }
+  }
+  if (idx === -1) return;
+  var t = c.targets[idx];
+  if (!confirm('Remove target "' + t.value + '" from "' + c.name + '"? This cannot be undone.')) return;
+  c.targets.splice(idx, 1);
+  c.history.push('Target "' + t.value + '" removed');
+  logAction('target_removed', t.value + ' removed from ' + c.name, 'warn');
+  toast('Target "' + t.value + '" removed.', 'good');
+  render();
+}
+
+function v35SetTargetBid(cid, tid) {
+  var c = campaignById(state, cid);
+  if (!c) return;
+  var t = null;
+  for (var i = 0; i < c.targets.length; i++) {
+    if (c.targets[i].id === tid) { t = c.targets[i]; break; }
+  }
+  if (!t) return;
+  var inputEl = $('[data-bid-input="' + tid + '"]');
+  if (!inputEl) return;
+  var newBid = Math.max(0.02, Number(inputEl.value || 0.02));
+  var oldBid = t.bid;
+  t.bid = newBid;
+  c.history.push('Bid for "' + t.value + '" changed from ' + fmt.bid(oldBid) + ' to ' + fmt.bid(newBid));
+  logAction('bid_set', t.value + ' ' + fmt.bid(oldBid) + ' -> ' + fmt.bid(newBid), newBid > oldBid ? 'warn' : 'good');
+  toast('Bid for "' + t.value + '" set to ' + fmt.bid(newBid) + '.', 'good');
+  render();
+}
+
+// 9. Override resetAll to clear v3.5 state
+const v35ResetAllBase = resetAll;
+resetAll = function() {
+  v35ResetAllBase();
+  state.filterPortfolio = 'All';
+  state.showAddKeywordForm = false;
+  state.addKeywordCampaignId = '';
+  render();
+};
+
+// 10. Bind portfolio filter change handler
+const v35BindEventsBase = bindEvents;
+bindEvents = function() {
+  v35BindEventsBase();
+  $$('[data-field="filterPortfolio"]').forEach(function(el) {
+    el.addEventListener('change', function() { state.filterPortfolio = el.value; render(); });
+  });
+};
+
+</script>
 </body>
 </html>

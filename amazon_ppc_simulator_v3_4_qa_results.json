@@ -1,11 +1,11 @@
 {
   "status": "passed",
-  "version": "3.4",
+  "version": "3.5",
   "passCount": 23,
   "failureCount": 0,
   "checks": [
     {
-      "name": "version is 3.4",
+      "name": "version is 3.5",
       "status": "passed"
     },
     {

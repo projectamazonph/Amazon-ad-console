@@ -60,7 +60,7 @@ Open [http://localhost:3000](http://localhost:3000) — the simulator loads with
 | UI | React 19 |
 | State | Zustand 5 (single store, 8 slices) |
 | Language | TypeScript 5.8 (strict mode) |
-| Styling | Global CSS (522 lines, Amazon-themed) |
+| Styling | Global CSS (935 lines, amph-v2 "Field Manual" design system) |
 | Engine | Pure TypeScript — zero React/UI dependencies |
 
 ## Project Structure
@@ -71,7 +71,7 @@ Amazon-ad-console/
 │   ├── app/                        # Next.js App Router
 │   │   ├── layout.tsx              # Root layout + metadata
 │   │   ├── page.tsx                # Home → <AdConsole />
-│   │   └── globals.css             # Amazon-themed styles
+│   │   └── globals.css             # Amph-v2 Field Manual design tokens + styles
 │   ├── engine/                     # Portable business logic
 │   │   └── ad-console/
 │   │       ├── core/               # Zero-dep engine

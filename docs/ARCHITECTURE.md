@@ -125,6 +125,13 @@ runSimulation(days)
 - **Immutable updates** — functions return new objects, never mutate inputs
 - **Portable** — can be copied to any project without modification
 
+### Design System
+- **amph-v2 "Field Manual"** — warm off-white surfaces, orange accent, Space Grotesk typography
+- **CSS custom properties** — all tokens defined in `globals.css` on `:root`
+- **Dark mode** — automatic via `prefers-color-scheme: dark`, no manual toggle
+- **No CSS modules** — global stylesheet with BEM-like class naming
+- **Font loading** — `next/font/google` for Space Grotesk + JetBrains Mono
+
 ### Component Layer (`src/components/AdConsole/`)
 - **'use client'** directive on all interactive components
 - **Single hook** — all state via `useAdConsoleStore`
