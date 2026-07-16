@@ -70,7 +70,7 @@ export function normalizeCampaign(c: Partial<Campaign>): Campaign {
     name: c.adGroups?.[0]?.name ?? `${type} default ad group`,
     status: c.adGroups?.[0]?.status ?? 'Enabled',
     defaultBid: c.adGroups?.[0]?.defaultBid ?? c.defaultBid ?? 0.75,
-    metrics: metricDefaults(c.adGroups?.[0]?.metrics),
+    metrics: metricDefaults(c.adGroups?.[0]?.metrics ?? {}),
   };
 
   return {
@@ -99,11 +99,11 @@ export function normalizeCampaign(c: Partial<Campaign>): Campaign {
     },
     creativeStatus: c.creativeStatus ?? 'Approved',
     creativeIssue: c.creativeIssue ?? '',
-    metrics: metricDefaults(c.metrics),
+    metrics: metricDefaults(c.metrics ?? {}),
     adGroups: c.adGroups?.length ? c.adGroups.map((ag) => ({
       ...primaryAg,
       ...ag,
-      metrics: metricDefaults(ag.metrics),
+      metrics: metricDefaults(ag.metrics ?? {}),
     })) : [primaryAg],
     targets: (c.targets ?? []).map((t) => normalizeTarget(t, id, primaryAg.id)),
     searchTerms: (c.searchTerms ?? []).map((st) => ({

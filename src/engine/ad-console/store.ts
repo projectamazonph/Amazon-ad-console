@@ -7,7 +7,7 @@
  * Each slice is independent with focused types and actions (SOLID).
  */
 import { create } from 'zustand';
-import type { Campaign, CampaignDraft, CampaignStatus, MatchType, FilterState, AdConsoleState } from './core/types';
+import type { Campaign, CampaignDraft, CampaignStatus, MatchType, FilterState, AdConsoleState, Creative } from './core/types';
 import {
   calc, totalMetrics, filteredCampaigns, campaignById,
   toggleCampaignStatus, archiveCampaign, duplicateCampaign,
@@ -134,7 +134,7 @@ export const useAdConsoleStore = create<AppStore>()((...a) => {
 
     // Core actions
     filtered: () => filteredCampaigns(get().state),
-    selectedCampaign: () => get().state.selectedCampaignId ? campaignById(get().state, get().state.selectedCampaignId) : undefined,
+    selectedCampaign: () => get().state.selectedCampaignId ? campaignById(get().state, get().state.selectedCampaignId as string) : undefined,
     portfolioOptions: () => portfolioNames(get().state.campaigns),
     totalMetricsCalc: () => totalMetrics(get().state.campaigns.filter((c) => c.status === 'Enabled')),
     derivedMetrics: (m) => calc(m),
@@ -174,8 +174,8 @@ export const useAdConsoleStore = create<AppStore>()((...a) => {
         status: d.status, dailyBudget: d.dailyBudget, defaultBid: d.defaultBid,
         startDate: d.startDate, endDate: d.endDate || null,
         targetingMode: d.targetingMode, adFormat: d.adFormat, bidStrategy: d.bidStrategy,
-        placements: d.placements, products: d.products, creative: d.type !== 'SP' ? d.creative : null,
-        adGroups: [{ id: agId, name: d.type + ' training ad group', status: d.status, defaultBid: d.defaultBid, metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 } }],
+        placements: d.placements, products: d.products, creative: d.type !== 'SP' ? d.creative as Creative : null,
+        adGroups: [{ id: agId, campaignId: id, name: d.type + ' training ad group', status: d.status, defaultBid: d.defaultBid, metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 } }],
         targets: [], searchTerms: d.type === 'SD' ? [] : [], negatives: [], budgetRules: [], history: ['Campaign launched in simulator'],
       });
       return { state: { ...s.state, campaigns: [campaign, ...s.state.campaigns], selectedCampaignId: id, selectedTab: 'overview' }, draft: makeDraft(), wizardStep: 1, view: 'detail' as any };

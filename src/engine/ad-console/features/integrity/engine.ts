@@ -76,7 +76,7 @@ export function runIntegrityCheck(campaigns: Campaign[]): IntegrityReport {
     }
 
     // Check SB creative status
-    if (c.type === 'SB' && c.creative?.status === 'Rejected') {
+    if (c.type === 'SB' && c.creativeStatus === 'Rejected') {
       issues.push({
         id: uid(),
         severity: 'error',
