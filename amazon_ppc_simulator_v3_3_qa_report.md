@@ -10,9 +10,9 @@
 
 ## Files tested
 
-- /mnt/data/amazon_ppc_simulator.html
-- /mnt/data/amazon_ppc_simulator_check.js
-- /mnt/data/amazon_ppc_simulator_v3_3_qa.js
+- amazon_ppc_simulator.html
+- amazon_ppc_simulator_check.js
+- amazon_ppc_simulator_v3_3_qa.js
 
 ## QA status
 
@@ -25,9 +25,8 @@ The V3.3 build passed syntax, static, VM render, guided drill, completion path, 
 ## Commands run
 
 ```bash
-node --check /mnt/data/amazon_ppc_simulator_check.js
-node /mnt/data/v33_runtime_smoke.js
-node /mnt/data/amazon_ppc_simulator_v3_3_qa.js
+node --check amazon_ppc_simulator_check.js
+node amazon_ppc_simulator_v3_3_qa.js
 ```
 
 ## QA result JSON
