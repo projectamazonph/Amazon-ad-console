@@ -1,98 +1,159 @@
-# Amazon-ad-console
+# Amazon Ads Console Training Simulator
 
-**Amazon PPC Training Simulator — a safe, offline sandbox for training virtual assistants on Amazon advertising operations.**
-
-Built by [Ryan Roland Dabao](https://linkedin.com/in/ryan-roland-dabao-55416187) — Amazon PPC Lead Manager with 10+ years of remote eCommerce experience and $500K+/month in managed ad spend.
-
----
-
-## Overview
-
-This repository is a single-file, offline HTML training simulator that recreates Amazon Ads Console workflows for practice — **without** connecting to Seller Central, the Amazon Ads console, or any live account. It lets Filipino VAs and eCommerce teams learn navigation, campaign setup, management, reporting, and safe optimization decisions in a risk-free environment.
-
-Everything runs in the browser. There is no build step, no server, and no external dependencies. Progress is stored in browser LocalStorage.
+> A pixel-faithful Next.js replica of the Amazon Ads Console for training Filipino VAs and eCommerce teams on PPC campaign management — risk-free, offline, with built-in coaching.
 
 ## Quick Start
 
 ```bash
-git clone https://github.com/projectamazonph/Amazon-ad-console.git
 cd Amazon-ad-console
-# Open the simulator in your browser:
-#   - macOS:   open amazon_ppc_simulator.html
-#   - Linux:   xdg-open amazon_ppc_simulator.html
-#   - Windows: start amazon_ppc_simulator.html
+npm install
+npm run dev
 ```
 
-No installation, package manager, or environment variables are required.
+Open [http://localhost:3000](http://localhost:3000) — the simulator loads with 4 pre-built training campaigns across SP, SB, and SD.
 
-## Features
+## What You Can Do
 
-- **Console-inspired navigation** — campaign manager, campaign detail tabs, reports, creative, and product pages
-- **Sponsored Products, Sponsored Brands, Sponsored Display** — creation wizards and management flows for all three ad types
-- **Guided drills (v3.3)** — click-by-click navigation training with target highlighting, wrong-click blocking, mistake scoring, and skip tracking
-- **Search-term mining & negatives** — harvest search terms and add negative exact/phrase targeting
-- **Bid, budget & placement controls** — bid changes, budget changes, budget rules, and placement adjustments
-- **Reports** — simulated performance reporting with CSV export
-- **Guided missions** — scored, scenario-based training tasks
-- **Trainer dashboard** — action logs, drill results, trainer notes, and log export for review
-- **Progress import/export** — save and restore trainee state via LocalStorage-backed JSON
+### Campaign Management
+- **Create** Sponsored Products (SP), Sponsored Brands (SB), and Sponsored Display (SD) campaigns via step-by-step wizard
+- **Toggle** campaign status (Enable / Pause / Archive)
+- **Duplicate** campaigns to experiment without losing originals
+- **Delete** (archive) campaigns
+- **Adjust** daily budgets, default bids, bid strategies, and placement modifiers
 
-## Guided Drills (v3.3)
+### Keyword & Target Operations
+- **Add keywords** with Exact, Phrase, or Broad match types at custom bids
+- **Remove keywords** (pause / delete targets)
+- **Adjust bids** — set exact bid or use ±multiplier
+- **Add negative keywords** — Negative exact and Negative phrase
+- **Harvest** converting search terms into new targets
 
-Five route-based drills reinforce click-by-click confidence:
+### Portfolios & Organizing
+- **View** campaigns grouped by portfolio
+- **Filter** by campaign type (SP/SB/SD), status, portfolio, and free-text search
 
-1. SP search-term waste control
-2. SP placement controls
-3. SB creative review path
-4. Report request and copy workflow
-5. SD audience targeting path
+### Metrics & Reporting
+- **Dashboard** — aggregate metrics across all enabled campaigns
+- **Campaign view** — metrics roll up from targets → ad groups → campaign
+- **Ad group view** — individual ad group performance
+- **Keyword/target view** — per-keyword metrics (impressions, clicks, spend, sales, orders)
+- **Derived KPIs** — CTR, CPC, ACoS, ROAS, CVR computed at every level
+- **Reports** — generate and export campaign / ad group / target / search term / placement reports as CSV
 
-A clean route scores 100%. Wrong clicks and skips apply penalties, and results are recorded to the Trainer dashboard. See `amazon_ppc_simulator_v3_3_documentation.md` for the full breakdown.
+### Simulation
+- **Run 7-day simulation** — generates realistic performance data across all enabled campaigns
+- Metrics cascade correctly: keyword → ad group → campaign → dashboard
 
-## Repository Layout
+### Training Features
+- **Missions** — scenario-based challenges (Beginner → Advanced) with scoring and hints
+- **Guided Drills** — click-by-click navigation coaching with mistake tracking
+- **Integrity Center** — automated data-quality checks (orphaned terms, duplicate IDs, creative issues)
+- **Bulk Operations** — paste Amazon Ads bulk CSV for validation and preview
+- **Trainer Dashboard** — certification checklist, action grading, notes
+- **Multi-User Profiles** — separate training state per trainee
 
-| File | Purpose |
-|------|---------|
-| `amazon_ppc_simulator.html` | The complete single-file simulator app |
-| `amazon_ppc_simulator_check.js` | Extracted app script used for syntax checking |
-| `amazon_ppc_simulator_v3_3_qa.js` | Node-based QA harness (VM render + logic checks) |
-| `amazon_ppc_simulator_v3_3_qa_results.json` | Latest QA results output |
-| `amazon_ppc_simulator_plan.md` | Build plan and roadmap |
-| `amazon_ppc_simulator_v3_3_documentation.md` | Full v3.3 feature documentation |
-| `amazon_ppc_simulator_v3_3_changelog.md` | v3.3 changelog |
-| `amazon_ppc_simulator_v3_3_qa_report.md` | v3.3 QA report |
-| `amazon_ppc_simulator_v3_3_release_manifest.json` | v3.3 release manifest |
+## Tech Stack
 
-## QA
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router) |
+| UI | React 19 |
+| State | Zustand 5 (single store, 8 slices) |
+| Language | TypeScript 5.8 (strict mode) |
+| Styling | Global CSS (522 lines, Amazon-themed) |
+| Engine | Pure TypeScript — zero React/UI dependencies |
 
-The simulator ships with a Node-based QA harness (Node.js required):
+## Project Structure
 
-```bash
-node --check amazon_ppc_simulator_check.js
-node amazon_ppc_simulator_v3_3_qa.js
+```
+Amazon-ad-console/
+├── src/
+│   ├── app/                        # Next.js App Router
+│   │   ├── layout.tsx              # Root layout + metadata
+│   │   ├── page.tsx                # Home → <AdConsole />
+│   │   └── globals.css             # Amazon-themed styles
+│   ├── engine/                     # Portable business logic
+│   │   └── ad-console/
+│   │       ├── core/               # Zero-dep engine
+│   │       │   ├── types.ts        # All domain interfaces
+│   │       │   ├── engine.ts       # Pure stateless functions
+│   │       │   └── scenarios.ts    # Training data & product catalog
+│   │       ├── features/           # 7 SOLID feature modules
+│   │       │   ├── drills/         # Navigation coaching
+│   │       │   ├── profiles/       # Multi-user profiles
+│   │       │   ├── trainer/        # Certification & grading
+│   │       │   ├── bulk/           # CSV import/validate
+│   │       │   ├── reports/        # Report generation & export
+│   │       │   ├── missions/       # Scenario challenges
+│   │       │   └── integrity/      # Data quality checks
+│   │       ├── store.ts            # Composed root Zustand store
+│   │       ├── index.ts            # Public API re-exports
+│   │       ├── engine.ts           # Backward-compat re-export
+│   │       └── types.ts            # Backward-compat re-export
+│   └── components/AdConsole/       # React UI layer
+│       ├── AdConsole.tsx            # Root view router
+│       ├── Dashboard.tsx            # Aggregate metrics
+│       ├── CampaignManager.tsx      # Campaign list + filters
+│       ├── CampaignDetail.tsx       # Single campaign deep-dive
+│       ├── CreateCampaignWizard.tsx # Multi-step creation flow
+│       ├── PortfolioOverview.tsx    # Portfolio grouping
+│       ├── layout/
+│       │   ├── Sidebar.tsx          # Navigation rail
+│       │   └── Topbar.tsx           # Header with actions
+│       ├── metrics/
+│       │   └── MetricCard.tsx       # Reusable metric display
+│       └── features/                # Feature-specific pages
+│           ├── drills/DrillsPage.tsx
+│           ├── missions/MissionsPage.tsx
+│           ├── reports/ReportsPage.tsx
+│           ├── bulk/BulkOpsPage.tsx
+│           ├── trainer/TrainerPage.tsx
+│           └── integrity/IntegrityPage.tsx
+├── docs/                           # Project documentation
+│   ├── ARCHITECTURE.md
+│   ├── API.md
+│   ├── SCHEMA.md
+│   ├── FEATURES.md
+│   ├── INTEGRATION.md
+│   └── TECH-SPECS.md
+├── amazon_ppc_simulator.html       # Legacy single-file (v3.4)
+├── package.json
+├── tsconfig.json
+└── next.config.ts
 ```
 
-Expected result:
+## Scripts
 
-```json
-{
-  "status": "passed",
-  "version": "3.3",
-  "passCount": 18,
-  "failureCount": 0
-}
+| Command | Description |
+|---------|------------|
+| `npm run dev` | Start dev server on port 3000 |
+| `npm run build` | Production build |
+| `npm start` | Start production server |
+| `npm run lint` | Run Next.js linter |
+| `npm run type-check` | TypeScript type checking |
+
+## Porting to amph-v2
+
+The entire engine layer (`src/engine/ad-console/`) is portable with zero changes:
+
+```ts
+// In amph-v2, copy the engine folder and import:
+import { useAdConsoleStore } from '@/engine/ad-console/store';
+// or use the core engine standalone:
+import { calc, simulateDays } from '@/engine/ad-console/core/engine';
 ```
 
-The QA harness loads the app script in a Node VM with DOM stubs to validate syntax, rendering, guided-drill logic, and export functions. It does not replace full cross-browser visual testing.
+See [docs/INTEGRATION.md](docs/INTEGRATION.md) for the full porting guide.
 
-## Limitations
+## Documentation
 
-- No live Amazon Ads or Seller Central connection
-- No real bulk upload and no multi-user backend
-- Browser LocalStorage only
-- Metrics are simulated for training, not forecasting
-- UI is inspired by Amazon Ads Console workflows, not an exact clone
+- [Architecture](docs/ARCHITECTURE.md) — SOLID design, slice composition, data flow
+- [API Reference](docs/API.md) — All engine functions with signatures
+- [Data Schema](docs/SCHEMA.md) — TypeScript interfaces and data shapes
+- [Features](docs/FEATURES.md) — Detailed feature documentation
+- [Integration Guide](docs/INTEGRATION.md) — Porting to amph-v2
+- [Tech Specs](docs/TECH-SPECS.md) — Dependencies, configuration, performance
 
----
+## License
 
-Built by [ProjectAmazonPH](https://github.com/projectamazonph) — training Filipino virtual assistants to become Amazon advertising specialists.
+MIT
