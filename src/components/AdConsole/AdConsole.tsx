@@ -8,31 +8,31 @@ import { CampaignManager } from './CampaignManager';
 import { CampaignDetail } from './CampaignDetail';
 import { CreateCampaignWizard } from './CreateCampaignWizard';
 import { PortfolioOverview } from './PortfolioOverview';
+import { DrillsPage } from './features/drills/DrillsPage';
+import { MissionsPage } from './features/missions/MissionsPage';
+import { ReportsPage } from './features/reports/ReportsPage';
+import { BulkOpsPage } from './features/bulk/BulkOpsPage';
+import { TrainerPage } from './features/trainer/TrainerPage';
+import { IntegrityPage } from './features/integrity/IntegrityPage';
 
 export function AdConsole() {
   const view = useAdConsoleStore((s) => s.view);
   const selectedCampaign = useAdConsoleStore((s) => s.selectedCampaign());
-  const state = useAdConsoleStore((s) => s.state);
-  const draft = useAdConsoleStore((s) => s.draft);
-  const wizardStep = useAdConsoleStore((s) => s.wizardStep);
-  const showAddKeywordForm = useAdConsoleStore((s) => s.showAddKeywordForm);
-
-  const store = useAdConsoleStore;
 
   const renderView = () => {
     switch (view) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'campaigns':
-        return <CampaignManager />;
-      case 'detail':
-        return selectedCampaign ? <CampaignDetail campaign={selectedCampaign} /> : <CampaignManager />;
-      case 'create':
-        return <CreateCampaignWizard />;
-      case 'portfolio':
-        return <PortfolioOverview />;
-      default:
-        return <Dashboard />;
+      case 'dashboard': return <Dashboard />;
+      case 'campaigns': return <CampaignManager />;
+      case 'detail': return selectedCampaign ? <CampaignDetail campaign={selectedCampaign} /> : <CampaignManager />;
+      case 'create': return <CreateCampaignWizard />;
+      case 'portfolio': return <PortfolioOverview />;
+      case 'drills': return <DrillsPage />;
+      case 'missions': return <MissionsPage />;
+      case 'reports': return <ReportsPage />;
+      case 'bulk': return <BulkOpsPage />;
+      case 'trainer': return <TrainerPage />;
+      case 'integrity': return <IntegrityPage />;
+      default: return <Dashboard />;
     }
   };
 
