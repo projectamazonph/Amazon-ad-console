@@ -1,10 +1,8 @@
 const fs = require('fs');
 const vm = require('vm');
 
-let htmlPath = '/mnt/data/amazon_ppc_simulator.html';
-if (!fs.existsSync(htmlPath)) {
-  htmlPath = './amazon_ppc_simulator.html';
-}
+const path = require('path');
+const htmlPath = path.join(__dirname, 'amazon_ppc_simulator.html');
 const html = fs.readFileSync(htmlPath, 'utf8');
 const scriptMatch = html.match(/<script>([\s\S]*)<\/script>/);
 if (!scriptMatch) throw new Error('Missing script block');
@@ -154,9 +152,6 @@ const result = {
     'Trainer log and docs export execution'
   ]
 };
-let resultsPath = '/mnt/data/amazon_ppc_simulator_v3_3_qa_results.json';
-if (!fs.existsSync('/mnt/data')) {
-  resultsPath = './amazon_ppc_simulator_v3_3_qa_results.json';
-}
+const resultsPath = path.join(__dirname, 'amazon_ppc_simulator_v3_4_qa_results.json');
 fs.writeFileSync(resultsPath, JSON.stringify(result, null, 2));
 console.log(JSON.stringify(result, null, 2));

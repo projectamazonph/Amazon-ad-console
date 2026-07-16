@@ -13,7 +13,7 @@ def run_e2e_tests():
         page = browser.new_page()
 
         # Navigate to the offline simulator HTML page
-        html_path = "file:///app/amazon_ppc_simulator.html"
+        html_path = "file://" + os.path.join(os.path.dirname(os.path.abspath(__file__)), "amazon_ppc_simulator.html")
         print(f"🔗 Navigating to: {html_path}")
         page.goto(html_path)
 
