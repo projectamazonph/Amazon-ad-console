@@ -1,6 +1,5 @@
 const fs = require('fs');
 const vm = require('vm');
-
 const path = require('path');
 const htmlPath = path.join(__dirname, 'amazon_ppc_simulator.html');
 const html = fs.readFileSync(htmlPath, 'utf8');
@@ -152,6 +151,7 @@ const result = {
     'Trainer log and docs export execution'
   ]
 };
+<<<<<<< HEAD:amazon_ppc_simulator_v3_4_qa.js
 const resultsPath = path.join(__dirname, 'amazon_ppc_simulator_v3_4_qa_results.json');
 fs.writeFileSync(resultsPath, JSON.stringify(result, null, 2));
 console.log(JSON.stringify(result, null, 2));
