@@ -1,21 +1,13 @@
 'use client';
 
 import { useAdConsoleStore } from '@/engine/ad-console/store';
+import { getLeftRail, type NavView } from '../nav/consoleNav';
 
-const NAV_ITEMS = [
-  { view: 'dashboard' as const, label: 'Dashboard', icon: '📊' },
-  { view: 'campaigns' as const, label: 'Campaign manager', icon: '📋' },
-  { view: 'portfolio' as const, label: 'Portfolios', icon: '📁' },
-];
-
-const FEATURE_ITEMS = [
-  { view: 'missions' as const, label: 'Missions', icon: '🎯' },
-  { view: 'drills' as const, label: 'Guided drills', icon: '🎮' },
-  { view: 'reports' as const, label: 'Reports', icon: '📄' },
-  { view: 'bulk' as const, label: 'Bulk operations', icon: '📦' },
-  { view: 'integrity' as const, label: 'Integrity center', icon: '🔍' },
-  { view: 'trainer' as const, label: 'Trainer dashboard', icon: '👨‍🏫' },
-];
+const GROUP_TITLES: Record<string, string> = {
+  campaigns: 'Campaign Manager',
+  portfolios: 'Portfolios',
+  measurement: 'Measurement',
+};
 
 export function Sidebar() {
   const view = useAdConsoleStore((s) => s.view);
@@ -23,44 +15,49 @@ export function Sidebar() {
   const runSimulation = useAdConsoleStore((s) => s.runSimulation);
   const resetAll = useAdConsoleStore((s) => s.resetAll);
 
+  // The left rail reflects the active global-nav section.
+  const section: NavView = view === 'portfolio' ? 'portfolio' : 'campaigns';
+  const items = getLeftRail(section);
+
+  // Group items by their area for Amazon-style sectioned rail.
+  const groups: Record<string, typeof items> = {};
+  for (const item of items) {
+    (groups[item.group] ??= []).push(item);
+  }
+
   return (
-    <nav className="app-sidebar">
-      <div className="sidebar-brand">Ads Console</div>
-      <div style={{ fontSize: 11, color: 'var(--ink-300)', padding: '4px 10px', marginBottom: 4 }}>
-        NAVIGATION
-      </div>
-      {NAV_ITEMS.map((item) => (
-        <div
-          key={item.view}
-          className={`sidebar-item ${view === item.view ? 'active' : ''}`}
-          onClick={() => setView(item.view)}
-        >
-          <span>{item.icon}</span>
-          <span>{item.label}</span>
+    <nav className="app-sidebar" aria-label="Console sections">
+      {Object.entries(groups).map(([group, groupItems]) => (
+        <div key={group}>
+          <div className="sidebar-group-title">{GROUP_TITLES[group]}</div>
+          {groupItems.map((item) => (
+            <div
+              key={item.label}
+              className={`sidebar-item ${view === item.view && group === 'campaigns' ? 'active' : ''}`}
+              onClick={() => setView(item.view)}
+            >
+              {item.label}
+            </div>
+          ))}
         </div>
       ))}
-      <div style={{ fontSize: 11, color: 'var(--ink-300)', padding: '4px 10px', marginTop: 8, marginBottom: 4 }}>
-        TRAINING TOOLS
-      </div>
-      {FEATURE_ITEMS.map((item) => (
-        <div
-          key={item.view}
-          className={`sidebar-item ${view === item.view ? 'active' : ''}`}
-          onClick={() => setView(item.view)}
-        >
-          <span>{item.icon}</span>
-          <span>{item.label}</span>
-        </div>
-      ))}
+
       <div className="sidebar-spacer" />
-      <div className="sidebar-item" style={{ fontSize: 12 }} onClick={() => runSimulation()}>
-        <span>▶️</span><span>Run 7-day sim</span>
+      <div
+        className="sidebar-item"
+        style={{ color: 'var(--ink-700)' }}
+        onClick={() => runSimulation()}
+      >
+        Run 7-day sim
       </div>
-      <div className="sidebar-item" style={{ fontSize: 12 }} onClick={() => { if (confirm('Reset all data?')) resetAll(); }}>
-        <span>🔄</span><span>Reset</span>
-      </div>
-      <div className="sandbox-badge" style={{ padding: '8px 10px', marginTop: 4 }}>
-        V{useAdConsoleStore((s) => s.state.version)} Training Sandbox
+      <div
+        className="sidebar-item"
+        style={{ color: 'var(--ink-700)' }}
+        onClick={() => {
+          if (confirm('Reset all data?')) resetAll();
+        }}
+      >
+        Reset sandbox
       </div>
     </nav>
   );

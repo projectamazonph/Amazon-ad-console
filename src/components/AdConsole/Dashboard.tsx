@@ -1,46 +1,74 @@
 'use client';
 
 import { useAdConsoleStore } from '@/engine/ad-console/store';
-import { MetricCard } from './metrics/MetricCard';
+import { getKpiTiles } from './nav/consoleNav';
+import { calc, formatMoney, formatWhole, formatPercent, acosClass } from '@/engine/ad-console/engine';
 
 export function Dashboard() {
   const state = useAdConsoleStore((s) => s.state);
   const setView = useAdConsoleStore((s) => s.setView);
   const selectCampaign = useAdConsoleStore((s) => s.selectCampaign);
+  const totalMetrics = useAdConsoleStore((s) => s.totalMetricsCalc);
 
-  const enabledCampaigns = state.campaigns.filter((c) => c.status === 'Enabled');
-  const totalMetrics = useAdConsoleStore((s) => s.totalMetricsCalc());
-  const calc = useAdConsoleStore((s) => s.derivedMetrics);
-  const d = calc(totalMetrics);
+  const m = totalMetrics();
+  const d = calc(m);
+  const tiles = getKpiTiles({
+    impressions: m.impressions,
+    clicks: m.clicks,
+    spend: m.spend,
+    sales: m.sales,
+    orders: m.orders,
+    units: m.orders,
+  });
 
   return (
     <div>
       <div className="page-title">
         <div>
-          <h1>Home dashboard</h1>
-          <p>Train VAs on campaign navigation, setup, and daily management without giving live account access.</p>
+          <h1>Advertising Dashboard</h1>
+          <p>
+            Performance across all enabled campaigns in the Training Account (Coffee Accessories US).
+          </p>
         </div>
-        <button className="btn primary" onClick={() => setView('create')}>Create campaign</button>
+        <button className="btn primary" onClick={() => setView('create')}>
+          Create campaign
+        </button>
       </div>
 
-      <div className="grid-4" style={{ marginBottom: 14 }}>
-        <MetricCard label="Spend" value={fmtMoney(totalMetrics.spend)} delta="Training account, enabled campaigns" />
-        <MetricCard label="Sales" value={fmtMoney(totalMetrics.sales)} delta={`${fmtWhole(totalMetrics.orders)} orders`} tone="good" />
-        <MetricCard label="ACOS" value={fmtPercent(d.acos)} delta={d.acos <= 30 ? 'Healthy blended ACOS' : 'Needs optimization'} tone={d.acos <= 30 ? 'good' : 'bad'} />
-        <MetricCard label="ROAS" value={fmtRoas(d.roas)} delta="Sales divided by ad spend" />
+      <div className="kpi-grid">
+        {tiles.map((t) => (
+          <div className="kpi-tile" key={t.key}>
+            <div className="label">{t.label}</div>
+            <div className="value">{t.value}</div>
+            <div className="delta">
+              {t.key === 'acos'
+                ? d.acos <= 30
+                  ? 'Healthy blended ACOS'
+                  : 'Needs optimization'
+                : t.key === 'roas'
+                  ? 'Sales ÷ ad spend'
+                  : t.key === 'ctr'
+                    ? `${formatWhole(m.clicks)} clicks`
+                    : `${m.orders} orders`}
+            </div>
+          </div>
+        ))}
       </div>
 
       <div className="split">
         <div className="card pad">
           <div className="card-title">
-            <h2>Campaign snapshot</h2>
-            <span>{state.campaigns.length} campaigns</span>
+            <h2>Campaigns</h2>
+            <span>{state.campaigns.length} total</span>
           </div>
-          {renderCampaignTable(state.campaigns.slice(0, 7), selectCampaign, calc)}
+          {renderCampaignTable(state.campaigns.slice(0, 8), selectCampaign, calc)}
         </div>
         <div>
           <div className="card pad" style={{ marginBottom: 14 }}>
-            <div className="card-title"><h2>Operator alerts</h2><span>Simulated data</span></div>
+            <div className="card-title">
+              <h2>Operator alerts</h2>
+              <span>Simulated data</span>
+            </div>
             <div className="insight-list">
               <div className="insight red">
                 <strong>Waste detected</strong>
@@ -48,7 +76,7 @@ export function Dashboard() {
               </div>
               <div className="insight orange">
                 <strong>SB creative review</strong>
-                Paused SB Video campaign is ready for a relaunch exercise after creative check.
+                Paused SB Video campaign is ready for a relaunch exercise after a creative check.
               </div>
               <div className="insight green">
                 <strong>Remarketing winner</strong>
@@ -57,7 +85,10 @@ export function Dashboard() {
             </div>
           </div>
           <div className="card pad">
-            <div className="card-title"><h2>Training coverage</h2><span>Core modules</span></div>
+            <div className="card-title">
+              <h2>Training coverage</h2>
+              <span>Core modules</span>
+            </div>
             <div className="pill-row">
               <span className="pill active">Sponsored Products</span>
               <span className="pill active">Sponsored Brands</span>
@@ -74,15 +105,14 @@ export function Dashboard() {
   );
 }
 
-function fmtMoney(n: number) { return '$' + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-function fmtWhole(n: number) { return n.toLocaleString(); }
-function fmtPercent(n: number) { return n.toFixed(2) + '%'; }
-function fmtRoas(n: number) { return n.toFixed(2); }
-
-function acosClass(acos: number) {
-  if (acos <= 30) return 'good';
-  if (acos <= 50) return 'warn';
-  return 'bad';
+function fmtMoney(n: number) {
+  return '$' + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtWhole(n: number) {
+  return n.toLocaleString();
+}
+function fmtPercent(n: number) {
+  return n.toFixed(2) + '%';
 }
 
 function renderCampaignTable(
@@ -91,7 +121,12 @@ function renderCampaignTable(
   calc: any,
 ) {
   if (!campaigns.length) {
-    return <div className="empty"><h3>No campaigns found</h3><p>Create a campaign to get started.</p></div>;
+    return (
+      <div className="empty">
+        <h3>No campaigns found</h3>
+        <p>Create a campaign to get started.</p>
+      </div>
+    );
   }
 
   return (
@@ -99,8 +134,16 @@ function renderCampaignTable(
       <table>
         <thead>
           <tr>
-            <th>Campaign</th><th>Type</th><th>Status</th><th>Budget</th><th>Targeting</th>
-            <th>Impr.</th><th>Clicks</th><th>Spend</th><th>Sales</th><th>ACOS</th>
+            <th>Campaign</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Budget</th>
+            <th>Targeting</th>
+            <th>Impr.</th>
+            <th>Clicks</th>
+            <th>Spend</th>
+            <th>Sales</th>
+            <th>ACOS</th>
           </tr>
         </thead>
         <tbody>
@@ -109,15 +152,32 @@ function renderCampaignTable(
             return (
               <tr key={c.id}>
                 <td>
-                  <button className="row-link" onClick={() => selectCampaign(c.id)} style={{ border: 'none', background: 'none', color: 'var(--blue)', cursor: 'pointer', fontWeight: 500, textAlign: 'left' }}>
+                  <button
+                    className="row-link"
+                    onClick={() => selectCampaign(c.id)}
+                  >
                     {c.name}
                   </button>
                   <div className="muted">{c.portfolio}</div>
                 </td>
-                <td><span className={`pill ${c.type === 'SP' ? 'active' : c.type === 'SB' ? 'orange' : 'purple'}`}>{c.type}</span></td>
-                <td><span className={`pill ${c.status === 'Enabled' ? 'green' : c.status === 'Paused' ? 'orange' : 'bad'}`}>{c.status}</span></td>
+                <td>
+                  <span
+                    className={`pill ${c.type === 'SP' ? 'active' : c.type === 'SB' ? 'orange' : 'purple'}`}
+                  >
+                    {c.type}
+                  </span>
+                </td>
+                <td>
+                  <span
+                    className={`pill ${c.status === 'Enabled' ? 'green' : c.status === 'Paused' ? 'orange' : 'bad'}`}
+                  >
+                    {c.status}
+                  </span>
+                </td>
                 <td className="money">{fmtMoney(c.dailyBudget)}</td>
-                <td><span className="muted">{c.targetingMode}</span></td>
+                <td>
+                  <span className="muted">{c.targetingMode}</span>
+                </td>
                 <td className="mono">{fmtWhole(c.metrics.impressions)}</td>
                 <td className="mono">{fmtWhole(c.metrics.clicks)}</td>
                 <td className="money">{fmtMoney(c.metrics.spend)}</td>
