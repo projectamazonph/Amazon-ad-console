@@ -2,8 +2,10 @@
  * Bulk Operations — pure engine.
  */
 import type { BulkRow, BulkValidationError } from './types';
+import { assertNonEmpty, ValidationError } from '../../../../lib/validation';
 
 export function parseBulkCsv(text: string): BulkRow[] {
+  if (typeof text !== 'string') throw new ValidationError('csv text must be a string');
   const lines = text.trim().split('\n');
   if (lines.length < 2) return [];
   const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
@@ -20,6 +22,7 @@ export function parseBulkCsv(text: string): BulkRow[] {
 }
 
 export function validateBulkRows(rows: BulkRow[]): BulkValidationError[] {
+  if (!Array.isArray(rows)) throw new ValidationError('rows must be an array');
   const errors: BulkValidationError[] = [];
   rows.forEach((row, i) => {
     if (!row.entity) errors.push({ row: i + 2, field: 'entity', message: 'Entity is required' });

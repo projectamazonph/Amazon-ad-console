@@ -6,6 +6,7 @@
  */
 import type { Campaign } from '../../core/types';
 import type { IntegrityIssue, IntegrityReport } from './types';
+import { ValidationError } from '../../../../lib/validation';
 
 let _counter = 0;
 function uid(): string {
@@ -14,6 +15,7 @@ function uid(): string {
 }
 
 export function runIntegrityCheck(campaigns: Campaign[]): IntegrityReport {
+  if (!Array.isArray(campaigns)) throw new ValidationError('campaigns must be an array');
   const issues: IntegrityIssue[] = [];
 
   campaigns.forEach((c) => {

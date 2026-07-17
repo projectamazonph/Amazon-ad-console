@@ -2,6 +2,7 @@
  * Trainer Dashboard — pure engine.
  */
 import type { TrainerNote, TrainerState } from './types';
+import { assertNonEmpty } from '../../../../lib/validation';
 
 let _counter = 0;
 function uid(): string {
@@ -10,6 +11,7 @@ function uid(): string {
 }
 
 export function addNote(text: string): TrainerNote {
+  assertNonEmpty('note text', text);
   return {
     id: uid(),
     timestamp: new Date().toISOString(),

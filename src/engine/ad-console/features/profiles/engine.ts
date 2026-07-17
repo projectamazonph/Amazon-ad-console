@@ -2,6 +2,7 @@
  * Multi-User Trainee Profiles — pure engine.
  */
 import type { TraineeProfile } from './types';
+import { assertNonEmpty } from '../../../../lib/validation';
 
 let _counter = 0;
 function uid(): string {
@@ -32,8 +33,9 @@ export function renameProfile(
   id: string,
   newName: string,
 ): TraineeProfile[] {
+  assertNonEmpty('new name', newName);
   return profiles.map((p) =>
-    p.id === id ? { ...p, name: newName.trim().slice(0, 25) || p.name } : p,
+    p.id === id ? { ...p, name: newName.trim().slice(0, 25) } : p,
   );
 }
 
