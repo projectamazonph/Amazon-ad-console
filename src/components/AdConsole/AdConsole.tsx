@@ -38,11 +38,11 @@ export function AdConsole() {
 
   return (
     <div className="app-layout">
-      <Sidebar />
-      <div className="app-main">
-        <Topbar />
-        <div className="app-content">
-          {renderView()}
+      <Topbar />
+      <div className="app-body">
+        <Sidebar />
+        <div className="app-main">
+          <div className="app-content">{renderView()}</div>
         </div>
       </div>
     </div>

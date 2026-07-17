@@ -1,46 +1,47 @@
-/* Amazon Ad Console — Amph-v2 "Field Manual" design tokens
- * Dense, scannable, utilitarian. Warm off-white surface, orange accent.
- * Dark mode auto-applies via prefers-color-scheme.
+/* Amazon Advertising Console — design tokens
+ * Faithful replica of advertising.amazon.com visual identity:
+ * light-gray canvas (#f3f3f3), white cards, dark slate global nav
+ * (#232f3e), Amazon orange (#ff9900) accent, Amazon Ember-style type.
  */
 
 :root {
-  /* Surfaces (warm off-white, never pure white) */
-  --surface-0: #FAFAF7;
-  --surface-1: #FFFFFF;
-  --surface-2: #F4F3EE;
-  --surface-3: #1A1A1A;
+  /* Surfaces — Amazon console canvas is light gray, never pure white */
+  --surface-0: #f3f3f3;
+  --surface-1: #ffffff;
+  --surface-2: #f7f8f8;
+  --surface-3: #232f3e;
 
-  /* Ink (text) */
-  --ink-900: #171717;
-  --ink-700: #404040;
-  --ink-500: #737373;
-  --ink-300: #D4D4D4;
-  --ink-inverse: #FAFAF7;
+  /* Ink (text) — near-black, Amazon uses #0f1111 */
+  --ink-900: #0f1111;
+  --ink-700: #565959;
+  --ink-500: #6f7373;
+  --ink-300: #c4c7c7;
+  --ink-inverse: #ffffff;
 
-  /* Border */
-  --border: #E5E5E0;
-  --border-strong: #A3A3A3;
+  /* Border — Amazon's cool gray hairlines */
+  --border: #d5d9d9;
+  --border-strong: #8d9096;
 
-  /* Brand */
-  --accent: #FF6B35;
-  --accent-hover: #E55A2B;
-  --accent-soft: #FFE5D9;
-  --accent-ink: #1A1A2E;
+  /* Brand — Amazon orange */
+  --accent: #ff9900;
+  --accent-hover: #ec7211;
+  --accent-soft: #fff4e6;
+  --accent-ink: #0f1111;
 
   /* Semantic */
-  --success: #0E7C3A;
-  --success-soft: #DCFCE7;
-  --warning: #B45309;
-  --warning-soft: #FEF3C7;
-  --danger: #B91C1C;
-  --danger-soft: #FEE2E2;
-  --info: #1E40AF;
-  --info-soft: #DBEAFE;
+  --success: #007600;
+  --success-soft: #eaf4ea;
+  --warning: #b96b00;
+  --warning-soft: #fff4e6;
+  --danger: #c40000;
+  --danger-soft: #fce8e8;
+  --info: #007185;
+  --info-soft: #e6f3f5;
 
-  /* Typography */
-  --font-display: 'Space Grotesk', system-ui, sans-serif;
-  --font-body: 'Space Grotesk', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* Typography — Amazon Ember substitute (Ember not freely distributable) */
+  --font-display: 'Amazon Ember', 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Amazon Ember', 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'Amazon Ember Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
 
   /* Type scale */
   --text-xs: 0.75rem;
@@ -48,7 +49,7 @@
   --text-base: 1rem;
   --text-lg: 1.125rem;
   --text-xl: 1.375rem;
-  --text-2xl: 1.75rem;
+  --text-2xl: 1.625rem;
   --text-3xl: 2.25rem;
 
   /* Spacing (4px base) */
@@ -62,16 +63,16 @@
   --space-10: 40px;
   --space-12: 48px;
 
-  /* Radius (small, deliberate) */
+  /* Radius — Amazon uses tight, mostly squared corners */
   --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
   --radius-full: 9999px;
 
-  /* Elevation (subtle) */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  /* Elevation — soft, neutral shadows */
+  --shadow-sm: 0 1px 2px rgba(15, 17, 17, 0.08);
+  --shadow-md: 0 2px 6px rgba(15, 17, 17, 0.12);
+  --shadow-lg: 0 8px 20px rgba(15, 17, 17, 0.16);
 
   /* Z-index */
   --z-dropdown: 100;
@@ -84,54 +85,30 @@
   --duration-base: 220ms;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* Legacy aliases (map old ad-console names to amph-v2 tokens) */
+  /* Global nav (Amazon dark slate header) */
+  --nav-bg: #232f3e;
+  --nav-bg-hover: #37475a;
+  --nav-ink: #ffffff;
+  --nav-ink-dim: #b9c2cc;
+
+  /* Legacy aliases (map old ad-console names to Amazon tokens) */
   --bg: var(--surface-0);
   --surface: var(--surface-1);
   --ink: var(--ink-900);
   --line: var(--border);
-  --blue: var(--accent);
-  --blue-bg: var(--accent-soft);
+  --blue: var(--info);
+  --blue-bg: var(--info-soft);
   --green: var(--success);
   --green-bg: var(--success-soft);
   --red: var(--danger);
   --red-bg: var(--danger-soft);
   --amber: var(--warning);
   --amber-bg: var(--warning-soft);
-  --purple: var(--info);
   --orange: var(--accent);
   --radius: var(--radius-md);
   --shadow: var(--shadow-sm);
-}
 
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --surface-0: #0F0F0E;
-    --surface-1: #1A1A1A;
-    --surface-2: #252523;
-    --surface-3: #FAFAF7;
-
-    --ink-900: #FAFAF7;
-    --ink-700: #D4D4D4;
-    --ink-500: #A3A3A3;
-    --ink-300: #525252;
-    --ink-inverse: #171717;
-
-    --border: #2E2E2C;
-    --border-strong: #525252;
-
-    --accent-soft: #4A2519;
-    --success-soft: #14532D;
-    --warning-soft: #78350F;
-    --danger-soft: #7F1D1D;
-    --info-soft: #1E3A8A;
-
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.4);
-
-    color-scheme: dark;
-  }
+  color-scheme: light;
 }
 
 /* Reset */
@@ -174,24 +151,93 @@ code, pre {
   color: var(--ink-900);
 }
 
-/* ── Layout ─────────────────────────────────────────────────────── */
+/* ── Layout — Amazon console: global nav on top, left rail below ── */
 
 .app-layout {
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
+  background: var(--surface-0);
+}
+
+.app-navbar {
+  background: var(--nav-bg);
+  color: var(--nav-ink);
+  height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-4);
+  gap: var(--space-2);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  flex-shrink: 0;
+}
+
+.app-navbar .nav-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-weight: 700;
+  font-size: var(--text-sm);
+  color: var(--nav-ink);
+  padding-right: var(--space-3);
+  margin-right: var(--space-2);
+  border-right: 1px solid rgba(255, 255, 255, 0.18);
+  white-space: nowrap;
+}
+
+.app-navbar .nav-brand .brand-sub {
+  font-weight: 400;
+  font-size: var(--text-xs);
+  color: var(--nav-ink-dim);
+}
+
+.nav-section {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 var(--space-3);
+  color: var(--nav-ink);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.nav-section:hover { background: var(--nav-bg-hover); }
+.nav-section.active { border-bottom-color: var(--accent); color: #fff; }
+
+.nav-spacer { flex: 1; }
+
+.nav-account {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--nav-ink);
+  font-size: var(--text-sm);
+  padding: 0 var(--space-3);
+  height: 48px;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+.nav-account:hover { background: var(--nav-bg-hover); }
+
+.app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
 }
 
 .app-sidebar {
   width: 240px;
   background: var(--surface-1);
   border-right: 1px solid var(--border);
-  padding: var(--space-4);
+  padding: var(--space-4) var(--space-3);
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  position: sticky;
-  top: 0;
-  height: 100vh;
+  gap: 2px;
   overflow-y: auto;
   flex-shrink: 0;
 }
@@ -206,47 +252,52 @@ code, pre {
 .app-topbar {
   background: var(--surface-1);
   border-bottom: 1px solid var(--border);
-  padding: var(--space-3) var(--space-6);
+  padding: var(--space-2) var(--space-6);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
-  height: 56px;
+  min-height: 52px;
 }
 
 .app-content {
   padding: var(--space-6);
   flex: 1;
   overflow-y: auto;
+  max-width: 1440px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 /* ── Sidebar ────────────────────────────────────────────────────── */
+
+.sidebar-group-title {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-500);
+  font-weight: 700;
+  padding: var(--space-4) var(--space-3) var(--space-1);
+}
 
 .sidebar-brand {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: var(--text-base);
   padding: var(--space-2) var(--space-3);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-2);
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   color: var(--ink-900);
-  letter-spacing: -0.01em;
 }
 
 .sidebar-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-md);
-  color: var(--ink-700);
+  display: block;
+  padding: 6px var(--space-3);
+  color: var(--info);
   font-size: var(--text-sm);
-  font-weight: 500;
   cursor: pointer;
+  border-left: 3px solid transparent;
   transition: background-color var(--duration-fast) var(--ease-out),
     color var(--duration-fast) var(--ease-out);
   text-decoration: none;
@@ -254,20 +305,17 @@ code, pre {
 
 .sidebar-item:hover {
   background: var(--surface-2);
-  color: var(--ink-900);
   text-decoration: none;
 }
 
 .sidebar-item.active {
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-weight: 600;
+  color: var(--ink-900);
+  font-weight: 700;
+  border-left-color: var(--accent);
+  background: var(--surface-2);
 }
 
-.sidebar-item.active:hover {
-  background: var(--accent-soft);
-  color: var(--accent);
-}
+.sidebar-item.active:hover { background: var(--surface-2); }
 
 .sidebar-spacer { flex: 1; }
 
@@ -302,6 +350,13 @@ code, pre {
 
 /* ── Grids ──────────────────────────────────────────────────────── */
 
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
 .grid-4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -322,38 +377,43 @@ code, pre {
 
 /* ── Metric Cards ───────────────────────────────────────────────── */
 
-.metric-card {
+.kpi-tile {
   background: var(--surface-1);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
   box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
-.metric-card .label {
+.kpi-tile .label {
+  font-size: 12px;
+  color: var(--ink-500);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kpi-tile .value {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.kpi-tile .delta {
   font-size: var(--text-xs);
   color: var(--ink-500);
-  margin-bottom: var(--space-1);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-weight: 500;
 }
 
-.metric-card .value {
-  font-family: var(--font-display);
-  font-size: var(--text-2xl);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.metric-card .delta {
-  font-size: var(--text-xs);
-  color: var(--ink-300);
-  margin-top: 2px;
-}
-
-.metric-card .delta.good { color: var(--success); }
-.metric-card .delta.bad { color: var(--danger); }
+.kpi-tile .delta.good { color: var(--success); }
+.kpi-tile .delta.bad { color: var(--danger); }
+.kpi-tile .delta.warn { color: var(--warning); }
 
 /* ── Tables ─────────────────────────────────────────────────────── */
 
@@ -918,8 +978,13 @@ textarea.input {
 
 /* ── Responsive ─────────────────────────────────────────────────── */
 
+@media (max-width: 1100px) {
+  .kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
 @media (max-width: 768px) {
   .app-sidebar { display: none; }
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .grid-4 { grid-template-columns: repeat(2, 1fr); }
   .wizard { grid-template-columns: 1fr; }
   .choice-grid { grid-template-columns: 1fr; }
