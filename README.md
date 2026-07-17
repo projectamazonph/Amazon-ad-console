@@ -63,6 +63,30 @@ Open [http://localhost:3000](http://localhost:3000) — the simulator loads with
 | Styling | Global CSS (935 lines, amph-v2 "Field Manual" design system) |
 | Engine | Pure TypeScript — zero React/UI dependencies |
 
+## Testing
+
+This project uses **TDD** for the pure business logic in `src/engine/ad-console/core`.
+Tests live next to the code they cover (`*.test.ts`) and run on Vitest.
+
+```bash
+npm test          # run the suite once
+npm run test:watch
+```
+
+### Principles enforced by the suite
+- **Fail fast** — invalid inputs throw `ValidationError` instead of silently
+  clamping or producing `NaN` (see `src/lib/validation.ts`). Covered by tests
+  for `calc`, `normalizeCampaign`, and `addTarget`.
+- **Single responsibility** — each engine function transforms one thing and
+  returns new state; no hidden side effects.
+- **DRY / KISS / YAGNI** — shared guards live in one `validation.ts` module;
+  no duplicate clamping or re-validation across functions.
+
+To add a feature: write a failing test in `src/engine/ad-console/core/__tests__/`,
+then implement the function until green. Keep logic in the engine layer so it
+stays framework-free and unit-testable.
+
+
 ## Project Structure
 
 ```

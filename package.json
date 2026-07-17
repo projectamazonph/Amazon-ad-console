@@ -2,13 +2,15 @@
   "name": "amazon-ad-console",
   "version": "3.5.0",
   "private": true,
-  "description": "Amazon PPC Training Simulator — Amazon Ads Console replica for VA training",
+  "description": "Amazon PPC Training Simulator \u2014 Amazon Ads Console replica for VA training",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "next": "^16.0.0",
@@ -20,6 +22,7 @@
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "typescript": "~5.8.0"
+    "typescript": "~5.8.0",
+    "vitest": "^4.1.10"
   }
 }

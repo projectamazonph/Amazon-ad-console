@@ -10,6 +10,13 @@ import type {
   Target, AdGroup, Metrics, DerivedMetrics,
   AdConsoleState, FilterState, ActionLogEntry,
 } from './types';
+import {
+  assertFiniteNonNegative,
+  assertNonEmpty,
+  assertCampaignType,
+  assertCampaignStatus,
+  ValidationError,
+} from '../../../lib/validation';
 
 // ---------------------------------------------------------------------------
 // ID generation
@@ -25,6 +32,11 @@ export function generateId(prefix: string = 'C'): string {
 // ---------------------------------------------------------------------------
 
 export function calc(metrics: Metrics): DerivedMetrics {
+  assertFiniteNonNegative('impressions', metrics.impressions);
+  assertFiniteNonNegative('clicks', metrics.clicks);
+  assertFiniteNonNegative('spend', metrics.spend);
+  assertFiniteNonNegative('sales', metrics.sales);
+  assertFiniteNonNegative('orders', metrics.orders);
   const ctr = metrics.impressions ? (metrics.clicks / metrics.impressions) * 100 : 0;
   const cpc = metrics.clicks ? metrics.spend / metrics.clicks : 0;
   const acos = metrics.sales ? (metrics.spend / metrics.sales) * 100 : 0;
@@ -62,7 +74,9 @@ export function metricDefaults(m: Partial<Metrics>): Metrics {
 // ---------------------------------------------------------------------------
 
 export function normalizeCampaign(c: Partial<Campaign>): Campaign {
-  const type = (['SP', 'SB', 'SD'].includes(c.type ?? '') ? c.type : 'SP') as CampaignType;
+  assertCampaignType(c.type ?? 'SP');
+  const type = c.type as CampaignType;
+  assertCampaignStatus(c.status ?? 'Paused');
   const id = c.id ?? generateId('C-' + type);
   const primaryAg: AdGroup = {
     id: c.adGroups?.[0]?.id ?? generateId('AG'),
@@ -237,6 +251,8 @@ export function addTarget(
   match: MatchType | string,
   bid: number,
 ): { campaign: Campaign; target: Target } {
+  assertNonEmpty('keyword value', value);
+  assertFiniteNonNegative('bid', bid);
   const agId = c.adGroups[0]?.id ?? generateId('AG');
   const target: Target = {
     id: generateId('T'),
