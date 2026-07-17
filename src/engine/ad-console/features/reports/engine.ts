@@ -2,6 +2,7 @@
  * Reports — pure engine.
  */
 import type { Report, ReportRequest, ReportType } from './types';
+import { assertNonEmpty, ValidationError } from '../../../../lib/validation';
 
 let _counter = 0;
 function uid(): string {
@@ -9,7 +10,10 @@ function uid(): string {
   return 'R-' + Date.now().toString(36) + '-' + _counter;
 }
 
+const REPORT_TYPES: ReportType[] = ['campaign', 'adGroup', 'target', 'searchTerm', 'placement'];
+
 export function createReportRequest(type: ReportType): ReportRequest {
+  if (!REPORT_TYPES.includes(type)) throw new ValidationError(`Unknown report type: ${type}`);
   return {
     id: uid(),
     type,
