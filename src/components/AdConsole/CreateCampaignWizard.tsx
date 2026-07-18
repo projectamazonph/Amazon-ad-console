@@ -68,7 +68,9 @@ export function CreateCampaignWizard() {
               <div className="form-grid">
                 <div className="field full">
                   <label>Campaign name</label>
-                  <input className="input full" value={d.name} onChange={(e) => updateDraft('name', e.target.value)} placeholder={`${d.type} | Manual | Training`} />
+                  <input className="input full" value={d.name} onChange={(e) => updateDraft('name', e.target.value)} placeholder={`${d.type} | Manual | Training`}
+                    style={d.name.trim() === '' && wizardStep >= 6 ? { borderColor: 'var(--danger)' } : {}} />
+                  {d.name.trim() === '' && wizardStep >= 6 && <small style={{ color: 'var(--danger)' }}>Campaign name is required before launch.</small>}
                 </div>
                 <div className="field">
                   <label>Portfolio</label>
@@ -82,7 +84,9 @@ export function CreateCampaignWizard() {
                 </div>
                 <div className="field">
                   <label>Daily budget</label>
-                  <input className="input full" type="number" min="1" value={d.dailyBudget} onChange={(e) => updateDraft('dailyBudget', Number(e.target.value))} />
+                  <input className="input full" type="number" min="1" value={d.dailyBudget} onChange={(e) => updateDraft('dailyBudget', Number(e.target.value))}
+                    style={d.dailyBudget < 1 ? { borderColor: 'var(--danger)' } : {}} />
+                  {d.dailyBudget < 1 && <small style={{ color: 'var(--danger)' }}>Budget must be at least $1.</small>}
                 </div>
                 <div className="field">
                   <label>Start date</label>
@@ -140,7 +144,10 @@ export function CreateCampaignWizard() {
                     </tbody>
                   </table>
                 </div>
-                {d.products.length === 0 && <div className="coach-tip" style={{ marginTop: 8 }}>Select at least one product to advertise.</div>}
+                {d.products.length === 0 && <div className="error-state" style={{ margin: '8px 0', padding: 12, textAlign: 'left' }}>
+                  <strong>⚠️ Select at least one product</strong>
+                  <p style={{ fontSize: 'var(--text-xs)', marginTop: 2 }}>Campaigns require at least one product to advertise.</p>
+                </div>}
               </div>}
               {!(d.type === 'SB' && d.adFormat === 'Store spotlight') && <>
               <h2>Creative & products</h2>
@@ -191,7 +198,10 @@ export function CreateCampaignWizard() {
               )}
               </>}
               {d.type === 'SB' && d.adFormat === 'Product collection' && d.products.length < 2 && (
-                <div className="coach-tip" style={{ marginBottom: 8 }}>Product collection requires at least 2 selected products.</div>
+                <div className="error-state" style={{ margin: '8px 0', padding: 12, textAlign: 'left' }}>
+                  <strong>⚠️ Product collection requires at least 2 products</strong>
+                  <p style={{ fontSize: 'var(--text-xs)', marginTop: 2 }}>Select at least 2 products for your Product collection campaign.</p>
+                </div>
               )}
               {d.type !== 'SP' && d.adFormat !== 'Store spotlight' && (
                 <div className="card pad">
@@ -333,7 +343,9 @@ export function CreateCampaignWizard() {
                 </div>
                 <div className="field">
                   <label>Default bid</label>
-                  <input className="input full" type="number" min="0.02" step="0.01" value={d.defaultBid} onChange={(e) => updateDraft('defaultBid', Number(e.target.value))} />
+                  <input className="input full" type="number" min="0.02" step="0.01" value={d.defaultBid} onChange={(e) => updateDraft('defaultBid', Number(e.target.value))}
+                    style={d.defaultBid < 0.02 ? { borderColor: 'var(--danger)' } : {}} />
+                  {d.defaultBid < 0.02 && <small style={{ color: 'var(--danger)' }}>Minimum bid is $0.02.</small>}
                 </div>
                 {d.type !== 'SD' && <div className="field">
                   <label>Top of Search (%)</label>

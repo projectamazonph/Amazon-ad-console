@@ -254,7 +254,7 @@ export function CampaignDetail({ campaign }: Props) {
   }
 
   function renderAdGroups(c: Campaign) {
-    if (!c.adGroups.length) return <div className="empty"><h3>No ad groups</h3></div>;
+    if (!c.adGroups.length) return <div className="empty"><span className="icon">👥</span><h3>No ad groups</h3><p>This campaign has no ad groups. Add one to organize your targets.</p></div>;
     const focused = selectedAdGroupId ? c.adGroups.find((ag) => ag.id === selectedAdGroupId) : null;
 
     // Drill-down: show the focused ad group's targets
@@ -359,7 +359,7 @@ export function CampaignDetail({ campaign }: Props) {
   }
 
   function renderTargetsTable(c: Campaign, targets: Campaign['targets'], emptyMsg: string) {
-    if (!targets.length) return <div className="empty"><h3>{emptyMsg}</h3></div>;
+    if (!targets.length) return <div className="empty"><span className="icon">🎯</span><h3>{emptyMsg}</h3></div>;
     return (
       <div className="table-wrap">
         <table>
@@ -395,7 +395,7 @@ export function CampaignDetail({ campaign }: Props) {
   }
 
   function renderTargets(c: Campaign) {
-    if (!c.targets.length && !showAddKeywordForm) return <div className="empty"><h3>No targets</h3></div>;
+    if (!c.targets.length && !showAddKeywordForm) return <div className="empty"><span className="icon">🎯</span><h3>No targets</h3><p>Add keywords, products, or audience targets to start targeting shoppers.</p></div>;
 
     return (
       <div>
@@ -494,7 +494,17 @@ export function CampaignDetail({ campaign }: Props) {
     const visibleSearchTerms = c.searchTerms.filter(
       (st) => !isFilteredByNegative(st.term, c.negatives)
     );
-    if (!visibleSearchTerms.length) return <div className="empty"><h3>No search term rows</h3></div>;
+    if (!visibleSearchTerms.length) {
+      const hasNegatives = c.negatives.length > 0;
+      return (
+        <div className="empty">
+          <span className="icon">🔎</span>
+          <h3>No search terms</h3>
+          <p>{hasNegatives ? 'All search terms are filtered by negatives. Check the Negatives tab to review.' : 'Run a simulation to generate search terms from your keyword targets.'}</p>
+          {!hasNegatives && <button className="btn primary" onClick={() => runSimulation()}>Run 7-day simulation</button>}
+        </div>
+      );
+    }
     return (
       <div className="table-wrap">
         <table>
@@ -561,7 +571,7 @@ export function CampaignDetail({ campaign }: Props) {
               </tbody>
             </table>
           </div>
-        ) : <div className="empty"><h3>No negatives added</h3></div>}
+        ) : <div className="empty"><span className="icon">🚫</span><h3>No negatives added</h3><p>Add negative keywords to prevent wasted spend on irrelevant searches. Use the form above or negate from search terms.</p></div>}
       </div>
     );
   }
@@ -607,7 +617,7 @@ export function CampaignDetail({ campaign }: Props) {
           }}>Add rule</button>
         </div>
         {c.budgetRules.length === 0 ? (
-          <div className="empty"><h3>No budget rules</h3><p>Create a schedule or performance-based rule above.</p></div>
+          <div className="empty"><span className="icon">💰</span><h3>No budget rules</h3><p>Schedule-based or performance-based rules let you automate budget adjustments. Create one using the form above.</p></div>
         ) : (
           <div className="table-wrap">
             <table>
@@ -688,7 +698,7 @@ export function CampaignDetail({ campaign }: Props) {
   }
 
   function renderHistory(c: Campaign) {
-    if (!c.history.length) return <div className="empty"><h3>No history</h3></div>;
+    if (!c.history.length) return <div className="empty"><span className="icon">📋</span><h3>No history</h3><p>Campaign changes will appear here as you make edits and run simulations.</p></div>;
     return (
       <div className="table-wrap">
         <table>

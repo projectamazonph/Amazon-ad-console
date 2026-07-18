@@ -853,7 +853,10 @@ textarea.input {
   font-size: var(--text-lg);
 }
 
-.empty p { font-size: var(--text-sm); }
+.empty p { font-size: var(--text-sm); margin-bottom: var(--space-3); }
+
+.empty .icon { font-size: 2.5rem; margin-bottom: var(--space-3); display: block; }
+.empty .btn { margin-top: var(--space-2); }
 
 /* ── Coach Tip ──────────────────────────────────────────────────── */
 

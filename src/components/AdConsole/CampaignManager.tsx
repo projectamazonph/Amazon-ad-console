@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { MetricCard } from './metrics/MetricCard';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass, isFilteredByNegative } from '@/engine/ad-console/engine';
@@ -40,7 +40,7 @@ export function CampaignManager() {
   // Ad group table
   const renderAdGroups = () => {
     const rows = filteredCamps.flatMap((c) => c.adGroups.map((ag) => ({ c, ag })));
-    if (!rows.length) return <div className="empty"><h3>No ad groups found</h3></div>;
+    if (!rows.length) return <div className="empty"><span className="icon">👥</span><h3>No ad groups</h3><p>Ad groups are created automatically when a campaign is launched. Create a campaign to see ad groups.</p></div>;
     return (
       <div className="table-wrap">
         <table>
@@ -82,7 +82,7 @@ export function CampaignManager() {
   // Targets table
   const renderTargets = () => {
     const rows = filteredCamps.flatMap((c) => c.targets.map((t) => ({ c, t })));
-    if (!rows.length) return <div className="empty"><h3>No targets found</h3></div>;
+    if (!rows.length) return <div className="empty"><span className="icon">🎯</span><h3>No targets</h3><p>Targets are created when you add keywords, products, or audiences to your campaigns.</p></div>;
     return (
       <div className="table-wrap">
         <table>
@@ -125,7 +125,7 @@ export function CampaignManager() {
     (c.searchTerms || [])
       .filter((st) => !isFilteredByNegative(st.term, c.negatives))
       .map((st) => ({ c, st })));
-    if (!rows.length) return <div className="empty"><h3>No search term rows</h3></div>;
+    if (!rows.length) return <div className="empty"><span className="icon">🔎</span><h3>No search terms</h3><p>Search terms appear after running a simulation. They are also filtered by negatives — check the Negatives tab.</p></div>;
     return (
       <div className="table-wrap">
         <table>
@@ -162,7 +162,7 @@ export function CampaignManager() {
   // Negatives table
   const renderNegatives = () => {
     const rows = filteredCamps.flatMap((c) => c.negatives.map((n) => ({ c, n })));
-    if (!rows.length) return <div className="empty"><h3>No negatives found</h3></div>;
+    if (!rows.length) return <div className="empty"><span className="icon">🚫</span><h3>No negatives</h3><p>Negative keywords prevent your ads from showing for irrelevant searches. Add negatives from the Search terms tab or Campaign detail view.</p></div>;
     return (
       <div className="table-wrap">
         <table>
@@ -181,7 +181,17 @@ export function CampaignManager() {
 
   // Campaign table with actions
   const renderCampaigns = () => {
-    if (!filteredCamps.length) return <div className="empty"><h3>No campaigns found</h3></div>;
+    if (!filteredCamps.length) {
+      const hasFilters = filter.type !== 'All' || filter.status !== 'All' || filter.portfolio !== 'All' || filter.search;
+      return (
+        <div className="empty">
+          <span className="icon">{hasFilters ? '🔍' : '📢'}</span>
+          <h3>{hasFilters ? 'No matching campaigns' : 'No campaigns yet'}</h3>
+          <p>{hasFilters ? 'Try adjusting your filters or resetting them.' : 'Create your first campaign to start training.'}</p>
+          {!hasFilters && <button className="btn primary" onClick={() => setView('create')}>Create campaign</button>}
+        </div>
+      );
+    }
     return (
       <div className="table-wrap">
         <table>
@@ -236,8 +246,22 @@ export function CampaignManager() {
     );
   };
 
+  const [simulating, setSimulating] = useState(false);
+
   return (
     <div>
+      {simulating && (
+        <div className="sim-overlay">
+          <div className="card">
+            <div className="loading-dots">
+              <div className="dot" /><div className="dot" /><div className="dot" />
+            </div>
+            <h3>Running simulation…</h3>
+            <p>Generating performance data for enabled campaigns.</p>
+          </div>
+        </div>
+      )}
+
       <div className="page-title">
         <div>
           <h1>Campaign manager</h1>
@@ -265,7 +289,13 @@ export function CampaignManager() {
           {portfolioOptions.map((x) => <option key={x}>{x}</option>)}
         </select>
         <button className="btn" onClick={() => setFilter({ type: 'All', status: 'All', portfolio: 'All', search: '' })}>Reset</button>
-        <button className="btn blue" onClick={() => useAdConsoleStore.getState().runSimulation()}>Run 7-day sim</button>
+        <button className="btn blue" onClick={async () => {
+              setSimulating(true);
+              await new Promise(r => setTimeout(r, 50));
+              useAdConsoleStore.getState().runSimulation();
+              await new Promise(r => setTimeout(r, 600));
+              setSimulating(false);
+            }}>Run 7-day sim</button>
       </div>
 
       {/* Summary metrics */}

@@ -61,7 +61,7 @@ export function Dashboard() {
             <h2>Campaigns</h2>
             <span>{state.campaigns.length} total</span>
           </div>
-          {renderCampaignTable(state.campaigns.slice(0, 8), selectCampaign, calc)}
+          {renderCampaignTable(state.campaigns.slice(0, 8), selectCampaign, calc, setView)}
         </div>
         <div>
           <div className="card pad" style={{ marginBottom: 14 }}>
@@ -119,12 +119,15 @@ function renderCampaignTable(
   campaigns: any[],
   selectCampaign: (id: string) => void,
   calc: any,
+  setView?: (view: any) => void,
 ) {
   if (!campaigns.length) {
     return (
       <div className="empty">
-        <h3>No campaigns found</h3>
-        <p>Create a campaign to get started.</p>
+        <span className="icon">📢</span>
+        <h3>No campaigns yet</h3>
+        <p>Your advertising journey starts here. Create your first campaign to see performance data.</p>
+        <button className="btn primary" onClick={() => setView?.('create')}>Create campaign</button>
       </div>
     );
   }
