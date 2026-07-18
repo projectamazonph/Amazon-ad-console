@@ -137,6 +137,7 @@ Amazon-ad-console/
 │           ├── bulk/BulkOpsPage.tsx
 │           ├── trainer/TrainerPage.tsx
 │           └── integrity/IntegrityPage.tsx
+├── __tests__/                       # Persistence & store tests
 ├── docs/                           # Project documentation
 │   ├── ARCHITECTURE.md
 │   ├── API.md

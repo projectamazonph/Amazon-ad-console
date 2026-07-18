@@ -132,6 +132,23 @@ Removes an ad group and all its associated targets.
 
 ---
 
+### Budget Rule Operations
+
+#### `addBudgetRule(campaign: Campaign, name: string, type: string, increase: number, condition: string): { campaign: Campaign; rule: BudgetRule }`
+Adds a Schedule or Performance budget rule to a campaign.
+- **name**: Rule name (required, non-empty)
+- **type**: `'Schedule'` or `'Performance'`
+- **increase**: Budget multiplier (must be > 0)
+- **condition**: Trigger condition (required, non-empty)
+- Throws `ValidationError` on invalid type, non-positive increase, or empty name/condition.
+
+#### `removeBudgetRule(campaign: Campaign, ruleId: string): { campaign: Campaign; removed: boolean }`
+Removes a budget rule by ID. Returns `removed: false` if the rule does not exist.
+
+#### `updateBudgetRule(campaign: Campaign, ruleId: string, updates: Partial<Pick<BudgetRule, 'name' | 'type' | 'increase' | 'condition'>>): { campaign: Campaign }`
+Partially updates a budget rule's fields. All fields are validated before applying.
+- Throws `ValidationError` on unknown rule ID or invalid field values.
+
 ### Negative Keywords
 
 #### `addNegative(campaign: Campaign, term: string, type?: string): Campaign`
@@ -380,9 +397,12 @@ Score: `100 - (errors × 15) - (warnings × 5)`, passes at ≥70.
 | `toggleMobileMenu` | `()` | Toggle mobile drawer open/close |
 | `closeMobileMenu` | `()` | Start mobile drawer closing animation |
 | `mobileMenuAnimationEnd` | `()` | Complete closing transition to closed |
+| `addBudgetRule` | `(campaignId, name, type, increase, condition)` | Add budget rule (Schedule/Performance) |
+| `removeBudgetRule` | `(campaignId, ruleId)` | Remove a budget rule |
+| `updateBudgetRule` | `(campaignId, ruleId, updates)` | Partially update a budget rule |
 | `resetAll` | `()` | Reset to default campaigns |
-| `exportState` | `(): string` | Export state as JSON string |
-| `importState` | `(json: string): boolean` | Import state from JSON |
+| `exportState` | `(): string` | Export state as JSON string (rejects empty/null) |
+| `importState` | `(json: string): boolean` | Import state from JSON string (rejects empty/null) |
 
 ### Derived Getters
 

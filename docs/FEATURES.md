@@ -80,7 +80,11 @@ Deep-dive view for a single campaign with tabbed sub-views.
 - **Search Terms** — customer search terms with harvest/negate actions
 - **Negatives** — negative keyword list
 - **Placements** — placement bid adjustments
-- **Budget Rules** — automated budget rules
+- **Budget Rules** — schedule/performance-based rules with full CRUD
+  - **Add rule**: Form with name, type (Schedule/Performance), budget increase multiplier, condition text
+  - **Edit rule**: Inline editable name, type dropdown, increase amount, condition text
+  - **Remove rule**: Delete button with confirmation dialog
+  - **Validation**: Type must be Schedule or Performance, increase must be positive, name and condition required
 - **Change History** — chronological log of all changes
 
 ### Target Management
@@ -335,7 +339,51 @@ Separate training state per trainee.
 
 ---
 
-## 13. Mobile & Responsive Layout
+## 13. Persistence & State Management
+
+**Engine**: `store.ts` — Zustand persist middleware
+**View**: Automatic (no user-facing component)
+
+### LocalStorage Persistence
+The Zustand store uses `persist` middleware from `zustand/middleware` to save and restore state across page refreshes.
+
+**Storage key**: `ad-console-storage` (localStorage)
+
+**Persisted data**:
+- All campaigns, ad groups, targets, search terms, negatives, budget rules
+- Portfolio assignments and portfolio name list
+- Filter preferences, simulation days, action log
+- State version string
+
+**Not persisted** (UI-only transient state):
+- Draft/campaign creation wizard state
+- Current view, selected tab, selected campaign ID
+- Mobile menu status
+- Feature engine state (drills, missions, profiles, etc.)
+
+### Export/Import
+The store exposes `exportState()` and `importState(json)` for manual backup/restore:
+- `exportState()` serializes all core state to a JSON string
+- `importState()` deserializes and validates the JSON (rejects empty strings and non-object values)
+- Returns `true` on success, `false` on parse failure
+
+### Sidebar Navigation Wiring
+Left-rail sidebar items now map to campaign detail tabs:
+- **Campaigns** → campaign list view
+- **Ad groups** → `adgroups` tab in campaign detail
+- **Targeting** → `targets` tab
+- **Search terms** → `searchTerms` tab
+- **Negative keywords** → `negatives` tab
+- **Budget rules** (Portfolios section) → `budgetRules` tab
+
+When clicking a tab-mapped item:
+- If user is already viewing a campaign detail → switches the active tab
+- If user is in the campaign list → navigates to detail view and switches tab
+- Items without a tab → plain view navigation (unchanged behaviour)
+
+---
+
+## 14. Mobile & Responsive Layout
 
 **Component**: `MobileNav.tsx` (133 lines)
 **Hook**: `useBreakpoint.ts` (52 lines)
