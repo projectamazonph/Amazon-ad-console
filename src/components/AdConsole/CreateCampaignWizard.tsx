@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import type { CampaignType, TargetingMode } from '@/engine/ad-console/types';
+import { PRODUCTS } from '@/engine/ad-console/core/scenarios';
 
 const STEPS = ['Ad type', 'Basics', 'Products & creative', 'Targeting', 'Bidding', 'Review'];
 
@@ -14,6 +15,8 @@ export function CreateCampaignWizard() {
   const launchCampaign = useAdConsoleStore((s) => s.launchCampaign);
   const resetDraft = useAdConsoleStore((s) => s.resetDraft);
   const setView = useAdConsoleStore((s) => s.setView);
+  const selectProductAction = useAdConsoleStore((s) => s.selectProduct);
+  const removeProductAction = useAdConsoleStore((s) => s.removeProduct);
 
   const d = draft;
 
@@ -99,21 +102,51 @@ export function CreateCampaignWizard() {
 
           {wizardStep === 3 && (
             <>
-              <h2>Creative & products</h2>
-              <p className="muted" style={{ marginBottom: 14 }}>Select products and set creative content.</p>
+              <h2>Products & creative</h2>
+              <p className="muted" style={{ marginBottom: 14 }}>Select which products to advertise and set creative content.</p>
+              <div className="card pad" style={{ marginBottom: 14 }}>
+                <div className="card-title"><h2>Product catalog</h2><span>{d.products.length} selected</span></div>
+                <div className="table-wrap">
+                  <table>
+                    <thead>
+                      <tr><th></th><th>ASIN</th><th>Product</th><th>Price</th><th>Category</th><th>Rating</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                      {PRODUCTS.map((p) => {
+                        const selected = d.products.includes(p.asin);
+                        return (
+                          <tr key={p.asin} style={{ cursor: 'pointer', background: selected ? 'var(--accent-soft)' : undefined }}
+                            onClick={() => selected ? removeProductAction(p.asin) : selectProductAction(p.asin)}>
+                            <td><input type="checkbox" checked={selected} readOnly /></td>
+                            <td className="mono">{p.asin}</td>
+                            <td><strong>{p.image} {p.title}</strong></td>
+                            <td className="money">${p.price.toFixed(2)}</td>
+                            <td>{p.category}</td>
+                            <td>{p.rating} ({p.reviews.toLocaleString()})</td>
+                            <td><span className={`pill ${p.status === 'In stock' ? 'green' : 'orange'}`}>{p.status}</span></td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                {d.products.length === 0 && <div className="coach-tip" style={{ marginTop: 8 }}>Select at least one product to advertise.</div>}
+              </div>
               {d.type !== 'SP' && (
-                <div className="form-grid" style={{ marginBottom: 14 }}>
-                  <div className="field">
-                    <label>Brand name</label>
-                    <input className="input full" value={d.creative.brandName || ''} onChange={(e) => updateDraft('creative', { ...d.creative, brandName: e.target.value })} />
-                  </div>
-                  <div className="field">
-                    <label>Headline</label>
-                    <input className="input full" value={d.creative.headline || ''} onChange={(e) => updateDraft('creative', { ...d.creative, headline: e.target.value })} />
+                <div className="card pad">
+                  <div className="card-title"><h2>Creative</h2><span>Brand assets</span></div>
+                  <div className="form-grid">
+                    <div className="field">
+                      <label>Brand name</label>
+                      <input className="input full" value={d.creative.brandName || ''} onChange={(e) => updateDraft('creative', { ...d.creative, brandName: e.target.value })} />
+                    </div>
+                    <div className="field">
+                      <label>Headline</label>
+                      <input className="input full" value={d.creative.headline || ''} onChange={(e) => updateDraft('creative', { ...d.creative, headline: e.target.value })} />
+                    </div>
                   </div>
                 </div>
               )}
-              {d.type === 'SP' && <div className="coach-tip">Sponsored Products standard campaigns use the product detail page as the ad creative.</div>}
             </>
           )}
 
@@ -130,6 +163,25 @@ export function CreateCampaignWizard() {
                     {d.type === 'SD' && ['Contextual', 'Audiences - views remarketing', 'Audiences - purchases remarketing'].map((x) => <option key={x}>{x}</option>)}
                   </select>
                 </div>
+                {d.targetingMode === 'Automatic' && (
+                  <div className="card pad full" style={{ gridColumn: '1 / -1' }}>
+                    <div className="card-title"><h2>Automatic targeting</h2><span>Amazon matches your ads</span></div>
+                    <p className="muted" style={{ marginBottom: 10 }}>Amazon automatically targets your ads to relevant shopper searches and product pages. Your campaign will match against these four auto target types:</p>
+                    <div className="pill-row" style={{ flexWrap: 'wrap', gap: 6 }}>
+                      <span className="pill active">Close match</span>
+                      <span className="pill active">Loose match</span>
+                      <span className="pill orange">Substitutes</span>
+                      <span className="pill orange">Complements</span>
+                    </div>
+                    <p className="muted" style={{ marginTop: 10, fontSize: 'var(--text-xs)' }}>
+                      <strong>Close match</strong> — Shoppers searching closely related terms. &nbsp;
+                      <strong>Loose match</strong> — Shoppers searching loosely related terms. &nbsp;
+                      <strong>Substitutes</strong> — Product detail pages of similar products. &nbsp;
+                      <strong>Complements</strong> — Product detail pages of complementary products.
+                    </p>
+                    <div className="coach-tip" style={{ marginTop: 10 }}>After running a simulation, check Search terms to discover which auto targets drive conversions — then harvest winners into manual campaigns.</div>
+                  </div>
+                )}
                 {(d.targetingMode === 'Manual keyword' || d.targetingMode === 'Keyword') && (
                   <div className="field full">
                     <label>Keywords (one per line)</label>
@@ -199,6 +251,7 @@ export function CreateCampaignWizard() {
                   <div className="review-row"><span>Bid strategy</span><strong>{d.bidStrategy}</strong></div>
                   <div className="review-row"><span>Format</span><strong>{d.adFormat}</strong></div>
                   <div className="review-row"><span>Status</span><strong>{d.status}</strong></div>
+                  <div className="review-row"><span>Products</span><strong>{d.products.length} selected</strong></div>
                   {d.keywords && <div className="review-row"><span>Keywords</span><strong>{d.keywords.split('\n').filter(Boolean).length} entered</strong></div>}
                 </div>
                 {!d.name.trim() && <div className="coach-tip" style={{ marginTop: 10 }}>Campaign name is required before launch.</div>}
