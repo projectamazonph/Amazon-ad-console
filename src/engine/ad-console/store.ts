@@ -183,7 +183,7 @@ export const useAdConsoleStore = create<AppStore>()(
     derivedMetrics: (m) => calc(m),
 
     selectCampaign: (id) =>
-      set((s) => ({ state: { ...s.state, selectedCampaignId: id, selectedTab: 'overview' }, view: id ? 'detail' : ('campaigns' as any) })),
+      set((s) => ({ state: { ...s.state, selectedCampaignId: id, selectedTab: 'adgroups' }, view: id ? 'detail' : ('campaigns' as any) })),
     setView: (view) => set({ view }),
     setTab: (tab) => set((s) => ({ state: { ...s.state, selectedTab: tab } })),
     setFilter: (filter) => set((s) => ({ state: { ...s.state, filter: { ...s.state.filter, ...filter } } })),
@@ -260,7 +260,7 @@ export const useAdConsoleStore = create<AppStore>()(
         adGroups: [{ id: agId, campaignId: id, name: d.type + ' training ad group', status: d.status, defaultBid: d.defaultBid, metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 } }],
         targets, searchTerms: d.type === 'SD' ? [] : [], negatives: [], budgetRules: [], history: ['Campaign launched in simulator'],
       });
-      return { state: { ...s.state, campaigns: [campaign, ...s.state.campaigns], portfolios: s.state.portfolios.includes(portfolioName) ? s.state.portfolios : [...s.state.portfolios, portfolioName], selectedCampaignId: id, selectedTab: 'overview' }, draft: makeDraft(), wizardStep: 1, view: 'detail' };
+      return { state: { ...s.state, campaigns: [campaign, ...s.state.campaigns], portfolios: s.state.portfolios.includes(portfolioName) ? s.state.portfolios : [...s.state.portfolios, portfolioName], selectedCampaignId: id, selectedTab: 'adgroups' }, draft: makeDraft(), wizardStep: 1, view: 'detail' };
     }),
 
     toggleAddKeywordForm: () => set((s) => ({ showAddKeywordForm: !s.showAddKeywordForm })),
