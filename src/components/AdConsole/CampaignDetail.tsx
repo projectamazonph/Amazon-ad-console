@@ -5,6 +5,11 @@ import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass, isFilteredByNegative } from '@/engine/ad-console/engine';
 import { PRODUCTS } from '@/engine/ad-console/core/scenarios';
+import { HistoryTab } from './details/HistoryTab';
+import { SearchTermsTab } from './details/SearchTermsTab';
+import { NegativesTab } from './details/NegativesTab';
+import { PlacementsTab } from './details/PlacementsTab';
+import { BudgetRulesTab } from './details/BudgetRulesTab';
 
 interface Props {
   campaign: Campaign;
@@ -135,11 +140,11 @@ export function CampaignDetail({ campaign }: Props) {
       {selectedTab === 'overview' && renderOverview(c)}
       {selectedTab === 'adgroups' && renderAdGroups(c)}
       {selectedTab === 'targets' && renderTargets(c)}
-      {selectedTab === 'searchTerms' && renderSearchTerms(c)}
-      {selectedTab === 'negatives' && renderNegatives(c)}
-      {selectedTab === 'budgetRules' && renderBudgetRules(c)}
-      {selectedTab === 'placements' && renderPlacements(c)}
-      {selectedTab === 'history' && renderHistory(c)}
+      {selectedTab === 'searchTerms' && <SearchTermsTab campaign={c} />}
+      {selectedTab === 'negatives' && <NegativesTab campaign={c} />}
+      {selectedTab === 'budgetRules' && <BudgetRulesTab campaign={c} />}
+      {selectedTab === 'placements' && <PlacementsTab campaign={c} />}
+      {selectedTab === 'history' && <HistoryTab campaign={c} />}
     </div>
   );
 
@@ -490,226 +495,5 @@ export function CampaignDetail({ campaign }: Props) {
     );
   }
 
-  function renderSearchTerms(c: Campaign) {
-    const visibleSearchTerms = c.searchTerms.filter(
-      (st) => !isFilteredByNegative(st.term, c.negatives)
-    );
-    if (!visibleSearchTerms.length) {
-      const hasNegatives = c.negatives.length > 0;
-      return (
-        <div className="empty">
-          <span className="icon">🔎</span>
-          <h3>No search terms</h3>
-          <p>{hasNegatives ? 'All search terms are filtered by negatives. Check the Negatives tab to review.' : 'Run a simulation to generate search terms from your keyword targets.'}</p>
-          {!hasNegatives && <button className="btn primary" onClick={() => runSimulation()}>Run 7-day simulation</button>}
-        </div>
-      );
-    }
-    return (
-      <div className="table-wrap">
-        <table>
-          <thead><tr><th>Search term</th><th>Matched target</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th><th>Rec</th><th>Actions</th></tr></thead>
-          <tbody>
-            {visibleSearchTerms.map((st) => {
-              const sx = calc({ impressions: 0, clicks: st.clicks, spend: st.spend, sales: st.sales, orders: st.orders });
-              return (
-                <tr key={st.id}>
-                  <td><strong>{st.term}</strong></td><td>{st.target}</td>
-                  <td className="mono">{formatWhole(st.clicks)}</td>
-                  <td className="money">{formatMoney(st.spend)}</td>
-                  <td className="money">{formatMoney(st.sales)}</td>
-                  <td className={`mono ${st.sales ? acosClass(sx.acos) : 'bad'}`}>{st.sales ? formatPercent(sx.acos) : 'No sales'}</td>
-                  <td><span className={`pill ${st.recommendation === 'Negate' ? 'bad' : st.recommendation === 'Add as exact keyword' ? 'green' : ''}`}>{st.recommendation}</span></td>
-                  <td>
-                    <button className="btn small" onClick={() => harvestTerm(c.id, st.term)}>Harvest exact</button>{' '}
-                    <button className="btn small danger" onClick={() => addNegative(c.id, st.term, 'Negative exact')}>Negate exact</button>{}
-                    <button className="btn small danger" onClick={() => addNegative(c.id, st.term, 'Negative phrase')}>Negate phrase</button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    );
-  }
 
-  function renderNegatives(c: Campaign) {
-    return (
-      <div>
-        <div className="card pad" style={{ marginBottom: 10 }}>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'end' }}>
-            <div className="field" style={{ flex: 2 }}>
-              <label>Add negative</label>
-              <input className="input full" value={negTerm} onChange={(e) => setNegTerm(e.target.value)} placeholder="Enter term to negate" />
-            </div>
-            <div className="field" style={{ flex: 1 }}>
-              <label>Type</label>
-              <select className="select full" value={negType} onChange={(e) => setNegType(e.target.value)}>
-                <option>Negative exact</option>
-                <option>Negative phrase</option>
-              </select>
-            </div>
-            <button className="btn primary" onClick={() => {
-              if (negTerm.trim()) {
-                addNegative(c.id, negTerm.trim(), negType);
-                setNegTerm('');
-              }
-            }}>Add</button>
-          </div>
-        </div>
-        {c.negatives.length > 0 ? (
-          <div className="table-wrap">
-            <table>
-              <thead><tr><th>Negative</th><th>Type</th></tr></thead>
-              <tbody>
-                {c.negatives.map((n, i) => (
-                  <tr key={n.id || i}>
-                    <td><strong>{n.value}</strong></td><td>{n.type}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : <div className="empty"><span className="icon">🚫</span><h3>No negatives added</h3><p>Add negative keywords to prevent wasted spend on irrelevant searches. Use the form above or negate from search terms.</p></div>}
-      </div>
-    );
-  }
-
-  function renderBudgetRules(c: Campaign) {
-    const [newName, setNewName] = useState('');
-    const [newType, setNewType] = useState('Schedule');
-    const [newIncrease, setNewIncrease] = useState('1.5');
-    const [newCondition, setNewCondition] = useState('');
-    const [nameEdits, setNameEdits] = useState<Record<string, string>>({});
-    const [increaseEdits, setIncreaseEdits] = useState<Record<string, string>>({});
-    const [conditionEdits, setConditionEdits] = useState<Record<string, string>>({});
-
-    return (
-      <div>
-        <div className="card pad" style={{ marginBottom: 14 }}>
-          <div className="card-title"><h2>Add budget rule</h2><span>Schedule or performance-based</span></div>
-          <div className="form-grid">
-            <div className="field">
-              <label>Rule name</label>
-              <input className="input full" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Weekend boost" />
-            </div>
-            <div className="field">
-              <label>Type</label>
-              <select className="select full" value={newType} onChange={(e) => setNewType(e.target.value)}>
-                <option>Schedule</option><option>Performance</option>
-              </select>
-            </div>
-            <div className="field">
-              <label>Budget increase (x)</label>
-              <input className="input full" type="number" min="0.01" step="0.1" value={newIncrease} onChange={(e) => setNewIncrease(e.target.value)} />
-            </div>
-            <div className="field">
-              <label>Condition</label>
-              <input className="input full" value={newCondition} onChange={(e) => setNewCondition(e.target.value)} placeholder={newType === 'Schedule' ? 'Saturday through Sunday' : 'ACoS below 25%'} />
-            </div>
-          </div>
-          <button className="btn primary" style={{ marginTop: 10 }} onClick={() => {
-            if (newName.trim() && newCondition.trim() && Number(newIncrease) > 0) {
-              addBudgetRule(c.id, newName.trim(), newType, Number(newIncrease), newCondition.trim());
-              setNewName(''); setNewCondition(''); setNewIncrease('1.5');
-            }
-          }}>Add rule</button>
-        </div>
-        {c.budgetRules.length === 0 ? (
-          <div className="empty"><span className="icon">💰</span><h3>No budget rules</h3><p>Schedule-based or performance-based rules let you automate budget adjustments. Create one using the form above.</p></div>
-        ) : (
-          <div className="table-wrap">
-            <table>
-              <thead><tr><th>Name</th><th>Type</th><th>Increase</th><th>Condition</th><th>Actions</th></tr></thead>
-              <tbody>
-                {c.budgetRules.map((r) => (
-                  <tr key={r.id}>
-                    <td>
-                      <input className="input" style={{ width: 160, fontWeight: 600 }}
-                        value={nameEdits[r.id] ?? r.name}
-                        onChange={(e) => setNameEdits((p) => ({ ...p, [r.id]: e.target.value }))}
-                        onBlur={(e) => { if (e.target.value.trim() && e.target.value !== r.name) updateBudgetRule(c.id, r.id, { name: e.target.value.trim() }); }} />
-                    </td>
-                    <td>
-                      <select className="select" value={r.type}
-                        onChange={(e) => updateBudgetRule(c.id, r.id, { type: e.target.value })}>
-                        <option>Schedule</option><option>Performance</option>
-                      </select>
-                    </td>
-                    <td>
-                      <input className="input" style={{ width: 70 }} type="number" min="0.01" step="0.1"
-                        value={increaseEdits[r.id] ?? String(r.increase)}
-                        onChange={(e) => setIncreaseEdits((p) => ({ ...p, [r.id]: e.target.value }))}
-                        onBlur={(e) => { const v = Number(e.target.value); if (v > 0 && v !== r.increase) updateBudgetRule(c.id, r.id, { increase: v }); }} />
-                    </td>
-                    <td>
-                      <input className="input" style={{ width: 180 }}
-                        value={conditionEdits[r.id] ?? r.condition}
-                        onChange={(e) => setConditionEdits((p) => ({ ...p, [r.id]: e.target.value }))}
-                        onBlur={(e) => { if (e.target.value.trim() && e.target.value !== r.condition) updateBudgetRule(c.id, r.id, { condition: e.target.value.trim() }); }} />
-                    </td>
-                    <td>
-                      <button className="btn small danger" onClick={() => {
-                        if (confirm(`Remove budget rule "${r.name}"?`)) removeBudgetRule(c.id, r.id);
-                      }}>Remove</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  function renderPlacements(c: Campaign) {
-    const [top, setTop] = useState(String(c.placements.top));
-    const [prod, setProd] = useState(String(c.placements.product));
-    const [rest, setRest] = useState(String(c.placements.rest));
-
-    return (
-      <div className="card pad">
-        <div className="card-title"><h2>Placement adjustments</h2><span>Percentage modifiers</span></div>
-        <div className="form-grid" style={{ maxWidth: 400 }}>
-          <div className="field">
-            <label>Top of Search (%)</label>
-            <input className="input full" type="number" min="0" max="900" value={top} onChange={(e) => setTop(e.target.value)} />
-          </div>
-          <div className="field">
-            <label>Product pages (%)</label>
-            <input className="input full" type="number" min="0" max="900" value={prod} onChange={(e) => setProd(e.target.value)} />
-          </div>
-          <div className="field">
-            <label>Rest of Search (%)</label>
-            <input className="input full" type="number" min="0" max="900" value={rest} onChange={(e) => setRest(e.target.value)} />
-          </div>
-        </div>
-        <button className="btn primary" style={{ marginTop: 12 }} onClick={() => {
-          useAdConsoleStore.getState().savePlacements(c.id, {
-            top: Number(top),
-            product: Number(prod),
-            rest: Number(rest),
-          });
-        }}>Save placements</button>
-      </div>
-    );
-  }
-
-  function renderHistory(c: Campaign) {
-    if (!c.history.length) return <div className="empty"><span className="icon">📋</span><h3>No history</h3><p>Campaign changes will appear here as you make edits and run simulations.</p></div>;
-    return (
-      <div className="table-wrap">
-        <table>
-          <thead><tr><th>Event</th></tr></thead>
-          <tbody>
-            {c.history.map((h, i) => (
-              <tr key={i}><td><span className="muted">{h}</span></td></tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  }
 }
