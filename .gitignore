@@ -34,3 +34,7 @@ next-env.d.ts
 *.swp
 *.swo
 .vercel
+
+# playwright
+test-results/
+playwright-report/
