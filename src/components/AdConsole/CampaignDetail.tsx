@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
-import { calc, formatMoney, formatWhole, formatPercent, formatBid, acosClass } from '@/engine/ad-console/engine';
+import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass, isFilteredByNegative } from '@/engine/ad-console/engine';
+import { PRODUCTS } from '@/engine/ad-console/core/scenarios';
 
 interface Props {
   campaign: Campaign;
@@ -23,6 +24,8 @@ export function CampaignDetail({ campaign }: Props) {
   const adjustTargetBid = useAdConsoleStore((s) => s.adjustTargetBid);
   const addNegative = useAdConsoleStore((s) => s.addNegative);
   const harvestTerm = useAdConsoleStore((s) => s.harvestTerm);
+  const addProduct = useAdConsoleStore((s) => s.addProduct);
+  const removeProduct = useAdConsoleStore((s) => s.removeProduct);
   const runSimulation = useAdConsoleStore((s) => s.runSimulation);
   const toggleAddKeywordForm = useAdConsoleStore((s) => s.toggleAddKeywordForm);
   const showAddKeywordForm = useAdConsoleStore((s) => s.showAddKeywordForm);
@@ -47,6 +50,8 @@ export function CampaignDetail({ campaign }: Props) {
   const [bidEdits, setBidEdits] = useState<Record<string, string>>({});
   const [budgetInput, setBudgetInput] = useState(String(campaign.dailyBudget));
   const [defaultBidInput, setDefaultBidInput] = useState(String(campaign.defaultBid));
+  const [negTerm, setNegTerm] = useState('');
+  const [negType, setNegType] = useState('Negative exact');
 
   const c = campaign;
   const [ngAg, setNgAg] = useState(c.adGroups[0]?.id ?? '');
@@ -78,6 +83,9 @@ export function CampaignDetail({ campaign }: Props) {
             <div className="detail-meta">
               <span className={`pill ${c.type === 'SP' ? 'active' : c.type === 'SB' ? 'orange' : 'purple'}`}>{c.type}</span>
               <span className={`pill ${c.status === 'Enabled' ? 'green' : c.status === 'Paused' ? 'orange' : 'bad'}`}>{c.status}</span>
+              {(c.type === 'SB' || c.type === 'SD') && c.creativeStatus && (
+                <span className={`pill ${c.creativeStatus === 'Approved' ? 'green' : c.creativeStatus === 'Pending' ? '' : 'bad'}`}>{c.creativeStatus}</span>
+              )}
               <span className="pill">{c.targetingMode}</span>
               <span className="pill">{c.adFormat}</span>
               <span className="pill">Budget {formatMoney(c.dailyBudget)}</span>
@@ -178,7 +186,15 @@ export function CampaignDetail({ campaign }: Props) {
         </div>
         <div className="card pad">
           <div className="card-title"><h2>Products</h2><span>{c.type}</span></div>
-          {c.products.map((p) => <div key={p} className="pill" style={{ marginBottom: 4 }}>{p}</div>)}
+          {c.products.map((asin) => {
+            const p = PRODUCTS.find(x => x.asin === asin);
+            return (
+              <div key={asin} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                <span className="pill" style={{ margin: 0 }}>{p ? `${p.image} ${p.title} (${p.asin})` : asin}</span>
+                <button className="btn small danger" onClick={() => removeProduct(c.id, asin)} style={{ padding: '2px 6px', fontSize: 11 }}>&times;</button>
+              </div>
+            );
+          })}
           {c.creative && (
             <div style={{ marginTop: 10 }}>
               <div className="review-box">
@@ -188,6 +204,11 @@ export function CampaignDetail({ campaign }: Props) {
               {c.creativeStatus === 'Rejected' && (
                 <div className="coach-tip" style={{ marginTop: 8 }}>Creative rejected: {c.creativeIssue}</div>
               )}
+              {c.type === 'SB' && c.adFormat === 'Video' && c.creative?.video && (
+                <div className="review-row" style={{ marginTop: 4 }}><span>Video</span><strong>{c.creative.video}</strong></div>
+              )}
+              {c.creative?.logo && <div className="review-row" style={{ marginTop: 4 }}><span>Logo</span><strong>{c.creative.logo}</strong></div>}
+              {c.creative?.destination && <div className="review-row" style={{ marginTop: 4 }}><span>Destination</span><strong>{c.creative.destination}</strong></div>}
             </div>
           )}
         </div>
@@ -195,7 +216,7 @@ export function CampaignDetail({ campaign }: Props) {
           <div className="card-title"><h2>Top targets by profit signal</h2><span>Use to train bid optimization</span></div>
           <div className="table-wrap">
             <table>
-              <thead><tr><th>Target</th><th>Bid</th><th>Spend</th><th>Sales</th><th>ACOS</th></tr></thead>
+              <thead><tr><th>Target</th><th>Bid</th><th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th></tr></thead>
               <tbody>
                 {c.targets.slice(0, 4).map((t) => {
                   const tx = calc(t);
@@ -203,9 +224,14 @@ export function CampaignDetail({ campaign }: Props) {
                     <tr key={t.id}>
                       <td><strong>{t.value}</strong></td>
                       <td className="money">{formatBid(t.bid)}</td>
+                      <td className="mono">{formatWhole(t.impressions)}</td>
+                      <td className="mono">{formatWhole(t.clicks)}</td>
+                      <td className="money">{formatBid(tx.cpc)}</td>
                       <td className="money">{formatMoney(t.spend)}</td>
                       <td className="money">{formatMoney(t.sales)}</td>
+                      <td className="mono">{formatWhole(t.orders)}</td>
                       <td className={`mono ${acosClass(tx.acos)}`}>{t.sales ? formatPercent(tx.acos) : '-'}</td>
+                      <td className="mono">{formatRoas(tx.roas)}</td>
                     </tr>
                   );
                 })}
@@ -328,6 +354,7 @@ export function CampaignDetail({ campaign }: Props) {
       <div className="table-wrap">
         <table>
           <thead><tr><th>Target</th><th>Match</th><th>Status</th><th>Bid</th><th>Clicks</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Ad group</th><th>Status</th><th>Default bid</th><th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th><th>Targets</th></tr></thead>
           <tbody>
             {targets.map((t) => {
               const tx = calc(t);
@@ -345,6 +372,19 @@ export function CampaignDetail({ campaign }: Props) {
                     <button className="btn small" onClick={() => toggleStatusTarget(c.id, t.id)}>{t.status === 'Enabled' ? 'Pause' : 'Enable'}</button>{' '}
                     <button className="btn small danger" onClick={() => { if (confirm(`Remove "${t.value}"?`)) removeTarget(c.id, t.id); }}>Remove</button>
                   </td>
+                <tr key={ag.id}>
+                  <td><strong>{ag.name}</strong></td>
+                  <td><span className={`pill ${ag.status === 'Enabled' ? 'green' : 'orange'}`}>{ag.status}</span></td>
+                  <td className="money">{formatBid(ag.defaultBid)}</td>
+                  <td className="mono">{formatWhole(m.impressions)}</td>
+                  <td className="mono">{formatWhole(m.clicks)}</td>
+                  <td className="money">{formatBid(ax.cpc)}</td>
+                  <td className="money">{formatMoney(m.spend)}</td>
+                  <td className="money">{formatMoney(m.sales)}</td>
+                  <td className="mono">{formatWhole(m.orders)}</td>
+                  <td className={`mono ${acosClass(ax.acos)}`}>{ax.acos ? formatPercent(ax.acos) : '-'}</td>
+                  <td className="mono">{formatRoas(ax.roas)}</td>
+                  <td>{c.targets.filter((t) => t.adGroupId === ag.id).length}</td>
                 </tr>
               );
             })}
@@ -403,7 +443,7 @@ export function CampaignDetail({ campaign }: Props) {
 
         <div className="table-wrap">
           <table>
-            <thead><tr><th>Target</th><th>Type</th><th>Match</th><th>Status</th><th>Bid</th><th>Clicks</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Target</th><th>Type</th><th>Match</th><th>Status</th><th>Bid</th><th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th><th>Actions</th></tr></thead>
             <tbody>
               {c.targets.map((t) => {
                 const tx = calc(t);
@@ -417,10 +457,14 @@ export function CampaignDetail({ campaign }: Props) {
                         type="number" min="0.02" step="0.01" value={bidEdits[t.id] ?? t.bid}
                         onChange={(e) => setBidEdits({ ...bidEdits, [t.id]: e.target.value })} />
                     </td>
+                    <td className="mono">{formatWhole(t.impressions)}</td>
                     <td className="mono">{formatWhole(t.clicks)}</td>
+                    <td className="money">{formatBid(tx.cpc)}</td>
                     <td className="money">{formatMoney(t.spend)}</td>
                     <td className="money">{formatMoney(t.sales)}</td>
+                    <td className="mono">{formatWhole(t.orders)}</td>
                     <td className={`mono ${acosClass(tx.acos)}`}>{t.sales ? formatPercent(tx.acos) : 'No sales'}</td>
+                    <td className="mono">{formatRoas(tx.roas)}</td>
                     <td style={{ whiteSpace: 'nowrap' }}>
                       <button className="btn small" onClick={() => adjustTargetBid(c.id, t.id, 0.9)}>-10%</button>{' '}
                       <button className="btn small" onClick={() => adjustTargetBid(c.id, t.id, 1.1)}>+10%</button>{' '}
@@ -447,13 +491,16 @@ export function CampaignDetail({ campaign }: Props) {
   }
 
   function renderSearchTerms(c: Campaign) {
-    if (!c.searchTerms.length) return <div className="empty"><h3>No search term rows</h3></div>;
+    const visibleSearchTerms = c.searchTerms.filter(
+      (st) => !isFilteredByNegative(st.term, c.negatives)
+    );
+    if (!visibleSearchTerms.length) return <div className="empty"><h3>No search term rows</h3></div>;
     return (
       <div className="table-wrap">
         <table>
-          <thead><tr><th>Search term</th><th>Matched target</th><th>Clicks</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Rec</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Search term</th><th>Matched target</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th><th>Rec</th><th>Actions</th></tr></thead>
           <tbody>
-            {c.searchTerms.map((st) => {
+            {visibleSearchTerms.map((st) => {
               const sx = calc({ impressions: 0, clicks: st.clicks, spend: st.spend, sales: st.sales, orders: st.orders });
               return (
                 <tr key={st.id}>
@@ -465,7 +512,8 @@ export function CampaignDetail({ campaign }: Props) {
                   <td><span className={`pill ${st.recommendation === 'Negate' ? 'bad' : st.recommendation === 'Add as exact keyword' ? 'green' : ''}`}>{st.recommendation}</span></td>
                   <td>
                     <button className="btn small" onClick={() => harvestTerm(c.id, st.term)}>Harvest exact</button>{' '}
-                    <button className="btn small danger" onClick={() => addNegative(c.id, st.term)}>Negative exact</button>
+                    <button className="btn small danger" onClick={() => addNegative(c.id, st.term, 'Negative exact')}>Negate exact</button>{}
+                    <button className="btn small danger" onClick={() => addNegative(c.id, st.term, 'Negative phrase')}>Negate phrase</button>
                   </td>
                 </tr>
               );
@@ -477,19 +525,43 @@ export function CampaignDetail({ campaign }: Props) {
   }
 
   function renderNegatives(c: Campaign) {
-    if (!c.negatives.length) return <div className="empty"><h3>No negatives added</h3></div>;
     return (
-      <div className="table-wrap">
-        <table>
-          <thead><tr><th>Negative</th><th>Type</th></tr></thead>
-          <tbody>
-            {c.negatives.map((n, i) => (
-              <tr key={n.id || i}>
-                <td><strong>{n.value}</strong></td><td>{n.type}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div>
+        <div className="card pad" style={{ marginBottom: 10 }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'end' }}>
+            <div className="field" style={{ flex: 2 }}>
+              <label>Add negative</label>
+              <input className="input full" value={negTerm} onChange={(e) => setNegTerm(e.target.value)} placeholder="Enter term to negate" />
+            </div>
+            <div className="field" style={{ flex: 1 }}>
+              <label>Type</label>
+              <select className="select full" value={negType} onChange={(e) => setNegType(e.target.value)}>
+                <option>Negative exact</option>
+                <option>Negative phrase</option>
+              </select>
+            </div>
+            <button className="btn primary" onClick={() => {
+              if (negTerm.trim()) {
+                addNegative(c.id, negTerm.trim(), negType);
+                setNegTerm('');
+              }
+            }}>Add</button>
+          </div>
+        </div>
+        {c.negatives.length > 0 ? (
+          <div className="table-wrap">
+            <table>
+              <thead><tr><th>Negative</th><th>Type</th></tr></thead>
+              <tbody>
+                {c.negatives.map((n, i) => (
+                  <tr key={n.id || i}>
+                    <td><strong>{n.value}</strong></td><td>{n.type}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : <div className="empty"><h3>No negatives added</h3></div>}
       </div>
     );
   }

@@ -3,7 +3,7 @@
 import { useMemo, useCallback } from 'react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { MetricCard } from './metrics/MetricCard';
-import { calc, formatMoney, formatWhole, formatPercent, acosClass } from '@/engine/ad-console/engine';
+import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass, isFilteredByNegative } from '@/engine/ad-console/engine';
 
 export function CampaignManager() {
   const state = useAdConsoleStore((s) => s.state);
@@ -47,7 +47,7 @@ export function CampaignManager() {
           <thead>
             <tr>
               <th>Ad group</th><th>Campaign</th><th>Type</th><th>Status</th>
-              <th>Default bid</th><th>Impr.</th><th>Clicks</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Targets</th>
+              <th>Default bid</th><th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th><th>Targets</th>
             </tr>
           </thead>
           <tbody>
@@ -63,9 +63,12 @@ export function CampaignManager() {
                   <td className="money">{ag.defaultBid.toFixed(2)}</td>
                   <td className="mono">{formatWhole(m.impressions)}</td>
                   <td className="mono">{formatWhole(m.clicks)}</td>
+                  <td className="money">{formatBid(x.cpc)}</td>
                   <td className="money">{formatMoney(m.spend)}</td>
                   <td className="money">{formatMoney(m.sales)}</td>
+                  <td className="mono">{formatWhole(m.orders)}</td>
                   <td className={`mono ${acosClass(x.acos)}`}>{x.acos ? formatPercent(x.acos) : '-'}</td>
+                  <td className="mono">{formatRoas(x.roas)}</td>
                   <td>{c.targets.filter((t) => t.adGroupId === ag.id).length}</td>
                 </tr>
               );
@@ -86,7 +89,7 @@ export function CampaignManager() {
           <thead>
             <tr>
               <th>Target</th><th>Campaign</th><th>Type</th><th>Match</th><th>Status</th>
-              <th>Bid</th><th>Clicks</th><th>Spend</th><th>Sales</th><th>ACOS</th>
+              <th>Bid</th><th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th>
             </tr>
           </thead>
           <tbody>
@@ -99,10 +102,14 @@ export function CampaignManager() {
                   <td>{t.type}</td><td>{t.match}</td>
                   <td><span className={`pill ${t.status === 'Enabled' ? 'green' : 'orange'}`}>{t.status}</span></td>
                   <td className="money">{t.bid.toFixed(2)}</td>
+                  <td className="mono">{formatWhole(t.impressions)}</td>
                   <td className="mono">{formatWhole(t.clicks)}</td>
+                  <td className="money">{formatBid(x.cpc)}</td>
                   <td className="money">{formatMoney(t.spend)}</td>
                   <td className="money">{formatMoney(t.sales)}</td>
+                  <td className="mono">{formatWhole(t.orders)}</td>
                   <td className={`mono ${acosClass(x.acos)}`}>{t.sales ? formatPercent(x.acos) : 'No sales'}</td>
+                  <td className="mono">{formatRoas(x.roas)}</td>
                 </tr>
               );
             })}
@@ -114,7 +121,10 @@ export function CampaignManager() {
 
   // Search terms table
   const renderSearchTerms = () => {
-    const rows = filteredCamps.flatMap((c) => (c.searchTerms || []).map((st) => ({ c, st })));
+    const rows = filteredCamps.flatMap((c) => 
+    (c.searchTerms || [])
+      .filter((st) => !isFilteredByNegative(st.term, c.negatives))
+      .map((st) => ({ c, st })));
     if (!rows.length) return <div className="empty"><h3>No search term rows</h3></div>;
     return (
       <div className="table-wrap">
@@ -122,7 +132,7 @@ export function CampaignManager() {
           <thead>
             <tr>
               <th>Search term</th><th>Campaign</th><th>Matched target</th>
-              <th>Clicks</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>Rec</th>
+              <th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th><th>Rec</th>
             </tr>
           </thead>
           <tbody>
@@ -133,10 +143,12 @@ export function CampaignManager() {
                   <td><strong>{st.term}</strong></td>
                   <td>{c.name}</td><td>{st.target}</td>
                   <td className="mono">{formatWhole(st.clicks)}</td>
+                  <td className="money">{formatBid(x.cpc)}</td>
                   <td className="money">{formatMoney(st.spend)}</td>
                   <td className="money">{formatMoney(st.sales)}</td>
                   <td className="mono">{formatWhole(st.orders)}</td>
                   <td className={`mono ${acosClass(x.acos)}`}>{st.sales ? formatPercent(x.acos) : 'No sales'}</td>
+                  <td className="mono">{formatRoas(x.roas)}</td>
                   <td><span className={`pill ${st.recommendation === 'Negate' ? 'bad' : st.recommendation === 'Add as exact keyword' ? 'green' : ''}`}>{st.recommendation}</span></td>
                 </tr>
               );
@@ -175,8 +187,8 @@ export function CampaignManager() {
         <table>
           <thead>
             <tr>
-              <th>Campaign</th><th>Type</th><th>Status</th><th>Budget</th><th>Targeting</th>
-              <th>Impr.</th><th>Clicks</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Actions</th>
+              <th>Campaign</th><th>Type</th><th>Creative</th><th>Status</th><th>Budget</th><th>Targeting</th>
+              <th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th><th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -191,6 +203,9 @@ export function CampaignManager() {
                     <div className="muted">{c.portfolio}</div>
                   </td>
                   <td><span className={`pill ${c.type === 'SP' ? 'active' : c.type === 'SB' ? 'orange' : 'purple'}`}>{c.type}</span></td>
+                  <td>{(c.type === 'SB' || c.type === 'SD') && c.creativeStatus ? (
+                    <span className={`pill ${c.creativeStatus === 'Approved' ? 'green' : c.creativeStatus === 'Pending' ? '' : 'bad'}`}>{c.creativeStatus}</span>
+                  ) : '—'}</td>
                   <td><span className={`pill ${c.status === 'Enabled' ? 'green' : c.status === 'Paused' ? 'orange' : 'bad'}`}>{c.status}</span></td>
                   <td className="money">{formatMoney(c.dailyBudget)}</td>
                   <td><span className="muted">{c.targetingMode}</span></td>
@@ -198,7 +213,10 @@ export function CampaignManager() {
                   <td className="mono">{formatWhole(c.metrics.clicks)}</td>
                   <td className="money">{formatMoney(c.metrics.spend)}</td>
                   <td className="money">{formatMoney(c.metrics.sales)}</td>
+                  <td className="mono">{formatWhole(c.metrics.orders)}</td>
+                  <td className="money">{formatBid(x.cpc)}</td>
                   <td className={`mono ${acosClass(x.acos)}`}>{formatPercent(x.acos)}</td>
+                  <td className="mono">{formatRoas(x.roas)}</td>
                   <td>
                     <button className="btn small" onClick={() => selectCampaign(c.id)}>Open</button>{' '}
                     <button className="btn small" onClick={() => toggleCampaignStatus(c.id)}>

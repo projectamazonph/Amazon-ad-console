@@ -17,5 +17,9 @@ export default defineConfig({
         '.next/**',
       ],
     },
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'node',
   },
 });

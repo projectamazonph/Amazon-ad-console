@@ -8,6 +8,8 @@
 import type {
   Campaign, CampaignType, CampaignStatus, CampaignDraft, MatchType, BudgetRule,
   Target, AdGroup, Metrics, DerivedMetrics,
+  Campaign, CampaignType, CampaignStatus, CampaignDraft, MatchType,
+  Target, AdGroup, Metrics, DerivedMetrics, Negative,
   AdConsoleState, FilterState, ActionLogEntry,
 } from './types';
 import {
@@ -176,6 +178,16 @@ function normalizeTarget(
     sales: t.sales ?? 0,
     orders: t.orders ?? 0,
   };
+}
+
+export function isFilteredByNegative(term: string, negatives: Negative[]): boolean {
+  const termLower = term.toLowerCase();
+  return negatives.some((n) => {
+    const negLower = n.value.toLowerCase();
+    if (n.type === 'Negative exact') return termLower === negLower;
+    if (n.type === 'Negative phrase') return termLower.includes(negLower);
+    return false;
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -535,11 +547,58 @@ export function simulateDays(
       return { ...ag, metrics: metricDefaults({}) };
     });
 
+
+    // Generate search terms from keyword targets
+    const generatedST: any[] = [];
+    const matchGens: Record<string, (kw: string) => string[]> = {
+      Exact: (kw: string) => [kw, kw.endsWith('s') ? kw.slice(0, -1) : kw + 's'],
+      Phrase: (kw: string) => ['organic ' + kw, 'best ' + kw],
+      Broad: (kw: string) => ['cheap ' + kw, kw + ' accessories', kw + ' deals'],
+    };
+    for (let si = 0; si < enabledTargets.length; si++) {
+      const tgt = enabledTargets[si];
+      if (tgt.type !== 'Keyword') continue;
+      const genFn = matchGens[tgt.match];
+      if (!genFn) continue;
+      const generated = genFn(tgt.value);
+      for (let gi = 0; gi < generated.length; gi++) {
+        const gt = generated[gi];
+        if (isFilteredByNegative(gt, c.negatives)) continue;
+        let exists = false;
+        for (let ei = 0; ei < generatedST.length; ei++) {
+          if (generatedST[ei].term === gt) { exists = true; break; }
+        }
+        if (exists) continue;
+        const termShare = 0.15 + Math.random() * 0.1;
+        const termClicks = Math.max(1, Math.round(tgt.clicks * termShare));
+        const termSpend = tgt.spend * termShare;
+        const roasAdj = tgt.match === 'Exact' ? 4.0 : tgt.match === 'Phrase' ? 2.5 : 1.5;
+        const termSales = termSpend * (roasAdj * (0.8 + Math.random() * 0.4));
+        const rec = termSales > termSpend * 3
+          ? 'Add as exact keyword'
+          : termSales < termSpend ? 'Negate' : 'Review';
+        generatedST.push({
+          id: generateId('ST'),
+          campaignId: c.id,
+          adGroupId: tgt.adGroupId,
+          term: gt,
+          target: tgt.value,
+          targetId: tgt.id,
+          recommendation: rec,
+          clicks: termClicks,
+          spend: parseFloat(termSpend.toFixed(2)),
+          sales: parseFloat(termSales.toFixed(2)),
+          orders: Math.max(0, Math.round(termSales / 29.99)),
+        });
+      }
+    }
+    const allSearchTerms = c.searchTerms.concat(generatedST);
     return {
       ...c,
       metrics: newMetrics,
       targets: newTargets,
       adGroups: newAdGroups,
+      searchTerms: allSearchTerms,
       history: [...c.history, `${days}-day simulation: $${spend.toFixed(2)} spend, ${orders} orders`],
     };
   });

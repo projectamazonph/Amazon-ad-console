@@ -131,5 +131,49 @@ export function defaultCampaigns(): Campaign[] {
       budgetRules: [],
       history: ['Campaign launched in simulator', '7-day simulation run added performance data'],
     },
+
+    // SB - Product Collection (added by handoff implementation)
+    {
+      id: 'C-SB-PROD-005', type: 'SB', name: 'SB | Product Collection | Coffee Variety',
+      portfolio: 'Brand Campaigns', status: 'Paused', dailyBudget: 50, defaultBid: 0.95,
+      startDate: '2026-06-15', endDate: null,
+      targetingMode: 'Product', adFormat: 'Product collection',
+      bidStrategy: 'Cost per click',
+      placements: { top: 0, product: 0, rest: 0 },
+      products: ['B0TRAIN001', 'B0TRAIN002', 'B0TRAIN003'],
+      creative: { brandName: 'BrewCo', logo: 'BC', headline: 'Discover your perfect brew', destination: 'Brand Store', video: '', image: 'Auto generated' },
+      creativeStatus: 'Approved',
+      metrics: { impressions: 12500, clicks: 98, spend: 93.10, sales: 279.30, orders: 11 },
+      adGroups: [{ id: 'AG-SB-005', campaignId: 'C-SB-PROD-005', name: 'SB Product Collection ad group', status: 'Enabled', defaultBid: 0.95, metrics: { impressions: 12500, clicks: 98, spend: 93.10, sales: 279.30, orders: 11 } }],
+      targets: [
+        { id: 'T-SB-003', campaignId: 'C-SB-PROD-005', adGroupId: 'AG-SB-005', type: 'Product', value: 'Coffee Filters', match: 'Product', bid: 0.95, status: 'Enabled', impressions: 12500, clicks: 98, spend: 93.10, sales: 279.30, orders: 11 },
+      ],
+      searchTerms: [],
+      negatives: [
+        { id: 'NEG-SB-001', campaignId: 'C-SB-PROD-005', adGroupId: 'AG-SB-005', type: 'Negative phrase', value: 'plastic' },
+      ],
+      budgetRules: [],
+      history: ['Campaign created', 'Negative added for "plastic"'],
+    },
+    // SD - Contextual (added by handoff implementation)
+    {
+      id: 'C-SD-CTX-006', type: 'SD', name: 'SD | Contextual | Coffee Accessories',
+      portfolio: 'Defensive and Remarketing', status: 'Enabled', dailyBudget: 35, defaultBid: 0.55,
+      startDate: '2026-06-10', endDate: null,
+      targetingMode: 'Contextual', adFormat: 'Auto generated',
+      bidStrategy: 'Cost per click',
+      placements: { top: 0, product: 0, rest: 0 },
+      products: ['B0TRAIN001'],
+      creative: { brandName: 'Training Labs', logo: 'TL', headline: 'Perfect coffee starts here', destination: 'Product detail page', video: '', image: 'Auto generated' },
+      metrics: { impressions: 8900, clicks: 45, spend: 24.75, sales: 99.00, orders: 4 },
+      adGroups: [{ id: 'AG-SD-006', campaignId: 'C-SD-CTX-006', name: 'SD Contextual ad group', status: 'Enabled', defaultBid: 0.55, metrics: { impressions: 8900, clicks: 45, spend: 24.75, sales: 99.00, orders: 4 } }],
+      targets: [
+        { id: 'T-SD-003', campaignId: 'C-SD-CTX-006', adGroupId: 'AG-SD-006', type: 'Contextual', value: 'Coffee & Espresso Accessories', match: 'Contextual', bid: 0.55, status: 'Enabled', impressions: 8900, clicks: 45, spend: 24.75, sales: 99.00, orders: 4 },
+      ],
+      searchTerms: [],
+      negatives: [],
+      budgetRules: [],
+      history: ['Campaign launched in simulator'],
+    },
   ];
 }

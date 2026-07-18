@@ -132,6 +132,41 @@ export function CreateCampaignWizard() {
                 </div>
                 {d.products.length === 0 && <div className="coach-tip" style={{ marginTop: 8 }}>Select at least one product to advertise.</div>}
               </div>
+              <h2>Creative & products</h2>
+              <p className="muted" style={{ marginBottom: 14 }}>Select products to advertise.</p>
+              <div className="product-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 }}>
+                {PRODUCTS.map((p) => (
+                  <label key={p.asin} className={`product-choice ${d.products.includes(p.asin) ? 'active' : ''}`}
+                    style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', border: '1px solid var(--border)', borderRadius: 6, cursor: 'pointer', background: d.products.includes(p.asin) ? 'var(--accent-bg)' : '' }}>
+                    <input type="checkbox" checked={d.products.includes(p.asin)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          updateDraft('products', [...d.products, p.asin]);
+                        } else {
+                          updateDraft('products', d.products.filter(a => a !== p.asin));
+                        }
+                      }} />
+                    <span>{p.image}</span>
+                    <div style={{ flex: 1 }}>
+                      <div><strong>{p.title}</strong></div>
+                      <div className="muted">${p.price.toFixed(2)} &middot; {p.category}</div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+              <div style={{ marginBottom: 12 }}>
+                <span className="muted">Selected: {d.products.length} product{d.products.length !== 1 ? 's' : ''}</span>
+                <div style={{ display: 'flex', gap: 4, marginTop: 4, flexWrap: 'wrap' }}>
+                  {d.products.map(asin => {
+                    const p = PRODUCTS.find(x => x.asin === asin);
+                    return <span key={asin} className="pill">{p ? p.title : asin}</span>;
+                  })}
+                </div>
+              </div>
+              {d.type === 'SP' && <div className="coach-tip">Sponsored Products campaigns use the product detail page as the ad creative.</div>}
+              {d.type === 'SB' && d.adFormat === 'Product collection' && d.products.length < 2 && (
+                <div className="coach-tip" style={{ marginBottom: 8 }}>Product collection requires at least 2 selected products.</div>
+              )}
               {d.type !== 'SP' && (
                 <div className="card pad">
                   <div className="card-title"><h2>Creative</h2><span>Brand assets</span></div>
@@ -145,6 +180,17 @@ export function CreateCampaignWizard() {
                       <input className="input full" value={d.creative.headline || ''} onChange={(e) => updateDraft('creative', { ...d.creative, headline: e.target.value })} />
                     </div>
                   </div>
+                  {d.type === 'SB' && (
+                    <div className="field full">
+                      <label>Landing page destination</label>
+                      <select className="select full" value={(d.creative as any).destination || 'Product detail page'}
+                        onChange={(e) => updateDraft('creative', { ...d.creative, destination: e.target.value })}>
+                        <option>Product detail page</option>
+                        <option>Brand Store</option>
+                        <option>Custom URL</option>
+                      </select>
+                    </div>
+                  )}
                 </div>
               )}
             </>
@@ -160,7 +206,7 @@ export function CreateCampaignWizard() {
                   <select className="select full" value={d.targetingMode} onChange={(e) => updateDraft('targetingMode', e.target.value)}>
                     {d.type === 'SP' && ['Automatic', 'Manual keyword', 'Manual product'].map((x) => <option key={x}>{x}</option>)}
                     {d.type === 'SB' && ['Keyword', 'Product', 'Category'].map((x) => <option key={x}>{x}</option>)}
-                    {d.type === 'SD' && ['Contextual', 'Audiences - views remarketing', 'Audiences - purchases remarketing'].map((x) => <option key={x}>{x}</option>)}
+                    {d.type === 'SD' && ['Contextual', 'Audiences - views remarketing', 'Audiences - purchases remarketing', 'Categories'].map((x) => <option key={x}>{x}</option>)}
                   </select>
                 </div>
                 {d.targetingMode === 'Automatic' && (
@@ -183,9 +229,19 @@ export function CreateCampaignWizard() {
                   </div>
                 )}
                 {(d.targetingMode === 'Manual keyword' || d.targetingMode === 'Keyword') && (
-                  <div className="field full">
-                    <label>Keywords (one per line)</label>
-                    <textarea className="input full" rows={4} value={d.keywords} onChange={(e) => updateDraft('keywords', e.target.value)} placeholder="coffee filter&#10;coffee cone filter&#10;paper coffee filters" />
+                  <div className="form-grid" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+                    <div className="field full">
+                      <label>Exact keywords (one per line)</label>
+                      <textarea className="input full" rows={4} value={d.exactKeywords} onChange={(e) => updateDraft('exactKeywords', e.target.value)} placeholder="coffee filter" />
+                    </div>
+                    <div className="field full">
+                      <label>Phrase keywords (one per line)</label>
+                      <textarea className="input full" rows={4} value={d.phraseKeywords} onChange={(e) => updateDraft('phraseKeywords', e.target.value)} placeholder="coffee maker" />
+                    </div>
+                    <div className="field full">
+                      <label>Broad keywords (one per line)</label>
+                      <textarea className="input full" rows={4} value={d.broadKeywords} onChange={(e) => updateDraft('broadKeywords', e.target.value)} placeholder="coffee" />
+                    </div>
                   </div>
                 )}
                 {(d.targetingMode === 'Manual product' || d.targetingMode === 'Product' || d.targetingMode === 'Contextual') && (
@@ -194,10 +250,34 @@ export function CreateCampaignWizard() {
                     <textarea className="input full" rows={3} value={d.asinTargets} onChange={(e) => updateDraft('asinTargets', e.target.value)} />
                   </div>
                 )}
-                {d.type === 'SD' && (
+                {d.type === 'SD' && d.targetingMode === 'Categories' && (
                   <div className="field full">
-                    <label>Audience targets</label>
-                    <textarea className="input full" rows={3} value={d.audienceTargets} onChange={(e) => updateDraft('audienceTargets', e.target.value)} placeholder="Viewed advertised products 30 days" />
+                    <label>Category targets (one per line)</label>
+                    <textarea className="input full" rows={3} value={d.categoryTargets} onChange={(e) => updateDraft('categoryTargets', e.target.value)} placeholder="Coffee & Espresso" />
+                  </div>
+                )}
+                {d.type === 'SD' && d.targetingMode.includes('Audiences') && (
+                  <div className="field full">
+                    <label>Audience lookback window</label>
+                    <select className="select full" value={d.audienceLookback || '30'} onChange={(e) => updateDraft('audienceLookback', e.target.value)}>
+                      <option value="7">Last 7 days</option>
+                      <option value="14">Last 14 days</option>
+                      <option value="30">Last 30 days</option>
+                      <option value="90">Last 90 days</option>
+                    </select>
+                  </div>
+                )}
+                {d.type === 'SD' && d.targetingMode.includes('Audiences') && (
+                  <div className="field full">
+                    <label>Audience targets (one per line)</label>
+                    <textarea className="input full" rows={3} value={d.audienceTargets} onChange={(e) => updateDraft('audienceTargets', e.target.value)} placeholder="Viewed your products in the last 30 days" />
+                  </div>
+                )}
+                {d.type === 'SD' && d.targetingMode === 'Contextual' && (
+                  <div className="field full">
+                    <div className="coach-tip" style={{ marginBottom: 8 }}>Amazon will automatically match your ads to relevant placements based on your selected products.</div>
+                    <label style={{ marginTop: 8 }}>Exclude ASINs (optional, one per line)</label>
+                    <textarea className="input full" rows={2} placeholder="B0XXXXXXX" />
                   </div>
                 )}
               </div>
@@ -213,7 +293,10 @@ export function CreateCampaignWizard() {
                   <label>Bid strategy</label>
                   <select className="select full" value={d.bidStrategy} onChange={(e) => updateDraft('bidStrategy', e.target.value)}>
                     {d.type === 'SP' && ['Dynamic bids - down only', 'Dynamic bids - up and down', 'Fixed bids'].map((x) => <option key={x}>{x}</option>)}
-                    {['SB', 'SD'].includes(d.type) && ['Cost per click', 'Cost per thousand impressions'].map((x) => <option key={x}>{x}</option>)}
+                    {d.type === 'SB' && ['Cost per click'].map((x) => <option key={x}>{x}</option>)}
+                    {d.type === 'SD' && (d.targetingMode.includes('Audiences')
+                      ? ['Cost per click', 'Cost per thousand impressions']
+                      : ['Cost per click']).map((x) => <option key={x}>{x}</option>)}
                   </select>
                 </div>
                 <div className="field">
@@ -253,6 +336,9 @@ export function CreateCampaignWizard() {
                   <div className="review-row"><span>Status</span><strong>{d.status}</strong></div>
                   <div className="review-row"><span>Products</span><strong>{d.products.length} selected</strong></div>
                   {d.keywords && <div className="review-row"><span>Keywords</span><strong>{d.keywords.split('\n').filter(Boolean).length} entered</strong></div>}
+                  {d.exactKeywords && <div className="review-row"><span>Exact keywords</span><strong>{d.exactKeywords.split('\n').filter(Boolean).length} entered</strong></div>}
+                  {d.phraseKeywords && <div className="review-row"><span>Phrase keywords</span><strong>{d.phraseKeywords.split('\n').filter(Boolean).length} entered</strong></div>}
+                  {d.broadKeywords && <div className="review-row"><span>Broad keywords</span><strong>{d.broadKeywords.split('\n').filter(Boolean).length} entered</strong></div>}
                 </div>
                 {!d.name.trim() && <div className="coach-tip" style={{ marginTop: 10 }}>Campaign name is required before launch.</div>}
               </div>

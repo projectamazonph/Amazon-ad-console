@@ -20,7 +20,8 @@ export type TargetingMode =
   | 'Category'
   | 'Contextual'
   | 'Audiences - views remarketing'
-  | 'Audiences - purchases remarketing';
+  | 'Audiences - purchases remarketing'
+  | 'Categories';
 export type BidStrategy =
   | 'Dynamic bids - down only'
   | 'Dynamic bids - up and down'
@@ -191,10 +192,13 @@ export interface CampaignDraft {
   placements: { top: number; product: number; rest: number };
   products: string[];
   creative: Partial<Creative>;
-  keywords: string;            // One-per-line text input
+  exactKeywords: string;       // One-per-line text input
+  phraseKeywords: string;      // One-per-line text input
+  broadKeywords: string;       // One-per-line text input
   asinTargets: string;
   categoryTargets: string;
   audienceTargets: string;
+  audienceLookback: string;
 }
 
 // ---------------------------------------------------------------------------
