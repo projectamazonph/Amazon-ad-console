@@ -332,3 +332,41 @@ Separate training state per trainee.
 - Switch between profiles (updates `lastActiveAt`)
 - Rename profiles
 - Delete profiles (falls back to first available)
+
+---
+
+## 13. Mobile & Responsive Layout
+
+**Component**: `MobileNav.tsx` (133 lines)
+**Hook**: `useBreakpoint.ts` (52 lines)
+**Engine**: `core/engine.ts` — `resolveBreakpoint`, `mobileMenuReducer`, `isTouchViewport`
+**View**: Integrated into all views via topbar
+
+### Breakpoints
+
+| Range | Label | Behavior |
+|-------|-------|----------|
+| < 768px | Mobile | Sidebar hidden, hamburger toggle + slide-out drawer |
+| 768–1100px | Tablet | Sidebar collapses to 200px, hamburger still available |
+| > 1100px | Desktop | Full Amazon Console layout |
+
+### Mobile Drawer
+- Hamburger button in the global nav toggles a slide-out drawer
+- Drawer contains all sidebar groups: Campaign Manager, Portfolios, Measurement
+- Backdrop overlay with click-to-close
+- Escape key closes the drawer
+- Animation state machine: closed → open ↔ closing → closed
+- Touch-friendly `44px` minimum tap targets on all interactive elements
+
+### Touch Viewport
+- `isTouchViewport()` in the engine detects devices with coarse pointer at ≤ 1100px
+- Touch-action: manipulation on interactive elements prevents tap delay
+- -webkit-overflow-scrolling: touch on scrollable panels
+
+### Responsive Adjustments
+- **Nav**: Brand text truncates, nav account text truncates, section text hidden
+- **Tables**: Horizontal scroll, smaller padding, smaller pill badges
+- **Forms**: Full-width input stacking, 44px min-height on inputs
+- **Tabs**: Horizontal overflow scroll with hidden scrollbar
+- **Toolbar**: Wrap on multiple lines, flex-grow on filter controls
+- **Page titles**: Stack vertically on mobile

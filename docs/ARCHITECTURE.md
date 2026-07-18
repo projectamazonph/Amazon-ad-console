@@ -28,6 +28,7 @@ The Amazon Ad Console follows **SOLID principles** with strict separation betwee
 ├─────────────────────────────────────────────┤
 │  Core Engine (zero dependencies)            │
 │  core/engine.ts — stateless pure functions  │
+│    — also: responsive/mobile state machine  │
 │  core/types.ts — all domain interfaces      │
 │  core/scenarios.ts — training data          │
 └─────────────────────────────────────────────┘
@@ -155,6 +156,12 @@ Two re-export files maintain compatibility with older imports:
 | Type prefixes | None (TypeScript interface) | `Campaign`, `Metrics`, `DrillSession` |
 | Feature directories | lowercase | `features/drills/` |
 | Route aliases | `@/*` → `./src/*` | `@/engine/ad-console/store` |
+
+### Responsive Architecture
+- Breakpoint logic is pure TypeScript in the engine layer (`resolveBreakpoint`)
+- Mobile menu state machine is a pure reducer (`mobileMenuReducer`)
+- `useBreakpoint` hook wraps `window.matchMedia` for SSR-safe breakpoint detection
+- `MobileNav` component is a thin view layer — no business logic
 
 ## Scalability Notes
 

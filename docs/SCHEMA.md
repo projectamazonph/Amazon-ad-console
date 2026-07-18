@@ -231,6 +231,28 @@ interface ActionLogEntry {
   message: string;
   tone: 'good' | 'bad' | 'warn';
 }
+
+### Mobile Menu State
+
+```ts
+type MenuStatus = 'closed' | 'open' | 'closing';
+
+interface MobileMenuState {
+  status: MenuStatus;
+}
+```
+
+### Hook
+
+```ts
+function useBreakpoint(): {
+  breakpoint: 'mobile' | 'tablet' | 'desktop';
+  isMobile: boolean;
+  isTablet: boolean;
+  isDesktop: boolean;
+  isTouch: boolean;
+}
+```
 ```
 
 ---

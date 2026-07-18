@@ -1,6 +1,6 @@
 # Amazon Ads Console Training Simulator
 
-> A pixel-faithful Next.js replica of the Amazon Ads Console for training Filipino VAs and eCommerce teams on PPC campaign management — risk-free, offline, with built-in coaching. The UI is a 1:1 reskin of `advertising.amazon.com` with dark slate global nav, grouped left rail, Amazon orange accent, and 9 KPI tiles.
+> A pixel-faithful Next.js replica of the Amazon Ads Console for training Filipino VAs and eCommerce teams on PPC campaign management — risk-free, offline, with built-in coaching. The UI is a 1:1 reskin of `advertising.amazon.com` with dark slate global nav, grouped left rail, Amazon orange accent, 9 KPI tiles, and responsive mobile layout with hamburger drawer navigation.
 
 ## Quick Start
 

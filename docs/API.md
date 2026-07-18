@@ -173,6 +173,23 @@ Updates campaign-level settings. Logs individual changes.
 #### `savePlacements(campaign: Campaign, placements: { top: number; product: number; rest: number }): Campaign`
 Saves placement bid adjustment percentages. Logs changes.
 
+### Responsive / Mobile
+
+#### `resolveBreakpoint(width: number): 'mobile' | 'tablet' | 'desktop'`
+Maps a pixel width to a breakpoint.
+- `< 768px` → `'mobile'`
+- `768–1100px` → `'tablet'`
+- `> 1100px` → `'desktop'`
+
+#### `mobileMenuReducer(state?: MobileMenuState, action?: MobileMenuAction): MobileMenuState`
+State machine for the mobile drawer navigation.
+- **States**: `'closed'` | `'open'` | `'closing'`
+- **Actions**: `INIT`, `TOGGLE`, `OPEN`, `CLOSE`, `ANIMATION_END`
+
+#### `isTouchViewport(hasTouch: boolean, width: number): boolean`
+Returns `true` when the device has coarse pointer (touch) and width is ≤ 1100px.
+
+
 ---
 
 ---
@@ -360,6 +377,9 @@ Score: `100 - (errors × 15) - (warnings × 5)`, passes at ≥70.
 | `resetDraft` | `()` | Reset creation wizard |
 | `launchCampaign` | `()` | Create campaign from draft |
 | `toggleAddKeywordForm` | `()` | Toggle keyword form visibility |
+| `toggleMobileMenu` | `()` | Toggle mobile drawer open/close |
+| `closeMobileMenu` | `()` | Start mobile drawer closing animation |
+| `mobileMenuAnimationEnd` | `()` | Complete closing transition to closed |
 | `resetAll` | `()` | Reset to default campaigns |
 | `exportState` | `(): string` | Export state as JSON string |
 | `importState` | `(json: string): boolean` | Import state from JSON |
