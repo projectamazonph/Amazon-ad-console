@@ -16,6 +16,7 @@ import {
   addNegative, harvestTerm, simulateDays,
   updateCampaignSettings, savePlacements,
   createPortfolio, renamePortfolio, deletePortfolio, assignCampaignToPortfolio,
+  addBudgetRule, removeBudgetRule, updateBudgetRule,
   normalizeCampaign, portfolioNames, selectProduct, removeProduct, parseKeywords,
 } from './core/engine';
 import { defaultCampaigns } from './core/scenarios';
@@ -93,6 +94,9 @@ export type AppStore = CoreSlice & DrillsSlice & ProfilesSlice & TrainerSlice & 
   renamePortfolio: (oldName: string, newName: string) => void;
   deletePortfolio: (name: string) => void;
   assignCampaignToPortfolio: (campaignId: string, portfolioName: string) => void;
+  addBudgetRule: (campaignId: string, name: string, type: string, increase: number, condition: string) => void;
+  removeBudgetRule: (campaignId: string, ruleId: string) => void;
+  updateBudgetRule: (campaignId: string, ruleId: string, updates: { name?: string; type?: string; increase?: number; condition?: string }) => void;
   selectProduct: (asin: string) => void;
   removeProduct: (asin: string) => void;
   updateDraft: (field: string, value: any) => void;
@@ -189,6 +193,15 @@ export const useAdConsoleStore = create<AppStore>()((...a) => {
       return { state: { ...s.state, portfolios, campaigns } };
     }),
     assignCampaignToPortfolio: (cid, pname) => set((s) => ({ state: { ...s.state, campaigns: assignCampaignToPortfolio(s.state.campaigns, cid, pname) } })),
+    addBudgetRule: (cid, name, type, increase, condition) => set((s) => ({
+      state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? addBudgetRule(c, name, type, increase, condition).campaign : c) },
+    })),
+    removeBudgetRule: (cid, ruleId) => set((s) => ({
+      state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? removeBudgetRule(c, ruleId).campaign : c) },
+    })),
+    updateBudgetRule: (cid, ruleId, updates) => set((s) => ({
+      state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? updateBudgetRule(c, ruleId, updates).campaign : c) },
+    })), 
     selectProduct: (asin) => set((s) => ({ draft: selectProduct(s.draft, asin) })),
     removeProduct: (asin) => set((s) => ({ draft: removeProduct(s.draft, asin) })),
     updateDraft: (field, value) => set((s) => ({ draft: { ...s.draft, [field]: value } })),
