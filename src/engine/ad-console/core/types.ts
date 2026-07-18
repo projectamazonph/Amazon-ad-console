@@ -216,6 +216,7 @@ export interface AdConsoleState {
   selectedTab: string;
   simulationDays: number;
   actionLog: ActionLogEntry[];
+  portfolios: string[];
 }
 
 export interface ActionLogEntry {

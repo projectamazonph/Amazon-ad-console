@@ -600,6 +600,75 @@ export function savePlacements(
 // Helpers
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Portfolio operations
+// ---------------------------------------------------------------------------
+
+export function createPortfolio(portfolios: string[], name: string): string[] {
+  assertNonEmpty('portfolio name', name);
+  const trimmed = name.trim();
+  if (portfolios.includes(trimmed)) return portfolios;
+  return [...portfolios, trimmed];
+}
+
+export function renamePortfolio(
+  portfolios: string[],
+  campaigns: Campaign[],
+  oldName: string,
+  newName: string,
+): { portfolios: string[]; campaigns: Campaign[] } {
+  assertNonEmpty('old portfolio name', oldName);
+  assertNonEmpty('new portfolio name', newName);
+  const trimmedOld = oldName.trim();
+  const trimmedNew = newName.trim();
+  if (!portfolios.includes(trimmedOld)) {
+    throw new ValidationError(`Unknown portfolio: ${trimmedOld}`);
+  }
+  return {
+    portfolios: portfolios.map((p) => (p === trimmedOld ? trimmedNew : p)),
+    campaigns: campaigns.map((c) =>
+      c.portfolio === trimmedOld ? { ...c, portfolio: trimmedNew } : c,
+    ),
+  };
+}
+
+export function deletePortfolio(
+  portfolios: string[],
+  campaigns: Campaign[],
+  name: string,
+): { portfolios: string[]; campaigns: Campaign[] } {
+  assertNonEmpty('portfolio name', name);
+  const trimmed = name.trim();
+  if (!portfolios.includes(trimmed)) {
+    throw new ValidationError(`Unknown portfolio: ${trimmed}`);
+  }
+  if (portfolios.length <= 1) {
+    throw new ValidationError('Cannot delete the last portfolio');
+  }
+  return {
+    portfolios: portfolios.filter((p) => p !== trimmed),
+    campaigns: campaigns.map((c) =>
+      c.portfolio === trimmed ? { ...c, portfolio: '' } : c,
+    ),
+  };
+}
+
+export function assignCampaignToPortfolio(
+  campaigns: Campaign[],
+  campaignId: string,
+  portfolioName: string,
+): Campaign[] {
+  assertNonEmpty('portfolio name', portfolioName);
+  const trimmed = portfolioName.trim();
+  const idx = campaigns.findIndex((c) => c.id === campaignId);
+  if (idx === -1) {
+    throw new ValidationError(`Unknown campaign: ${campaignId}`);
+  }
+  return campaigns.map((c, i) =>
+    i === idx ? { ...c, portfolio: trimmed, history: [...c.history, `Portfolio assigned to "${trimmed}"`] } : c,
+  );
+}
+
 export function campaignById(state: AdConsoleState, id: string): Campaign | undefined {
   return state.campaigns.find((c) => c.id === id);
 }
@@ -647,4 +716,41 @@ export function acosClass(acos: number): string {
   if (acos <= 30) return 'good';
   if (acos <= 50) return 'warn';
   return 'bad';
+}
+
+// ---------------------------------------------------------------------------
+// Wizard helpers — product selection & keyword parsing
+// ---------------------------------------------------------------------------
+
+export function selectProduct(draft: CampaignDraft, asin: string): CampaignDraft {
+  assertNonEmpty('product ASIN', asin);
+  const trimmed = asin.trim();
+  if (draft.products.includes(trimmed)) return draft;
+  return { ...draft, products: [...draft.products, trimmed] };
+}
+
+export function removeProduct(draft: CampaignDraft, asin: string): CampaignDraft {
+  assertNonEmpty('product ASIN', asin);
+  const trimmed = asin.trim();
+  if (!draft.products.includes(trimmed)) return draft;
+  if (draft.products.length <= 1) {
+    throw new ValidationError('A campaign must keep at least one product');
+  }
+  return { ...draft, products: draft.products.filter((p) => p !== trimmed) };
+}
+
+const MAX_KEYWORD_LENGTH = 200;
+
+export function parseKeywords(raw: string): string[] {
+  if (!raw || !raw.trim()) return [];
+  return raw
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => {
+      if (!line) return false;
+      if (line.length > MAX_KEYWORD_LENGTH) {
+        throw new ValidationError(`Keyword exceeds ${MAX_KEYWORD_LENGTH} characters`);
+      }
+      return true;
+    });
 }

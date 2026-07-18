@@ -210,6 +210,7 @@ describe('filtering and portfolios', () => {
       selectedTab: '',
       simulationDays: 0,
       actionLog: [],
+      portfolios: [],
     };
     expect(filteredCampaigns(state)).toHaveLength(1);
   });
