@@ -15,7 +15,8 @@ import {
   addAdGroup, renameAdGroup, setAdGroupStatus, setAdGroupDefaultBid, removeAdGroup,
   addNegative, harvestTerm, simulateDays,
   updateCampaignSettings, savePlacements,
-  normalizeCampaign, portfolioNames,
+  createPortfolio, renamePortfolio, deletePortfolio, assignCampaignToPortfolio,
+  normalizeCampaign, portfolioNames, selectProduct, removeProduct, parseKeywords,
 } from './core/engine';
 import { defaultCampaigns } from './core/scenarios';
 import type { DrillsSlice } from './features/drills/store';
@@ -88,6 +89,12 @@ export type AppStore = CoreSlice & DrillsSlice & ProfilesSlice & TrainerSlice & 
   runSimulation: (days?: number) => void;
   updateCampaignSettings: (id: string, updates: Partial<Pick<Campaign, 'dailyBudget' | 'defaultBid' | 'bidStrategy' | 'status'>>) => void;
   savePlacements: (id: string, placements: { top: number; product: number; rest: number }) => void;
+  createPortfolio: (name: string) => void;
+  renamePortfolio: (oldName: string, newName: string) => void;
+  deletePortfolio: (name: string) => void;
+  assignCampaignToPortfolio: (campaignId: string, portfolioName: string) => void;
+  selectProduct: (asin: string) => void;
+  removeProduct: (asin: string) => void;
   updateDraft: (field: string, value: any) => void;
   setWizardStep: (step: number) => void;
   resetDraft: () => void;
@@ -117,6 +124,7 @@ const coreState: AdConsoleState = {
   selectedTab: 'campaigns',
   simulationDays: 0,
   actionLog: [],
+  portfolios: portfolioNames(initialCampaigns).filter((n) => n !== 'All'),
 };
 
 export const useAdConsoleStore = create<AppStore>()((...a) => {
@@ -171,6 +179,18 @@ export const useAdConsoleStore = create<AppStore>()((...a) => {
     updateCampaignSettings: (id, updates) => set((s) => ({ state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === id ? updateCampaignSettings(c, updates) : c) } })),
     savePlacements: (id, placements) => set((s) => ({ state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === id ? savePlacements(c, placements) : c) } })),
 
+    createPortfolio: (name) => set((s) => ({ state: { ...s.state, portfolios: createPortfolio(s.state.portfolios, name) } })),
+    renamePortfolio: (oldName, newName) => set((s) => {
+      const { portfolios, campaigns } = renamePortfolio(s.state.portfolios, s.state.campaigns, oldName, newName);
+      return { state: { ...s.state, portfolios, campaigns } };
+    }),
+    deletePortfolio: (name) => set((s) => {
+      const { portfolios, campaigns } = deletePortfolio(s.state.portfolios, s.state.campaigns, name);
+      return { state: { ...s.state, portfolios, campaigns } };
+    }),
+    assignCampaignToPortfolio: (cid, pname) => set((s) => ({ state: { ...s.state, campaigns: assignCampaignToPortfolio(s.state.campaigns, cid, pname) } })),
+    selectProduct: (asin) => set((s) => ({ draft: selectProduct(s.draft, asin) })),
+    removeProduct: (asin) => set((s) => ({ draft: removeProduct(s.draft, asin) })),
     updateDraft: (field, value) => set((s) => ({ draft: { ...s.draft, [field]: value } })),
     setWizardStep: (step) => set({ wizardStep: step }),
     resetDraft: () => set({ draft: makeDraft(), wizardStep: 1 }),
@@ -180,8 +200,9 @@ export const useAdConsoleStore = create<AppStore>()((...a) => {
       if (!d.name.trim()) return s;
       const id = 'C-' + d.type + '-' + Date.now().toString(36);
       const agId = 'AG-' + id;
-      const campaign = normalizeCampaign({
-        id, type: d.type, name: d.name, portfolio: d.portfolio || 'Training Portfolio',
+      const portfolioName = d.portfolio || 'Training Portfolio';
+      let campaign = normalizeCampaign({
+        id, type: d.type, name: d.name, portfolio: portfolioName,
         status: d.status, dailyBudget: d.dailyBudget, defaultBid: d.defaultBid,
         startDate: d.startDate, endDate: d.endDate || null,
         targetingMode: d.targetingMode, adFormat: d.adFormat, bidStrategy: d.bidStrategy,
@@ -189,13 +210,18 @@ export const useAdConsoleStore = create<AppStore>()((...a) => {
         adGroups: [{ id: agId, campaignId: id, name: d.type + ' training ad group', status: d.status, defaultBid: d.defaultBid, metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 } }],
         targets: [], searchTerms: d.type === 'SD' ? [] : [], negatives: [], budgetRules: [], history: ['Campaign launched in simulator'],
       });
-      return { state: { ...s.state, campaigns: [campaign, ...s.state.campaigns], selectedCampaignId: id, selectedTab: 'overview' }, draft: makeDraft(), wizardStep: 1, view: 'detail' as any };
+      const kws = parseKeywords(d.keywords);
+      for (const kw of kws) {
+        const result = addTarget(campaign, kw, 'Exact', d.defaultBid, agId);
+        campaign = result.campaign;
+      }
+      return { state: { ...s.state, campaigns: [campaign, ...s.state.campaigns], portfolios: s.state.portfolios.includes(portfolioName) ? s.state.portfolios : [...s.state.portfolios, portfolioName], selectedCampaignId: id, selectedTab: 'overview' }, draft: makeDraft(), wizardStep: 1, view: 'detail' as any };
     }),
 
     toggleAddKeywordForm: () => set((s) => ({ showAddKeywordForm: !s.showAddKeywordForm })),
 
     resetAll: () => set({
-      state: { ...coreState, campaigns: defaultCampaigns() },
+      state: { ...coreState, campaigns: defaultCampaigns(), portfolios: portfolioNames(defaultCampaigns()).filter((n) => n !== 'All') },
       draft: makeDraft(), wizardStep: 1, view: 'dashboard', showAddKeywordForm: false,
     }),
 
