@@ -24,8 +24,8 @@ export function CampaignDetail({ campaign }: Props) {
   const adjustTargetBid = useAdConsoleStore((s) => s.adjustTargetBid);
   const addNegative = useAdConsoleStore((s) => s.addNegative);
   const harvestTerm = useAdConsoleStore((s) => s.harvestTerm);
-  const addProduct = useAdConsoleStore((s) => s.addProduct);
-  const removeProduct = useAdConsoleStore((s) => s.removeProduct);
+  const addCampaignProduct = useAdConsoleStore((s) => s.addCampaignProduct);
+  const removeCampaignProduct = useAdConsoleStore((s) => s.removeCampaignProduct);
   const runSimulation = useAdConsoleStore((s) => s.runSimulation);
   const toggleAddKeywordForm = useAdConsoleStore((s) => s.toggleAddKeywordForm);
   const showAddKeywordForm = useAdConsoleStore((s) => s.showAddKeywordForm);
@@ -49,9 +49,9 @@ export function CampaignDetail({ campaign }: Props) {
   const [newKeywordAdGroup, setNewKeywordAdGroup] = useState('');
   const [bidEdits, setBidEdits] = useState<Record<string, string>>({});
   const [budgetInput, setBudgetInput] = useState(String(campaign.dailyBudget));
-  const [defaultBidInput, setDefaultBidInput] = useState(String(campaign.defaultBid));
   const [negTerm, setNegTerm] = useState('');
   const [negType, setNegType] = useState('Negative exact');
+  const [defaultBidInput, setDefaultBidInput] = useState(String(campaign.defaultBid));
 
   const c = campaign;
   const [ngAg, setNgAg] = useState(c.adGroups[0]?.id ?? '');
@@ -191,7 +191,7 @@ export function CampaignDetail({ campaign }: Props) {
             return (
               <div key={asin} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                 <span className="pill" style={{ margin: 0 }}>{p ? `${p.image} ${p.title} (${p.asin})` : asin}</span>
-                <button className="btn small danger" onClick={() => removeProduct(c.id, asin)} style={{ padding: '2px 6px', fontSize: 11 }}>&times;</button>
+                <button className="btn small danger" onClick={() => removeCampaignProduct(c.id, asin)} style={{ padding: '2px 6px', fontSize: 11 }}>&times;</button>
               </div>
             );
           })}
@@ -353,8 +353,7 @@ export function CampaignDetail({ campaign }: Props) {
     return (
       <div className="table-wrap">
         <table>
-          <thead><tr><th>Target</th><th>Match</th><th>Status</th><th>Bid</th><th>Clicks</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Actions</th></tr></thead>
-          <thead><tr><th>Ad group</th><th>Status</th><th>Default bid</th><th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th><th>Targets</th></tr></thead>
+          <thead><tr><th>Target</th><th>Match</th><th>Status</th><th>Bid</th><th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th><th>Actions</th></tr></thead>
           <tbody>
             {targets.map((t) => {
               const tx = calc(t);
@@ -364,27 +363,18 @@ export function CampaignDetail({ campaign }: Props) {
                   <td>{t.match}</td>
                   <td><span className={`pill ${t.status === 'Enabled' ? 'green' : 'orange'}`}>{t.status}</span></td>
                   <td className="money">{formatBid(t.bid)}</td>
+                  <td className="mono">{formatWhole(t.impressions)}</td>
                   <td className="mono">{formatWhole(t.clicks)}</td>
+                  <td className="money">{formatBid(tx.cpc)}</td>
                   <td className="money">{formatMoney(t.spend)}</td>
                   <td className="money">{formatMoney(t.sales)}</td>
+                  <td className="mono">{formatWhole(t.orders)}</td>
                   <td className={`mono ${acosClass(tx.acos)}`}>{t.sales ? formatPercent(tx.acos) : 'No sales'}</td>
+                  <td className="mono">{formatRoas(tx.roas)}</td>
                   <td>
                     <button className="btn small" onClick={() => toggleStatusTarget(c.id, t.id)}>{t.status === 'Enabled' ? 'Pause' : 'Enable'}</button>{' '}
                     <button className="btn small danger" onClick={() => { if (confirm(`Remove "${t.value}"?`)) removeTarget(c.id, t.id); }}>Remove</button>
                   </td>
-                <tr key={ag.id}>
-                  <td><strong>{ag.name}</strong></td>
-                  <td><span className={`pill ${ag.status === 'Enabled' ? 'green' : 'orange'}`}>{ag.status}</span></td>
-                  <td className="money">{formatBid(ag.defaultBid)}</td>
-                  <td className="mono">{formatWhole(m.impressions)}</td>
-                  <td className="mono">{formatWhole(m.clicks)}</td>
-                  <td className="money">{formatBid(ax.cpc)}</td>
-                  <td className="money">{formatMoney(m.spend)}</td>
-                  <td className="money">{formatMoney(m.sales)}</td>
-                  <td className="mono">{formatWhole(m.orders)}</td>
-                  <td className={`mono ${acosClass(ax.acos)}`}>{ax.acos ? formatPercent(ax.acos) : '-'}</td>
-                  <td className="mono">{formatRoas(ax.roas)}</td>
-                  <td>{c.targets.filter((t) => t.adGroupId === ag.id).length}</td>
                 </tr>
               );
             })}

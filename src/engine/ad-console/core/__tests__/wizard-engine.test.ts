@@ -11,7 +11,10 @@ function draft(over: Partial<CampaignDraft> = {}): CampaignDraft {
     bidStrategy: 'Dynamic bids - down only',
     placements: { top: 0, product: 0, rest: 0 },
     products: ['B0TRAIN001'], creative: {},
-    keywords: '', asinTargets: '', categoryTargets: '', audienceTargets: '',
+    phraseKeywords: '',
+    broadKeywords: '',
+    exactKeywords: '', asinTargets: '', categoryTargets: '', audienceLookback: '30',
+    audienceTargets: '',
     ...over,
   };
 }

@@ -303,18 +303,18 @@ export function CreateCampaignWizard() {
                   <label>Default bid</label>
                   <input className="input full" type="number" min="0.02" step="0.01" value={d.defaultBid} onChange={(e) => updateDraft('defaultBid', Number(e.target.value))} />
                 </div>
-                <div className="field">
+                {d.type !== 'SD' && <div className="field">
                   <label>Top of Search (%)</label>
                   <input className="input full" type="number" min="0" max="900" value={d.placements.top} onChange={(e) => updateDraft('placements', { ...d.placements, top: Number(e.target.value) })} />
-                </div>
-                <div className="field">
+                </div>}
+                {d.type === 'SP' && <div className="field">
                   <label>Product pages (%)</label>
                   <input className="input full" type="number" min="0" max="900" value={d.placements.product} onChange={(e) => updateDraft('placements', { ...d.placements, product: Number(e.target.value) })} />
-                </div>
-                <div className="field">
+                </div>}
+                {d.type === 'SP' && <div className="field">
                   <label>Rest of Search (%)</label>
                   <input className="input full" type="number" min="0" max="900" value={d.placements.rest} onChange={(e) => updateDraft('placements', { ...d.placements, rest: Number(e.target.value) })} />
-                </div>
+                </div>}
               </div>
             </>
           )}
@@ -335,7 +335,6 @@ export function CreateCampaignWizard() {
                   <div className="review-row"><span>Format</span><strong>{d.adFormat}</strong></div>
                   <div className="review-row"><span>Status</span><strong>{d.status}</strong></div>
                   <div className="review-row"><span>Products</span><strong>{d.products.length} selected</strong></div>
-                  {d.keywords && <div className="review-row"><span>Keywords</span><strong>{d.keywords.split('\n').filter(Boolean).length} entered</strong></div>}
                   {d.exactKeywords && <div className="review-row"><span>Exact keywords</span><strong>{d.exactKeywords.split('\n').filter(Boolean).length} entered</strong></div>}
                   {d.phraseKeywords && <div className="review-row"><span>Phrase keywords</span><strong>{d.phraseKeywords.split('\n').filter(Boolean).length} entered</strong></div>}
                   {d.broadKeywords && <div className="review-row"><span>Broad keywords</span><strong>{d.broadKeywords.split('\n').filter(Boolean).length} entered</strong></div>}

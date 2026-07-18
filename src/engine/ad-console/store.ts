@@ -8,8 +8,9 @@
  */
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { Campaign, CampaignDraft, CampaignStatus, MatchType, FilterState, AdConsoleState, Creative } from './core/types';
-import type { Campaign, CampaignDraft, CampaignStatus, MatchType, FilterState, AdConsoleState, Creative, Target } from './core/types';
+import type {
+  Campaign, CampaignDraft, CampaignStatus, MatchType, FilterState, AdConsoleState, Creative, Target,
+} from './core/types';
 import {
   calc, totalMetrics, filteredCampaigns, campaignById, generateId,
   toggleCampaignStatus, archiveCampaign, duplicateCampaign,
@@ -116,8 +117,8 @@ export type AppStore = CoreSlice & DrillsSlice & ProfilesSlice & TrainerSlice & 
   closeMobileMenu: () => void;
   mobileMenuAnimationEnd: () => void;
   resetAll: () => void;
-  addProduct: (campaignId: string, asin: string) => void;
-  removeProduct: (campaignId: string, asin: string) => void;
+  addCampaignProduct: (campaignId: string, asin: string) => void;
+  removeCampaignProduct: (campaignId: string, asin: string) => void;
   // Derived
   filtered: () => Campaign[];
   selectedCampaign: () => Campaign | undefined;
@@ -235,11 +236,9 @@ export const useAdConsoleStore = create<AppStore>()(
     launchCampaign: () => set((s) => {
       const d = s.draft;
       if (!d.name.trim()) return s;
-      const id = 'C-' + d.type + '-' + Date.now().toString(36);
+            const id = 'C-' + d.type + '-' + Date.now().toString(36);
       const agId = 'AG-' + id;
       const portfolioName = d.portfolio || 'Training Portfolio';
-      let campaign = normalizeCampaign({
-        id, type: d.type, name: d.name, portfolio: portfolioName,
       const parseKeywords = (text: string, match: string) =>
         text.split('\n').filter((k: string) => k.trim()).map((k: string) => ({
           id: generateId('T'), campaignId: id, adGroupId: agId,
@@ -253,7 +252,7 @@ export const useAdConsoleStore = create<AppStore>()(
         ...parseKeywords(d.broadKeywords, 'Broad'),
       ];
       const campaign = normalizeCampaign({
-        id, type: d.type, name: d.name, portfolio: d.portfolio || 'Training Portfolio',
+        id, type: d.type, name: d.name, portfolio: portfolioName,
         status: d.status, dailyBudget: d.dailyBudget, defaultBid: d.defaultBid,
         startDate: d.startDate, endDate: d.endDate || null,
         targetingMode: d.targetingMode, adFormat: d.adFormat, bidStrategy: d.bidStrategy,
@@ -261,12 +260,7 @@ export const useAdConsoleStore = create<AppStore>()(
         adGroups: [{ id: agId, campaignId: id, name: d.type + ' training ad group', status: d.status, defaultBid: d.defaultBid, metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 } }],
         targets, searchTerms: d.type === 'SD' ? [] : [], negatives: [], budgetRules: [], history: ['Campaign launched in simulator'],
       });
-      const kws = parseKeywords(d.keywords);
-      for (const kw of kws) {
-        const result = addTarget(campaign, kw, 'Exact', d.defaultBid, agId);
-        campaign = result.campaign;
-      }
-      return { state: { ...s.state, campaigns: [campaign, ...s.state.campaigns], portfolios: s.state.portfolios.includes(portfolioName) ? s.state.portfolios : [...s.state.portfolios, portfolioName], selectedCampaignId: id, selectedTab: 'overview' }, draft: makeDraft(), wizardStep: 1, view: 'detail' as any };
+      return { state: { ...s.state, campaigns: [campaign, ...s.state.campaigns], portfolios: s.state.portfolios.includes(portfolioName) ? s.state.portfolios : [...s.state.portfolios, portfolioName], selectedCampaignId: id, selectedTab: 'overview' }, draft: makeDraft(), wizardStep: 1, view: 'detail' };
     }),
 
     toggleAddKeywordForm: () => set((s) => ({ showAddKeywordForm: !s.showAddKeywordForm })),
@@ -275,7 +269,7 @@ export const useAdConsoleStore = create<AppStore>()(
     openMobileMenu: () => set((s) => ({ mobileMenu: mobileMenuReducer(s.mobileMenu, { type: 'OPEN' }) })),
     closeMobileMenu: () => set((s) => ({ mobileMenu: mobileMenuReducer(s.mobileMenu, { type: 'CLOSE' }) })),
     mobileMenuAnimationEnd: () => set((s) => ({ mobileMenu: mobileMenuReducer(s.mobileMenu, { type: 'ANIMATION_END' }) })),
-    addProduct: (campaignId, asin) => set((s) => ({
+    addCampaignProduct: (campaignId, asin) => set((s) => ({
       state: { ...s.state, campaigns: s.state.campaigns.map((c) =>
         c.id === campaignId && !c.products.includes(asin)
           ? { ...c, products: [...c.products, asin] }
@@ -283,7 +277,7 @@ export const useAdConsoleStore = create<AppStore>()(
       )},
     })),
 
-    removeProduct: (campaignId, asin) => set((s) => ({
+    removeCampaignProduct: (campaignId, asin) => set((s) => ({
       state: { ...s.state, campaigns: s.state.campaigns.map((c) =>
         c.id === campaignId
           ? { ...c, products: c.products.filter((p) => p !== asin) }

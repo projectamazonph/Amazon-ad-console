@@ -7,8 +7,6 @@
 
 import type {
   Campaign, CampaignType, CampaignStatus, CampaignDraft, MatchType, BudgetRule,
-  Target, AdGroup, Metrics, DerivedMetrics,
-  Campaign, CampaignType, CampaignStatus, CampaignDraft, MatchType,
   Target, AdGroup, Metrics, DerivedMetrics, Negative,
   AdConsoleState, FilterState, ActionLogEntry,
 } from './types';
@@ -77,7 +75,7 @@ export function metricDefaults(m: Partial<Metrics>): Metrics {
 
 export function normalizeCampaign(c: Partial<Campaign>): Campaign {
   assertCampaignType(c.type ?? 'SP');
-  const type = c.type as CampaignType;
+  const type: CampaignType = c.type ?? 'SP';
   assertCampaignStatus(c.status ?? 'Paused');
   const id = c.id ?? generateId('C-' + type);
   const primaryAg: AdGroup = {
