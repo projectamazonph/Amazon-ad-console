@@ -7,6 +7,7 @@
  * Each slice is independent with focused types and actions (SOLID).
  */
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import type { Campaign, CampaignDraft, CampaignStatus, MatchType, FilterState, AdConsoleState, Creative } from './core/types';
 import {
   calc, totalMetrics, filteredCampaigns, campaignById,
@@ -18,6 +19,7 @@ import {
   createPortfolio, renamePortfolio, deletePortfolio, assignCampaignToPortfolio,
   addBudgetRule, removeBudgetRule, updateBudgetRule,
   normalizeCampaign, portfolioNames, selectProduct, removeProduct, parseKeywords,
+  mobileMenuReducer, type MobileMenuState, type MobileMenuAction,
 } from './core/engine';
 import { defaultCampaigns } from './core/scenarios';
 import type { DrillsSlice } from './features/drills/store';
@@ -45,6 +47,7 @@ export interface CoreSlice {
   view: 'dashboard' | 'campaigns' | 'create' | 'detail' | 'portfolio'
     | 'drills' | 'reports' | 'bulk' | 'trainer' | 'integrity' | 'missions';
   showAddKeywordForm: boolean;
+  mobileMenu: MobileMenuState;
 }
 
 // ---------------------------------------------------------------------------
@@ -104,6 +107,10 @@ export type AppStore = CoreSlice & DrillsSlice & ProfilesSlice & TrainerSlice & 
   resetDraft: () => void;
   launchCampaign: () => void;
   toggleAddKeywordForm: () => void;
+  toggleMobileMenu: () => void;
+  openMobileMenu: () => void;
+  closeMobileMenu: () => void;
+  mobileMenuAnimationEnd: () => void;
   resetAll: () => void;
   // Derived
   filtered: () => Campaign[];
@@ -131,8 +138,18 @@ const coreState: AdConsoleState = {
   portfolios: portfolioNames(initialCampaigns).filter((n) => n !== 'All'),
 };
 
-export const useAdConsoleStore = create<AppStore>()((...a) => {
-  const [set, get] = a;
+const PERSIST_KEY = 'ad-console-storage';
+
+function rehydrateCampaignCampaigns(campaigns: any[]): Campaign[] {
+  // When rehydrating, ensure Campaign objects have all required fields.
+  // Could add migration logic here for future schema versions.
+  return campaigns as Campaign[];
+}
+
+export const useAdConsoleStore = create<AppStore>()(
+  persist(
+    (...a) => {
+      const [set, get] = a;
   return {
     // Core state
     state: coreState,
@@ -140,6 +157,7 @@ export const useAdConsoleStore = create<AppStore>()((...a) => {
     wizardStep: 1,
     view: 'dashboard',
     showAddKeywordForm: false,
+    mobileMenu: mobileMenuReducer(undefined, { type: 'INIT' }),
 
     // Feature slices
     ...createDrillsSlice(...a),
@@ -233,12 +251,31 @@ export const useAdConsoleStore = create<AppStore>()((...a) => {
 
     toggleAddKeywordForm: () => set((s) => ({ showAddKeywordForm: !s.showAddKeywordForm })),
 
+    toggleMobileMenu: () => set((s) => ({ mobileMenu: mobileMenuReducer(s.mobileMenu, { type: 'TOGGLE' }) })),
+    openMobileMenu: () => set((s) => ({ mobileMenu: mobileMenuReducer(s.mobileMenu, { type: 'OPEN' }) })),
+    closeMobileMenu: () => set((s) => ({ mobileMenu: mobileMenuReducer(s.mobileMenu, { type: 'CLOSE' }) })),
+    mobileMenuAnimationEnd: () => set((s) => ({ mobileMenu: mobileMenuReducer(s.mobileMenu, { type: 'ANIMATION_END' }) })),
+
     resetAll: () => set({
       state: { ...coreState, campaigns: defaultCampaigns(), portfolios: portfolioNames(defaultCampaigns()).filter((n) => n !== 'All') },
       draft: makeDraft(), wizardStep: 1, view: 'dashboard', showAddKeywordForm: false,
     }),
 
     exportState: () => JSON.stringify(get().state),
-    importState: (json) => { try { set({ state: JSON.parse(json) }); return true; } catch { return false; } },
+    importState: (json) => { try { if (!json || !json.trim()) return false; const parsed = JSON.parse(json); if (!parsed || typeof parsed !== 'object') return false; set({ state: parsed }); return true; } catch { return false; } },
   };
-});
+},
+    {
+      name: PERSIST_KEY,
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        state: state.state,
+        // Don't persist UI state like draft, wizardStep, view, etc.
+      }),
+      merge: (persisted, current) => ({
+        ...current,
+        ...(persisted as Partial<AppStore>),
+      }),
+    },
+  ),
+);
