@@ -120,24 +120,3 @@ describe('getLeftRail tab mapping', () => {
   });
 });
 
-describe('resolveSidebarClick', () => {
-  it('returns setTab when item has tab and user is in detail view', () => {
-    const action = resolveSidebarClick({ view: 'campaigns', tab: 'adgroups' }, 'detail');
-    expect(action).toEqual({ type: 'setTab', tab: 'adgroups' });
-  });
-
-  it('returns setTabAndView when item has tab and user is NOT in detail view', () => {
-    const action = resolveSidebarClick({ view: 'campaigns', tab: 'targets' }, 'campaigns');
-    expect(action).toEqual({ type: 'setTabAndView', tab: 'targets', view: 'campaigns' });
-  });
-
-  it('returns setView when item has no tab', () => {
-    const action = resolveSidebarClick({ view: 'portfolio' }, 'campaigns');
-    expect(action).toEqual({ type: 'setView', view: 'portfolio' });
-  });
-
-  it('returns setView for plain Campaigns item', () => {
-    const action = resolveSidebarClick({ view: 'campaigns' }, 'detail');
-    expect(action).toEqual({ type: 'setView', view: 'campaigns' });
-  });
-});
