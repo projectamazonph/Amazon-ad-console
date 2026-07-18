@@ -29,6 +29,7 @@ export interface LeftRailItem {
   label: string;
   view: NavView;
   group: 'campaigns' | 'portfolios' | 'measurement';
+  tab?: string;
 }
 
 export interface KpiTile {
@@ -57,14 +58,14 @@ export const GLOBAL_NAV: NavSection[] = [
 const LEFT_RAIL: Record<NavView, LeftRailItem[]> = {
   campaigns: [
     { label: 'Campaigns', view: 'campaigns', group: 'campaigns' },
-    { label: 'Ad groups', view: 'campaigns', group: 'campaigns' },
-    { label: 'Targeting', view: 'campaigns', group: 'campaigns' },
-    { label: 'Search terms', view: 'campaigns', group: 'campaigns' },
-    { label: 'Negative keywords', view: 'campaigns', group: 'campaigns' },
+    { label: 'Ad groups', view: 'campaigns', group: 'campaigns', tab: 'adgroups' },
+    { label: 'Targeting', view: 'campaigns', group: 'campaigns', tab: 'targets' },
+    { label: 'Search terms', view: 'campaigns', group: 'campaigns', tab: 'searchTerms' },
+    { label: 'Negative keywords', view: 'campaigns', group: 'campaigns', tab: 'negatives' },
   ],
   portfolio: [
     { label: 'Portfolios', view: 'portfolio', group: 'portfolios' },
-    { label: 'Budget rules', view: 'portfolio', group: 'portfolios' },
+    { label: 'Budget rules', view: 'portfolio', group: 'portfolios', tab: 'budgetRules' },
   ],
   dashboard: [
     { label: 'Sponsored Products', view: 'dashboard', group: 'measurement' },
@@ -110,6 +111,25 @@ function whole(n: number): string {
 
 function pct(n: number): string {
   return n.toFixed(2) + '%';
+}
+
+export interface SidebarClickAction {
+  type: 'setView' | 'setTab' | 'setTabAndView';
+  view?: NavView;
+  tab?: string;
+}
+
+export function resolveSidebarClick(
+  item: { view: NavView; tab?: string },
+  currentView: string,
+): SidebarClickAction {
+  if (item.tab && currentView === 'detail') {
+    return { type: 'setTab', tab: item.tab };
+  }
+  if (item.tab && currentView !== 'detail') {
+    return { type: 'setTabAndView', tab: item.tab, view: item.view };
+  }
+  return { type: 'setView', view: item.view };
 }
 
 /** Builds the formatted KPI tiles from a metrics snapshot (fail-fast on missing fields). */

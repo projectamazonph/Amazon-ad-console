@@ -81,3 +81,63 @@ describe('KPI tiles', () => {
     expect(() => getKpiTiles({ impressions: 1 } as never)).toThrow();
   });
 });
+
+describe('getLeftRail tab mapping', () => {
+  it('maps Ad groups to the adgroups tab', () => {
+    const items = getLeftRail('campaigns');
+    const ag = items.find((i) => i.label === 'Ad groups');
+    expect(ag?.tab).toBe('adgroups');
+  });
+
+  it('maps Targeting to the targets tab', () => {
+    const items = getLeftRail('campaigns');
+    const tgt = items.find((i) => i.label === 'Targeting');
+    expect(tgt?.tab).toBe('targets');
+  });
+
+  it('maps Search terms to the searchTerms tab', () => {
+    const items = getLeftRail('campaigns');
+    const st = items.find((i) => i.label === 'Search terms');
+    expect(st?.tab).toBe('searchTerms');
+  });
+
+  it('maps Negative keywords to the negatives tab', () => {
+    const items = getLeftRail('campaigns');
+    const neg = items.find((i) => i.label === 'Negative keywords');
+    expect(neg?.tab).toBe('negatives');
+  });
+
+  it('maps Budget rules to the budgetRules tab in portfolio section', () => {
+    const items = getLeftRail('portfolio');
+    const br = items.find((i) => i.label === 'Budget rules');
+    expect(br?.tab).toBe('budgetRules');
+  });
+
+  it('does not have a tab on the Campaigns item (navigates to list)', () => {
+    const items = getLeftRail('campaigns');
+    const campaigns = items.find((i) => i.label === 'Campaigns');
+    expect(campaigns?.tab).toBeUndefined();
+  });
+});
+
+describe('resolveSidebarClick', () => {
+  it('returns setTab when item has tab and user is in detail view', () => {
+    const action = resolveSidebarClick({ view: 'campaigns', tab: 'adgroups' }, 'detail');
+    expect(action).toEqual({ type: 'setTab', tab: 'adgroups' });
+  });
+
+  it('returns setTabAndView when item has tab and user is NOT in detail view', () => {
+    const action = resolveSidebarClick({ view: 'campaigns', tab: 'targets' }, 'campaigns');
+    expect(action).toEqual({ type: 'setTabAndView', tab: 'targets', view: 'campaigns' });
+  });
+
+  it('returns setView when item has no tab', () => {
+    const action = resolveSidebarClick({ view: 'portfolio' }, 'campaigns');
+    expect(action).toEqual({ type: 'setView', view: 'portfolio' });
+  });
+
+  it('returns setView for plain Campaigns item', () => {
+    const action = resolveSidebarClick({ view: 'campaigns' }, 'detail');
+    expect(action).toEqual({ type: 'setView', view: 'campaigns' });
+  });
+});

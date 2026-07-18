@@ -222,6 +222,7 @@ interface AdConsoleState {
   selectedTab: string;
   simulationDays: number;
   actionLog: ActionLogEntry[];
+  portfolios: string[];              // Known portfolio names (excluding 'All')
 }
 
 interface ActionLogEntry {
