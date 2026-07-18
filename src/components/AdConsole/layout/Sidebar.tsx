@@ -17,7 +17,7 @@ export function Sidebar() {
   const resetAll = useAdConsoleStore((s) => s.resetAll);
 
   // The left rail reflects the active global-nav section.
-  const section: NavView = view === 'portfolio' ? 'portfolio' : 'campaigns';
+  const section: NavView = view === 'portfolio' ? 'portfolio' : view === 'dashboard' ? 'dashboard' : 'campaigns';
   const items = getLeftRail(section);
 
   // Group items by their area for Amazon-style sectioned rail.
@@ -35,7 +35,7 @@ export function Sidebar() {
             <div
               key={item.label}
               className={`sidebar-item ${
-                (item.tab ? view === 'detail' : view === item.view) && group === 'campaigns' ? 'active' : ''
+                (item.tab ? view === 'detail' : view === item.view) ? 'active' : ''
               }`}
               onClick={() => {
                 const action = resolveSidebarClick(item, view);
