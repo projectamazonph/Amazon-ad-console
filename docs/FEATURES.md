@@ -57,14 +57,25 @@ List view of all campaigns with filtering and bulk actions.
 
 ## 3. Campaign Detail
 
-**Component**: `CampaignDetail.tsx` (436 lines)
+**Component**: `CampaignDetail.tsx` (550+ lines)
 **View**: `detail`
 
 Deep-dive view for a single campaign with tabbed sub-views.
 
 ### Tabs
 - **Overview** — campaign settings, metrics, creative status
-- **Ad Groups** — list of ad groups with metrics
+- **Ad Groups** — list of ad groups with CRUD actions and drill-down
+
+  **CRUD operations** (inline in the table):
+  - **Create**: Enter a name in the "New ad group name" field and click "+ Add ad group"
+  - **Rename**: Click the inline edit icon next to the ad group name
+  - **Status**: Toggle via inline dropdown (Enabled / Paused / Archived); cascades to all targets in the group
+  - **Default bid**: Set via inline numeric input; clamped to ≥ $0.02
+  - **Delete**: Click the "Remove" button (disabled if it's the only ad group); removes the group and all its targets
+
+  **Drill-down**: Click an ad group row to see its child targets in a focused sub-view with a "← All ad groups" back button. The drill-down shows:
+  - Ad group name, status dropdown, default bid editor with Save button
+  - Full targets table filtered to that ad group
 - **Targets** — keyword/product targets with bid management
 - **Search Terms** — customer search terms with harvest/negate actions
 - **Negatives** — negative keyword list
@@ -93,18 +104,18 @@ Three placement types with percentage bid modifiers:
 
 ## 4. Create Campaign Wizard
 
-**Component**: `CreateCampaignWizard.tsx` (227 lines)
+**Component**: `CreateCampaignWizard.tsx` (280+ lines)
 **View**: `create`
 
 Multi-step campaign creation wizard mimicking the Amazon Ads Console flow.
 
 ### Steps
-1. **Campaign type**: Select SP, SB, or SD
-2. **Settings**: Name, portfolio, daily budget, default bid, targeting mode, bid strategy
-3. **Products**: Select ASINs from the product catalog
-4. **Targeting**: Add keywords (for SP Manual/SB) or configure auto-targeting
-5. **Creative**: Brand name, headline, destination (SB/SD only)
-6. **Review & Launch**: Summary and confirmation
+1. **Ad type**: Select SP, SB, or SD
+2. **Basics**: Campaign name, portfolio, status, daily budget, start date, ad format
+3. **Products & creative**: Select ASINs from a checkable product catalog table; enter brand name and headline for SB/SD campaigns
+4. **Targeting**: Choose targeting mode with auto-targeting context panel; enter keywords (one per line) for manual modes, or ASIN/audience targets for product/contextual targeting
+5. **Bidding & budget**: Bid strategy, default bid, and placement adjustments (Top of Search / Product pages / Rest of Search)
+6. **Review & launch**: Full settings summary; keywords and product counts shown; launch creates the campaign with parsed keywords as targets
 
 ### Validation
 - Campaign name is required

@@ -126,11 +126,11 @@ runSimulation(days)
 - **Portable** — can be copied to any project without modification
 
 ### Design System
-- **amph-v2 "Field Manual"** — warm off-white surfaces, orange accent, Space Grotesk typography
-- **CSS custom properties** — all tokens defined in `globals.css` on `:root`
-- **Dark mode** — automatic via `prefers-color-scheme: dark`, no manual toggle
+- **Amazon Advertising Console identity** — faithful replica of `advertising.amazon.com`: light-gray canvas (`#f3f3f3`), white cards, dark slate global nav (`#232f3e`), Amazon orange accent (`#ff9900`), Ember-style type
+- **CSS custom properties** — all tokens defined in `globals.css` on `:root` (~1000 lines)
+- **Light mode only** — Amazon Ads Console is light-themed; no dark mode toggle
 - **No CSS modules** — global stylesheet with BEM-like class naming
-- **Font loading** — `next/font/google` for Space Grotesk + JetBrains Mono
+- **Font stack** — `'Amazon Ember', 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif` (Ember substitute since Ember is not freely distributable)
 
 ### Component Layer (`src/components/AdConsole/`)
 - **'use client'** directive on all interactive components

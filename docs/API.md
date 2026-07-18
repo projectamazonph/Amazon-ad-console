@@ -82,12 +82,14 @@ Creates a deep copy of a campaign with:
 
 ### Target (Keyword) Operations
 
-#### `addTarget(campaign: Campaign, value: string, match: MatchType | string, bid: number): { campaign: Campaign; target: Target }`
-Adds a new keyword target to the campaign's first ad group.
+#### `addTarget(campaign: Campaign, value: string, match: MatchType | string, bid: number, adGroupId?: string): { campaign: Campaign; target: Target }`
+Adds a new keyword target to a campaign's ad group.
 - **value**: The keyword text
 - **match**: `'Exact'`, `'Phrase'`, or `'Broad'`
 - **bid**: CPC bid in dollars
+- **adGroupId**: (optional) Target ad group ID. Defaults to the first ad group.
 - Logs the addition. Returns both the updated campaign and the new target.
+- Throws `ValidationError` if the specified ad group does not exist.
 
 #### `removeTarget(campaign: Campaign, targetId: string): Campaign`
 Removes a target by ID from the campaign. Logs the removal.
@@ -100,6 +102,33 @@ Adjusts a target's bid by a multiplier (e.g., `1.2` = +20%, `0.8` = -20%). Logs 
 
 #### `pauseTarget(campaign: Campaign, targetId: string): Campaign`
 Sets a target's status to `'Paused'`. Logs the pause action.
+
+---
+
+---
+
+### Ad Group Operations
+
+#### `addAdGroup(campaign: Campaign, name: string): Campaign`
+Appends a new enabled ad group to the campaign.
+- **name**: Ad group name (required, trimmed)
+- Logs creation. Throws `ValidationError` on empty name.
+
+#### `renameAdGroup(campaign: Campaign, adGroupId: string, name: string): Campaign`
+Renames an existing ad group.
+- Throws `ValidationError` on unknown ID or empty name.
+
+#### `setAdGroupStatus(campaign: Campaign, adGroupId: string, status: CampaignStatus): Campaign`
+Sets an ad group's status and cascades it to all targets in that group.
+- Throws `ValidationError` on unknown ID.
+
+#### `setAdGroupDefaultBid(campaign: Campaign, adGroupId: string, defaultBid: number): Campaign`
+Sets the default CPC bid for an ad group (clamped to ≥ $0.02).
+- Throws `ValidationError` on unknown ID.
+
+#### `removeAdGroup(campaign: Campaign, adGroupId: string): Campaign`
+Removes an ad group and all its associated targets.
+- Throws `ValidationError` if it's the campaign's last ad group.
 
 ---
 
@@ -145,6 +174,42 @@ Updates campaign-level settings. Logs individual changes.
 Saves placement bid adjustment percentages. Logs changes.
 
 ---
+
+---
+
+### Portfolio Operations
+
+#### `createPortfolio(portfolios: string[], name: string): string[]`
+Adds a new portfolio name to the list. No-op if name already exists.
+- Throws `ValidationError` on empty name.
+
+#### `renamePortfolio(portfolios: string[], campaigns: Campaign[], oldName: string, newName: string): { portfolios: string[]; campaigns: Campaign[] }`
+Renames a portfolio across both the portfolio list and all campaigns using it.
+- Throws `ValidationError` on unknown old name or empty new name.
+
+#### `deletePortfolio(portfolios: string[], campaigns: Campaign[], name: string): { portfolios: string[]; campaigns: Campaign[] }`
+Removes a portfolio name and unassigns campaigns using it (sets portfolio to `''`).
+- Throws `ValidationError` if it's the last portfolio.
+
+#### `assignCampaignToPortfolio(campaigns: Campaign[], campaignId: string, portfolioName: string): Campaign[]`
+Assigns a campaign to a portfolio by ID.
+- Throws `ValidationError` on unknown campaign ID or empty portfolio name.
+
+---
+
+### Wizard Helpers
+
+#### `selectProduct(draft: CampaignDraft, asin: string): CampaignDraft`
+Adds an ASIN to the draft products list. No-op if already present.
+- Throws `ValidationError` on empty ASIN.
+
+#### `removeProduct(draft: CampaignDraft, asin: string): CampaignDraft`
+Removes an ASIN from the draft products list.
+- Throws `ValidationError` if it's the last product.
+
+#### `parseKeywords(raw: string): string[]`
+Parses a multi-line keyword string into trimmed, non-empty keyword values.
+- Skips blank lines. Throws `ValidationError` if any keyword exceeds 200 characters.
 
 ### Helpers
 
@@ -269,7 +334,18 @@ Score: `100 - (errors × 15) - (warnings × 5)`, passes at ≥70.
 | `toggleCampaignStatus` | `(id: string)` | Toggle enabled/paused |
 | `archiveCampaign` | `(id: string)` | Archive a campaign |
 | `duplicateCampaign` | `(id: string)` | Clone a campaign |
-| `addKeyword` | `(campaignId, value, match, bid)` | Add a keyword target |
+| `addKeyword` | `(campaignId, value, match, bid, adGroupId?)` | Add a keyword target to an ad group |
+| `addAdGroup` | `(campaignId, name)` | Add an ad group |
+| `renameAdGroup` | `(campaignId, adGroupId, name)` | Rename an ad group |
+| `setAdGroupStatus` | `(campaignId, adGroupId, status)` | Set ad group status (cascades to targets) |
+| `setAdGroupDefaultBid` | `(campaignId, adGroupId, bid)` | Set ad group default bid |
+| `removeAdGroup` | `(campaignId, adGroupId)` | Remove an ad group |
+| `createPortfolio` | `(name)` | Create a new portfolio |
+| `renamePortfolio` | `(oldName, newName)` | Rename a portfolio |
+| `deletePortfolio` | `(name)` | Delete a portfolio |
+| `assignCampaignToPortfolio` | `(campaignId, portfolioName)` | Assign campaign to portfolio |
+| `selectProduct` | `(asin)` | Add product to draft |
+| `removeProduct` | `(asin)` | Remove product from draft |
 | `removeTarget` | `(campaignId, targetId)` | Remove a target |
 | `setTargetBid` | `(campaignId, targetId, bid)` | Set exact bid |
 | `adjustTargetBid` | `(campaignId, targetId, multiplier)` | Adjust bid by multiplier |

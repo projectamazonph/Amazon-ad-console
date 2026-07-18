@@ -1,6 +1,6 @@
 # Amazon Ads Console Training Simulator
 
-> A pixel-faithful Next.js replica of the Amazon Ads Console for training Filipino VAs and eCommerce teams on PPC campaign management — risk-free, offline, with built-in coaching.
+> A pixel-faithful Next.js replica of the Amazon Ads Console for training Filipino VAs and eCommerce teams on PPC campaign management — risk-free, offline, with built-in coaching. The UI is a 1:1 reskin of `advertising.amazon.com` with dark slate global nav, grouped left rail, Amazon orange accent, and 9 KPI tiles.
 
 ## Quick Start
 
@@ -124,6 +124,10 @@ Amazon-ad-console/
 │       ├── layout/
 │       │   ├── Sidebar.tsx          # Navigation rail
 │       │   └── Topbar.tsx           # Header with actions
+│       ├── nav/
+│       │   ├── consoleNav.ts        # Amazon console nav model (pure data)
+│       │   └── __tests__/
+│       │       └── consoleNav.test.ts # 8 TDD tests for nav model
 │       ├── metrics/
 │       │   └── MetricCard.tsx       # Reusable metric display
 │       └── features/                # Feature-specific pages
