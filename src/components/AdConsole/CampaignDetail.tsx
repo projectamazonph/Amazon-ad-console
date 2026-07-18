@@ -27,15 +27,27 @@ export function CampaignDetail({ campaign }: Props) {
   const toggleAddKeywordForm = useAdConsoleStore((s) => s.toggleAddKeywordForm);
   const showAddKeywordForm = useAdConsoleStore((s) => s.showAddKeywordForm);
   const addKeyword = useAdConsoleStore((s) => s.addKeyword);
+  const addAdGroup = useAdConsoleStore((s) => s.addAdGroup);
+  const renameAdGroup = useAdConsoleStore((s) => s.renameAdGroup);
+  const setAdGroupStatus = useAdConsoleStore((s) => s.setAdGroupStatus);
+  const setAdGroupDefaultBid = useAdConsoleStore((s) => s.setAdGroupDefaultBid);
+  const removeAdGroup = useAdConsoleStore((s) => s.removeAdGroup);
+  const [selectedAdGroupId, setSelectedAdGroupId] = useState<string | null>(null);
+  const [adGroupNameEdits, setAdGroupNameEdits] = useState<Record<string, string>>({});
+  const [adGroupBidEdits, setAdGroupBidEdits] = useState<Record<string, string>>({});
+  const [newAdGroupName, setNewAdGroupName] = useState('');
 
   const [newKeywordValue, setNewKeywordValue] = useState('');
   const [newKeywordMatch, setNewKeywordMatch] = useState('Exact');
   const [newKeywordBid, setNewKeywordBid] = useState(0.75);
+  const [newKeywordAdGroup, setNewKeywordAdGroup] = useState('');
   const [bidEdits, setBidEdits] = useState<Record<string, string>>({});
   const [budgetInput, setBudgetInput] = useState(String(campaign.dailyBudget));
   const [defaultBidInput, setDefaultBidInput] = useState(String(campaign.defaultBid));
 
   const c = campaign;
+  const [ngAg, setNgAg] = useState(c.adGroups[0]?.id ?? '');
+  if (!newKeywordAdGroup) setNewKeywordAdGroup(ngAg);
   const x = calc(c.metrics);
   const selectedTab = state.selectedTab;
 
@@ -204,25 +216,132 @@ export function CampaignDetail({ campaign }: Props) {
 
   function renderAdGroups(c: Campaign) {
     if (!c.adGroups.length) return <div className="empty"><h3>No ad groups</h3></div>;
+    const focused = selectedAdGroupId ? c.adGroups.find((ag) => ag.id === selectedAdGroupId) : null;
+
+    // Drill-down: show the focused ad group's targets
+    if (focused) {
+      const agTargets = c.targets.filter((t) => t.adGroupId === focused.id);
+      return (
+        <div>
+          <button className="btn small" style={{ marginBottom: 10 }} onClick={() => setSelectedAdGroupId(null)}>
+            ← All ad groups
+          </button>
+          <div className="card pad" style={{ marginBottom: 12 }}>
+            <div className="card-title">
+              <h2>{focused.name}</h2>
+              <span>{agTargets.length} targets</span>
+            </div>
+            <div className="form-grid" style={{ maxWidth: 460 }}>
+              <div className="field">
+                <label>Status</label>
+                <select className="select full" value={focused.status}
+                  onChange={(e) => setAdGroupStatus(c.id, focused.id, e.target.value as any)}>
+                  {['Enabled', 'Paused', 'Archived'].map((x) => <option key={x}>{x}</option>)}
+                </select>
+              </div>
+              <div className="field">
+                <label>Default bid</label>
+                <input className="input full" type="number" min="0.02" step="0.01"
+                  value={adGroupBidEdits[focused.id] ?? String(focused.defaultBid)}
+                  onChange={(e) => setAdGroupBidEdits((p) => ({ ...p, [focused.id]: e.target.value }))} />
+              </div>
+            </div>
+            <button className="btn primary" style={{ marginTop: 8 }}
+              onClick={() => setAdGroupDefaultBid(c.id, focused.id, Number(adGroupBidEdits[focused.id] ?? focused.defaultBid))}>
+              Save default bid
+            </button>
+          </div>
+          {renderTargetsTable(c, agTargets, `No targets in "${focused.name}" yet.`)}
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        <div style={{ marginBottom: 10, display: 'flex', gap: 8, alignItems: 'end', flexWrap: 'wrap' }}>
+          <div className="field" style={{ flex: 1, minWidth: 180 }}>
+            <label>New ad group name</label>
+            <input className="input full" value={newAdGroupName}
+              onChange={(e) => setNewAdGroupName(e.target.value)} placeholder="e.g. Branded keywords" />
+          </div>
+          <button className="btn primary" onClick={() => { if (newAdGroupName.trim()) { addAdGroup(c.id, newAdGroupName); setNewAdGroupName(''); } }}>
+            + Add ad group
+          </button>
+        </div>
+        <div className="table-wrap">
+          <table>
+            <thead><tr><th>Ad group</th><th>Status</th><th>Default bid</th><th>Impr.</th><th>Clicks</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Targets</th><th>Actions</th></tr></thead>
+            <tbody>
+              {c.adGroups.map((ag) => {
+                const m = ag.metrics || { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 };
+                const ax = calc(m);
+                const count = c.targets.filter((t) => t.adGroupId === ag.id).length;
+                return (
+                  <tr key={ag.id}>
+                    <td>
+                      <input className="input" style={{ width: 180, fontWeight: 600 }}
+                        value={adGroupNameEdits[ag.id] ?? ag.name}
+                        onChange={(e) => setAdGroupNameEdits((p) => ({ ...p, [ag.id]: e.target.value }))}
+                        onBlur={(e) => { if (e.target.value.trim()) renameAdGroup(c.id, ag.id, e.target.value); }} />
+                    </td>
+                    <td>
+                      <select className="select" value={ag.status}
+                        onChange={(e) => setAdGroupStatus(c.id, ag.id, e.target.value as any)}>
+                        {['Enabled', 'Paused', 'Archived'].map((x) => <option key={x}>{x}</option>)}
+                      </select>
+                    </td>
+                    <td className="money">{formatBid(ag.defaultBid)}</td>
+                    <td className="mono">{formatWhole(m.impressions)}</td>
+                    <td className="mono">{formatWhole(m.clicks)}</td>
+                    <td className="money">{formatMoney(m.spend)}</td>
+                    <td className="money">{formatMoney(m.sales)}</td>
+                    <td className={`mono ${acosClass(ax.acos)}`}>{ax.acos ? formatPercent(ax.acos) : '-'}</td>
+                    <td>
+                      <button className="row-link" onClick={() => setSelectedAdGroupId(ag.id)}>
+                        {count} {count === 1 ? 'target' : 'targets'} →
+                      </button>
+                    </td>
+                    <td>
+                      {c.adGroups.length > 1 && (
+                        <button className="btn small danger"
+                          onClick={() => { if (confirm(`Remove ad group "${ag.name}" and its targets?`)) removeAdGroup(c.id, ag.id); }}>
+                          Remove
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }
+
+  function renderTargetsTable(c: Campaign, targets: Campaign['targets'], emptyMsg: string) {
+    if (!targets.length) return <div className="empty"><h3>{emptyMsg}</h3></div>;
     return (
       <div className="table-wrap">
         <table>
-          <thead><tr><th>Ad group</th><th>Status</th><th>Default bid</th><th>Impr.</th><th>Clicks</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Targets</th></tr></thead>
+          <thead><tr><th>Target</th><th>Match</th><th>Status</th><th>Bid</th><th>Clicks</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Actions</th></tr></thead>
           <tbody>
-            {c.adGroups.map((ag) => {
-              const m = ag.metrics || { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 };
-              const ax = calc(m);
+            {targets.map((t) => {
+              const tx = calc(t);
               return (
-                <tr key={ag.id}>
-                  <td><strong>{ag.name}</strong></td>
-                  <td><span className={`pill ${ag.status === 'Enabled' ? 'green' : 'orange'}`}>{ag.status}</span></td>
-                  <td className="money">{formatBid(ag.defaultBid)}</td>
-                  <td className="mono">{formatWhole(m.impressions)}</td>
-                  <td className="mono">{formatWhole(m.clicks)}</td>
-                  <td className="money">{formatMoney(m.spend)}</td>
-                  <td className="money">{formatMoney(m.sales)}</td>
-                  <td className={`mono ${acosClass(ax.acos)}`}>{ax.acos ? formatPercent(ax.acos) : '-'}</td>
-                  <td>{c.targets.filter((t) => t.adGroupId === ag.id).length}</td>
+                <tr key={t.id}>
+                  <td><strong>{t.value}</strong></td>
+                  <td>{t.match}</td>
+                  <td><span className={`pill ${t.status === 'Enabled' ? 'green' : 'orange'}`}>{t.status}</span></td>
+                  <td className="money">{formatBid(t.bid)}</td>
+                  <td className="mono">{formatWhole(t.clicks)}</td>
+                  <td className="money">{formatMoney(t.spend)}</td>
+                  <td className="money">{formatMoney(t.sales)}</td>
+                  <td className={`mono ${acosClass(tx.acos)}`}>{t.sales ? formatPercent(tx.acos) : 'No sales'}</td>
+                  <td>
+                    <button className="btn small" onClick={() => toggleStatusTarget(c.id, t.id)}>{t.status === 'Enabled' ? 'Pause' : 'Enable'}</button>{' '}
+                    <button className="btn small danger" onClick={() => { if (confirm(`Remove "${t.value}"?`)) removeTarget(c.id, t.id); }}>Remove</button>
+                  </td>
                 </tr>
               );
             })}
@@ -260,11 +379,17 @@ export function CampaignDetail({ campaign }: Props) {
                 <label>Bid</label>
                 <input className="input full" type="number" min="0.02" step="0.01" value={newKeywordBid} onChange={(e) => setNewKeywordBid(Number(e.target.value))} />
               </div>
+              <div className="field" style={{ flex: 1, minWidth: 140 }}>
+                <label>Ad group</label>
+                <select className="select full" value={newKeywordAdGroup} onChange={(e) => setNewKeywordAdGroup(e.target.value)}>
+                  {c.adGroups.map((ag) => <option key={ag.id} value={ag.id}>{ag.name}</option>)}
+                </select>
+              </div>
             </div>
             <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
               <button className="btn primary" onClick={() => {
                 if (!newKeywordValue.trim()) return;
-                addKeyword(c.id, newKeywordValue.trim(), newKeywordMatch, newKeywordBid);
+                addKeyword(c.id, newKeywordValue.trim(), newKeywordMatch, newKeywordBid, newKeywordAdGroup);
                 setNewKeywordValue('');
                 setNewKeywordBid(0.75);
               }}>Add keyword</button>

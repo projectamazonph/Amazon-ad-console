@@ -12,6 +12,7 @@ import {
   calc, totalMetrics, filteredCampaigns, campaignById,
   toggleCampaignStatus, archiveCampaign, duplicateCampaign,
   addTarget, removeTarget, setTargetBid, adjustTargetBid, pauseTarget,
+  addAdGroup, renameAdGroup, setAdGroupStatus, setAdGroupDefaultBid, removeAdGroup,
   addNegative, harvestTerm, simulateDays,
   updateCampaignSettings, savePlacements,
   normalizeCampaign, portfolioNames,
@@ -72,11 +73,16 @@ export type AppStore = CoreSlice & DrillsSlice & ProfilesSlice & TrainerSlice & 
   toggleCampaignStatus: (id: string) => void;
   archiveCampaign: (id: string) => void;
   duplicateCampaign: (id: string) => void;
-  addKeyword: (campaignId: string, value: string, match: MatchType | string, bid: number) => void;
+  addKeyword: (campaignId: string, value: string, match: MatchType | string, bid: number, adGroupId?: string) => void;
   removeTarget: (campaignId: string, targetId: string) => void;
   setTargetBid: (campaignId: string, targetId: string, bid: number) => void;
   adjustTargetBid: (campaignId: string, targetId: string, multiplier: number) => void;
   pauseTarget: (campaignId: string, targetId: string) => void;
+  addAdGroup: (campaignId: string, name: string) => void;
+  renameAdGroup: (campaignId: string, adGroupId: string, name: string) => void;
+  setAdGroupStatus: (campaignId: string, adGroupId: string, status: CampaignStatus) => void;
+  setAdGroupDefaultBid: (campaignId: string, adGroupId: string, bid: number) => void;
+  removeAdGroup: (campaignId: string, adGroupId: string) => void;
   addNegative: (campaignId: string, term: string, type?: string) => void;
   harvestTerm: (campaignId: string, term: string) => void;
   runSimulation: (days?: number) => void;
@@ -149,11 +155,16 @@ export const useAdConsoleStore = create<AppStore>()((...a) => {
     archiveCampaign: (id) => set((s) => ({ state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === id ? archiveCampaign(c) : c), selectedCampaignId: s.state.selectedCampaignId === id ? null : s.state.selectedCampaignId } })),
     duplicateCampaign: (id) => set((s) => { const c = s.state.campaigns.find((x) => x.id === id); if (!c) return s; return { state: { ...s.state, campaigns: [...s.state.campaigns, duplicateCampaign(c)] } }; }),
 
-    addKeyword: (cid, value, match, bid) => set((s) => { const c = s.state.campaigns.find((x) => x.id === cid); if (!c) return s; const { campaign } = addTarget(c, value, match, bid); return { state: { ...s.state, campaigns: s.state.campaigns.map((x) => x.id === cid ? campaign : x) }, showAddKeywordForm: false }; }),
+    addKeyword: (cid, value, match, bid, adGroupId) => set((s) => { const c = s.state.campaigns.find((x) => x.id === cid); if (!c) return s; const { campaign } = addTarget(c, value, match, bid, adGroupId); return { state: { ...s.state, campaigns: s.state.campaigns.map((x) => x.id === cid ? campaign : x) }, showAddKeywordForm: false }; }),
     removeTarget: (cid, tid) => set((s) => ({ state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? removeTarget(c, tid) : c) } })),
     setTargetBid: (cid, tid, bid) => set((s) => ({ state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? (setTargetBid as any)(c, tid, bid) : c) } })),
     adjustTargetBid: (cid, tid, mult) => set((s) => ({ state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? adjustTargetBid(c, tid, mult) : c) } })),
     pauseTarget: (cid, tid) => set((s) => ({ state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? pauseTarget(c, tid) : c) } })),
+    addAdGroup: (cid, name) => set((s) => ({ state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? addAdGroup(c, name) : c) } })),
+    renameAdGroup: (cid, agid, name) => set((s) => ({ state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? renameAdGroup(c, agid, name) : c) } })),
+    setAdGroupStatus: (cid, agid, status) => set((s) => ({ state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? setAdGroupStatus(c, agid, status) : c) } })),
+    setAdGroupDefaultBid: (cid, agid, bid) => set((s) => ({ state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? setAdGroupDefaultBid(c, agid, bid) : c) } })),
+    removeAdGroup: (cid, agid) => set((s) => ({ state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? removeAdGroup(c, agid) : c) } })),
     addNegative: (cid, term, type) => set((s) => ({ state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? addNegative(c, term, type) : c) } })),
     harvestTerm: (cid, term) => set((s) => ({ state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? harvestTerm(c, term) : c) } })),
     runSimulation: (days = 7) => set((s) => ({ state: { ...s.state, campaigns: simulateDays(s.state.campaigns, days), simulationDays: s.state.simulationDays + days } })),
