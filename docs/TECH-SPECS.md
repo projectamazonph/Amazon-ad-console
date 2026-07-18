@@ -72,17 +72,17 @@ Minimal configuration. No custom webpack, no env files, no middleware.
 | `src/engine/ad-console/` (root) | 4 | ~220 |
 | `src/components/AdConsole/` | 15 | ~1,800 |
 | `src/app/` | 3 | ~530 |
-| **Total src/** | **46** | **~5,150** |
+| **Total src/** | **50+** | **~6,200** |
 
 ### Source File Breakdown
 
 | File | Lines | Responsibility |
 |------|-------|---------------|
 | `core/types.ts` | ~180 | All domain interfaces |
-| `core/engine.ts` | ~560 | Core business logic |
+| `core/engine.ts` | ~890 | Core business logic (campaigns, ad groups, targets, budget rules, mobile menu) |
 | `core/scenarios.ts` | ~135 | Training data & product catalog |
-| `store.ts` | ~194 | Composed root Zustand store |
-| `CampaignDetail.tsx` | 436 | Campaign deep-dive view |
+| `store.ts` | ~260 | Composed root Zustand store + persist middleware |
+| `CampaignDetail.tsx` | ~530 | Campaign deep-dive view (ad group CRUD + budget rules CRUD) |
 | `CampaignManager.tsx` | 300 | Campaign list view |
 | `CreateCampaignWizard.tsx` | 227 | Campaign creation wizard |
 | `globals.css` | 935 | Amph-v2 Field Manual design system + all styles |

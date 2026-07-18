@@ -15,7 +15,8 @@ type TargetingMode   = 'Automatic' | 'Manual keyword' | 'Manual product' | 'Keyw
 type BidStrategy     = 'Dynamic bids - down only' | 'Dynamic bids - up and down' | 'Fixed bids' | 'Cost per click' | 'Cost per thousand impressions';
 type MatchType       = 'Exact' | 'Phrase' | 'Broad';
 type AdFormat        = 'Standard' | 'Video' | 'Product collection' | 'Store spotlight' | 'Auto generated' | 'Custom image' | 'Video creative';
-type ConsoleView     = 'dashboard' | 'campaigns' | 'create' | 'detail' | 'portfolio';
+type ConsoleView     = 'dashboard' | 'campaigns' | 'create' | 'detail' | 'portfolio'
+                     | 'drills' | 'reports' | 'bulk' | 'trainer' | 'integrity' | 'missions';
 ```
 
 ### Metrics

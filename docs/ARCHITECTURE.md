@@ -91,6 +91,11 @@ The single hook `useAdConsoleStore` provides access to all state and actions.
 User action → Component calls store method → Store calls engine function → Returns new Campaign → State updated → Component re-renders
 ```
 
+### Budget Rule CRUD
+```
+User action → addBudgetRule/removeBudgetRule/updateBudgetRule → Engine validates inputs → Returns updated campaign → Store persists to localStorage → Component re-renders
+```
+
 ### Metrics Rollup (Bottom-Up)
 ```
 Target metrics (per keyword/target)
