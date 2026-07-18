@@ -2,6 +2,7 @@
 
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { GLOBAL_NAV, type NavView } from '../nav/consoleNav';
+import { MobileNav } from '../mobile/MobileNav';
 
 const SECTION_TO_VIEW: Record<string, NavView> = {
   campaigns: 'campaigns',
@@ -24,6 +25,7 @@ export function Topbar() {
 
   return (
     <nav className="app-navbar" aria-label="Global">
+      <MobileNav />
       <div className="nav-brand">
         Amazon Ads <span className="brand-sub">Console</span>
       </div>

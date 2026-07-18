@@ -15,6 +15,13 @@ const mono = JetBrains_Mono({
   display: 'swap',
 });
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export const metadata: Metadata = {
   title: 'Amazon Ads Console Training Simulator',
   description: 'Practice Amazon PPC campaign management in a safe, offline sandbox',
