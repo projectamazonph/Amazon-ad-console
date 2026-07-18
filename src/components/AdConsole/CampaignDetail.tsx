@@ -202,10 +202,20 @@ export function CampaignDetail({ campaign }: Props) {
                 <div className="review-row"><span>Headline</span><strong>{c.creative.headline || 'N/A'}</strong></div>
               </div>
               {c.creativeStatus === 'Rejected' && (
-                <div className="coach-tip" style={{ marginTop: 8 }}>Creative rejected: {c.creativeIssue}</div>
+                <div className="coach-tip" style={{ marginTop: 8 }}>
+                  Creative rejected: {c.creativeIssue}
+                  <button className="btn small primary" style={{ marginLeft: 8 }}
+                    onClick={() => useAdConsoleStore.getState().updateCampaignSettings(c.id, {
+                      creativeStatus: 'Pending',
+                      creativeIssue: '',
+                    } as any)}>Resubmit creative</button>
+                </div>
               )}
-              {c.type === 'SB' && c.adFormat === 'Video' && c.creative?.video && (
-                <div className="review-row" style={{ marginTop: 4 }}><span>Video</span><strong>{c.creative.video}</strong></div>
+              {(c.type === 'SB' && c.adFormat === 'Video' || c.type === 'SD' && c.adFormat === 'Video creative') && c.creative?.video && (
+                <div className="tag" style={{ background: '#f0f0f0', padding: '6px 10px', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                  <span style={{ fontSize: 18 }}>&#9654;</span>
+                  <span><strong>Video:</strong> {c.creative.video}</span>
+                </div>
               )}
               {c.creative?.logo && <div className="review-row" style={{ marginTop: 4 }}><span>Logo</span><strong>{c.creative.logo}</strong></div>}
               {c.creative?.destination && <div className="review-row" style={{ marginTop: 4 }}><span>Destination</span><strong>{c.creative.destination}</strong></div>}

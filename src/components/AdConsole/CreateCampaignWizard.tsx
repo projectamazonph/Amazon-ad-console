@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import type { CampaignType, TargetingMode } from '@/engine/ad-console/types';
-import { PRODUCTS } from '@/engine/ad-console/core/scenarios';
+import { PRODUCTS, BRANDS } from '@/engine/ad-console/core/scenarios';
 
 const STEPS = ['Ad type', 'Basics', 'Products & creative', 'Targeting', 'Bidding', 'Review'];
 
@@ -96,6 +96,16 @@ export function CreateCampaignWizard() {
                     {d.type === 'SD' && ['Auto generated', 'Custom image', 'Video creative'].map((x) => <option key={x}>{x}</option>)}
                   </select>
                 </div>
+                {d.type === 'SD' && (
+                  <div className="field">
+                    <label>Campaign goal</label>
+                    <select className="select full" value={d.campaignGoal || 'Conversions'} onChange={(e) => updateDraft('campaignGoal', e.target.value)}>
+                      <option value="Awareness">Awareness — Focus on impressions</option>
+                      <option value="Consideration">Consideration — Focus on clicks</option>
+                      <option value="Conversions">Conversions — Focus on sales/ROAS</option>
+                    </select>
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -104,7 +114,7 @@ export function CreateCampaignWizard() {
             <>
               <h2>Products & creative</h2>
               <p className="muted" style={{ marginBottom: 14 }}>Select which products to advertise and set creative content.</p>
-              <div className="card pad" style={{ marginBottom: 14 }}>
+              {!(d.type === 'SB' && d.adFormat === 'Store spotlight') && <div className="card pad" style={{ marginBottom: 14 }}>
                 <div className="card-title"><h2>Product catalog</h2><span>{d.products.length} selected</span></div>
                 <div className="table-wrap">
                   <table>
@@ -131,7 +141,8 @@ export function CreateCampaignWizard() {
                   </table>
                 </div>
                 {d.products.length === 0 && <div className="coach-tip" style={{ marginTop: 8 }}>Select at least one product to advertise.</div>}
-              </div>
+              </div>}
+              {!(d.type === 'SB' && d.adFormat === 'Store spotlight') && <>
               <h2>Creative & products</h2>
               <p className="muted" style={{ marginBottom: 14 }}>Select products to advertise.</p>
               <div className="product-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 }}>
@@ -164,16 +175,37 @@ export function CreateCampaignWizard() {
                 </div>
               </div>
               {d.type === 'SP' && <div className="coach-tip">Sponsored Products campaigns use the product detail page as the ad creative.</div>}
+              {d.type === 'SB' && d.adFormat === 'Store spotlight' && (
+                <div className="card pad" style={{ marginBottom: 14 }}>
+                  <div className="card-title"><h2>Store spotlight</h2><span>Store URL</span></div>
+                  <div className="field full">
+                    <label>Store URL</label>
+                    <input className="input full" placeholder="https://www.amazon.com/stores/YourStore"
+                      value={d.creative.destination || ''}
+                      onChange={(e) => updateDraft('creative', { ...d.creative, destination: e.target.value })} />
+                    <p className="muted" style={{ fontSize: 'var(--text-xs)', marginTop: 4 }}>
+                      Store spotlight promotes your entire Amazon Store, not individual products.
+                    </p>
+                  </div>
+                </div>
+              )}
+              </>}
               {d.type === 'SB' && d.adFormat === 'Product collection' && d.products.length < 2 && (
                 <div className="coach-tip" style={{ marginBottom: 8 }}>Product collection requires at least 2 selected products.</div>
               )}
-              {d.type !== 'SP' && (
+              {d.type !== 'SP' && d.adFormat !== 'Store spotlight' && (
                 <div className="card pad">
                   <div className="card-title"><h2>Creative</h2><span>Brand assets</span></div>
                   <div className="form-grid">
                     <div className="field">
-                      <label>Brand name</label>
-                      <input className="input full" value={d.creative.brandName || ''} onChange={(e) => updateDraft('creative', { ...d.creative, brandName: e.target.value })} />
+                      <label>Brand</label>
+                      <select className="select full" value={d.creative.brandName || ''} onChange={(e) => {
+                        const brand = BRANDS.find(b => b.name === e.target.value);
+                        updateDraft('creative', { ...d.creative, brandName: e.target.value, logo: brand?.logo || '' });
+                      }}>
+                        <option value="">Select a brand</option>
+                        {BRANDS.map(b => <option key={b.id} value={b.name}>{b.name} ({b.id})</option>)}
+                      </select>
                     </div>
                     <div className="field">
                       <label>Headline</label>
@@ -333,6 +365,7 @@ export function CreateCampaignWizard() {
                   <div className="review-row"><span>Targeting</span><strong>{d.targetingMode}</strong></div>
                   <div className="review-row"><span>Bid strategy</span><strong>{d.bidStrategy}</strong></div>
                   <div className="review-row"><span>Format</span><strong>{d.adFormat}</strong></div>
+                  {d.campaignGoal && <div className="review-row"><span>Campaign goal</span><strong>{d.campaignGoal}</strong></div>}
                   <div className="review-row"><span>Status</span><strong>{d.status}</strong></div>
                   <div className="review-row"><span>Products</span><strong>{d.products.length} selected</strong></div>
                   {d.exactKeywords && <div className="review-row"><span>Exact keywords</span><strong>{d.exactKeywords.split('\n').filter(Boolean).length} entered</strong></div>}

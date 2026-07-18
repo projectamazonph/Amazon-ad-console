@@ -99,6 +99,7 @@ export function normalizeCampaign(c: Partial<Campaign>): Campaign {
     endDate: c.endDate ?? null,
     targetingMode: (c.targetingMode ?? (type === 'SP' ? 'Automatic' : type === 'SB' ? 'Keyword' : 'Contextual')) as any,
     adFormat: (c.adFormat ?? (type === 'SB' ? 'Product collection' : type === 'SD' ? 'Auto generated' : 'Standard')) as any,
+    campaignGoal: c.campaignGoal ?? (type === 'SD' ? 'Conversions' : undefined),
     bidStrategy: (c.bidStrategy ?? (type === 'SP' ? 'Dynamic bids - down only' : 'Cost per click')) as any,
     placements: { top: 0, product: 0, rest: 0, ...(c.placements ?? {}) },
     products: c.products?.length ? [...new Set(c.products)] : ['B0TRAIN001'],
@@ -490,7 +491,8 @@ export function simulateDays(
       c.negatives.length * 0.03 +
       c.budgetRules.length * 0.02 +
       (c.placements.top > 30 ? 0.04 : 0) +
-      (c.type === 'SD' && c.targetingMode.includes('Remarketing') ? 0.05 : 0);
+      (c.type === 'SD' && c.targetingMode.includes('Remarketing') ? 0.05 : 0) +
+      (c.campaignGoal === 'Conversions' ? 0.05 : c.campaignGoal === 'Consideration' ? 0.02 : 0);
     const spend = Math.min(
       c.dailyBudget * days * (0.72 + Math.random() * 0.25),
       c.dailyBudget * days,
@@ -608,7 +610,7 @@ export function simulateDays(
 
 export function updateCampaignSettings(
   c: Campaign,
-  updates: Partial<Pick<Campaign, 'dailyBudget' | 'defaultBid' | 'bidStrategy' | 'status'>>,
+  updates: Partial<Pick<Campaign, 'dailyBudget' | 'defaultBid' | 'bidStrategy' | 'status' | 'creativeStatus' | 'creativeIssue'>>,
 ): Campaign {
   const changes: string[] = [];
   if (updates.dailyBudget !== undefined && updates.dailyBudget !== c.dailyBudget) {
@@ -622,6 +624,9 @@ export function updateCampaignSettings(
   }
   if (updates.status !== undefined && updates.status !== c.status) {
     changes.push(`status: ${c.status} → ${updates.status}`);
+  }
+  if (updates.creativeStatus !== undefined && updates.creativeStatus !== c.creativeStatus) {
+    changes.push(`creative status: ${c.creativeStatus || 'none'} → ${updates.creativeStatus}`);
   }
   return {
     ...c,

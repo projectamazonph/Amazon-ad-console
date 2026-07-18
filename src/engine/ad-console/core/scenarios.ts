@@ -21,6 +21,19 @@ export const PRODUCTS: Product[] = [
 
 export const DEFAULT_ASINS = ['B0TRAIN001'];
 
+// Mock brand registry for SB/SD creative
+export interface Brand {
+  id: string;
+  name: string;
+  logo: string;
+}
+
+export const BRANDS: Brand[] = [
+  { id: 'BR-BREWCO', name: 'BrewCo', logo: 'BC' },
+  { id: 'BR-TRAINING', name: 'Training Labs', logo: 'TL' },
+  { id: 'BR-COFFEE', name: 'Premium Coffee Co.', logo: 'PC' },
+];
+
 // ---------------------------------------------------------------------------
 // Default / initial campaigns for a fresh training session
 // ---------------------------------------------------------------------------

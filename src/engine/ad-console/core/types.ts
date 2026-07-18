@@ -38,6 +38,7 @@ export type AdFormat =
   | 'Custom image'
   | 'Video creative';
 export type PortfolioType = string; // Free-text portfolio name
+export type CampaignGoal = 'Awareness' | 'Consideration' | 'Conversions';
 
 // ---------------------------------------------------------------------------
 // Metrics
@@ -142,6 +143,7 @@ export interface Campaign {
   endDate: string | null;
   targetingMode: TargetingMode;
   adFormat: AdFormat;
+  campaignGoal?: CampaignGoal;
   bidStrategy: BidStrategy;
   placements: { top: number; product: number; rest: number };
   products: string[];
@@ -188,6 +190,7 @@ export interface CampaignDraft {
   endDate: string;
   targetingMode: TargetingMode;
   adFormat: AdFormat;
+  campaignGoal?: CampaignGoal;
   bidStrategy: BidStrategy;
   placements: { top: number; product: number; rest: number };
   products: string[];
