@@ -7,7 +7,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 import { Dashboard } from './Dashboard';
 import { CampaignManager } from './CampaignManager';
 import { CampaignDetail } from './CampaignDetail';
-import { CreateCampaignWizard } from './CreateCampaignWizard';
+import { CreateCampaignWizard } from './wizard/CreateCampaignWizard';
 import { PortfolioOverview } from './PortfolioOverview';
 import { DrillsPage } from './features/drills/DrillsPage';
 import { MissionsPage } from './features/missions/MissionsPage';
