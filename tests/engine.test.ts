@@ -14,6 +14,10 @@ import {
   archiveCampaign,
   duplicateCampaign,
   isFilteredByNegative,
+  savePlacements,
+  campaignById,
+  formatWhole,
+  formatRoas,
 } from '../src/engine/ad-console/core/engine';
 import type { Campaign, CampaignDraft, Negative, Metrics, Target } from '../src/engine/ad-console/core/types';
 
@@ -541,5 +545,73 @@ describe('SD-specific behavior', () => {
   it('defaults to Auto generated ad format', () => {
     const c = normalizeCampaign({ type: 'SD' });
     expect(c.adFormat).toBe('Auto generated');
+  });
+});
+
+// ============================================================================
+// savePlacements() — placement updates
+// ============================================================================
+
+describe('savePlacements()', () => {
+  it('updates placements and logs changes', () => {
+    const c = normalizeCampaign({ id: 'c1', name: 'Test', status: 'Enabled', dailyBudget: 10 });
+    const result = savePlacements(c, { top: 50, product: 25, rest: 10 });
+    expect(result.placements).toEqual({ top: 50, product: 25, rest: 10 });
+    expect(result.history.some(h => h.includes('Placements updated'))).toBe(true);
+  });
+
+  it('logs no changes when placements are identical', () => {
+    const c = normalizeCampaign({ id: 'c1', name: 'Test', status: 'Enabled', dailyBudget: 10 });
+    const result = savePlacements(c, { top: 0, product: 0, rest: 0 });
+    expect(result.history.some(h => h.includes('no changes'))).toBe(true);
+  });
+});
+
+// ============================================================================
+// campaignById() — state query
+// ============================================================================
+
+describe('campaignById()', () => {
+  it('finds a campaign by id', () => {
+    const state = {
+      version: '1',
+      campaigns: [normalizeCampaign({ id: 'c1', name: 'Test', status: 'Enabled', dailyBudget: 10 })],
+      filter: { type: 'All' as const, status: 'All' as const, portfolio: 'All' as const, search: '' },
+      selectedCampaignId: null,
+      selectedTab: 'campaigns',
+      simulationDays: 0,
+      actionLog: [],
+      portfolios: [],
+    };
+    expect(campaignById(state, 'c1')).toBeDefined();
+    expect(campaignById(state, 'c999')).toBeUndefined();
+  });
+});
+
+// ============================================================================
+// formatWhole() — number formatting
+// ============================================================================
+
+describe('formatWhole()', () => {
+  it('formats integers with locale separators', () => {
+    expect(formatWhole(1234567)).toBe('1,234,567');
+  });
+
+  it('formats zero', () => {
+    expect(formatWhole(0)).toBe('0');
+  });
+});
+
+// ============================================================================
+// formatRoas() — ROAS formatting
+// ============================================================================
+
+describe('formatRoas()', () => {
+  it('formats ROAS to 2 decimal places', () => {
+    expect(formatRoas(3.333)).toBe('3.33');
+  });
+
+  it('formats zero', () => {
+    expect(formatRoas(0)).toBe('0.00');
   });
 });

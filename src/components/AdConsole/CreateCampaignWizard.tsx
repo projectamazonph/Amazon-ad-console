@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
-import type { CampaignType, TargetingMode } from '@/engine/ad-console/types';
+import type { CampaignType, TargetingMode, Creative } from '@/engine/ad-console/types';
 import { PRODUCTS, BRANDS } from '@/engine/ad-console/core/scenarios';
 
 const STEPS = ['Ad type', 'Basics', 'Products & creative', 'Targeting', 'Bidding', 'Review'];
@@ -225,7 +225,7 @@ export function CreateCampaignWizard() {
                   {d.type === 'SB' && (
                     <div className="field full">
                       <label>Landing page destination</label>
-                      <select className="select full" value={(d.creative as any).destination || 'Product detail page'}
+                      <select className="select full" value={(d.creative as Partial<Creative>).destination || 'Product detail page'}
                         onChange={(e) => updateDraft('creative', { ...d.creative, destination: e.target.value })}>
                         <option>Product detail page</option>
                         <option>Brand Store</option>

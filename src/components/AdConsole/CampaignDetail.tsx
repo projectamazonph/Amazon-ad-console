@@ -216,7 +216,7 @@ export function CampaignDetail({ campaign }: Props) {
                     } as any)}>Resubmit creative</button>
                 </div>
               )}
-              {(c.type === 'SB' && c.adFormat === 'Video' || c.type === 'SD' && c.adFormat === 'Video creative') && c.creative?.video && (
+              {((c.type === 'SB' || c.type === 'SD') && ((c.type === 'SB' && c.adFormat === 'Video') || (c.type === 'SD' && c.adFormat === 'Video creative'))) && c.creative?.video && (
                 <div className="tag" style={{ background: '#f0f0f0', padding: '6px 10px', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
                   <span style={{ fontSize: 18 }}>&#9654;</span>
                   <span><strong>Video:</strong> {c.creative.video}</span>

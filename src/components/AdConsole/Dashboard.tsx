@@ -3,6 +3,7 @@
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { getKpiTiles } from './nav/consoleNav';
 import { calc, formatMoney, formatWhole, formatPercent, acosClass } from '@/engine/ad-console/engine';
+import type { Campaign, DerivedMetrics, ConsoleView, Metrics } from '@/engine/ad-console/types';
 
 export function Dashboard() {
   const state = useAdConsoleStore((s) => s.state);
@@ -116,10 +117,10 @@ function fmtPercent(n: number) {
 }
 
 function renderCampaignTable(
-  campaigns: any[],
+  campaigns: Campaign[],
   selectCampaign: (id: string) => void,
-  calc: any,
-  setView?: (view: any) => void,
+  calc: (m: Metrics) => DerivedMetrics,
+  setView?: (view: ConsoleView) => void,
 ) {
   if (!campaigns.length) {
     return (
@@ -150,7 +151,7 @@ function renderCampaignTable(
           </tr>
         </thead>
         <tbody>
-          {campaigns.map((c: any) => {
+          {campaigns.map((c: Campaign) => {
             const x = calc(c.metrics);
             return (
               <tr key={c.id}>

@@ -1,0 +1,221 @@
+/**
+ * Campaign normalization and lifecycle operations.
+ */
+import type {
+  Campaign, CampaignType, CampaignStatus,
+  Target, AdGroup,
+} from '../types';
+import { assertCampaignType, assertCampaignStatus } from '../../../../lib/validation';
+import { generateId } from './id';
+import { metricDefaults } from './metrics';
+
+function normalizeTarget(
+  t: Partial<Target>,
+  campaignId: string,
+  adGroupId: string,
+): Target {
+  return {
+    id: t.id ?? generateId('T'),
+    campaignId: t.campaignId ?? campaignId,
+    adGroupId: t.adGroupId ?? adGroupId,
+    type: t.type ?? 'Keyword',
+    value: t.value ?? 'training target',
+    match: t.match ?? 'Exact',
+    bid: Math.max(0.02, t.bid ?? 0.75),
+    status: ['Enabled', 'Paused', 'Archived', 'Draft'].includes(t.status ?? '')
+      ? (t.status! as CampaignStatus)
+      : 'Enabled',
+    impressions: t.impressions ?? 0,
+    clicks: t.clicks ?? 0,
+    spend: t.spend ?? 0,
+    sales: t.sales ?? 0,
+    orders: t.orders ?? 0,
+  };
+}
+
+export function normalizeCampaign(c: Partial<Campaign>): Campaign {
+  assertCampaignType(c.type ?? 'SP');
+  const type: CampaignType = c.type ?? 'SP';
+  assertCampaignStatus(c.status ?? 'Paused');
+  const id = c.id ?? generateId('C-' + type);
+  const primaryAg: AdGroup = {
+    id: c.adGroups?.[0]?.id ?? generateId('AG'),
+    campaignId: id,
+    name: c.adGroups?.[0]?.name ?? `${type} default ad group`,
+    status: c.adGroups?.[0]?.status ?? 'Enabled',
+    defaultBid: c.adGroups?.[0]?.defaultBid ?? c.defaultBid ?? 0.75,
+    metrics: metricDefaults(c.adGroups?.[0]?.metrics ?? {}),
+  };
+
+  return {
+    id,
+    type,
+    name: c.name ?? `${type} | Training campaign`,
+    portfolio: c.portfolio ?? 'Training Portfolio',
+    status: ['Enabled', 'Paused', 'Archived', 'Draft'].includes(c.status ?? '') ? c.status! as CampaignStatus : 'Paused',
+    dailyBudget: Math.max(1, c.dailyBudget ?? 1),
+    defaultBid: Math.max(0.02, c.defaultBid ?? 0.75),
+    startDate: c.startDate ?? new Date().toISOString().slice(0, 10),
+    endDate: c.endDate ?? null,
+    targetingMode: c.targetingMode ?? (type === 'SP' ? 'Automatic' : type === 'SB' ? 'Keyword' : 'Contextual'),
+    adFormat: c.adFormat ?? (type === 'SB' ? 'Product collection' : type === 'SD' ? 'Auto generated' : 'Standard'),
+    campaignGoal: c.campaignGoal ?? (type === 'SD' ? 'Conversions' : undefined),
+    bidStrategy: c.bidStrategy ?? (type === 'SP' ? 'Dynamic bids - down only' : 'Cost per click'),
+    placements: { top: 0, product: 0, rest: 0, ...(c.placements ?? {}) },
+    products: c.products?.length ? [...Array.from(new Set(c.products))] : ['B0TRAIN001'],
+    creative: type === 'SP' ? null : {
+      brandName: '',
+      logo: '',
+      headline: '',
+      destination: 'Product detail page',
+      video: '',
+      image: 'Auto generated',
+      ...(c.creative ?? {}),
+    },
+    creativeStatus: c.creativeStatus ?? 'Approved',
+    creativeIssue: c.creativeIssue ?? '',
+    metrics: metricDefaults(c.metrics ?? {}),
+    adGroups: c.adGroups?.length ? c.adGroups.map((ag) => ({
+      ...primaryAg,
+      ...ag,
+      metrics: metricDefaults(ag.metrics ?? {}),
+    })) : [primaryAg],
+    targets: (c.targets ?? []).map((t) => normalizeTarget(t, id, primaryAg.id)),
+    searchTerms: (c.searchTerms ?? []).map((st) => ({
+      id: st.id ?? generateId('ST'),
+      campaignId: st.campaignId ?? id,
+      adGroupId: st.adGroupId ?? primaryAg.id,
+      term: st.term ?? '',
+      target: st.target ?? '',
+      targetId: st.targetId,
+      recommendation: st.recommendation ?? 'Review',
+      clicks: st.clicks ?? 0,
+      spend: st.spend ?? 0,
+      sales: st.sales ?? 0,
+      orders: st.orders ?? 0,
+    })),
+    negatives: (c.negatives ?? []).filter((n) => n.value).map((n) => ({
+      id: n.id ?? generateId('NEG'),
+      campaignId: n.campaignId ?? id,
+      adGroupId: n.adGroupId ?? primaryAg.id,
+      type: n.type ?? 'Negative exact',
+      value: n.value,
+      sourceSearchTermId: n.sourceSearchTermId,
+    })),
+    budgetRules: (c.budgetRules ?? []).map((r, i) => ({
+      id: r.id ?? generateId('BR'),
+      campaignId: r.campaignId ?? id,
+      name: r.name ?? `Budget rule ${i + 1}`,
+      type: r.type ?? 'Schedule',
+      increase: Math.max(1, r.increase ?? 1),
+      condition: r.condition ?? 'Training condition',
+    })),
+    history: [...(c.history ?? [])],
+    createdBySimulator: c.createdBySimulator ?? true,
+  };
+}
+
+export function toggleCampaignStatus(c: Campaign): Campaign {
+  if (c.status === 'Archived') return c;
+  const next: CampaignStatus = c.status === 'Enabled' ? 'Paused' : 'Enabled';
+  return {
+    ...c,
+    status: next,
+    adGroups: c.adGroups.map((ag) => ({ ...ag, status: next })),
+    targets: c.targets.map((t) => ({ ...t, status: next })),
+    history: [...c.history, `Status changed to ${next}`],
+  };
+}
+
+export function archiveCampaign(c: Campaign): Campaign {
+  return {
+    ...c,
+    status: 'Archived',
+    adGroups: c.adGroups.map((ag) => ({ ...ag, status: 'Archived' })),
+    targets: c.targets.map((t) => ({ ...t, status: 'Archived' })),
+    history: [...c.history, 'Campaign archived'],
+  };
+}
+
+export function duplicateCampaign(c: Campaign): Campaign {
+  const newId = generateId('C-' + c.type);
+  const newAgId = generateId('AG');
+  return normalizeCampaign({
+    ...c,
+    id: newId,
+    name: c.name + ' (copy)',
+    status: 'Paused' as CampaignStatus,
+    metrics: metricDefaults({}),
+    history: [],
+    adGroups: c.adGroups.map((ag) => ({
+      ...ag,
+      id: ag.id === c.adGroups[0]?.id ? newAgId : generateId('AG'),
+      campaignId: newId,
+    })),
+    targets: c.targets.map((t) => ({
+      ...t,
+      id: generateId('T'),
+      campaignId: newId,
+      adGroupId: newAgId,
+      impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0,
+    })),
+    searchTerms: [],
+    negatives: c.negatives.map((n) => ({
+      ...n,
+      id: generateId('NEG'),
+      campaignId: newId,
+      adGroupId: newAgId,
+    })),
+    budgetRules: c.budgetRules.map((r) => ({
+      ...r,
+      id: generateId('BR'),
+      campaignId: newId,
+    })),
+  });
+}
+
+export function updateCampaignSettings(
+  c: Campaign,
+  updates: Partial<Pick<Campaign, 'dailyBudget' | 'defaultBid' | 'bidStrategy' | 'status' | 'creativeStatus' | 'creativeIssue'>>,
+): Campaign {
+  const changes: string[] = [];
+  if (updates.dailyBudget !== undefined && updates.dailyBudget !== c.dailyBudget) {
+    changes.push(`budget $${c.dailyBudget.toFixed(2)} → $${updates.dailyBudget.toFixed(2)}`);
+  }
+  if (updates.defaultBid !== undefined && updates.defaultBid !== c.defaultBid) {
+    changes.push(`default bid $${c.defaultBid.toFixed(2)} → $${updates.defaultBid.toFixed(2)}`);
+  }
+  if (updates.bidStrategy !== undefined && updates.bidStrategy !== c.bidStrategy) {
+    changes.push(`bid strategy: ${c.bidStrategy} → ${updates.bidStrategy}`);
+  }
+  if (updates.status !== undefined && updates.status !== c.status) {
+    changes.push(`status: ${c.status} → ${updates.status}`);
+  }
+  if (updates.creativeStatus !== undefined && updates.creativeStatus !== c.creativeStatus) {
+    changes.push(`creative status: ${c.creativeStatus || 'none'} → ${updates.creativeStatus}`);
+  }
+  return {
+    ...c,
+    ...updates,
+    history: [
+      ...c.history,
+      changes.length ? `Settings saved: ${changes.join(', ')}` : 'Settings saved (no changes)',
+    ],
+  };
+}
+
+export function savePlacements(
+  c: Campaign,
+  placements: { top: number; product: number; rest: number },
+): Campaign {
+  const old = c.placements;
+  const changes: string[] = [];
+  if (placements.top !== old.top) changes.push(`Top of Search: ${old.top}% → ${placements.top}%`);
+  if (placements.product !== old.product) changes.push(`Product pages: ${old.product}% → ${placements.product}%`);
+  if (placements.rest !== old.rest) changes.push(`Rest of Search: ${old.rest}% → ${placements.rest}%`);
+  return {
+    ...c,
+    placements,
+    history: [...c.history, changes.length ? `Placements updated: ${changes.join(', ')}` : 'Placements saved (no changes)'],
+  };
+}

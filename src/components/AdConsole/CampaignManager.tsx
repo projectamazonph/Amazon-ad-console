@@ -3,6 +3,7 @@
 import { useMemo, useCallback, useState } from 'react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { MetricCard } from './metrics/MetricCard';
+import type { FilterState } from '@/engine/ad-console/types';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass, isFilteredByNegative } from '@/engine/ad-console/engine';
 
 export function CampaignManager() {
@@ -132,16 +133,17 @@ export function CampaignManager() {
           <thead>
             <tr>
               <th>Search term</th><th>Campaign</th><th>Matched target</th>
-              <th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th><th>Rec</th>
+              <th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th><th>Rec</th>
             </tr>
           </thead>
           <tbody>
             {rows.map(({ c, st }) => {
-              const x = calc({ impressions: 0, clicks: st.clicks, spend: st.spend, sales: st.sales, orders: st.orders });
+              const x = calc({ impressions: st.impressions || 0, clicks: st.clicks, spend: st.spend, sales: st.sales, orders: st.orders });
               return (
                 <tr key={st.id}>
                   <td><strong>{st.term}</strong></td>
                   <td>{c.name}</td><td>{st.target}</td>
+                  <td className="mono">{formatWhole(st.impressions || 0)}</td>
                   <td className="mono">{formatWhole(st.clicks)}</td>
                   <td className="money">{formatBid(x.cpc)}</td>
                   <td className="money">{formatMoney(st.spend)}</td>
@@ -181,8 +183,8 @@ export function CampaignManager() {
 
   // Campaign table with actions
   const renderCampaigns = () => {
+    const hasFilters = filter.type !== 'All' || filter.status !== 'All' || filter.portfolio !== 'All' || filter.search;
     if (!filteredCamps.length) {
-      const hasFilters = filter.type !== 'All' || filter.status !== 'All' || filter.portfolio !== 'All' || filter.search;
       return (
         <div className="empty">
           <span className="icon">{hasFilters ? '🔍' : '📢'}</span>
@@ -279,10 +281,10 @@ export function CampaignManager() {
             onChange={(e) => setFilter({ search: e.target.value })}
           />
         </div>
-        <select className="select" value={filter.type} onChange={(e) => setFilter({ type: e.target.value as any })}>
+        <select className="select" value={filter.type} onChange={(e) => setFilter({ type: e.target.value as FilterState['type'] })}>
           {['All', 'SP', 'SB', 'SD'].map((x) => <option key={x}>{x}</option>)}
         </select>
-        <select className="select" value={filter.status} onChange={(e) => setFilter({ status: e.target.value as any })}>
+        <select className="select" value={filter.status} onChange={(e) => setFilter({ status: e.target.value as FilterState['status'] })}>
           {['All', 'Enabled', 'Paused', 'Archived'].map((x) => <option key={x}>{x}</option>)}
         </select>
         <select className="select" value={filter.portfolio} onChange={(e) => setFilter({ portfolio: e.target.value })}>

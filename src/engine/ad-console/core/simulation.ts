@@ -1,5 +1,11 @@
-import type { Campaign, Metrics } from './types';
+/**
+ * Simulation Engine — 7-day performance simulation
+ *
+ * Uses strategy pattern for search term generation (OCP).
+ */
+import type { Campaign, Metrics, SearchTerm } from './types';
 import { generateId, metricDefaults, isFilteredByNegative } from './engine';
+import { generateSearchTermsForTarget } from './engine/search-term-generator';
 
 export function simulateDays(campaigns: Campaign[], days: number = 7): Campaign[] {
   const avgPrice = 29.99;
@@ -45,7 +51,7 @@ export function simulateDays(campaigns: Campaign[], days: number = 7): Campaign[
     });
 
     const newAdGroups = c.adGroups.map((ag) => {
-      const tgts = enabledTargets.filter((t) => t.adGroupId === ag.id);
+      const tgts = newTargets.filter((t) => t.adGroupId === ag.id);
       if (tgts.length) {
         const agMetrics = tgts.reduce(
           (s, t) => ({
@@ -62,45 +68,57 @@ export function simulateDays(campaigns: Campaign[], days: number = 7): Campaign[
       return { ...ag, metrics: metricDefaults({}) };
     });
 
-    const generatedST: any[] = [];
-    const matchGens: Record<string, (kw: string) => string[]> = {
-      Exact: (kw: string) => [kw, kw.endsWith('s') ? kw.slice(0, -1) : kw + 's'],
-      Phrase: (kw: string) => ['organic ' + kw, 'best ' + kw],
-      Broad: (kw: string) => ['cheap ' + kw, kw + ' accessories', kw + ' deals'],
-    };
-    for (let si = 0; si < enabledTargets.length; si++) {
-      const tgt = enabledTargets[si];
-      if (tgt.type !== 'Keyword') continue;
-      const genFn = matchGens[tgt.match];
-      if (!genFn) continue;
-      const generated = genFn(tgt.value);
-      for (let gi = 0; gi < generated.length; gi++) {
-        const gt = generated[gi];
-        if (isFilteredByNegative(gt, c.negatives)) continue;
-        let exists = false;
-        for (let ei = 0; ei < generatedST.length; ei++) {
-          if (generatedST[ei].term === gt) { exists = true; break; }
+    // Generate search terms for keyword targets using strategy pattern
+    // Supports SP and SB campaigns (SD doesn't have search terms by design)
+    const generatedST: SearchTerm[] = [];
+    const shouldGenerateSearchTerms = c.type === 'SP' || c.type === 'SB';
+    
+    if (shouldGenerateSearchTerms) {
+      for (let si = 0; si < enabledTargets.length; si++) {
+        const tgt = enabledTargets[si];
+        if (tgt.type !== 'Keyword') continue;
+        
+        // Use the new generator with negative filtering during generation
+        const generatedTerms = generateSearchTermsForTarget(
+          tgt.value,
+          tgt.match as 'Exact' | 'Phrase' | 'Broad',
+          c.negatives.map(n => ({ value: n.value, type: n.type }))
+        );
+        
+        for (let gi = 0; gi < generatedTerms.length; gi++) {
+          const gt = generatedTerms[gi];
+          // Check if already exists in campaign search terms (avoid duplicates)
+          let exists = false;
+          for (let ei = 0; ei < c.searchTerms.length; ei++) {
+            if (c.searchTerms[ei].term === gt) { exists = true; break; }
+          }
+          for (let ei = 0; ei < generatedST.length; ei++) {
+            if (generatedST[ei].term === gt) { exists = true; break; }
+          }
+          if (exists) continue;
+          
+          const termShare = 0.15 + Math.random() * 0.1;
+          const termClicks = Math.max(1, Math.round(tgt.clicks * termShare));
+          const termSpend = tgt.spend * termShare;
+          const roasAdj = tgt.match === 'Exact' ? 4.0 : tgt.match === 'Phrase' ? 2.5 : 1.5;
+          const termSales = termSpend * (roasAdj * (0.8 + Math.random() * 0.4));
+          const rec = termSales > termSpend * 3 ? 'Add as exact keyword' : termSales < termSpend ? 'Negate' : 'Review';
+          const termImpressions = Math.round(termClicks / (0.006 + Math.random() * 0.012));
+          generatedST.push({
+            id: generateId('ST'),
+            campaignId: c.id,
+            adGroupId: tgt.adGroupId,
+            term: gt,
+            target: tgt.value,
+            targetId: tgt.id,
+            recommendation: rec,
+            impressions: termImpressions,
+            clicks: termClicks,
+            spend: parseFloat(termSpend.toFixed(2)),
+            sales: parseFloat(termSales.toFixed(2)),
+            orders: Math.max(0, Math.round(termSales / 29.99)),
+          });
         }
-        if (exists) continue;
-        const termShare = 0.15 + Math.random() * 0.1;
-        const termClicks = Math.max(1, Math.round(tgt.clicks * termShare));
-        const termSpend = tgt.spend * termShare;
-        const roasAdj = tgt.match === 'Exact' ? 4.0 : tgt.match === 'Phrase' ? 2.5 : 1.5;
-        const termSales = termSpend * (roasAdj * (0.8 + Math.random() * 0.4));
-        const rec = termSales > termSpend * 3 ? 'Add as exact keyword' : termSales < termSpend ? 'Negate' : 'Review';
-        generatedST.push({
-          id: generateId('ST'),
-          campaignId: c.id,
-          adGroupId: tgt.adGroupId,
-          term: gt,
-          target: tgt.value,
-          targetId: tgt.id,
-          recommendation: rec,
-          clicks: termClicks,
-          spend: parseFloat(termSpend.toFixed(2)),
-          sales: parseFloat(termSales.toFixed(2)),
-          orders: Math.max(0, Math.round(termSales / 29.99)),
-        });
       }
     }
     const allSearchTerms = c.searchTerms.concat(generatedST);
