@@ -36,3 +36,34 @@ export function parseKeywords(raw: string): string[] {
       return true;
     });
 }
+
+export interface ValidationResult {
+  valid: boolean;
+  error?: string;
+}
+
+const URL_REGEX = /^https:\/\/.+\..+/;
+
+export function validateStoreUrl(url: string, adFormat?: string): ValidationResult {
+  const trimmed = url.trim();
+
+  if (trimmed !== url && !trimmed) {
+    return { valid: false, error: "Must be a valid https:// URL (e.g. https://www.amazon.com/stores/YourStore)" };
+  }
+
+  // Store spotlight requires a URL; other formats it's optional
+  if (adFormat === 'Store spotlight' && !trimmed) {
+    return { valid: false, error: 'Store URL is required for Store spotlight format' };
+  }
+
+  // Non-Store spotlight: empty is fine
+  if (!trimmed) {
+    return { valid: true };
+  }
+
+  if (!URL_REGEX.test(trimmed)) {
+    return { valid: false, error: 'Must be a valid https:// URL (e.g. https://www.amazon.com/stores/YourStore)' };
+  }
+
+  return { valid: true };
+}

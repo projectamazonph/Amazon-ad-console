@@ -9,7 +9,7 @@ export { addAdGroup, renameAdGroup, setAdGroupStatus, setAdGroupDefaultBid, remo
 export { isFilteredByNegative, addNegative, harvestTerm } from './negative';
 export { addBudgetRule, removeBudgetRule, updateBudgetRule } from './budget';
 export { createPortfolio, renamePortfolio, deletePortfolio, assignCampaignToPortfolio, campaignById, filteredCampaigns, portfolioNames } from './portfolio';
-export { selectProduct, removeProduct, parseKeywords } from './draft';
+export { selectProduct, removeProduct, parseKeywords, validateStoreUrl, type ValidationResult } from './draft';
 export { resolveBreakpoint, mobileMenuReducer, isTouchViewport } from './responsive';
 export type { Breakpoint, MenuStatus, MobileMenuState, MobileMenuAction } from './responsive';
 export { simulateDays } from '../simulation';
