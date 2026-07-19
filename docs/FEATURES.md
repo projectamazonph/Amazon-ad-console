@@ -418,3 +418,101 @@ When clicking a tab-mapped item:
 - **Tabs**: Horizontal overflow scroll with hidden scrollbar
 - **Toolbar**: Wrap on multiple lines, flex-grow on filter controls
 - **Page titles**: Stack vertically on mobile
+
+---
+
+## 15. Multi-User Authentication
+
+**Auth Provider**: NextAuth v5
+**Database**: Prisma + SQLite
+**Components**: `SessionProvider.tsx`, `UserMenu.tsx`, `SyncButton.tsx`
+**Pages**: `/auth/login`, `/auth/register`, `/landing`
+
+### Overview
+Multi-user access system allowing multiple trainees to have isolated campaign data with cloud synchronization.
+
+### Authentication Flow
+1. **Registration**: User creates account with email/password
+2. **Login**: User signs in with credentials
+3. **Session**: JWT token stored in HTTP-only cookie
+4. **Logout**: Session destroyed, redirect to home
+
+### Database Schema
+- **User**: id, email, name, passwordHash, timestamps
+- **Campaign**: All campaign data linked to userId
+- **Simulation**: Simulation history linked to userId
+
+### API Routes
+- `POST /api/auth/register` — Create new user
+- `GET/POST /api/campaigns` — List/create campaigns
+- `GET/PUT/DELETE /api/campaigns/[id]` — Single campaign CRUD
+- `GET/POST /api/sync` — Bulk sync campaigns to/from database
+
+### Frontend Components
+- **SessionProvider**: Wraps app for client-side session access
+- **UserMenu**: Shows avatar, name, dropdown with sign out
+- **SyncButton**: "Save" and "Load" buttons for cloud sync
+
+### User Flow
+1. Visit `/auth/register` to create account
+2. Sign in at `/auth/login`
+3. Use simulator normally
+4. Click "Save" to persist campaigns to database
+5. Click "Load" to restore campaigns from any device
+
+### Security
+- Password hashing with bcrypt (10 rounds)
+- JWT sessions with secure HTTP-only cookies
+- User data isolation via userId foreign key
+- API route protection via session checks
+
+---
+
+## 16. Landing Page
+
+**Component**: `landing/page.tsx`
+**Route**: `/landing`
+
+### Features
+- Public landing page with auth links
+- Feature showcase with animations
+- Stats display
+- CTA to simulator
+- Responsive design
+
+### Design
+- Dark theme with zinc-950 background
+- Emerald accent color
+- Motion animations via `motion/react`
+- Mobile-optimized layout
+
+---
+
+## 17. Premium UI Redesign
+
+**File**: `globals.css`
+
+### Design System
+- **Typography**: Geist font stack with refined type scale
+- **Colors**: Amazon-faithful palette with improved contrast
+- **Shadows**: Subtle, depth-aware shadow system
+- **Borders**: Refined hairlines with light/strong variants
+- **Radius**: Consistent corner radius scale
+
+### Component Upgrades
+- **Buttons**: Better hover/active/disabled states
+- **Cards**: Subtle border + shadow, hover elevation
+- **Tables**: Sticky headers, better row hover
+- **Forms**: Teal focus ring, proper select arrows
+- **Pills**: Refined color system
+
+### Mobile Improvements
+- 48px minimum touch targets
+- Better drawer animation with blur backdrop
+- Safe area padding for iPhone notch
+- Improved responsive breakpoints
+
+### Accessibility
+- Visible focus ring on all interactive elements
+- Reduced motion support
+- Better color contrast ratios

@@ -52,6 +52,12 @@ Open [http://localhost:3000](http://localhost:3000) — the simulator loads with
 - **Trainer Dashboard** — certification checklist, action grading, notes
 - **Multi-User Profiles** — separate training state per trainee
 
+### Multi-User Access
+- **User Registration** — create account with email/password
+- **Login/Logout** — secure session management via NextAuth
+- **Cloud Sync** — save/load campaigns to database
+- **Per-User Data** — each user has isolated campaign data
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -60,8 +66,11 @@ Open [http://localhost:3000](http://localhost:3000) — the simulator loads with
 | UI | React 19 |
 | State | Zustand 5 (single store, 8 slices) |
 | Language | TypeScript 5.8 (strict mode) |
-| Styling | Global CSS (935 lines, amph-v2 "Field Manual" design system) |
+| Styling | Global CSS (premium design system with Amazon-faithful tokens) |
 | Engine | Pure TypeScript — zero React/UI dependencies |
+| Database | Prisma + SQLite (local development) |
+| Authentication | NextAuth v5 (credentials provider) |
+| Password Hashing | bcryptjs |
 
 ## Testing
 
@@ -86,16 +95,27 @@ To add a feature: write a failing test in `src/engine/ad-console/core/__tests__/
 then implement the function until green. Keep logic in the engine layer so it
 stays framework-free and unit-testable.
 
-
 ## Project Structure
 
 ```
 Amazon-ad-console/
 ├── src/
 │   ├── app/                        # Next.js App Router
-│   │   ├── layout.tsx              # Root layout + metadata
+│   │   ├── layout.tsx              # Root layout + metadata + SessionProvider
 │   │   ├── page.tsx                # Home → <AdConsole />
-│   │   └── globals.css             # Amph-v2 Field Manual design tokens + styles
+│   │   ├── landing/page.tsx        # Landing page with auth links
+│   │   ├── auth/
+│   │   │   ├── login/page.tsx      # Login page
+│   │   │   └── register/page.tsx   # Registration page
+│   │   ├── api/
+│   │   │   ├── auth/               # NextAuth API routes
+│   │   │   │   ├── [...nextauth]/route.ts
+│   │   │   │   └── register/route.ts
+│   │   │   ├── campaigns/          # Campaign CRUD API
+│   │   │   │   ├── route.ts        # GET/POST campaigns
+│   │   │   │   └── [id]/route.ts   # GET/PUT/DELETE single campaign
+│   │   │   └── sync/route.ts       # Bulk sync campaigns to/from DB
+│   │   └── globals.css             # Premium design system tokens + styles
 │   ├── engine/                     # Portable business logic
 │   │   └── ad-console/
 │   │       ├── core/               # Zero-dep engine
@@ -114,41 +134,56 @@ Amazon-ad-console/
 │   │       ├── index.ts            # Public API re-exports
 │   │       ├── engine.ts           # Backward-compat re-export
 │   │       └── types.ts            # Backward-compat re-export
-│   └── components/AdConsole/       # React UI layer
-│       ├── AdConsole.tsx            # Root view router
-│       ├── Dashboard.tsx            # Aggregate metrics
-│       ├── CampaignManager.tsx      # Campaign list + filters
-│       ├── CampaignDetail.tsx       # Single campaign deep-dive
-│       ├── CreateCampaignWizard.tsx # Multi-step creation flow
-│       ├── PortfolioOverview.tsx    # Portfolio grouping
-│       ├── layout/
-│       │   ├── Sidebar.tsx          # Navigation rail
-│       │   └── Topbar.tsx           # Header with actions
-│       ├── nav/
-│       │   ├── consoleNav.ts        # Amazon console nav model (pure data)
-│       │   └── __tests__/
-│       │       └── consoleNav.test.ts # 8 TDD tests for nav model
-│       ├── metrics/
-│       │   └── MetricCard.tsx       # Reusable metric display
-│       └── features/                # Feature-specific pages
-│           ├── drills/DrillsPage.tsx
-│           ├── missions/MissionsPage.tsx
-│           ├── reports/ReportsPage.tsx
-│           ├── bulk/BulkOpsPage.tsx
-│           ├── trainer/TrainerPage.tsx
-│           └── integrity/IntegrityPage.tsx
-├── __tests__/                       # Persistence & store tests
+│   ├── components/
+│   │   ├── AdConsole/              # React UI layer
+│   │   │   ├── AdConsole.tsx        # Root view router
+│   │   │   ├── Dashboard.tsx        # Aggregate metrics
+│   │   │   ├── CampaignManager.tsx  # Campaign list + filters
+│   │   │   ├── CampaignDetail.tsx   # Single campaign deep-dive
+│   │   │   ├── CreateCampaignWizard.tsx # Multi-step creation flow
+│   │   │   ├── PortfolioOverview.tsx # Portfolio grouping
+│   │   │   ├── layout/
+│   │   │   │   ├── Sidebar.tsx      # Navigation rail
+│   │   │   │   └── Topbar.tsx       # Header with actions + UserMenu
+│   │   │   ├── mobile/
+│   │   │   │   └── MobileNav.tsx    # Mobile drawer navigation
+│   │   │   ├── nav/
+│   │   │   │   └── consoleNav.ts    # Amazon console nav model
+│   │   │   ├── metrics/
+│   │   │   │   └── MetricCard.tsx   # Reusable metric display
+│   │   │   ├── details/             # Tab components
+│   │   │   └── features/            # Feature-specific pages
+│   │   │       ├── drills/DrillsPage.tsx
+│   │   │       ├── missions/MissionsPage.tsx
+│   │   │       ├── reports/ReportsPage.tsx
+│   │   │       ├── bulk/BulkOpsPage.tsx
+│   │   │       ├── trainer/TrainerPage.tsx
+│   │   │       └── integrity/IntegrityPage.tsx
+│   │   ├── SessionProvider.tsx      # NextAuth session wrapper
+│   │   ├── UserMenu.tsx             # User dropdown menu
+│   │   └── SyncButton.tsx           # Cloud sync controls
+│   ├── lib/
+│   │   ├── auth.ts                  # NextAuth configuration
+│   │   ├── prisma.ts                # Prisma client singleton
+│   │   ├── validation.ts            # Input validation helpers
+│   │   └── useBreakpoint.ts         # Responsive breakpoint hook
+│   └── generated/prisma/            # Prisma generated client
+├── prisma/
+│   ├── schema.prisma                # Database schema (User, Campaign, Simulation)
+│   └── migrations/                  # Database migrations
 ├── docs/                           # Project documentation
 │   ├── ARCHITECTURE.md
 │   ├── API.md
 │   ├── SCHEMA.md
 │   ├── FEATURES.md
 │   ├── INTEGRATION.md
-│   └── TECH-SPECS.md
-├── amazon_ppc_simulator.html       # Legacy single-file (v3.4)
+│   ├── TECH-SPECS.md
+│   ├── MOBILE_REDESIGN_PLAN.md
+│   └── AUTH.md                      # Multi-user authentication guide
 ├── package.json
 ├── tsconfig.json
-└── next.config.ts
+├── next.config.ts
+└── prisma.config.ts                 # Prisma configuration
 ```
 
 ## Scripts
@@ -160,6 +195,8 @@ Amazon-ad-console/
 | `npm start` | Start production server |
 | `npm run lint` | Run Next.js linter |
 | `npm run type-check` | TypeScript type checking |
+| `npx prisma migrate dev` | Run database migrations |
+| `npx prisma generate` | Generate Prisma client |
 
 ## Porting to amph-v2
 
@@ -182,6 +219,8 @@ See [docs/INTEGRATION.md](docs/INTEGRATION.md) for the full porting guide.
 - [Features](docs/FEATURES.md) — Detailed feature documentation
 - [Integration Guide](docs/INTEGRATION.md) — Porting to amph-v2
 - [Tech Specs](docs/TECH-SPECS.md) — Dependencies, configuration, performance
+- [Mobile Redesign Plan](docs/MOBILE_REDESIGN_PLAN.md) — Mobile-first redesign strategy
+- [Authentication Guide](docs/AUTH.md) — Multi-user access setup and configuration
 
 ## License
 
