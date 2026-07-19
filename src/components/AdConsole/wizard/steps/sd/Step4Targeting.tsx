@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
+import type { CampaignGoal } from '@/engine/ad-console/types';
 
 interface Step4TargetingSDProps {
   isActive: boolean;
@@ -20,6 +21,20 @@ export function Step4TargetingSD({ isActive, isComplete }: Step4TargetingSDProps
     <div className="wizard-step" style={{ display: isActive || isComplete ? 'block' : 'none' }}>
       <h2>Targeting</h2>
       <p className="muted" style={{ marginBottom: 14 }}>Choose targeting method and add targets.</p>
+
+      <div className="card pad" style={{ marginBottom: 16 }}>
+        <div className="card-title"><h3>Campaign goal</h3></div>
+        <div className="field full">
+          <select className="select full" value={draft.campaignGoal || 'Conversions'} onChange={(e) => updateDraft('campaignGoal', e.target.value as CampaignGoal)}>
+            <option value="Conversions">Conversions — optimize for purchases</option>
+            <option value="Consideration">Consideration — optimize for detail page views</option>
+            <option value="Awareness">Awareness — optimize for impressions</option>
+          </select>
+          <p className="muted" style={{ fontSize: 'var(--text-xs)', marginTop: 4 }}>
+            Goal affects simulation quality bonus: Conversions +5%, Consideration +2%, Awareness +0%.
+          </p>
+        </div>
+      </div>
 
       <div className="field" style={{ marginBottom: 16 }}>
         <label>Targeting mode</label>

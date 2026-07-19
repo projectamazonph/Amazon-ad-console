@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { PRODUCTS, BRANDS } from '@/engine/ad-console/core/scenarios';
 
+const HEADLINE_MAX = 50;
+
 interface Step3ProductsCreativeSBProps {
   isActive: boolean;
   isComplete: boolean;
@@ -94,8 +96,13 @@ export function Step3ProductsCreativeSB({ isActive, isComplete }: Step3ProductsC
               <input className="input full" value={logo} onChange={(e) => { setLogo(e.target.value); updateDraft('creative', { ...draft.creative, logo: e.target.value }); }} />
             </div>
             <div className="field full">
-              <label>Headline</label>
-              <input className="input full" value={headline} onChange={(e) => { setHeadline(e.target.value); updateDraft('creative', { ...draft.creative, headline: e.target.value }); }} placeholder="Discover your perfect brew" />
+              <label>Headline <span className="muted">({headline.length}/{HEADLINE_MAX})</span></label>
+              <input className="input full" value={headline}
+                maxLength={HEADLINE_MAX}
+                onChange={(e) => { setHeadline(e.target.value); updateDraft('creative', { ...draft.creative, headline: e.target.value }); }}
+                placeholder="Discover your perfect brew"
+                style={headline.length >= HEADLINE_MAX ? { borderColor: 'var(--danger)' } : {}} />
+              {headline.length >= HEADLINE_MAX && <small style={{ color: 'var(--danger)' }}>Maximum {HEADLINE_MAX} characters.</small>}
             </div>
             <div className="field">
               <label>Destination</label>
@@ -125,8 +132,13 @@ export function Step3ProductsCreativeSB({ isActive, isComplete }: Step3ProductsC
               <input className="input full" value={logo} onChange={(e) => { setLogo(e.target.value); updateDraft('creative', { ...draft.creative, logo: e.target.value }); }} />
             </div>
             <div className="field full">
-              <label>Headline</label>
-              <input className="input full" value={headline} onChange={(e) => { setHeadline(e.target.value); updateDraft('creative', { ...draft.creative, headline: e.target.value }); }} placeholder="Discover your perfect brew" />
+              <label>Headline <span className="muted">({headline.length}/{HEADLINE_MAX})</span></label>
+              <input className="input full" value={headline}
+                maxLength={HEADLINE_MAX}
+                onChange={(e) => { setHeadline(e.target.value); updateDraft('creative', { ...draft.creative, headline: e.target.value }); }}
+                placeholder="Discover your perfect brew"
+                style={headline.length >= HEADLINE_MAX ? { borderColor: 'var(--danger)' } : {}} />
+              {headline.length >= HEADLINE_MAX && <small style={{ color: 'var(--danger)' }}>Maximum {HEADLINE_MAX} characters.</small>}
             </div>
             <div className="field">
               <label>Destination</label>

@@ -83,7 +83,7 @@ export const createCoreSlice = (set: any, get: any, ..._rest: any[]): CoreSlice 
     const campaign = normalizeCampaign({
       id, type: d.type, name: d.name, portfolio: portfolioName,
       status: d.status, dailyBudget: d.dailyBudget, defaultBid: d.defaultBid,
-      bidStrategy: d.bidStrategy, targetingMode: d.targetingMode,
+      bidStrategy: d.bidStrategy, targetingMode: d.targetingMode, campaignGoal: d.campaignGoal,
       products: d.products, metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
       adGroups: [{ id: agId, campaignId: id, name: d.type + ' training ad group', status: d.status, defaultBid: d.defaultBid, metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 } }],
       targets, searchTerms: [], negatives: [], budgetRules: [], history: ['Campaign launched in simulator'],

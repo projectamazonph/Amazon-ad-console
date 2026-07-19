@@ -27,6 +27,7 @@ export function CampaignDetail({ campaign }: Props) {
 
   const c = campaign;
   const selectedTab = state.selectedTab;
+  const hasPlacements = c.type !== 'SD';
 
   const tabs = [
     { id: 'overview', label: 'Overview' },
@@ -35,7 +36,7 @@ export function CampaignDetail({ campaign }: Props) {
     { id: 'searchTerms', label: 'Search terms' },
     { id: 'negatives', label: 'Negatives' },
     { id: 'budgetRules', label: 'Budget rules' },
-    { id: 'placements', label: 'Placements' },
+    ...(hasPlacements ? [{ id: 'placements', label: 'Placements' }] : []),
     { id: 'history', label: 'Change history' },
   ];
 
@@ -77,7 +78,7 @@ export function CampaignDetail({ campaign }: Props) {
       {selectedTab === 'searchTerms' && <SearchTermsTab campaign={c} />}
       {selectedTab === 'negatives' && <NegativesTab campaign={c} />}
       {selectedTab === 'budgetRules' && <BudgetRulesTab campaign={c} />}
-      {selectedTab === 'placements' && <PlacementsTab campaign={c} />}
+      {selectedTab === 'placements' && hasPlacements && <PlacementsTab campaign={c} />}
       {selectedTab === 'history' && <HistoryTab campaign={c} />}
     </div>
   );
