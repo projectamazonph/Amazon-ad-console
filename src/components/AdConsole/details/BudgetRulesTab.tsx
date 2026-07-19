@@ -52,7 +52,7 @@ export function BudgetRulesTab({ campaign }: Props) {
         }}>Add rule</button>
       </div>
       {c.budgetRules.length === 0 ? (
-        <div className="empty"><span className="icon">💰</span><h3>No budget rules</h3><p>Schedule-based or performance-based rules let you automate budget adjustments. Create one using the form above.</p></div>
+        <div className="empty"><h3>No budget rules</h3><p>Schedule-based or performance-based rules let you automate budget adjustments. Create one using the form above.</p></div>
       ) : (
         <div className="table-wrap">
           <table>

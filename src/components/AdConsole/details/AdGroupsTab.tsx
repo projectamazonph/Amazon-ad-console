@@ -60,7 +60,7 @@ export function AdGroupsTab({ campaign: c }: Props) {
           </button>
         </div>
         {!agTargets.length ? (
-          <div className="empty"><span className="icon">🎯</span><h3>{`No targets in "${focused.name}" yet.`}</h3></div>
+          <div className="empty"><h3>{`No targets in "${focused.name}" yet.`}</h3></div>
         ) : (
           <div className="table-wrap">
             <table>

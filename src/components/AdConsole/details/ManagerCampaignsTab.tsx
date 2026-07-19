@@ -16,7 +16,7 @@ export function ManagerCampaignsTab({ campaigns, onSelect, onToggleStatus, onDup
   if (!campaigns.length) {
     return (
       <div className="empty">
-        <span className="icon">📢</span>
+        
         <h3>No campaigns yet</h3>
         <p>Create your first campaign to start training.</p>
         <button className="btn primary" onClick={onCreate}>Create campaign</button>
@@ -47,7 +47,7 @@ export function ManagerCampaignsTab({ campaigns, onSelect, onToggleStatus, onDup
                 <td><span className={`pill ${c.type === 'SP' ? 'active' : c.type === 'SB' ? 'orange' : 'purple'}`}>{c.type}</span></td>
                 <td>{(c.type === 'SB' || c.type === 'SD') && c.creativeStatus ? (
                   <span className={`pill ${c.creativeStatus === 'Approved' ? 'green' : c.creativeStatus === 'Pending' ? '' : 'bad'}`}>{c.creativeStatus}</span>
-                ) : '—'}</td>
+                ) : 'N/A'}</td>
                 <td><span className={`pill ${c.status === 'Enabled' ? 'green' : c.status === 'Paused' ? 'orange' : 'bad'}`}>{c.status}</span></td>
                 <td className="money">{formatMoney(c.dailyBudget)}</td>
                 <td><span className="muted">{c.targetingMode}</span></td>

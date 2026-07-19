@@ -30,23 +30,23 @@ export function calculateGrade(actionType: string, context?: Record<string, any>
     case 'keyword_added':
       return { tone: 'good', message: 'Keyword added to campaign' };
     case 'target_removed':
-      return { tone: 'warn', message: 'Target removed — confirm this was intentional' };
+      return { tone: 'warn', message: 'Target removed: confirm this was intentional' };
     case 'bid_up':
       return context?.acos && context.acos > 40
-        ? { tone: 'bad', message: 'Bid increase on high-ACOS target — recommend review' }
+        ? { tone: 'bad', message: 'Bid increase on high-ACOS target: recommend review' }
         : { tone: 'good', message: 'Bid increase on performing target' };
     case 'bid_down':
       return context?.acos && context.acos > 40
         ? { tone: 'good', message: 'Correct: lowering bid on waste target' }
-        : { tone: 'warn', message: 'Bid decreased — verify performance data' };
+        : { tone: 'warn', message: 'Bid decreased: verify performance data' };
     case 'budget_change':
       return context?.increase && context.increase > 1.5
-        ? { tone: 'warn', message: 'Large budget increase — check portfolio impact' }
+        ? { tone: 'warn', message: 'Large budget increase: check portfolio impact' }
         : { tone: 'good', message: 'Budget adjusted' };
     case 'campaign_paused':
       return { tone: 'good', message: 'Campaign paused' };
     case 'campaign_archived':
-      return { tone: 'warn', message: 'Campaign archived — verify before finalizing' };
+      return { tone: 'warn', message: 'Campaign archived: verify before finalizing' };
     default:
       return { tone: 'good', message: 'Action recorded' };
   }

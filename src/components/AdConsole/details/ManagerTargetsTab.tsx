@@ -10,7 +10,7 @@ interface Props {
 export function ManagerTargetsTab({ campaigns }: Props) {
   const rows = campaigns.flatMap((c) => c.targets.map((t) => ({ c, t })));
   if (!rows.length) {
-    return <div className="empty"><span className="icon">🎯</span><h3>No targets</h3><p>Targets are created when you add keywords, products, or audiences to your campaigns.</p></div>;
+    return <div className="empty"><h3>No targets</h3><p>Targets are created when you add keywords, products, or audiences to your campaigns.</p></div>;
   }
 
   return (

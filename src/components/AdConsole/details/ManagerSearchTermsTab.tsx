@@ -15,7 +15,7 @@ export function ManagerSearchTermsTab({ campaigns }: Props) {
   );
 
   if (!rows.length) {
-    return <div className="empty"><span className="icon">🔎</span><h3>No search terms</h3><p>Search terms appear after running a simulation. They are also filtered by negatives — check the Negatives tab.</p></div>;
+    return <div className="empty"><h3>No search terms</h3><p>Search terms appear after running a simulation. They are also filtered by negatives: check the Negatives tab.</p></div>;
   }
 
   return (
