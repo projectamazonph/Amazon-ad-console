@@ -55,12 +55,26 @@ export default function LandingPage() {
             <span className="text-xl font-semibold tracking-tight">AdConsole</span>
             <span className="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-medium">Training</span>
           </div>
-          <Link
-            href="/"
-            className="bg-white text-zinc-950 px-5 py-2 rounded-full text-sm font-medium hover:bg-zinc-200 transition-colors"
-          >
-            Launch Simulator
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/auth/login"
+              className="text-zinc-400 hover:text-white text-sm font-medium transition-colors"
+            >
+              Sign in
+            </Link>
+            <Link
+              href="/auth/register"
+              className="bg-white/10 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-white/20 transition-colors"
+            >
+              Sign up
+            </Link>
+            <Link
+              href="/"
+              className="bg-white text-zinc-950 px-5 py-2 rounded-full text-sm font-medium hover:bg-zinc-200 transition-colors"
+            >
+              Launch Simulator
+            </Link>
+          </div>
         </div>
       </nav>
 
