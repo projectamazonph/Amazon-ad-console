@@ -18,6 +18,10 @@
 | `react` | ^19.0.0 | UI library |
 | `react-dom` | ^19.0.0 | React DOM renderer |
 | `zustand` | ^5.0.0 | State management |
+| `@prisma/client` | ^5.0.0 | Database ORM |
+| `next-auth` | ^5.0.0-beta.31 | Authentication |
+| `bcryptjs` | ^2.4.3 | Password hashing |
+| `motion` | ^11.0.0 | Animation library |
 
 ### Development
 
@@ -26,9 +30,17 @@
 | `@types/node` | ^22.0.0 | Node.js type definitions |
 | `@types/react` | ^19.0.0 | React type definitions |
 | `@types/react-dom` | ^19.0.0 | ReactDOM type definitions |
+| `@types/bcryptjs` | ^2.4.0 | bcryptjs type definitions |
 | `typescript` | ~5.8.0 | TypeScript compiler |
+| `prisma` | ^5.0.0 | Prisma CLI |
+| `vitest` | ^4.1.10 | Test runner |
+| `@vitest/coverage-v8` | ^4.1.10 | Code coverage |
+| `@playwright/test` | ^1.61.1 | E2E testing |
+| `@testing-library/react` | ^16.3.2 | React testing utilities |
+| `@testing-library/user-event` | ^14.6.1 | User interaction simulation |
+| `jsdom` | ^29.1.1 | DOM implementation for tests |
 
-**Total runtime dependency count: 4** (next, react, react-dom, zustand)
+**Total runtime dependency count: 8** (next, react, react-dom, zustand, @prisma/client, next-auth, bcryptjs, motion)
 
 ## TypeScript Configuration
 
@@ -63,6 +75,38 @@ const nextConfig: NextConfig = {
 
 Minimal configuration. No custom webpack, no env files, no middleware.
 
+## Database Configuration
+
+### Prisma Schema
+```prisma
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+```
+
+### Environment Variables
+```env
+# Prisma
+DATABASE_URL="file:./dev.db"
+
+# NextAuth
+NEXTAUTH_SECRET="your-secret-key-here"
+NEXTAUTH_URL="http://localhost:3000"
+```
+
+### Database Commands
+```bash
+npx prisma init --datasource-provider sqlite
+npx prisma migrate dev --name init
+npx prisma generate
+npx prisma db push
+```
+
 ## File Statistics
 
 | Directory | Files | Total Lines |
@@ -71,234 +115,101 @@ Minimal configuration. No custom webpack, no env files, no middleware.
 | `src/engine/ad-console/features/` | 21 | ~1,800 |
 | `src/engine/ad-console/` (root) | 4 | ~220 |
 | `src/components/AdConsole/` | 15 | ~1,800 |
-| `src/app/` | 3 | ~530 |
-| **Total src/** | **50+** | **~6,200** |
+| `src/components/` (root) | 3 | ~200 |
+| `src/app/` | 8 | ~1,200 |
+| `src/lib/` | 4 | ~300 |
+| `prisma/` | 2 | ~100 |
+| **Total src/** | **60+** | **~7,500** |
 
 ### Source File Breakdown
 
 | File | Lines | Responsibility |
 |------|-------|---------------|
-| `core/types.ts` | ~180 | All domain interfaces |
-| `core/engine.ts` | ~890 | Core business logic (campaigns, ad groups, targets, budget rules, mobile menu) |
-| `core/scenarios.ts` | ~135 | Training data & product catalog |
-| `store.ts` | ~260 | Composed root Zustand store + persist middleware |
-| `CampaignDetail.tsx` | ~530 | Campaign deep-dive view (ad group CRUD + budget rules CRUD) |
-| `CampaignManager.tsx` | 300 | Campaign list view |
-| `CreateCampaignWizard.tsx` | 227 | Campaign creation wizard |
-| `globals.css` | 935 | Amph-v2 Field Manual design system + all styles |
+| `globals.css` | 1,377 | Design system tokens + responsive styles |
+| `store.ts` | 250 | Zustand root store composition |
+| `engine.ts` | 600 | Core business logic functions |
+| `types.ts` | 200 | Domain interfaces |
+| `scenarios.ts` | 400 | Training data & product catalog |
+| `CampaignManager.tsx` | 300 | Campaign list + filters |
+| `CampaignDetail.tsx` | 550 | Single campaign deep-dive |
+| `CreateCampaignWizard.tsx` | 200 | Multi-step creation flow |
+| `MobileNav.tsx` | 133 | Mobile drawer navigation |
+| `auth.ts` | 80 | NextAuth configuration |
+| `prisma.ts` | 15 | Prisma client singleton |
 
-## Data Architecture
+## Testing Configuration
 
-### State Shape
-```
-AppStore
-├── CoreSlice
-│   ├── state: AdConsoleState
-│   │   ├── campaigns: Campaign[]
-│   │   ├── filter: FilterState
-│   │   ├── selectedCampaignId: string | null
-│   │   ├── selectedTab: string
-│   │   ├── simulationDays: number
-│   │   └── actionLog: ActionLogEntry[]
-│   ├── draft: CampaignDraft
-│   ├── wizardStep: number
-│   ├── view: string
-│   └── showAddKeywordForm: boolean
-├── DrillsSlice
-│   ├── drillSession: DrillSession
-│   └── drillResults: DrillResult[]
-├── ProfilesSlice
-│   ├── activeProfileId: string
-│   └── profiles: TraineeProfile[]
-├── TrainerSlice
-│   ├── notes: TrainerNote[]
-│   ├── actionLog: ActionGrade[]
-│   └── certificationChecklist: CertificationItem[]
-├── BulkSlice
-│   ├── bulkInput: string
-│   ├── bulkPreview: BulkRow[]
-│   ├── bulkErrors: BulkValidationError[]
-│   └── bulkValid: boolean
-├── ReportsSlice
-│   ├── reportQueue: ReportRequest[]
-│   ├── reports: Report[]
-│   └── selectedReportId: string | null
-├── MissionsSlice
-│   ├── missions: Mission[]
-│   └── missionSession: MissionSession
-└── IntegritySlice
-    └── integrityReport: IntegrityReport | null
+### Vitest Config
+```ts
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./vitest.setup.ts'],
+  },
+});
 ```
 
-### Campaign Hierarchy
-```
-Campaign
-├── AdGroup[]           (1-N, default 1)
-│   └── metrics: Metrics
-├── Target[]            (0-N)
-│   ├── type: Keyword | Auto | ASIN | Category | Audience
-│   ├── match: Exact | Phrase | Broad | Auto
-│   └── metrics: per-target
-├── SearchTerm[]        (0-N)
-│   ├── term: customer query
-│   ├── target: matched target
-│   └── recommendation: Add | Negate | Review
-├── Negative[]          (0-N)
-│   └── type: Negative exact | Negative phrase
-├── BudgetRule[]        (0-N)
-├── products: string[]  (ASINs)
-├── creative: Creative | null
-├── metrics: Metrics    (campaign-level)
-└── history: string[]   (change log)
+### Test Commands
+```bash
+npm test          # Run all tests
+npm run test:watch  # Watch mode
+npm run test:e2e   # Playwright E2E tests
 ```
 
-### Metrics Cascade
+## Performance Targets
+
+| Metric | Target |
+|--------|--------|
+| First Contentful Paint | < 1.5s |
+| Largest Contentful Paint | < 2.5s |
+| Time to Interactive | < 3.5s |
+| Cumulative Layout Shift | < 0.1 |
+| Total Bundle Size | < 500KB |
+
+## Security Configuration
+
+### Authentication
+- Password hashing: bcrypt (10 salt rounds)
+- Session strategy: JWT
+- Cookie flags: HTTP-only, Secure, SameSite=Lax
+
+### Database
+- User data isolation via userId foreign key
+- Cascade deletes for user data
+- Unique constraints on user email and campaign IDs
+
+### API Routes
+- Session validation on all protected routes
+- Input validation on all endpoints
+- Rate limiting (planned)
+
+## Deployment
+
+### Vercel (Recommended)
+```bash
+npm install -g vercel
+vercel
 ```
-Target.impressions + Target.clicks + ... 
-    ↓ sum by adGroupId
-AdGroup.metrics 
-    ↓ sum by campaign
-Campaign.metrics
-    ↓ sum enabled campaigns
-Dashboard (totalMetricsCalc)
+
+### Docker
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npx prisma generate
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "start"]
 ```
 
-## Simulation Engine
-
-The `simulateDays()` function generates realistic performance data:
-
-### Daily Rate Calculation
+### Environment Variables for Production
+```env
+DATABASE_URL="postgresql://user:password@host:5432/db"
+NEXTAUTH_SECRET="strong-random-secret"
+NEXTAUTH_URL="https://your-domain.com"
 ```
-dailyImpressions = (budget / avgCPC) × (ctr / 100) × variance
-dailyClicks = dailyImpressions × (ctr / 100)
-dailySpend = dailyClicks × avgCPC
-dailyOrders = dailyClicks × (cvr / 100)
-dailySales = dailyOrders × avgOrderValue × variance
-```
-
-### Variance
-Each day uses a random variance factor within configurable bounds to prevent identical daily outputs.
-
-### Target Distribution
-Metrics are distributed across targets proportionally to their existing share of total impressions. This preserves the relative performance profile of each campaign.
-
-## Performance Characteristics
-
-- **Rendering**: Only components that read changed store slices re-render (Zustand selectors)
-- **State updates**: Immutable — each action returns a new state tree
-- **Simulation**: O(n × m) where n = campaigns, m = targets per campaign
-- **Memory**: In-memory only — no persistence layer. State resets on page refresh.
-- **Bundle size**: Minimal — 4 runtime deps, no UI library, no chart library
-
-## Portability Guarantees
-
-The engine layer (`src/engine/ad-console/`) is guaranteed to be:
-- **Framework-free**: No React, Vue, Angular imports
-- **Runtime-agnostic**: Works in Node.js, browsers, Web Workers
-- **State-manager agnostic**: Pure functions — can be used with Redux, MobX, React Context, or no state manager
-- **Zero config**: No environment variables, no config files, no build steps required
-- **Type-safe**: Full TypeScript with strict mode
-
-## Compatibility Matrix
-
-| Target Environment | Engine | Store | Components |
-|-------------------|--------|-------|------------|
-| amph-v2 (Next.js 16) | ✅ Copy | ✅ Use directly | ✅ Copy |
-| Standalone Node.js | ✅ Import | ⚠️ Requires zustand | ❌ No DOM |
-| Web Worker | ✅ Import | ⚠️ Requires zustand | ❌ No DOM |
-| React SPA (Vite) | ✅ Import | ✅ Use directly | ✅ Copy with CSS |
-| Legacy HTML | ⚠️ Port functions | ❌ No Zustand | ❌ Rewrite UI |
-## Styling
-
-### Design System
-The UI adopts the **amph-v2 "Field Manual"** design system — dense, scannable, utilitarian. Warm off-white surfaces with an orange accent, auto dark mode via `prefers-color-scheme`.
-
-#### Tokens (CSS Custom Properties on `:root`)
-
-**Surfaces**
-| Token | Value | Use |
-|-------|-------|-----|
-| `--surface-0` | `#FAFAF7` | Page background (warm off-white) |
-| `--surface-1` | `#FFFFFF` | Card/panel background |
-| `--surface-2` | `#F4F3EE` | Hover states, subtle fills |
-| `--surface-3` | `#1A1A1A` | Inverted surfaces (dark mode text bg) |
-
-**Ink (Text)**
-| Token | Value | Use |
-|-------|-------|-----|
-| `--ink-900` | `#171717` | Primary text |
-| `--ink-700` | `#404040` | Secondary text |
-| `--ink-500` | `#737373` | Muted/label text |
-| `--ink-300` | `#D4D4D4` | Disabled text |
-
-**Brand**
-| Token | Value | Use |
-|-------|-------|-----|
-| `--accent` | `#FF6B35` | Primary actions, active nav |
-| `--accent-hover` | `#E55A2B` | Hover state |
-| `--accent-soft` | `#FFE5D9` | Active background tint |
-| `--accent-ink` | `#1A1A2E` | Text on accent (navy, WCAG AA) |
-
-**Semantic**
-| Token | Value | Use |
-|-------|-------|-----|
-| `--success` | `#0E7C3A` | Good metrics, positive delta |
-| `--success-soft` | `#DCFCE7` | Success background |
-| `--warning` | `#B45309` | Caution, medium ACoS |
-| `--warning-soft` | `#FEF3C7` | Warning background |
-| `--danger` | `#B91C1C` | Errors, high ACoS |
-| `--danger-soft` | `#FEE2E2` | Error background |
-
-**Typography**
-| Token | Value |
-|-------|-------|
-| `--font-display` | Space Grotesk, system-ui |
-| `--font-body` | Space Grotesk, system-ui |
-| `--font-mono` | JetBrains Mono, ui-monospace |
-
-**Spacing** (4px base): `--space-1` (4px) through `--space-12` (48px)
-
-**Radius**: `--radius-sm` (4px), `--radius-md` (6px), `--radius-lg` (10px), `--radius-full` (9999px)
-
-**Shadows**: `--shadow-sm`, `--shadow-md`, `--shadow-lg` — subtle, low-opacity
-
-**Dark Mode**: Full `prefers-color-scheme: dark` override — surfaces invert, accent-soft becomes deep burnt orange, shadows darken. No manual toggle needed.
-
-### Layout
-- Sidebar: 240px fixed width, sticky, warm white background
-- Topbar: 56px height, sticky, border-bottom separator
-- Main content: flex-1 with `--space-6` padding
-- Metric cards: CSS Grid (`grid-4` responsive), `--radius-lg` borders
-- Tables: Full-width with hover highlight on `--surface-2`
-- Mobile: Sidebar hides below 768px, grids collapse to 2-col then 1-col
-
-### Fonts
-Loaded via `next/font/google`:
-- **Space Grotesk** — display and body text (weights 400–700)
-- **JetBrains Mono** — code, metrics, financial figures
-
-### Component Patterns
-- **Buttons**: `.btn` base with `.primary` (accent), `.danger`, `.ghost` variants; small/medium sizes
-- **Cards**: `.card` with `.pad` variant; border + subtle shadow
-- **Pills/Badges**: `.pill` with semantic color variants (`.active`, `.green`, `.red`, `.amber`)
-- **Inputs**: `.input`, `.select` with accent focus ring
-- **Tabs**: Bottom-border active indicator, accent color
-- **Toasts**: Fixed bottom-right, semantic color backgrounds, slide-in animation
-## Portability Guarantees
-
-The engine layer (`src/engine/ad-console/`) is guaranteed to be:
-- **Framework-free**: No React, Vue, Angular imports
-- **Runtime-agnostic**: Works in Node.js, browsers, Web Workers
-- **State-manager agnostic**: Pure functions — can be used with Redux, MobX, React Context, or no state manager
-- **Zero config**: No environment variables, no config files, no build steps required
-- **Type-safe**: Full TypeScript with strict mode
-
-## Compatibility Matrix
-
-| Target Environment | Engine | Store | Components |
-|-------------------|--------|-------|------------|
-| amph-v2 (Next.js 16) | ✅ Copy | ✅ Use directly | ✅ Copy |
-| Standalone Node.js | ✅ Import | ⚠️ Requires zustand | ❌ No DOM |
-| Web Worker | ✅ Import | ⚠️ Requires zustand | ❌ No DOM |
-| React SPA (Vite) | ✅ Import | ✅ Use directly | ✅ Copy with CSS |
-| Legacy HTML | ⚠️ Port functions | ❌ No Zustand | ❌ Rewrite UI |
