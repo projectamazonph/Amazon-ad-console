@@ -20,7 +20,7 @@ export function SearchTermsTab({ campaign }: Props) {
     const hasNegatives = c.negatives.length > 0;
     return (
       <div className="empty">
-        <span className="icon">🔎</span>
+        
         <h3>No search terms</h3>
         <p>{hasNegatives ? 'All search terms are filtered by negatives. Check the Negatives tab to review.' : 'Run a simulation to generate search terms from your keyword targets.'}</p>
         {!hasNegatives && <button className="btn primary" onClick={() => runSimulation()}>Run 7-day simulation</button>}

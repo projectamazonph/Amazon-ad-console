@@ -25,7 +25,7 @@ export function TargetsTab({ campaign: c }: Props) {
   const [bidEdits, setBidEdits] = useState<Record<string, string>>({});
 
   if (!c.targets.length && !showAddKeywordForm) {
-    return <div className="empty"><span className="icon">🎯</span><h3>No targets</h3><p>Add keywords, products, or audience targets to start targeting shoppers.</p></div>;
+    return <div className="empty"><h3>No targets</h3><p>Add keywords, products, or audience targets to start targeting shoppers.</p></div>;
   }
 
   return (

@@ -27,7 +27,7 @@ export function AdConsole() {
       case 'campaigns': return <CampaignManager />;
       case 'detail': return selectedCampaign ? <CampaignDetail campaign={selectedCampaign} /> : (
     <div className="empty" style={{ marginTop: 80 }}>
-      <span className="icon">📋</span>
+      
       <h3>Campaign not found</h3>
       <p>The campaign you selected may have been archived or deleted.</p>
       <button className="btn primary" onClick={() => setView('campaigns')}>Back to campaigns</button>

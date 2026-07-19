@@ -26,9 +26,9 @@ export function Step4TargetingSD({ isActive, isComplete }: Step4TargetingSDProps
         <div className="card-title"><h3>Campaign goal</h3></div>
         <div className="field full">
           <select className="select full" value={draft.campaignGoal || 'Conversions'} onChange={(e) => updateDraft('campaignGoal', e.target.value as CampaignGoal)}>
-            <option value="Conversions">Conversions — optimize for purchases</option>
-            <option value="Consideration">Consideration — optimize for detail page views</option>
-            <option value="Awareness">Awareness — optimize for impressions</option>
+            <option value="Conversions">Conversions: optimize for purchases</option>
+            <option value="Consideration">Consideration: optimize for detail page views</option>
+            <option value="Awareness">Awareness: optimize for impressions</option>
           </select>
           <p className="muted" style={{ fontSize: 'var(--text-xs)', marginTop: 4 }}>
             Goal affects simulation quality bonus: Conversions +5%, Consideration +2%, Awareness +0%.

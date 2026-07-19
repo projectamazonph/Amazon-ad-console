@@ -6,7 +6,7 @@ export function HistoryTab({ campaign }: Props) {
   if (!campaign.history.length) {
     return (
       <div className="empty">
-        <span className="icon">📋</span>
+        
         <h3>No history</h3>
         <p>Campaign changes will appear here as you make edits and run simulations.</p>
       </div>

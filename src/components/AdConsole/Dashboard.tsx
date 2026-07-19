@@ -125,7 +125,7 @@ function renderCampaignTable(
   if (!campaigns.length) {
     return (
       <div className="empty">
-        <span className="icon">📢</span>
+        
         <h3>No campaigns yet</h3>
         <p>Your advertising journey starts here. Create your first campaign to see performance data.</p>
         <button className="btn primary" onClick={() => setView?.('create')}>Create campaign</button>
