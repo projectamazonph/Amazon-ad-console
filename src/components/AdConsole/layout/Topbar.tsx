@@ -3,6 +3,8 @@
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { GLOBAL_NAV, type NavView } from '../nav/consoleNav';
 import { MobileNav } from '../mobile/MobileNav';
+import { UserMenu } from '@/components/UserMenu';
+import { SyncButton } from '@/components/SyncButton';
 
 const SECTION_TO_VIEW: Record<string, NavView> = {
   campaigns: 'campaigns',
@@ -13,7 +15,6 @@ const SECTION_TO_VIEW: Record<string, NavView> = {
 export function Topbar() {
   const view = useAdConsoleStore((s) => s.view);
   const setView = useAdConsoleStore((s) => s.setView);
-  const state = useAdConsoleStore((s) => s.state);
 
   // The active global-nav section follows the current view.
   const activeSection =
@@ -39,10 +40,8 @@ export function Topbar() {
         </div>
       ))}
       <div className="nav-spacer" />
-      <div className="nav-account" title="Training account">
-        <span>☰</span>
-        <span>Training Account: Coffee Accessories US</span>
-      </div>
+      <SyncButton />
+      <UserMenu />
       <button className="btn primary small" onClick={() => setView('create')}>
         + Create campaign
       </button>
