@@ -4,8 +4,9 @@ import { auth } from '@/lib/auth';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -13,7 +14,7 @@ export async function GET(
 
   const campaign = await prisma.campaign.findFirst({
     where: {
-      id: params.id,
+      id,
       userId: session.user.id,
     },
   });
@@ -42,8 +43,9 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -54,7 +56,7 @@ export async function PUT(
   // Verify ownership
   const existing = await prisma.campaign.findFirst({
     where: {
-      id: params.id,
+      id,
       userId: session.user.id,
     },
   });
@@ -84,7 +86,7 @@ export async function PUT(
   }
 
   const campaign = await prisma.campaign.update({
-    where: { id: params.id },
+    where: { id },
     data: updateData,
   });
 
@@ -93,8 +95,9 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -103,7 +106,7 @@ export async function DELETE(
   // Verify ownership
   const existing = await prisma.campaign.findFirst({
     where: {
-      id: params.id,
+      id,
       userId: session.user.id,
     },
   });
@@ -113,7 +116,7 @@ export async function DELETE(
   }
 
   await prisma.campaign.delete({
-    where: { id: params.id },
+    where: { id },
   });
 
   return NextResponse.json({ message: 'Deleted' });
