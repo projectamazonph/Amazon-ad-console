@@ -24,9 +24,8 @@ function makeDraft(): CampaignDraft {
     bidStrategy: 'Dynamic bids - down only',
     placements: { top: 0, product: 0, rest: 0 },
     products: ['B0TRAIN001'], creative: {},
-    exactKeywords: '',
-    phraseKeywords: '',
-    broadKeywords: '', asinTargets: '', categoryTargets: '', audienceTargets: '',
+    keywords: '',
+    keywordMatchTypes: ['Exact'], asinTargets: '', categoryTargets: '', audienceTargets: '',
     audienceLookback: '30',
   };
 }

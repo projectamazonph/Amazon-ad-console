@@ -37,9 +37,6 @@ export function CreateCampaignWizard() {
   const d = draft;
 
   // Local state for forms
-  const [exactKeywords, setExactKeywords] = useState(d.exactKeywords || '');
-  const [phraseKeywords, setPhraseKeywords] = useState(d.phraseKeywords || '');
-  const [broadKeywords, setBroadKeywords] = useState(d.broadKeywords || '');
   const [asinTargets, setAsinTargets] = useState(d.asinTargets || '');
   const [categoryTargets, setCategoryTargets] = useState(d.categoryTargets || '');
   const [audienceTargets, setAudienceTargets] = useState(d.audienceTargets || '');

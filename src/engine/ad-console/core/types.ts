@@ -295,9 +295,8 @@ export interface CampaignDraft {
   placements: { top: number; product: number; rest: number };
   products: string[];
   creative: Partial<Creative>;
-  exactKeywords: string;       // One-per-line text input
-  phraseKeywords: string;      // One-per-line text input
-  broadKeywords: string;       // One-per-line text input
+  keywords: string;            // One-per-line keyword text input
+  keywordMatchTypes: MatchType[]; // Match types each keyword is added under (e.g. all of Exact/Phrase/Broad)
   asinTargets: string;
   categoryTargets: string;
   audienceTargets: string;

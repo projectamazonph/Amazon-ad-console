@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
+import { KeywordEntry } from '../../KeywordEntry';
 
 interface Step4TargetingSBProps {
   isActive: boolean;
@@ -12,9 +13,6 @@ export function Step4TargetingSB({ isActive, isComplete }: Step4TargetingSBProps
   const draft = useAdConsoleStore((s) => s.draft);
   const updateDraft = useAdConsoleStore((s) => s.updateDraft);
 
-  const [exactKeywords, setExactKeywords] = useState(draft.exactKeywords || '');
-  const [phraseKeywords, setPhraseKeywords] = useState(draft.phraseKeywords || '');
-  const [broadKeywords, setBroadKeywords] = useState(draft.broadKeywords || '');
   const [asinTargets, setAsinTargets] = useState(draft.asinTargets || '');
   const [categoryTargets, setCategoryTargets] = useState(draft.categoryTargets || '');
   const [audienceTargets, setAudienceTargets] = useState(draft.audienceTargets || '');
@@ -36,23 +34,7 @@ export function Step4TargetingSB({ isActive, isComplete }: Step4TargetingSBProps
         </select>
       </div>
 
-      {draft.targetingMode === 'Keyword' && (
-        <div className="card pad" style={{ marginBottom: 16 }}>
-          <div className="card-title"><h3>Keyword targeting</h3></div>
-          <div className="field full" style={{ marginBottom: 12 }}>
-            <label>Exact match (one per line)</label>
-            <textarea className="input full" rows={4} value={exactKeywords} onChange={(e) => { setExactKeywords(e.target.value); updateDraft('exactKeywords', e.target.value); }} placeholder="coffee filter&#10;paper coffee filter" />
-          </div>
-          <div className="field full" style={{ marginBottom: 12 }}>
-            <label>Phrase match (one per line)</label>
-            <textarea className="input full" rows={4} value={phraseKeywords} onChange={(e) => { setPhraseKeywords(e.target.value); updateDraft('phraseKeywords', e.target.value); }} placeholder="organic coffee filter&#10;best coffee filter" />
-          </div>
-          <div className="field full" style={{ marginBottom: 12 }}>
-            <label>Broad match (one per line)</label>
-            <textarea className="input full" rows={4} value={broadKeywords} onChange={(e) => { setBroadKeywords(e.target.value); updateDraft('broadKeywords', e.target.value); }} placeholder="cheap coffee filter&#10;coffee filter deals" />
-          </div>
-        </div>
-      )}
+      {draft.targetingMode === 'Keyword' && <KeywordEntry />}
 
       {draft.targetingMode === 'Product' && (
         <div className="card pad" style={{ marginBottom: 16 }}>

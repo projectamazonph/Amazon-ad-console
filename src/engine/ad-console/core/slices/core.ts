@@ -75,11 +75,9 @@ export const createCoreSlice = (set: any, get: any, ..._rest: any[]): CoreSlice 
         bid: d.defaultBid, status: 'Enabled' as CampaignStatus,
         impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0,
       }));
-    const targets: any[] = [
-      ...buildKeywords(d.exactKeywords, 'Exact'),
-      ...buildKeywords(d.phraseKeywords, 'Phrase'),
-      ...buildKeywords(d.broadKeywords, 'Broad'),
-    ];
+    // One keyword box expands into a target per selected match type.
+    const matchTypes: string[] = d.keywordMatchTypes.length ? d.keywordMatchTypes : ['Exact'];
+    const targets: any[] = matchTypes.flatMap((mt: string) => buildKeywords(d.keywords, mt));
     const campaign = normalizeCampaign({
       id, type: d.type, name: d.name, portfolio: portfolioName,
       status: d.status, dailyBudget: d.dailyBudget, defaultBid: d.defaultBid,
@@ -121,9 +119,8 @@ export function makeDraft(): CampaignDraft {
     bidStrategy: 'Dynamic bids - down only',
     placements: { top: 0, product: 0, rest: 0 },
     products: ['B0TRAIN001'], creative: {},
-    exactKeywords: '',
-    phraseKeywords: '',
-    broadKeywords: '', asinTargets: '', categoryTargets: '', audienceTargets: '',
+    keywords: '',
+    keywordMatchTypes: ['Exact'], asinTargets: '', categoryTargets: '', audienceTargets: '',
     audienceLookback: '30',
   };
 }

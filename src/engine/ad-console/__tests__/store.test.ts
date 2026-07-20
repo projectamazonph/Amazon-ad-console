@@ -14,9 +14,9 @@ describe('Store actions', () => {
     it('creates a new campaign with keyword targets from draft', () => {
       const store = useAdConsoleStore.getState();
       store.updateDraft('name', 'Test Campaign');
-      store.updateDraft('exactKeywords', 'coffee filter');
-      store.updateDraft('phraseKeywords', 'coffee maker');
-      store.updateDraft('broadKeywords', 'coffee');
+      // One keyword, added under all three match types at once.
+      store.updateDraft('keywords', 'coffee filter');
+      store.updateDraft('keywordMatchTypes', ['Exact', 'Phrase', 'Broad']);
       store.launchCampaign();
 
       const state = useAdConsoleStore.getState().state;
@@ -24,6 +24,7 @@ describe('Store actions', () => {
       expect(campaign).toBeDefined();
       expect(campaign?.targets).toHaveLength(3);
       expect(campaign?.targets.map(t => t.match)).toEqual(['Exact', 'Phrase', 'Broad']);
+      expect(campaign?.targets.every(t => t.value === 'coffee filter')).toBe(true);
     });
 
     it('does not create campaign if name is empty', () => {
@@ -103,7 +104,8 @@ describe('Store actions', () => {
     it('filters search terms by negatives', () => {
       const store = useAdConsoleStore.getState();
       store.updateDraft('name', 'Neg Test');
-      store.updateDraft('exactKeywords', 'plastic');
+      store.updateDraft('keywords', 'plastic');
+      store.updateDraft('keywordMatchTypes', ['Exact']);
       store.launchCampaign();
 
       const campaignId = useAdConsoleStore.getState().state.campaigns[0].id;
