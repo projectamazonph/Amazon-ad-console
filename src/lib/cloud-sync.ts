@@ -17,12 +17,14 @@ export type SyncStatus = 'offline' | 'syncing' | 'synced' | 'error';
 
 const AUTOSAVE_DEBOUNCE_MS = 2000;
 
+/** Load the signed-in account's campaigns from the server. */
 async function fetchServerCampaigns(): Promise<Campaign[]> {
   const res = await fetch('/api/sync');
   if (!res.ok) throw new Error(`Sync load failed (${res.status})`);
   return res.json();
 }
 
+/** Persist the given campaigns to the server (transactional upsert-and-prune). */
 async function pushServerCampaigns(campaigns: Campaign[]): Promise<void> {
   const res = await fetch('/api/sync', {
     method: 'POST',
@@ -32,6 +34,11 @@ async function pushServerCampaigns(campaigns: Campaign[]): Promise<void> {
   if (!res.ok) throw new Error(`Sync save failed (${res.status})`);
 }
 
+/**
+ * React hook that keeps the Zustand store in sync with the server when signed
+ * in: hydrates on login (seeding the server on first login), auto-saves changes
+ * with a debounce, and exposes manual push/pull plus a sync status.
+ */
 export function useCloudSync(): {
   status: SyncStatus;
   signedIn: boolean;

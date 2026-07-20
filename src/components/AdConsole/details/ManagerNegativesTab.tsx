@@ -8,6 +8,10 @@ interface Props {
   campaigns: Campaign[];
 }
 
+/**
+ * Account-wide negatives table. Rows link through to the campaign's Negatives
+ * tab and expose enable/disable and remove actions.
+ */
 export function ManagerNegativesTab({ campaigns }: Props) {
   const selectCampaign = useAdConsoleStore((s) => s.selectCampaign);
   const setTab = useAdConsoleStore((s) => s.setTab);

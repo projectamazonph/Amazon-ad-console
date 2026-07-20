@@ -214,6 +214,16 @@ describe('negatives and harvesting', () => {
     expect(next.negatives).toHaveLength(0);
   });
 
+  it('re-enables a paused negative when the same negative is added again', () => {
+    let c = addNegative({ campaign: makeCampaign(), value: 'free', type: 'Negative exact' });
+    const id = c.negatives[0]!.id;
+    c = setNegativeStatus(c, id, 'Paused');
+    c = addNegative({ campaign: c, value: 'free', type: 'Negative exact' });
+    expect(c.negatives).toHaveLength(1);
+    expect(c.negatives[0]!.id).toBe(id); // same entity, re-enabled
+    expect(c.negatives[0]!.status).toBe('Enabled');
+  });
+
   it('toggles a negative between Enabled and Paused', () => {
     const c = addNegative({ campaign: makeCampaign(), value: 'free', type: 'Negative exact' });
     const id = c.negatives[0]!.id;

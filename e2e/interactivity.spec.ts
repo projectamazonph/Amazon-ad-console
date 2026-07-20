@@ -7,9 +7,8 @@ test.describe('Cross-page interactivity', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.click('.nav-section:has-text("Campaign Manager")');
-    // Seed performance data so targets/search terms exist.
-    await page.click('button:has-text("Run 7-day sim")');
-    await page.waitForTimeout(700);
+    // Default seed campaigns already have targets and negatives, so no
+    // simulation is needed for these interactivity checks.
   });
 
   test('clicking a target in the manager Targeting tab opens its campaign detail', async ({ page }) => {

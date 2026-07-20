@@ -6,7 +6,7 @@ export { calc, totalMetrics, metricDefaults, formatMoney, formatWhole, formatBid
 export { normalizeCampaign, toggleCampaignStatus, archiveCampaign, duplicateCampaign, updateCampaignSettings, savePlacements } from './campaign';
 export { addTarget, addKeyword, addAutoTarget, addAsinTarget, addCategoryTarget, removeTarget, setTargetBid, adjustTargetBid, pauseTarget, setTargetStatus } from './target';
 export { addAdGroup, addProductAd, addAd, renameAdGroup, setAdGroupStatus, setAdGroupDefaultBid, removeAdGroup } from './adgroup';
-export { isFilteredByNegative, addNegative, addNegativeKeyword, addNegativeAsin, addNegativeCategory, removeNegative, setNegativeStatus, toggleNegative, harvestTerm, getHarvestCandidates, getNegativeCandidates } from './negative';
+export { isFilteredByNegative, isNegativeActive, addNegative, addNegativeKeyword, addNegativeAsin, addNegativeCategory, removeNegative, setNegativeStatus, toggleNegative, harvestTerm, getHarvestCandidates, getNegativeCandidates } from './negative';
 export { addBudgetRule, removeBudgetRule, updateBudgetRule } from './budget';
 export { createPortfolio, renamePortfolio, deletePortfolio, assignCampaignToPortfolio, campaignById, filteredCampaigns, portfolioNames } from './portfolio';
 export { selectProduct, removeProduct, parseKeywords, validateStoreUrl, type ValidationResult } from './draft';

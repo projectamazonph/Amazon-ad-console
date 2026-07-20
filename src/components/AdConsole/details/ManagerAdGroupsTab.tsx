@@ -9,6 +9,7 @@ interface Props {
   onSelectCampaign: (id: string) => void;
 }
 
+/** Account-wide ad-groups table; ad group and campaign names open the campaign detail view. */
 export function ManagerAdGroupsTab({ campaigns, onSelectCampaign }: Props) {
   const rows = campaigns.flatMap((c) => c.adGroups.map((ag) => ({ c, ag })));
   if (!rows.length) {

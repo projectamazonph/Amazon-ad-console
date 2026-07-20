@@ -42,6 +42,9 @@ export type BidStrategy =
 /** Keyword match types */
 export type MatchType = 'Exact' | 'Phrase' | 'Broad';
 
+/** A negative is either actively filtering (Enabled) or kept but inactive (Paused). */
+export type NegativeStatus = 'Enabled' | 'Paused';
+
 /** Ad formats by campaign type */
 export type AdFormat =
   | 'Standard'
@@ -164,7 +167,7 @@ export interface Negative {
   adGroupId: string | null;      // null = campaign-level, string = ad group level
   type: NegativeType;
   value: string;          // keyword text, ASIN, or category path
-  status?: CampaignStatus; // Enabled (filtering) or Paused (kept but inactive); defaults to Enabled
+  status?: NegativeStatus; // Enabled (filtering) or Paused (kept but inactive); defaults to Enabled
   sourceSearchTermId?: string; // if created from search term harvesting
 }
 

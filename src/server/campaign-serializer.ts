@@ -13,6 +13,7 @@ import type { Campaign } from '@/engine/ad-console/core/types';
 import { normalizeCampaign } from '@/engine/ad-console/core/engine';
 import type { CampaignRecord, CampaignRowData } from './db';
 
+/** Parse a JSON column, returning the fallback on null/empty/invalid content. */
 function parseJson<T>(raw: string | null | undefined, fallback: T): T {
   if (raw == null || raw === '') return fallback;
   try {
@@ -22,6 +23,7 @@ function parseJson<T>(raw: string | null | undefined, fallback: T): T {
   }
 }
 
+/** Serialize a value to a JSON column, storing null for null/undefined. */
 function toJson(value: unknown): string | null {
   return value == null ? null : JSON.stringify(value);
 }

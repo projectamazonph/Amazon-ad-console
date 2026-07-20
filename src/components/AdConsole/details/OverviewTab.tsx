@@ -10,6 +10,7 @@ interface Props {
   campaign: Campaign;
 }
 
+/** Campaign-detail Overview tab: editable settings, products, and a top-targets table that links to Targeting. */
 export function OverviewTab({ campaign: c }: Props) {
   const removeCampaignProduct = useAdConsoleStore((s) => s.removeCampaignProduct);
   const setTab = useAdConsoleStore((s) => s.setTab);

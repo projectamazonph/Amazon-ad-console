@@ -9,6 +9,10 @@ interface Props {
   campaigns: Campaign[];
 }
 
+/**
+ * Account-wide search-terms table (negative-filtered). Rows link through to the
+ * campaign's Search terms tab and expose harvest and negate actions.
+ */
 export function ManagerSearchTermsTab({ campaigns }: Props) {
   const selectCampaign = useAdConsoleStore((s) => s.selectCampaign);
   const setTab = useAdConsoleStore((s) => s.setTab);

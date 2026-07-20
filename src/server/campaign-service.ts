@@ -17,6 +17,7 @@ import {
 import type { CampaignDb, CampaignRecord } from './db';
 import { campaignToRow, rowToCampaign } from './campaign-serializer';
 
+/** Thrown when an operation targets a campaign that doesn't exist (→ HTTP 404). */
 export class NotFoundError extends Error {
   constructor(message = 'Not found') {
     super(message);
@@ -24,6 +25,7 @@ export class NotFoundError extends Error {
   }
 }
 
+/** Thrown when a create would duplicate an existing campaign id (→ HTTP 409). */
 export class ConflictError extends Error {
   constructor(message = 'Conflict') {
     super(message);
@@ -69,6 +71,7 @@ export function validateCampaignInput(
   }
 }
 
+/** Deserialize a row, returning null instead of throwing on a corrupt row. */
 function safeRowToCampaign(row: CampaignRecord): Campaign | null {
   try {
     return rowToCampaign(row);
@@ -78,6 +81,7 @@ function safeRowToCampaign(row: CampaignRecord): Campaign | null {
   }
 }
 
+/** List a user's campaigns (newest first), silently skipping any corrupt rows. */
 export async function listCampaigns(db: CampaignDb, userId: string): Promise<Campaign[]> {
   const rows = await db.campaign.findMany({
     where: { userId },
@@ -86,6 +90,7 @@ export async function listCampaigns(db: CampaignDb, userId: string): Promise<Cam
   return rows.map(safeRowToCampaign).filter((c): c is Campaign => c !== null);
 }
 
+/** Fetch one campaign by its engine id, scoped to the user. Throws NotFoundError if absent. */
 export async function getCampaign(
   db: CampaignDb,
   userId: string,
@@ -96,6 +101,7 @@ export async function getCampaign(
   return rowToCampaign(row);
 }
 
+/** Validate and create a campaign; ConflictError on a duplicate engine id (incl. concurrent races). */
 export async function createCampaign(
   db: CampaignDb,
   userId: string,
@@ -120,6 +126,7 @@ export async function createCampaign(
   }
 }
 
+/** Partially update a campaign (id immutable), re-normalizing the merged result. Throws NotFoundError if absent. */
 export async function updateCampaign(
   db: CampaignDb,
   userId: string,
@@ -141,6 +148,7 @@ export async function updateCampaign(
   return rowToCampaign(updated);
 }
 
+/** Delete a campaign by its engine id, scoped to the user. Throws NotFoundError if absent. */
 export async function deleteCampaign(
   db: CampaignDb,
   userId: string,

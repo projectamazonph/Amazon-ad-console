@@ -12,6 +12,7 @@ import { prisma } from '@/lib/prisma';
 /** The shared PrismaClient viewed through the service layer's narrow contract. */
 export const campaignDb = prisma as unknown as CampaignDb;
 
+/** Resolve the signed-in user's id, or a 401 NextResponse the caller should return. */
 export async function requireUserId(): Promise<string | NextResponse> {
   const session = await auth();
   if (!session?.user?.id) {
@@ -20,6 +21,7 @@ export async function requireUserId(): Promise<string | NextResponse> {
   return session.user.id;
 }
 
+/** Map a domain/parse error to the right HTTP status (400/404/409), defaulting to 500. */
 export function errorResponse(error: unknown): NextResponse {
   if (error instanceof ValidationError) {
     return NextResponse.json({ error: error.message }, { status: 400 });

@@ -9,6 +9,11 @@ interface Props {
   campaigns: Campaign[];
 }
 
+/**
+ * Account-wide targeting table. Each target's name and campaign link through to
+ * that campaign's Targeting tab, and rows expose inline bid ±10%, pause/enable,
+ * and remove actions.
+ */
 export function ManagerTargetsTab({ campaigns }: Props) {
   const selectCampaign = useAdConsoleStore((s) => s.selectCampaign);
   const setTab = useAdConsoleStore((s) => s.setTab);

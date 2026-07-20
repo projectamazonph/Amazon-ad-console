@@ -7,6 +7,7 @@ import { EmptyState } from './EmptyState';
 
 interface Props { campaign: Campaign }
 
+/** Campaign-detail Negatives tab: add negatives and enable/disable or remove existing ones. */
 export function NegativesTab({ campaign }: Props) {
   const addNegative = useAdConsoleStore((s) => s.addNegative);
   const removeNegative = useAdConsoleStore((s) => s.removeNegative);
