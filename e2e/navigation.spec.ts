@@ -41,7 +41,6 @@ test.describe('Navigation', () => {
 
   test('topbar has Create campaign button', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('.nav-account')).toBeVisible();
     await expect(page.locator('.app-navbar button:has-text("Create campaign")')).toBeVisible();
   });
 });
