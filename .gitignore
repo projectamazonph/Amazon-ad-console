@@ -38,3 +38,5 @@ next-env.d.ts
 # playwright
 test-results/
 playwright-report/
+
+/src/generated/prisma

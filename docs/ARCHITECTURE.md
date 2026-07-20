@@ -17,6 +17,14 @@ The Amazon Ad Console follows **SOLID principles** with strict separation betwee
 │  store.ts — composed root store             │
 │  8 independent slices                       │
 ├─────────────────────────────────────────────┤
+│  API Routes (server-side)                   │
+│  /api/auth/* — authentication               │
+│  /api/campaigns/* — campaign CRUD           │
+│  /api/sync — bulk data sync                 │
+├─────────────────────────────────────────────┤
+│  Database Layer (Prisma + SQLite)           │
+│  User, Campaign, Simulation models          │
+├─────────────────────────────────────────────┤
 │  Feature Engines (per-module business logic)│
 │  features/drills/engine.ts                  │
 │  features/profiles/engine.ts                │
@@ -58,119 +66,161 @@ Each feature exports its own typed slice interface (`DrillsSlice`, `ProfilesSlic
 ### Dependency Inversion
 - Components depend on the `useAdConsoleStore` hook (abstraction), not on concrete state shape
 - Feature engines depend only on `core/types.ts` interfaces (abstractions)
-- Core engine has zero external dependencies
-
-## Zustand Slice Composition
-
-The root store is composed at `src/engine/ad-console/store.ts`:
-
-```ts
-export type AppStore =
-  CoreSlice           // campaign state, filters, draft
-  & DrillsSlice       // drill sessions & results
-  & ProfilesSlice     // multi-user profiles
-  & TrainerSlice      // certification & grading
-  & BulkSlice         // CSV parse/validate
-  & ReportsSlice      // report queue & generation
-  & MissionsSlice     // scenario sessions
-  & IntegritySlice    // data quality reports
-  & { /* all actions */ };
-```
-
-Each slice follows the pattern:
-1. **`types.ts`** — defines the slice's interfaces
-2. **`engine.ts`** — pure functions that transform data
-3. **`store.ts`** — `StateCreator` that wires engine functions to state updates
-
-The single hook `useAdConsoleStore` provides access to all state and actions.
 
 ## Data Flow
 
-### Campaign CRUD
 ```
-User action → Component calls store method → Store calls engine function → Returns new Campaign → State updated → Component re-renders
-```
-
-### Budget Rule CRUD
-```
-User action → addBudgetRule/removeBudgetRule/updateBudgetRule → Engine validates inputs → Returns updated campaign → Store persists to localStorage → Component re-renders
+User Action → Component → Store Slice → Engine Function → New State → Component Re-render
 ```
 
-### Metrics Rollup (Bottom-Up)
-```
-Target metrics (per keyword/target)
-    ↓ aggregate
-Ad Group metrics (sum of targets in group)
-    ↓ aggregate
-Campaign metrics (sum of ad groups)
-    ↓ aggregate
-Dashboard metrics (sum of all enabled campaigns)
-```
+### State Management
+- **Zustand Store**: Single source of truth for UI state
+- **8 Slices**: Core, Target, AdGroup, Negative, Budget, Portfolio, Draft, Query
+- **Feature Slices**: Drills, Profiles, Trainer, Bulk, Reports, Missions, Integrity
+- **Persistence**: LocalStorage via Zustand persist middleware
+- **Cloud Sync**: Optional database persistence via API routes
 
-This is computed via `totalMetrics()` in `core/engine.ts` and via the `simulateDays()` function which cascades metrics from targets upward.
-
-### Simulation Flow
+### Server-Side Data Flow
 ```
-runSimulation(days) 
-  → simulateDays(campaigns, days)
-    → For each campaign:
-      → Calculate daily CTR/CPC/conversion rates
-      → Generate impressions → clicks → conversions
-      → Distribute across targets proportionally
-      → Sum target metrics into ad group metrics
-      → Sum ad group metrics into campaign metrics
-    → Return updated campaigns
-  → Store updates with new campaign data
+Component → API Route → Prisma Client → SQLite Database
+     ↓
+Component ← API Response ← Prisma Query Result
 ```
 
-## File Organization Rules
+## Authentication & Authorization
 
-### Engine Layer (`src/engine/ad-console/`)
-- **No React imports** — pure TypeScript only
-- **No side effects** — all functions are deterministic given the same input
-- **Immutable updates** — functions return new objects, never mutate inputs
-- **Portable** — can be copied to any project without modification
+### NextAuth Configuration
+- **Provider**: Credentials (email/password)
+- **Session Strategy**: JWT
+- **Password Hashing**: bcryptjs
+- **Database**: SQLite via Prisma
 
-### Design System
-- **Amazon Advertising Console identity** — faithful replica of `advertising.amazon.com`: light-gray canvas (`#f3f3f3`), white cards, dark slate global nav (`#232f3e`), Amazon orange accent (`#ff9900`), Ember-style type
-- **CSS custom properties** — all tokens defined in `globals.css` on `:root` (~1000 lines)
-- **Light mode only** — Amazon Ads Console is light-themed; no dark mode toggle
-- **No CSS modules** — global stylesheet with BEM-like class naming
-- **Font stack** — `'Amazon Ember', 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif` (Ember substitute since Ember is not freely distributable)
+### API Route Protection
+All `/api/*` routes check for valid session:
+```typescript
+const session = await auth();
+if (!session?.user?.id) {
+  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+}
+```
 
-### Component Layer (`src/components/AdConsole/`)
-- **'use client'** directive on all interactive components
-- **Single hook** — all state via `useAdConsoleStore`
-- **No business logic** — components only render and dispatch actions
-- **Feature isolation** — feature pages live in `features/<name>/`
+### Data Isolation
+Each user's campaigns are isolated by `userId`:
+```typescript
+const campaigns = await prisma.campaign.findMany({
+  where: { userId: session.user.id },
+});
+```
 
-### Backward Compatibility
-Two re-export files maintain compatibility with older imports:
-- `src/engine/ad-console/engine.ts` → re-exports `core/engine.ts`
-- `src/engine/ad-console/types.ts` → re-exports `core/types.ts`
+## Database Schema
 
-## Naming Conventions
+### User Model
+```prisma
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  passwordHash  String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  campaigns     Campaign[]
+  simulations   Simulation[]
+}
+```
 
-| Item | Convention | Example |
-|------|-----------|---------|
-| Component files | PascalCase | `CampaignManager.tsx` |
-| Engine/type files | camelCase | `engine.ts`, `types.ts` |
-| Store slices | `create<X>Slice` | `createDrillsSlice` |
-| Component exports | PascalCase function | `export function CampaignManager()` |
-| Engine functions | camelCase | `simulateDays()`, `calc()` |
-| Type prefixes | None (TypeScript interface) | `Campaign`, `Metrics`, `DrillSession` |
-| Feature directories | lowercase | `features/drills/` |
-| Route aliases | `@/*` → `./src/*` | `@/engine/ad-console/store` |
+### Campaign Model
+```prisma
+model Campaign {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaignId    String    // Original campaign ID from the engine
+  type          String    // SP, SB, SD
+  name          String
+  // ... all campaign fields
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@unique([userId, campaignId])
+}
+```
 
-### Responsive Architecture
-- Breakpoint logic is pure TypeScript in the engine layer (`resolveBreakpoint`)
-- Mobile menu state machine is a pure reducer (`mobileMenuReducer`)
-- `useBreakpoint` hook wraps `window.matchMedia` for SSR-safe breakpoint detection
-- `MobileNav` component is a thin view layer — no business logic
+## Responsive Design
 
-## Scalability Notes
+### Breakpoint System
+- **Mobile**: < 768px — Single column, hamburger menu, touch-optimized
+- **Tablet**: 768-1100px — Condensed sidebar, adapted spacing
+- **Desktop**: > 1100px — Full layout with sidebar
 
-- Each feature module is independently testable via its engine functions
-- New features require only: types + engine + store slice + UI component
-- The engine can be extracted to an npm package for shared use across projects
-- Zustand's subscription model ensures only affected components re-render
+### Mobile-First Approach
+- All components designed for mobile first
+- Progressive enhancement for larger screens
+- Touch targets minimum 48px
+- Safe area padding for iPhone notch
+
+## Testing Strategy
+
+### Unit Tests
+- **Location**: `src/engine/ad-console/core/__tests__/`
+- **Framework**: Vitest
+- **Coverage**: 239+ tests for engine logic
+- **Principle**: TDD — write failing test first
+
+### Integration Tests
+- **Location**: `src/components/AdConsole/__tests__/`
+- **Framework**: Vitest + React Testing Library
+- **Coverage**: Component behavior tests
+
+### E2E Tests
+- **Location**: `e2e/`
+- **Framework**: Playwright
+- **Coverage**: Critical user flows
+
+## Performance Considerations
+
+### Client-Side
+- Zustand selectors for minimal re-renders
+- React.memo for expensive components
+- Virtual scrolling for large lists (planned)
+
+### Server-Side
+- Prisma connection pooling
+- JWT sessions (no database lookup per request)
+- Static generation for landing pages
+
+### Database
+- SQLite for development (zero config)
+- Connection pooling via Prisma
+- Indexes on frequently queried fields
+
+## Security
+
+### Authentication
+- Password hashing with bcrypt (10 rounds)
+- JWT tokens with secure HTTP-only cookies
+- Session expiration via NextAuth
+
+### Authorization
+- User data isolation via userId foreign key
+- API route protection via session checks
+- No cross-user data access
+
+### Input Validation
+- Server-side validation on all API routes
+- Client-side validation for UX
+- SQL injection prevention via Prisma ORM
+
+## Deployment
+
+### Environment Variables
+```env
+DATABASE_URL="file:./dev.db"
+NEXTAUTH_SECRET="your-secret-here"
+NEXTAUTH_URL="http://localhost:3000"
+```
+
+### Production Considerations
+- Replace SQLite with PostgreSQL/MySQL
+- Add rate limiting to API routes
+- Implement CSRF protection
+- Add logging and monitoring

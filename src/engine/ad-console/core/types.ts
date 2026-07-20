@@ -89,6 +89,7 @@ export interface SearchTerm {
   target: string;       // Matched target value
   targetId?: string;
   recommendation?: string;
+  impressions?: number;
   clicks: number;
   spend: number;
   sales: number;
