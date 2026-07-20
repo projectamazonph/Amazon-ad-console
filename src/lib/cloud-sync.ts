@@ -73,6 +73,7 @@ export function useCloudSync(): {
     }
 
     let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
 
     (async () => {
       setStatus('syncing');
@@ -93,23 +94,27 @@ export function useCloudSync(): {
       } catch {
         if (!cancelled) setStatus('error');
       }
-    })();
 
-    const unsubscribe = useAdConsoleStore.subscribe((current, previous) => {
-      if (current.state.campaigns === previous.state.campaigns) return;
-      if (suppressAutosave.current) {
-        suppressAutosave.current = false;
-        return;
-      }
-      if (debounceTimer.current) clearTimeout(debounceTimer.current);
-      debounceTimer.current = setTimeout(() => {
-        void push();
-      }, AUTOSAVE_DEBOUNCE_MS);
-    });
+      // Subscribe only after hydration settles. Subscribing earlier would let a
+      // mutation made during the in-flight fetch schedule a debounced push that
+      // fires after the server overwrite, silently discarding that mutation.
+      if (cancelled) return;
+      unsubscribe = useAdConsoleStore.subscribe((current, previous) => {
+        if (current.state.campaigns === previous.state.campaigns) return;
+        if (suppressAutosave.current) {
+          suppressAutosave.current = false;
+          return;
+        }
+        if (debounceTimer.current) clearTimeout(debounceTimer.current);
+        debounceTimer.current = setTimeout(() => {
+          void push();
+        }, AUTOSAVE_DEBOUNCE_MS);
+      });
+    })();
 
     return () => {
       cancelled = true;
-      unsubscribe();
+      unsubscribe?.();
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
     };
   }, [userId, push]);

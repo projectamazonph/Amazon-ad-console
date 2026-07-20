@@ -107,8 +107,17 @@ export async function createCampaign(
     where: { userId, campaignId: campaign.id },
   });
   if (existing) throw new ConflictError(`Campaign ${campaign.id} already exists`);
-  const row = await db.campaign.create({ data: campaignToRow(userId, campaign) });
-  return rowToCampaign(row);
+  try {
+    const row = await db.campaign.create({ data: campaignToRow(userId, campaign) });
+    return rowToCampaign(row);
+  } catch (e) {
+    // findFirst→create is check-then-act; a concurrent create can still hit the
+    // @@unique([userId, campaignId]) constraint. Map that race to 409, not 500.
+    if ((e as { code?: string }).code === 'P2002') {
+      throw new ConflictError(`Campaign ${campaign.id} already exists`);
+    }
+    throw e;
+  }
 }
 
 export async function updateCampaign(

@@ -197,6 +197,16 @@ describe('campaign service CRUD', () => {
     await expect(createCampaign(db, USER, makeCampaign())).rejects.toBeInstanceOf(ConflictError);
   });
 
+  it('maps a concurrent unique-constraint violation (P2002) to ConflictError', async () => {
+    const db = createFakeDb();
+    // Simulate the check-then-act race: findFirst sees nothing, but create
+    // loses to a concurrent insert and throws Prisma's P2002.
+    db.campaign.create = async () => {
+      throw Object.assign(new Error('Unique constraint failed'), { code: 'P2002' });
+    };
+    await expect(createCampaign(db, USER, makeCampaign())).rejects.toBeInstanceOf(ConflictError);
+  });
+
   it('rejects invalid input with ValidationError', async () => {
     const db = createFakeDb();
     await expect(
