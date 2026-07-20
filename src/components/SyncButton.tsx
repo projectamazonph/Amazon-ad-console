@@ -1,68 +1,55 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
-import { useAdConsoleStore } from '@/engine/ad-console/store';
-import { useState } from 'react';
+import { useCloudSync, type SyncStatus } from '@/lib/cloud-sync';
 
+const STATUS_LABEL: Record<SyncStatus, string> = {
+  offline: '',
+  syncing: 'Saving…',
+  synced: 'Synced',
+  error: 'Sync failed',
+};
+
+const STATUS_COLOR: Record<SyncStatus, string> = {
+  offline: 'var(--nav-ink-dim)',
+  syncing: 'var(--nav-ink-dim)',
+  synced: 'var(--success)',
+  error: 'var(--danger, #c40000)',
+};
+
+/**
+ * Cloud sync indicator. When signed in, account state auto-saves to the
+ * server (debounced) and hydrates on login; the buttons remain as a manual
+ * escape hatch.
+ */
 export function SyncButton() {
-  const { data: session } = useSession();
-  const [syncing, setSyncing] = useState(false);
-  const [lastSync, setLastSync] = useState<string | null>(null);
+  const { status, signedIn, pushNow, pullNow } = useCloudSync();
 
-  if (!session) return null;
+  if (!signedIn) return null;
 
-  const handleSync = async (direction: 'upload' | 'download') => {
-    setSyncing(true);
-    try {
-      if (direction === 'upload') {
-        const state = useAdConsoleStore.getState().state;
-        const response = await fetch('/api/sync', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ campaigns: state.campaigns }),
-        });
-        if (response.ok) {
-          setLastSync('Saved to cloud');
-        }
-      } else {
-        const response = await fetch('/api/sync');
-        if (response.ok) {
-          const campaigns = await response.json();
-          useAdConsoleStore.setState((s) => ({
-            state: { ...s.state, campaigns },
-          }));
-          setLastSync('Loaded from cloud');
-        }
-      }
-    } catch (error) {
-      console.error('Sync error:', error);
-      setLastSync('Sync failed');
-    } finally {
-      setSyncing(false);
-      setTimeout(() => setLastSync(null), 2000);
-    }
-  };
+  const busy = status === 'syncing';
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
       <button
-        onClick={() => handleSync('upload')}
-        disabled={syncing}
-        style={{ fontSize: 'var(--text-xs)', background: 'rgba(6, 125, 98, 0.1)', color: 'var(--success)', padding: '6px 12px', borderRadius: 'var(--radius-full)', border: 'none', cursor: 'pointer', transition: 'all var(--duration-fast) var(--ease-out)', opacity: syncing ? 0.5 : 1 }}
-        title="Save campaigns to cloud"
+        onClick={() => void pushNow()}
+        disabled={busy}
+        style={{ fontSize: 'var(--text-xs)', background: 'rgba(6, 125, 98, 0.1)', color: 'var(--success)', padding: '6px 12px', borderRadius: 'var(--radius-full)', border: 'none', cursor: 'pointer', transition: 'all var(--duration-fast) var(--ease-out)', opacity: busy ? 0.5 : 1 }}
+        title="Save campaigns to cloud now"
       >
-        {syncing ? '...' : '↑ Save'}
+        {busy ? '...' : '↑ Save'}
       </button>
       <button
-        onClick={() => handleSync('download')}
-        disabled={syncing}
-        style={{ fontSize: 'var(--text-xs)', background: 'rgba(0, 113, 133, 0.1)', color: 'var(--info)', padding: '6px 12px', borderRadius: 'var(--radius-full)', border: 'none', cursor: 'pointer', transition: 'all var(--duration-fast) var(--ease-out)', opacity: syncing ? 0.5 : 1 }}
-        title="Load campaigns from cloud"
+        onClick={() => void pullNow()}
+        disabled={busy}
+        style={{ fontSize: 'var(--text-xs)', background: 'rgba(0, 113, 133, 0.1)', color: 'var(--info)', padding: '6px 12px', borderRadius: 'var(--radius-full)', border: 'none', cursor: 'pointer', transition: 'all var(--duration-fast) var(--ease-out)', opacity: busy ? 0.5 : 1 }}
+        title="Reload campaigns from cloud"
       >
-        {syncing ? '...' : '↓ Load'}
+        {busy ? '...' : '↓ Load'}
       </button>
-      {lastSync && (
-        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--nav-ink-dim)' }}>{lastSync}</span>
+      {STATUS_LABEL[status] && (
+        <span style={{ fontSize: 'var(--text-xs)', color: STATUS_COLOR[status] }}>
+          {STATUS_LABEL[status]}
+        </span>
       )}
     </div>
   );

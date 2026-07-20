@@ -3,14 +3,14 @@ import { test, expect } from '@playwright/test';
 test.describe('Dashboard', () => {
   test('loads with KPI tiles and campaign table', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('h1')).toContainText('Advertising Dashboard');
+    await expect(page.locator('h1')).toContainText('Advertising dashboard');
     await expect(page.locator('.kpi-grid .kpi-tile')).toHaveCount(9);
     await expect(page.locator('table')).toBeVisible();
   });
 
   test('shows campaign count in table header', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('.card-title').first()).toContainText('Campaigns');
+    await expect(page.locator('.section-head h2').first()).toContainText('Campaigns');
   });
 
   test('shows operator alerts', async ({ page }) => {

@@ -4,13 +4,25 @@
  * Can be applied at campaign level or ad group level.
  */
 import type {
-  Campaign, Negative, NegativeType, SearchTerm, Target
+  Campaign, Negative, NegativeStatus, NegativeType, SearchTerm, Target
 } from '../types';
 import { generateId } from './id';
 
+/** Whether a negative is actively filtering (Enabled, or unset which defaults to Enabled). */
+export function isNegativeActive(n: Pick<Negative, 'status'>): boolean {
+  return !n.status || n.status === 'Enabled';
+}
+
+/**
+ * Whether a shopper search term is blocked by any of a campaign's negatives.
+ * Exact negatives match the whole term, phrase negatives match a substring;
+ * ASIN/category negatives don't filter terms, and disabled negatives are ignored.
+ */
 export function isFilteredByNegative(term: string, negatives: Negative[]): boolean {
   const termLower = term.toLowerCase();
   return negatives.some((n) => {
+    // A disabled negative is kept on the campaign but stops filtering.
+    if (!isNegativeActive(n)) return false;
     const negLower = n.value.toLowerCase();
     if (n.type === 'Negative exact') return termLower === negLower;
     if (n.type === 'Negative phrase') return termLower.includes(negLower);
@@ -27,6 +39,11 @@ export interface AddNegativeOptions {
   sourceSearchTermId?: string;
 }
 
+/**
+ * Add a negative to a campaign (campaign- or ad-group-level), skipping exact
+ * duplicates. New negatives start Enabled. Returns the campaign unchanged if
+ * an identical negative already exists.
+ */
 export function addNegative(opts: AddNegativeOptions): Campaign {
   const { campaign: c, value, type, adGroupId, sourceSearchTermId } = opts;
 
@@ -38,10 +55,13 @@ export function addNegative(opts: AddNegativeOptions): Campaign {
     finalAdGroupId = c.adGroups[0]?.id ?? null;
   }
 
-  const existing = c.negatives.some(
+  const existing = c.negatives.find(
     (n) => n.value.toLowerCase() === value.toLowerCase() && n.type === type && n.adGroupId === finalAdGroupId,
   );
-  if (existing) return c;
+  if (existing) {
+    // An active duplicate is a no-op; a paused duplicate is re-enabled.
+    return isNegativeActive(existing) ? c : setNegativeStatus(c, existing.id, 'Enabled');
+  }
 
   const level = finalAdGroupId ? 'ad group' : 'campaign';
   return {
@@ -54,6 +74,7 @@ export function addNegative(opts: AddNegativeOptions): Campaign {
         adGroupId: finalAdGroupId,
         type,
         value,
+        status: 'Enabled',
         sourceSearchTermId,
       },
     ],
@@ -61,6 +82,7 @@ export function addNegative(opts: AddNegativeOptions): Campaign {
   };
 }
 
+/** Convenience wrapper: add a negative keyword (exact or phrase). */
 export function addNegativeKeyword(
   c: Campaign,
   keyword: string,
@@ -70,6 +92,7 @@ export function addNegativeKeyword(
   return addNegative({ campaign: c, value: keyword, type: matchType, adGroupId });
 }
 
+/** Convenience wrapper: add a negative ASIN (product) target. */
 export function addNegativeAsin(
   c: Campaign,
   asin: string,
@@ -78,6 +101,7 @@ export function addNegativeAsin(
   return addNegative({ campaign: c, value: asin, type: 'Negative ASIN', adGroupId });
 }
 
+/** Convenience wrapper: add a negative category target. */
 export function addNegativeCategory(
   c: Campaign,
   categoryId: string,
@@ -86,6 +110,7 @@ export function addNegativeCategory(
   return addNegative({ campaign: c, value: categoryId, type: 'Negative category', adGroupId });
 }
 
+/** Permanently remove a negative from a campaign by id (no-op if not found). */
 export function removeNegative(c: Campaign, negativeId: string): Campaign {
   const idx = c.negatives.findIndex((n) => n.id === negativeId);
   if (idx === -1) return c;
@@ -97,6 +122,33 @@ export function removeNegative(c: Campaign, negativeId: string): Campaign {
   };
 }
 
+/** Set a negative's status (Enabled keeps it filtering; Paused keeps but disables it). */
+export function setNegativeStatus(
+  c: Campaign,
+  negativeId: string,
+  status: NegativeStatus,
+): Campaign {
+  const n = c.negatives.find((x) => x.id === negativeId);
+  if (!n) return c;
+  return {
+    ...c,
+    negatives: c.negatives.map((x) => (x.id === negativeId ? { ...x, status } : x)),
+    history: [...c.history, `Negative "${n.value}" (${n.type}) ${status === 'Enabled' ? 'enabled' : status.toLowerCase()}`],
+  };
+}
+
+/** Flip a negative between Enabled and Paused. */
+export function toggleNegative(c: Campaign, negativeId: string): Campaign {
+  const n = c.negatives.find((x) => x.id === negativeId);
+  if (!n) return c;
+  const next: NegativeStatus = isNegativeActive(n) ? 'Paused' : 'Enabled';
+  return setNegativeStatus(c, negativeId, next);
+}
+
+/**
+ * Promote a search term into a new exact-match keyword target, linking the
+ * matching search term row to it. No-op if that keyword already exists.
+ */
 export function harvestTerm(c: Campaign, term: string, targetValue?: string): Campaign {
   const agId = c.adGroups[0]?.id ?? generateId('AG');
   const existing = c.targets.some(
@@ -139,6 +191,7 @@ export interface SearchTermFilterOptions {
   minOrders?: number;
 }
 
+/** Search terms worth promoting to keywords: enough clicks, good ACoS, not yet converting. */
 export function getHarvestCandidates(
   searchTerms: SearchTerm[],
   opts: SearchTermFilterOptions = {},
@@ -153,6 +206,7 @@ export function getHarvestCandidates(
   });
 }
 
+/** Search terms worth negating: enough spend/clicks but poor ACoS and no sales. */
 export function getNegativeCandidates(
   searchTerms: SearchTerm[],
   opts: SearchTermFilterOptions = {},

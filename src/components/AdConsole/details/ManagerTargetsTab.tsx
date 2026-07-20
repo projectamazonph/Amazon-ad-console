@@ -1,6 +1,7 @@
 'use client';
 
 import type { Campaign } from '@/engine/ad-console/types';
+import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
 import { EmptyState } from './EmptyState';
 
@@ -8,11 +9,26 @@ interface Props {
   campaigns: Campaign[];
 }
 
+/**
+ * Account-wide targeting table. Each target's name and campaign link through to
+ * that campaign's Targeting tab, and rows expose inline bid ±10%, pause/enable,
+ * and remove actions.
+ */
 export function ManagerTargetsTab({ campaigns }: Props) {
+  const selectCampaign = useAdConsoleStore((s) => s.selectCampaign);
+  const setTab = useAdConsoleStore((s) => s.setTab);
+  const adjustTargetBid = useAdConsoleStore((s) => s.adjustTargetBid);
+  const pauseTarget = useAdConsoleStore((s) => s.pauseTarget);
+  const removeTarget = useAdConsoleStore((s) => s.removeTarget);
+
+  const open = (campaignId: string) => { selectCampaign(campaignId); setTab('targets'); };
+
   const rows = campaigns.flatMap((c) => c.targets.map((t) => ({ c, t })));
   if (!rows.length) {
     return <EmptyState icon="target" title="No targets" message="Targets are created when you add keywords, products, or audiences to your campaigns." />;
   }
+
+  const linkStyle = { border: 'none', background: 'none', color: 'var(--blue)', cursor: 'pointer', textAlign: 'left' as const, padding: 0 };
 
   return (
     <div className="table-wrap">
@@ -20,7 +36,7 @@ export function ManagerTargetsTab({ campaigns }: Props) {
         <thead>
           <tr>
             <th>Target</th><th>Campaign</th><th>Type</th><th>Match</th><th>Status</th>
-            <th>Bid</th><th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th>
+            <th>Bid</th><th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th><th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -28,8 +44,10 @@ export function ManagerTargetsTab({ campaigns }: Props) {
             const x = calc(t);
             return (
               <tr key={t.id}>
-                <td><strong>{t.value}</strong></td>
-                <td>{c.name}</td>
+                <td>
+                  <button className="row-link" style={{ ...linkStyle, fontWeight: 600 }} onClick={() => open(c.id)}>{t.value}</button>
+                </td>
+                <td><button className="row-link" style={linkStyle} onClick={() => open(c.id)}>{c.name}</button></td>
                 <td>{t.type}</td><td>{t.match}</td>
                 <td><span className={`pill ${t.status === 'Enabled' ? 'green' : 'orange'}`}>{t.status}</span></td>
                 <td className="money">{t.bid.toFixed(2)}</td>
@@ -41,6 +59,14 @@ export function ManagerTargetsTab({ campaigns }: Props) {
                 <td className="mono">{formatWhole(t.orders)}</td>
                 <td className={`mono ${acosClass(x.acos)}`}>{t.sales ? formatPercent(x.acos) : 'No sales'}</td>
                 <td className="mono">{formatRoas(x.roas)}</td>
+                <td style={{ whiteSpace: 'nowrap' }}>
+                  <button className="btn small" title="Lower bid 10%" onClick={() => adjustTargetBid(c.id, t.id, 0.9)}>-10%</button>{' '}
+                  <button className="btn small" title="Raise bid 10%" onClick={() => adjustTargetBid(c.id, t.id, 1.1)}>+10%</button>{' '}
+                  <button className={`btn small ${t.status === 'Paused' ? 'primary' : ''}`} onClick={() => pauseTarget(c.id, t.id)}>
+                    {t.status === 'Paused' ? 'Enable' : 'Pause'}
+                  </button>{' '}
+                  <button className="btn small danger" onClick={() => { if (confirm(`Remove "${t.value}"?`)) removeTarget(c.id, t.id); }}>Remove</button>
+                </td>
               </tr>
             );
           })}

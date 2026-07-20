@@ -9,6 +9,7 @@ import { assertCampaignType, assertCampaignStatus } from '../../../../lib/valida
 import { generateId } from './id';
 import { metricDefaults } from './metrics';
 
+/** Fill a partial target with defaults and clamp its bid to the $0.02 minimum. */
 function normalizeTarget(
   t: Partial<Target>,
   campaignId: string,
@@ -34,6 +35,7 @@ function normalizeTarget(
   };
 }
 
+/** Fill a partial product ad with defaults (ASIN, status, zeroed metrics). */
 function normalizeProductAd(
   pa: Partial<ProductAd>,
   campaignId: string,
@@ -51,6 +53,7 @@ function normalizeProductAd(
   };
 }
 
+/** Fill a partial SB/SD ad with defaults (format, status, creative, metrics). */
 function normalizeAd(
   a: Partial<Ad>,
   campaignId: string,
@@ -76,6 +79,12 @@ function normalizeAd(
   };
 }
 
+/**
+ * Fill a partial campaign into a complete, valid Campaign: applies type-aware
+ * defaults, clamps budget/bid to minimums, ensures a primary ad group, and
+ * normalizes every child collection (targets, negatives, search terms, etc.).
+ * Throws ValidationError on an invalid type/status.
+ */
 export function normalizeCampaign(c: Partial<Campaign>): Campaign {
   assertCampaignType(c.type ?? 'SP');
   const type: CampaignType = c.type ?? 'SP';
@@ -155,6 +164,7 @@ export function normalizeCampaign(c: Partial<Campaign>): Campaign {
       adGroupId: n.adGroupId ?? primaryAgId ?? null,
       type: n.type ?? 'Negative exact',
       value: n.value,
+      status: n.status ?? 'Enabled',
       sourceSearchTermId: n.sourceSearchTermId,
     })),
     budgetRules: (c.budgetRules ?? []).map((r, i) => ({
@@ -176,6 +186,7 @@ export function normalizeCampaign(c: Partial<Campaign>): Campaign {
   };
 }
 
+/** Flip a campaign Enabled↔Paused, cascading the status to its child entities. Archived campaigns are unchanged. */
 export function toggleCampaignStatus(c: Campaign): Campaign {
   if (c.status === 'Archived') return c;
   const next: CampaignStatus = c.status === 'Enabled' ? 'Paused' : 'Enabled';
@@ -190,6 +201,7 @@ export function toggleCampaignStatus(c: Campaign): Campaign {
   };
 }
 
+/** Archive a campaign and all of its child entities. */
 export function archiveCampaign(c: Campaign): Campaign {
   return {
     ...c,
@@ -202,6 +214,7 @@ export function archiveCampaign(c: Campaign): Campaign {
   };
 }
 
+/** Deep-copy a campaign into a new Paused draft: fresh ids, zeroed metrics, no search terms. */
 export function duplicateCampaign(c: Campaign): Campaign {
   const newId = generateId('C-' + c.type);
   const newAgId = generateId('AG');
@@ -253,6 +266,7 @@ export function duplicateCampaign(c: Campaign): Campaign {
   });
 }
 
+/** Apply editable campaign-level settings (budget, bid, strategy, status, creative) and log the diff to history. */
 export function updateCampaignSettings(
   c: Campaign,
   updates: Partial<Pick<Campaign, 'dailyBudget' | 'defaultBid' | 'bidStrategy' | 'status' | 'creativeStatus' | 'creativeIssue'>>,
@@ -283,6 +297,7 @@ export function updateCampaignSettings(
   };
 }
 
+/** Save placement bid adjustments (top of search / product pages / rest of search) and log changes. */
 export function savePlacements(
   c: Campaign,
   placements: { top: number; product: number; rest: number },

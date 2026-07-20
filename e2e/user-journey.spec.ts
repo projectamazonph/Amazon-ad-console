@@ -4,7 +4,7 @@ test.describe('User Journey — Full simulation from root', () => {
   test('simulate a complete user session: browse, create, inspect, simulate', async ({ page }) => {
     // ── STEP 1: Landing on Dashboard ──────────────────────────────────
     await page.goto('/');
-    await expect(page.locator('h1')).toContainText('Advertising Dashboard');
+    await expect(page.locator('h1')).toContainText('Advertising dashboard');
     await expect(page.locator('.kpi-grid .kpi-tile')).toHaveCount(9);
     await expect(page.locator('table')).toBeVisible();
     await expect(page.locator('.insight-list .insight')).toHaveCount(3);
@@ -31,7 +31,7 @@ test.describe('User Journey — Full simulation from root', () => {
 
     // Browse Overview
     await page.click('.tab:has-text("Overview")');
-    await expect(page.locator('.card-title:has-text("Campaign settings")')).toBeVisible();
+    await expect(page.locator('.section-head:has-text("Campaign settings")')).toBeVisible();
 
     // Browse Targeting
     await page.click('.tab:has-text("Targeting")');
@@ -48,7 +48,7 @@ test.describe('User Journey — Full simulation from root', () => {
     // Browse Change history
     await page.click('.tab:has-text("Change history")');
     await expect(page.locator('.tab.active')).toContainText('Change history');
-    const historyRows = await page.locator('.table-wrap tbody tr').count();
+    const historyRows = await page.locator('.timeline-item').count();
     expect(historyRows).toBeGreaterThanOrEqual(1);
 
     // ── STEP 6: Run simulation on this campaign ───────────────────────
@@ -118,13 +118,13 @@ test.describe('User Journey — Full simulation from root', () => {
 
     // ── STEP 15: Navigate back to Dashboard via Measurement ───────────
     await page.click('.nav-section:has-text("Measurement")');
-    await expect(page.locator('h1')).toContainText('Advertising Dashboard');
+    await expect(page.locator('h1')).toContainText('Advertising dashboard');
 
     // ── STEP 16: Verify KPI metrics updated from simulation ───────────
     const kpiValueTexts = await page.locator('.kpi-grid .kpi-tile .value').allTextContents();
     expect(kpiValueTexts).toHaveLength(9);
 
     // ── STEP 17: Verify campaign count updated ────────────────────────
-    await expect(page.locator('.card-title').first()).toContainText('Campaigns');
+    await expect(page.locator('.section-head h2').first()).toContainText('Campaigns');
   });
 });

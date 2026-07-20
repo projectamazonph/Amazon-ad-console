@@ -4,16 +4,23 @@
  * Uses strategy pattern for search term generation (OCP).
  */
 import type { Campaign, Metrics, SearchTerm } from './types';
-import { generateId, metricDefaults, isFilteredByNegative } from './engine';
+import { generateId, metricDefaults, isFilteredByNegative, isNegativeActive } from './engine';
 import { generateSearchTermsForTarget } from './engine/search-term-generator';
 
+/**
+ * Simulate `days` of performance for each Enabled campaign: accrues metrics on
+ * campaigns, targets, and ad groups, and generates negative-filtered search
+ * terms (SP/SB) via the match-type generators. Paused/Archived campaigns and
+ * non-keyword targets are left unchanged. Pure — returns new campaign objects.
+ */
 export function simulateDays(campaigns: Campaign[], days: number = 7): Campaign[] {
   const avgPrice = 29.99;
   return campaigns.map((c) => {
     if (c.status !== 'Enabled') return c;
 
+    const activeNegatives = c.negatives.filter(isNegativeActive);
     const quality =
-      c.negatives.length * 0.03 +
+      activeNegatives.length * 0.03 +
       c.budgetRules.length * 0.02 +
       (c.placements.top > 30 ? 0.04 : 0) +
       (c.type === 'SD' && c.targetingMode.includes('Remarketing') ? 0.05 : 0) +
@@ -78,11 +85,14 @@ export function simulateDays(campaigns: Campaign[], days: number = 7): Campaign[
         const tgt = enabledTargets[si];
         if (tgt.type !== 'Keyword') continue;
         
-        // Use the new generator with negative filtering during generation
+        // Use the new generator with negative filtering during generation.
+        // Only enabled negatives block terms (disabled ones are kept but inactive).
         const generatedTerms = generateSearchTermsForTarget(
           tgt.value,
           tgt.match as 'Exact' | 'Phrase' | 'Broad',
-          c.negatives.map(n => ({ value: n.value, type: n.type }))
+          c.negatives
+            .filter(isNegativeActive)
+            .map(n => ({ value: n.value, type: n.type }))
         );
         
         for (let gi = 0; gi < generatedTerms.length; gi++) {

@@ -7,8 +7,11 @@ import { EmptyState } from './EmptyState';
 
 interface Props { campaign: Campaign }
 
+/** Campaign-detail Negatives tab: add negatives and enable/disable or remove existing ones. */
 export function NegativesTab({ campaign }: Props) {
   const addNegative = useAdConsoleStore((s) => s.addNegative);
+  const removeNegative = useAdConsoleStore((s) => s.removeNegative);
+  const toggleNegative = useAdConsoleStore((s) => s.toggleNegative);
   const [negTerm, setNegTerm] = useState('');
   const [negType, setNegType] = useState<'Negative exact' | 'Negative phrase' | 'Negative ASIN' | 'Negative category'>('Negative exact');
   const c = campaign;
@@ -18,7 +21,8 @@ export function NegativesTab({ campaign }: Props) {
       <div className="tab-toolbar">
         <div className="field" style={{ flex: 2, minWidth: 200 }}>
           <label>Add negative</label>
-          <input className="input full" value={negTerm} onChange={(e) => setNegTerm(e.target.value)} placeholder="Enter term to negate" />
+          <input className="input full" value={negTerm} onChange={(e) => setNegTerm(e.target.value)} placeholder="Enter term to negate"
+            onKeyDown={(e) => { if (e.key === 'Enter' && negTerm.trim()) { addNegative(c.id, negTerm.trim(), negType); setNegTerm(''); } }} />
         </div>
         <div className="field" style={{ flex: 1, minWidth: 150 }}>
           <label>Type</label>
@@ -39,13 +43,28 @@ export function NegativesTab({ campaign }: Props) {
       {c.negatives.length > 0 ? (
         <div className="table-wrap">
           <table>
-            <thead><tr><th>Negative</th><th>Type</th></tr></thead>
+            <thead><tr><th>Negative</th><th>Type</th><th>Level</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>
-              {c.negatives.map((n, i) => (
-                <tr key={n.id || i}>
-                  <td><strong>{n.value}</strong></td><td>{n.type}</td>
-                </tr>
-              ))}
+              {c.negatives.map((n, i) => {
+                const status = n.status ?? 'Enabled';
+                const enabled = status === 'Enabled';
+                return (
+                  <tr key={n.id || i}>
+                    <td><strong>{n.value}</strong></td>
+                    <td>{n.type}</td>
+                    <td><span className="muted">{n.adGroupId ? 'Ad group' : 'Campaign'}</span></td>
+                    <td><span className={`pill ${enabled ? 'green' : 'orange'}`}>{status}</span></td>
+                    <td style={{ whiteSpace: 'nowrap' }}>
+                      <button className={`btn small ${enabled ? '' : 'primary'}`} onClick={() => toggleNegative(c.id, n.id)}>
+                        {enabled ? 'Disable' : 'Enable'}
+                      </button>{' '}
+                      <button className="btn small danger" onClick={() => {
+                        if (confirm(`Remove negative "${n.value}"?`)) removeNegative(c.id, n.id);
+                      }}>Remove</button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
