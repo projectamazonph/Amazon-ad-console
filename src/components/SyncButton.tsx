@@ -15,7 +15,6 @@ export function SyncButton() {
     setSyncing(true);
     try {
       if (direction === 'upload') {
-        // Get campaigns from local store
         const state = useAdConsoleStore.getState().state;
         const response = await fetch('/api/sync', {
           method: 'POST',
@@ -26,11 +25,9 @@ export function SyncButton() {
           setLastSync('Saved to cloud');
         }
       } else {
-        // Load campaigns from server
         const response = await fetch('/api/sync');
         if (response.ok) {
           const campaigns = await response.json();
-          // Update local store with server data
           useAdConsoleStore.setState((s) => ({
             state: { ...s.state, campaigns },
           }));
@@ -47,11 +44,11 @@ export function SyncButton() {
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
       <button
         onClick={() => handleSync('upload')}
         disabled={syncing}
-        className="text-xs bg-emerald-500/10 text-emerald-400 px-3 py-1.5 rounded-full hover:bg-emerald-500/20 transition-colors disabled:opacity-50"
+        style={{ fontSize: 'var(--text-xs)', background: 'rgba(6, 125, 98, 0.1)', color: 'var(--success)', padding: '6px 12px', borderRadius: 'var(--radius-full)', border: 'none', cursor: 'pointer', transition: 'all var(--duration-fast) var(--ease-out)', opacity: syncing ? 0.5 : 1 }}
         title="Save campaigns to cloud"
       >
         {syncing ? '...' : '↑ Save'}
@@ -59,13 +56,13 @@ export function SyncButton() {
       <button
         onClick={() => handleSync('download')}
         disabled={syncing}
-        className="text-xs bg-blue-500/10 text-blue-400 px-3 py-1.5 rounded-full hover:bg-blue-500/20 transition-colors disabled:opacity-50"
+        style={{ fontSize: 'var(--text-xs)', background: 'rgba(0, 113, 133, 0.1)', color: 'var(--info)', padding: '6px 12px', borderRadius: 'var(--radius-full)', border: 'none', cursor: 'pointer', transition: 'all var(--duration-fast) var(--ease-out)', opacity: syncing ? 0.5 : 1 }}
         title="Load campaigns from cloud"
       >
         {syncing ? '...' : '↓ Load'}
       </button>
       {lastSync && (
-        <span className="text-xs text-zinc-500">{lastSync}</span>
+        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--nav-ink-dim)' }}>{lastSync}</span>
       )}
     </div>
   );

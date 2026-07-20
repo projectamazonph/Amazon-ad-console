@@ -21,10 +21,10 @@ export function TrainerPage() {
     <div>
       <div className="page-title"><h1>Trainer dashboard</h1></div>
 
-      <div className="grid-4" style={{ marginBottom: 14 }}>
+      <div className="grid-4" style={{ marginBottom: 'var(--space-4)' }}>
         <div className="metric-card">
           <div className="label">Certification score</div>
-          <div className="value" style={{ color: score >= 80 ? 'var(--green)' : score >= 50 ? 'var(--amber)' : 'var(--red)' }}>{score}%</div>
+          <div className="value" style={{ color: score >= 80 ? 'var(--success)' : score >= 50 ? 'var(--warning)' : 'var(--danger)' }}>{score}%</div>
           <div className="delta">{certChecklist.filter((c) => c.checked).length}/{certChecklist.length} items</div>
         </div>
         <div className="metric-card">
@@ -46,26 +46,24 @@ export function TrainerPage() {
 
       <div className="split">
         <div>
-          {/* Certification checklist */}
-          <div className="card pad" style={{ marginBottom: 14 }}>
+          <div className="card pad" style={{ marginBottom: 'var(--space-4)' }}>
             <div className="card-title"><h2>Certification checklist</h2><span>{score}%</span></div>
             {certChecklist.map((item) => (
-              <label key={item.id} style={{ display: 'flex', gap: 8, padding: '6px 0', alignItems: 'center', cursor: 'pointer', fontSize: 13 }}>
+              <label key={item.id} className="trainer-cert-item">
                 <input type="checkbox" checked={item.checked} onChange={() => toggleCertItem(item.id)} />
                 <span>{item.label}</span>
               </label>
             ))}
           </div>
 
-          {/* Action log */}
           <div className="card pad">
             <div className="card-title"><h2>Action log</h2><span>{actionLog.length} entries</span></div>
             {actionLog.length === 0 ? (
               <p className="muted">No actions recorded yet.</p>
             ) : (
-              <div style={{ maxHeight: 300, overflowY: 'auto' }}>
+              <div className="trainer-log-scroll">
                 {actionLog.slice(0, 50).map((a, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 8, padding: '4px 0', fontSize: 12, alignItems: 'center' }}>
+                  <div key={i} className="trainer-log-item">
                     <span className={`pill ${a.tone === 'good' ? 'green' : a.tone === 'bad' ? 'bad' : 'orange'}`} style={{ fontSize: 10 }}>{a.tone}</span>
                     <span style={{ flex: 1 }}>{a.message}</span>
                     <span className="muted" style={{ fontSize: 10 }}>{new Date(a.timestamp).toLocaleTimeString()}</span>
@@ -77,27 +75,25 @@ export function TrainerPage() {
         </div>
 
         <div>
-          {/* Trainer notes */}
-          <div className="card pad" style={{ marginBottom: 14 }}>
+          <div className="card pad" style={{ marginBottom: 'var(--space-4)' }}>
             <div className="card-title"><h2>Trainer notes</h2></div>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-              <input className="input" style={{ flex: 1 }} value={noteText} onChange={(e) => setNoteText(e.target.value)} placeholder="Add note..." />
+            <div className="trainer-note-input-row">
+              <input className="input trainer-note-input" value={noteText} onChange={(e) => setNoteText(e.target.value)} placeholder="Add note..." />
               <button className="btn primary" onClick={() => { if (noteText.trim()) { addNote(noteText.trim()); setNoteText(''); } }}>Add</button>
             </div>
             {notes.length === 0 ? (
               <p className="muted">No notes yet.</p>
             ) : (
               notes.map((n) => (
-                <div key={n.id} style={{ display: 'flex', gap: 8, padding: '6px 0', fontSize: 13, borderBottom: '1px solid var(--line)' }}>
-                  <span style={{ flex: 1 }}>{n.text}</span>
-                  <span className="muted" style={{ fontSize: 10 }}>{new Date(n.timestamp).toLocaleDateString()}</span>
+                <div key={n.id} className="trainer-note-item">
+                  <span className="trainer-note-text">{n.text}</span>
+                  <span className="trainer-note-date">{new Date(n.timestamp).toLocaleDateString()}</span>
                   <button className="btn small danger" onClick={() => deleteNote(n.id)}>×</button>
                 </div>
               ))
             )}
           </div>
 
-          {/* Drill results */}
           {drillResults.length > 0 && (
             <div className="card pad">
               <div className="card-title"><h2>Drill results</h2></div>

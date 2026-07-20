@@ -529,6 +529,85 @@ code, pre {
   margin-top: var(--space-1);
 }
 
+/* ── Metric Cards ─────────────────────────────────────────────── */
+
+.metric-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.metric-card:hover {
+  border-color: var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.metric-card .label {
+  font-size: var(--text-xs);
+  color: var(--ink-400);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.metric-card .value {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.metric-card .delta {
+  font-size: var(--text-xs);
+  color: var(--ink-400);
+  margin-top: var(--space-1);
+}
+
+/* ── Insight Cards ────────────────────────────────────────────── */
+
+.insight-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.insight {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.insight strong {
+  display: block;
+  margin-bottom: var(--space-1);
+  font-weight: 600;
+}
+
+.insight.red {
+  background: var(--danger-soft);
+  border-left: 3px solid var(--danger);
+  color: var(--ink-700);
+}
+
+.insight.orange {
+  background: var(--warning-soft);
+  border-left: 3px solid var(--warning);
+  color: var(--ink-700);
+}
+
+.insight.green {
+  background: var(--success-soft);
+  border-left: 3px solid var(--success);
+  color: var(--ink-700);
+}
+
 /* ── Grids ──────────────────────────────────────────────────────── */
 
 .grid-4 {
@@ -840,6 +919,14 @@ textarea.input {
   margin-bottom: var(--space-6);
 }
 
+.detail-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
 .detail-header h1 {
   font-size: var(--text-2xl);
   font-weight: 700;
@@ -853,6 +940,12 @@ textarea.input {
   margin-top: var(--space-2);
   color: var(--ink-500);
   font-size: var(--text-sm);
+}
+
+.detail-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
 }
 
 /* ── Empty State ────────────────────────────────────────────────── */
@@ -1602,4 +1695,346 @@ textarea.input {
   .mobile-drawer {
     padding-bottom: calc(var(--space-5) + env(safe-area-inset-bottom));
   }
+}
+
+/* ── Nav User Name ─────────────────────────────────────────────── */
+
+.nav-user-name {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .nav-user-name {
+    display: none;
+  }
+}
+
+/* ── Pulse Animation ──────────────────────────────────────────── */
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ── Metric Card Responsive ───────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .metric-card {
+    padding: var(--space-4);
+  }
+
+  .metric-card .value {
+    font-size: var(--text-xl);
+  }
+
+  .insight {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-xs);
+  }
+}
+
+/* ── Drill & Mission Components ───────────────────────────────── */
+
+.drill-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-4);
+}
+
+.drill-card-tags {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.drill-card-title {
+  font-size: var(--text-base);
+  margin-bottom: var(--space-1);
+}
+
+.drill-card-desc {
+  font-size: var(--text-xs);
+  color: var(--ink-500);
+  margin-bottom: var(--space-2);
+  line-height: 1.5;
+}
+
+.drill-card-steps {
+  font-size: 11px;
+  color: var(--ink-400);
+  margin-bottom: var(--space-3);
+}
+
+.drill-complete-card {
+  text-align: center;
+  padding: var(--space-10);
+}
+
+.drill-complete-score {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  margin-bottom: var(--space-1);
+}
+
+.drill-step-instruction {
+  font-size: var(--text-base);
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-4);
+  line-height: 1.5;
+}
+
+.drill-step-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.drill-progress-label {
+  margin-bottom: var(--space-1);
+}
+
+.drill-progress-bar {
+  background: var(--border);
+  border-radius: var(--radius-sm);
+  height: 8px;
+  width: 100%;
+}
+
+.drill-progress-fill {
+  background: var(--info);
+  border-radius: var(--radius-sm);
+  height: 8px;
+  transition: width var(--duration-base) var(--ease-out);
+}
+
+.drill-nav-item {
+  display: flex;
+  gap: var(--space-2);
+  padding: 6px 0;
+  align-items: center;
+}
+
+.drill-nav-step {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: white;
+  flex-shrink: 0;
+}
+
+.drill-nav-step.completed {
+  background: var(--success);
+}
+
+.drill-nav-step.current {
+  background: var(--info);
+}
+
+.drill-nav-step.pending {
+  background: var(--border);
+}
+
+.drill-nav-label {
+  font-size: var(--text-xs);
+}
+
+.drill-nav-label.current {
+  color: var(--ink-900);
+}
+
+.drill-nav-label.pending {
+  color: var(--ink-500);
+}
+
+.drill-score-value {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+}
+
+/* ── Mission Components ───────────────────────────────────────── */
+
+.mission-complete-card {
+  text-align: center;
+  padding: var(--space-10);
+}
+
+.mission-complete-score {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  margin: var(--space-3) 0;
+}
+
+.mission-step-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.mission-step-instruction {
+  font-size: var(--text-base);
+  margin: var(--space-3) 0;
+  line-height: 1.5;
+}
+
+.mission-hint {
+  margin-bottom: var(--space-4);
+}
+
+.mission-score-label {
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--ink-500);
+}
+
+.mission-card-tags {
+  display: flex;
+  gap: var(--space-1);
+  margin-bottom: var(--space-1);
+}
+
+.mission-card-title {
+  font-size: var(--text-base);
+  margin-bottom: var(--space-1);
+}
+
+.mission-card-desc {
+  font-size: var(--text-xs);
+  color: var(--ink-500);
+  margin: var(--space-1) 0 var(--space-2);
+  line-height: 1.5;
+}
+
+.mission-card-steps {
+  font-size: 11px;
+  color: var(--ink-400);
+}
+
+/* ── Trainer Dashboard ────────────────────────────────────────── */
+
+.trainer-cert-item {
+  display: flex;
+  gap: var(--space-2);
+  padding: 6px 0;
+  align-items: center;
+  cursor: pointer;
+  font-size: var(--text-sm);
+}
+
+.trainer-log-item {
+  display: flex;
+  gap: var(--space-2);
+  padding: 4px 0;
+  font-size: var(--text-xs);
+  align-items: center;
+}
+
+.trainer-log-scroll {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.trainer-note-item {
+  display: flex;
+  gap: var(--space-2);
+  padding: 6px 0;
+  font-size: var(--text-sm);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.trainer-note-text {
+  flex: 1;
+}
+
+.trainer-note-date {
+  font-size: 10px;
+  color: var(--ink-400);
+}
+
+.trainer-note-input-row {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.trainer-note-input {
+  flex: 1;
+}
+
+/* ── Integrity Issues ─────────────────────────────────────────── */
+
+.integrity-issue {
+  padding: var(--space-3);
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  border-left: 3px solid;
+}
+
+.integrity-issue.error {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.integrity-issue.warn {
+  border-color: var(--warning);
+  background: var(--warning-soft);
+}
+
+.integrity-issue.info {
+  border-color: var(--info);
+  background: var(--info-soft);
+}
+
+.integrity-issue-message {
+  display: block;
+  margin-bottom: 2px;
+  font-weight: 600;
+}
+
+.integrity-issue-recommendation {
+  font-size: var(--text-xs);
+  color: var(--ink-500);
+}
+
+/* ── Bulk Operations ──────────────────────────────────────────── */
+
+.bulk-textarea {
+  min-height: 200px;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.bulk-preview-text {
+  font-size: 11px;
+}
+
+.bulk-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+/* ── Report Components ────────────────────────────────────────── */
+
+.report-queue-item {
+  display: flex;
+  gap: var(--space-2);
+  padding: 6px 0;
+  align-items: center;
+}
+
+.report-queue-type {
+  flex: 1;
+}
+
+.report-queue-time {
+  font-size: var(--text-xs);
+  color: var(--ink-400);
 }

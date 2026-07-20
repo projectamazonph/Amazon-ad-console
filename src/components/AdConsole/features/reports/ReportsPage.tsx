@@ -17,7 +17,7 @@ export function ReportsPage() {
     <div>
       <div className="page-title">
         <h1>Reports</h1>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
           <button className="btn" onClick={() => requestReport('campaign')}>Campaign report</button>
           <button className="btn" onClick={() => requestReport('target')}>Target report</button>
           <button className="btn" onClick={() => requestReport('searchTerm')}>Search term report</button>
@@ -25,13 +25,13 @@ export function ReportsPage() {
       </div>
 
       {requests.length > 0 && (
-        <div className="card pad" style={{ marginBottom: 14 }}>
+        <div className="card pad" style={{ marginBottom: 'var(--space-4)' }}>
           <div className="card-title"><h2>Report queue</h2><span>{requests.length} requests</span></div>
           {requests.slice(0, 10).map((r) => (
-            <div key={r.id} style={{ display: 'flex', gap: 8, padding: '6px 0', alignItems: 'center' }}>
+            <div key={r.id} className="report-queue-item">
               <span className={`pill ${r.status === 'completed' ? 'green' : 'orange'}`}>{r.status}</span>
-              <span style={{ flex: 1 }}>{r.type} report</span>
-              <span className="muted">{new Date(r.requestedAt).toLocaleTimeString()}</span>
+              <span className="report-queue-type">{r.type} report</span>
+              <span className="report-queue-time">{new Date(r.requestedAt).toLocaleTimeString()}</span>
               {r.status === 'completed' && (
                 <button className="btn small" onClick={() => selectReport(r.id)}>View</button>
               )}
