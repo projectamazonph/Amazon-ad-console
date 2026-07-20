@@ -1,9 +1,17 @@
 # Amazon Ad Console — Handoff Document for AI Coder
 
-## Project Overview
-Amazon Advertising Console simulator (SP, SB, SD) with Next.js 14, React 18, TypeScript, Zustand, Vitest.
+> **Historical planning doc.** This was the original implementation plan and gap
+> analysis. Most of the gaps below have since been implemented — the search-term
+> generator strategy, wizard/tab component splits, custom hooks, all-8-metrics
+> views (plus CPC), negative phrase filtering, SB search terms, and the SB/SD
+> flows. For the current state see `README.md`, `docs/FEATURES.md`,
+> `docs/ARCHITECTURE.md`, `docs/AUTH.md`, and the audits (`docs/AUDIT.md`,
+> `UI-AUDIT.md`). Treat the "gaps"/"TODO" items here as history, not open work.
 
-**Stack**: Next.js 14, React 19, TypeScript, Zustand, Vitest, Playwright
+## Project Overview
+Amazon Advertising Console simulator (SP, SB, SD) with Next.js 16, React 19, TypeScript, Zustand, Vitest, Playwright.
+
+**Stack**: Next.js 16, React 19, TypeScript, Zustand 5, Prisma 7 + Neon Postgres, NextAuth v5, Vitest, Playwright
 
 ---
 

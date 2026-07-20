@@ -16,8 +16,8 @@ The application supports multiple users with isolated campaign data. Each user c
 ### Components
 
 1. **NextAuth v5** — Authentication provider
-2. **Prisma** — Database ORM
-3. **SQLite** — Local development database
+2. **Prisma 7** — Database ORM (`@prisma/adapter-neon`)
+3. **PostgreSQL (Neon)** — serverless Postgres database
 4. **JWT Sessions** — Stateless session management
 
 ### Database Schema
@@ -61,7 +61,7 @@ npm install -D @types/bcryptjs
 ### 2. Initialize Prisma
 
 ```bash
-npx prisma init --datasource-provider sqlite
+npx prisma init --datasource-provider postgresql
 ```
 
 ### 3. Configure Environment Variables
@@ -69,12 +69,11 @@ npx prisma init --datasource-provider sqlite
 Create `.env` file:
 
 ```env
-# Prisma
-DATABASE_URL="file:./dev.db"
+# Postgres connection string (e.g. from Neon)
+DATABASE_URL="postgresql://user:password@host/dbname?sslmode=require"
 
-# NextAuth
-NEXTAUTH_SECRET="your-secret-key-here"
-NEXTAUTH_URL="http://localhost:3000"
+# NextAuth / Auth.js session secret — openssl rand -base64 32
+AUTH_SECRET="your-secret-key-here"
 ```
 
 ### 4. Run Migrations
@@ -294,25 +293,21 @@ auto-saves campaign changes to `POST /api/sync` with a 2-second debounce.
 ## Production Deployment
 
 ### Database
-Replace SQLite with a production database:
+The app targets PostgreSQL (Neon) out of the box. Apply migrations against the
+production database before/at deploy:
 
-```env
-# PostgreSQL
-DATABASE_URL="postgresql://user:password@localhost:5432/adconsole"
-
-# MySQL
-DATABASE_URL="mysql://user:password@localhost:3306/adconsole"
+```bash
+npx prisma migrate deploy
 ```
 
 ### Environment Variables
 ```env
-DATABASE_URL="your-production-db-url"
-NEXTAUTH_SECRET="strong-random-secret"
-NEXTAUTH_URL="https://your-domain.com"
+DATABASE_URL="postgresql://user:password@host/dbname?sslmode=require"
+AUTH_SECRET="strong-random-secret"   # openssl rand -base64 32
 ```
 
 ### Security Checklist
-- [ ] Use strong NEXTAUTH_SECRET (32+ characters)
+- [ ] Use a strong `AUTH_SECRET` (32+ characters)
 - [ ] Enable HTTPS in production
 - [ ] Set secure cookie flags
 - [ ] Add rate limiting to auth endpoints
@@ -335,9 +330,9 @@ NEXTAUTH_URL="https://your-domain.com"
 - Verify NEXTAUTH_SECRET is set
 
 **Database connection errors**
-- Run `npx prisma migrate dev`
-- Check DATABASE_URL in .env
-- Verify SQLite file exists
+- Run `npx prisma migrate dev` (or `migrate deploy` in production)
+- Check `DATABASE_URL` in `.env` (Postgres connection string, `sslmode=require` for Neon)
+- Verify the database is reachable and migrations are applied
 
 ### Debug Mode
 Enable NextAuth debug logging:

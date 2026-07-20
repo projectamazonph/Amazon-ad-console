@@ -11,24 +11,23 @@ Detailed documentation for each module in the Amazon Ad Console Training Simulat
 
 The aggregate metrics view showing totals across all enabled campaigns.
 
-### Metrics Displayed
-- **Total Impressions** — sum of all enabled campaign impressions
-- **Total Clicks** — sum of all enabled campaign clicks
-- **Total Spend** — sum of all enabled campaign spend
-- **Total Sales** — sum of all enabled campaign sales
-- **Total Orders** — sum of all enabled campaign orders
-- **Average ACoS** — spend / sales × 100
-- **Average ROAS** — sales / spend
-- **Average CTR** — clicks / impressions × 100
+### KPI Tiles (10)
+Impressions, Clicks, **CPC**, Spend, Sales, Orders, Units, CTR, ACoS, RoAS —
+built by `getKpiTiles()` in `nav/consoleNav.ts`. The campaign table below the
+tiles also shows a CPC column.
 
 ### Rollup Logic
-Metrics flow bottom-up:
+Metrics flow bottom-up and reconcile exactly:
 1. **Targets** (per-keyword) have individual metrics
 2. **Ad Groups** sum their child targets' metrics
 3. **Campaigns** sum their child ad groups' metrics
 4. **Dashboard** sums all enabled campaigns' metrics
 
-The `totalMetrics()` function in `core/engine.ts` handles the campaign → dashboard aggregation. The `simulateDays()` function handles the target → ad group → campaign cascade.
+`totalMetrics()` in `core/engine.ts` handles the campaign → dashboard
+aggregation. `simulateDays()` distributes each run's activity to the enabled
+targets with largest-remainder integer rounding and derives ad-group and
+campaign totals from them, so `campaign == sum(ad groups) == sum(targets)` holds
+after every run (a campaign with no target rows accrues at the campaign level).
 
 ---
 
@@ -45,7 +44,8 @@ List view of all campaigns with filtering and bulk actions.
 - **Filter by portfolio**: All / any portfolio name
 - **Search**: Free-text across name, type, targeting mode, portfolio, ad format
 - **Per-campaign actions**: Toggle status, archive, duplicate, view details
-- **Inline metrics**: Impressions, clicks, spend, sales, ACoS, ROAS
+- **Inline metrics**: Impressions, clicks, CPC, spend, sales, orders, ACoS, ROAS
+- **Cross-entity tabs**: Ad groups, Targeting, Search terms, and Negatives tabs list those entities across all campaigns. Every row links through to the owning campaign's matching detail tab, and rows expose inline actions — target bid ±10% / pause / remove, negative enable-disable / remove, and search-term harvest / negate.
 
 ### Interaction Flow
 1. Click a campaign row → navigates to `CampaignDetail`
@@ -76,10 +76,12 @@ Deep-dive view for a single campaign with tabbed sub-views.
   **Drill-down**: Click an ad group row to see its child targets in a focused sub-view with a "← All ad groups" back button. The drill-down shows:
   - Ad group name, status dropdown, default bid editor with Save button
   - Full targets table filtered to that ad group
-- **Targets** — keyword/product targets with bid management
+- **Targets** — keyword/product targets with bid management (bids clamped to $0.02–$999.99); includes a CPC column
 - **Search Terms** — customer search terms with harvest/negate actions
-- **Negatives** — negative keyword list
+- **Negatives** — add negatives (exact / phrase / ASIN / category) and, per row, **enable, disable, or remove** them; a disabled negative is kept but stops filtering search terms. Shows campaign vs ad-group level.
 - **Placements** — placement bid adjustments
+
+The **Overview** tab's "top targets" rows are clickable and jump to the Targeting tab.
 - **Budget Rules** — schedule/performance-based rules with full CRUD
   - **Add rule**: Form with name, type (Schedule/Performance), budget increase multiplier, condition text
   - **Edit rule**: Inline editable name, type dropdown, increase amount, condition text
@@ -117,18 +119,19 @@ Multi-step campaign creation wizard mimicking the Amazon Ads Console flow.
 1. **Ad type**: Select SP, SB, or SD
 2. **Basics**: Campaign name, portfolio, status, daily budget, start date, ad format
 3. **Products & creative**: Select ASINs from a checkable product catalog table; enter brand name and headline for SB/SD campaigns
-4. **Targeting**: Choose targeting mode with auto-targeting context panel; enter keywords (one per line) for manual modes, or ASIN/audience targets for product/contextual targeting
+4. **Targeting**: Choose targeting mode. **Automatic** (SP) shows the four auto-targeting groups (close match, loose match, substitutes, complements), each with an enable checkbox and its own bid. **Keyword** modes (SP "Manual keyword" / SB "Keyword") show a single keyword box (one per line) plus **Exact / Phrase / Broad checkboxes** — a keyword is added under every checked match type at once (`KeywordEntry`). Product/category/audience modes take ASIN/category/audience targets.
 5. **Bidding & budget**: Bid strategy, default bid, and placement adjustments (Top of Search / Product pages / Rest of Search)
-6. **Review & launch**: Full settings summary; keywords and product counts shown; launch creates the campaign with parsed keywords as targets
+6. **Review & launch**: Full settings summary (keyword count × match types, or enabled auto groups); launch creates the campaign with the corresponding targets
 
-### Validation
-- Campaign name is required
-- Daily budget must be ≥ $1
-- Default bid must be ≥ $0.02
-- Keywords are parsed one-per-line from the text area
+### Validation (gates Next / Launch)
+Validation lives in `core/engine/draft.ts` (`canLeaveWizardStep`, `draftLaunchErrors`) and disables the Next/Launch buttons with an inline message:
+- Campaign name is required; daily budget must be ≥ $1 (gates leaving step 2)
+- At least one product must be selected (step 3)
+- In a keyword mode with keywords entered, at least one match type must be selected (step 4)
+- Default/target/ad-group bids are clamped to $0.02–$999.99 by the engine (`clampBid`)
 
 ### Launch
-Creates a normalized campaign via `normalizeCampaign()` and prepends it to the campaigns array. Immediately navigates to the detail view.
+Creates a normalized campaign via `normalizeCampaign()` and prepends it to the campaigns array. Keyword targets are only built for keyword modes; Automatic SP campaigns get a target per enabled auto group. Immediately navigates to the detail view.
 
 ---
 
@@ -368,7 +371,9 @@ The store exposes `exportState()` and `importState(json)` for manual backup/rest
 - Returns `true` on success, `false` on parse failure
 
 ### Sidebar Navigation Wiring
-Left-rail sidebar items now map to campaign detail tabs:
+The sidebar (`layout/Sidebar.tsx`, model in `nav/consoleNav.ts`) renders
+semantic `<button>` items (keyboard-accessible). Left-rail items map to campaign
+detail tabs:
 - **Campaigns** → campaign list view
 - **Ad groups** → `adgroups` tab in campaign detail
 - **Targeting** → `targets` tab
@@ -379,7 +384,17 @@ Left-rail sidebar items now map to campaign detail tabs:
 When clicking a tab-mapped item:
 - If user is already viewing a campaign detail → switches the active tab
 - If user is in the campaign list → navigates to detail view and switches tab
-- Items without a tab → plain view navigation (unchanged behaviour)
+
+**Measurement rail**: Sponsored Products / Brands / Display open Campaign
+Manager filtered to that ad-product type; Search query performance opens the
+Search terms tab.
+
+**Training tools rail** (always visible): links to the six feature pages that
+were previously unreachable from the UI — Drills, Missions, Reports, Bulk
+operations, Trainer, Integrity.
+
+Active-state highlighting tracks the current campaign-type filter and selected
+tab, so only the chosen item is highlighted.
 
 ---
 
@@ -424,12 +439,16 @@ When clicking a tab-mapped item:
 ## 15. Multi-User Authentication
 
 **Auth Provider**: NextAuth v5
-**Database**: Prisma + SQLite
-**Components**: `SessionProvider.tsx`, `UserMenu.tsx`, `SyncButton.tsx`
+**Database**: PostgreSQL (Neon) via Prisma 7
+**Components**: `SessionProvider.tsx`, `UserMenu.tsx`, `SyncButton.tsx`, `lib/cloud-sync.ts`
+**Server**: `src/server/` (campaign service, serializer, `CampaignDb` contract)
 **Pages**: `/auth/login`, `/auth/register`, `/landing`
 
 ### Overview
-Multi-user access system allowing multiple trainees to have isolated campaign data with cloud synchronization.
+Multi-user access system where a signed-in trainee's account is
+server-authoritative: it hydrates from the server on login, seeds the server
+from local state on first login, then auto-saves campaign changes with a 2s
+debounce (`useCloudSync`). Signed-out users keep the purely local sandbox.
 
 ### Authentication Flow
 1. **Registration**: User creates account with email/password
@@ -443,22 +462,24 @@ Multi-user access system allowing multiple trainees to have isolated campaign da
 - **Simulation**: Simulation history linked to userId
 
 ### API Routes
-- `POST /api/auth/register` — Create new user
-- `GET/POST /api/campaigns` — List/create campaigns
-- `GET/PUT/DELETE /api/campaigns/[id]` — Single campaign CRUD
-- `GET/POST /api/sync` — Bulk sync campaigns to/from database
+Campaign routes address campaigns by their **engine id** (e.g. `C-SP-123`),
+validate input (400), and return 404/409 where appropriate.
+- `POST /api/auth/register` — Create new user (email format + 8-char password)
+- `GET/POST /api/campaigns` — List / create campaigns
+- `GET/PATCH/DELETE /api/campaigns/[id]` — Single campaign (PUT kept as an alias)
+- `POST /api/simulate` — Run the day simulation server-side, persist, audit
+- `GET/POST /api/sync` — Load / reconcile the account (transactional upsert + prune)
 
 ### Frontend Components
 - **SessionProvider**: Wraps app for client-side session access
 - **UserMenu**: Shows avatar, name, dropdown with sign out
-- **SyncButton**: "Save" and "Load" buttons for cloud sync
+- **SyncButton**: sync-status indicator + manual Save/Load (auto-sync via `useCloudSync`)
 
 ### User Flow
 1. Visit `/auth/register` to create account
-2. Sign in at `/auth/login`
-3. Use simulator normally
-4. Click "Save" to persist campaigns to database
-5. Click "Load" to restore campaigns from any device
+2. Sign in at `/auth/login` — the account hydrates from the server automatically
+3. Use simulator normally — campaign changes auto-save (debounced)
+4. Sign in from any device to restore the same account; manual Save/Load remain available
 
 ### Security
 - Password hashing with bcrypt (10 rounds)
