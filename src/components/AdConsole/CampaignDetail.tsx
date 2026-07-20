@@ -50,7 +50,17 @@ export function CampaignDetail({ campaign }: Props) {
         <div className="detail-header-row">
           <div>
             <h1>{c.name}</h1>
-            <p className="detail-meta">{c.type} · {c.targetingMode} · {c.portfolio}</p>
+            <p className="detail-meta">
+              <span className={`pill ${c.status === 'Enabled' ? 'green' : c.status === 'Paused' ? 'orange' : 'red'}`}>
+                <span className="pill-dot" aria-hidden="true" />
+                {c.status}
+              </span>
+              <span>{c.type}</span>
+              <span>·</span>
+              <span>{c.targetingMode}</span>
+              <span>·</span>
+              <span>{c.portfolio}</span>
+            </p>
           </div>
           <div className="detail-actions">
             <button className="btn" onClick={() => { selectCampaign(null); setView('campaigns'); }}>← Back</button>

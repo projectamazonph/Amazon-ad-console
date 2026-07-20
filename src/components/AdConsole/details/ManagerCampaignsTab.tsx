@@ -2,6 +2,7 @@
 
 import type { Campaign } from '@/engine/ad-console/types';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
+import { EmptyState } from './EmptyState';
 
 interface Props {
   campaigns: Campaign[];
@@ -15,12 +16,9 @@ interface Props {
 export function ManagerCampaignsTab({ campaigns, onSelect, onToggleStatus, onDuplicate, onArchive, onCreate }: Props) {
   if (!campaigns.length) {
     return (
-      <div className="empty">
-        
-        <h3>No campaigns yet</h3>
-        <p>Create your first campaign to start training.</p>
+      <EmptyState icon="chart" title="No campaigns yet" message="Create your first campaign to start training.">
         <button className="btn primary" onClick={onCreate}>Create campaign</button>
-      </div>
+      </EmptyState>
     );
   }
 
