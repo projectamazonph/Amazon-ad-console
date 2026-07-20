@@ -33,7 +33,7 @@ export function ManagerSearchTermsTab({ campaigns }: Props) {
             return (
               <tr key={st.id}>
                 <td><strong>{st.term}</strong></td>
-                <td>{c.name}</td><td>{st.target}</td>
+                <td>{c.name}</td><td>{st.targetValue}</td>
                 <td className="mono">{formatWhole(st.impressions || 0)}</td>
                 <td className="mono">{formatWhole(st.clicks)}</td>
                 <td className="money">{formatBid(x.cpc)}</td>

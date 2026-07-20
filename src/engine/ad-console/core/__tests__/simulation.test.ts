@@ -25,6 +25,8 @@ function makeCampaign(over: Partial<Campaign> = {}): Campaign {
     searchTerms: [],
     negatives: [],
     budgetRules: [],
+    productAds: [],
+    ads: [],
     history: [],
     ...over,
   };
@@ -112,7 +114,7 @@ describe('simulateDays', () => {
     // Exact: keyword + plural/singular variants (2+ terms)
     // Phrase: keyword + prefixes + suffixes (10+ terms)  
     // Broad: keyword + prefixes + suffixes + related terms (20+ terms)
-    const exactTerms = result.searchTerms.filter(st => st.target === 'coffee' && st.targetId === 'T1');
+    const exactTerms = result.searchTerms.filter(st => st.targetValue === 'coffee' && st.targetId === 'T1');
     const phraseTerms = result.searchTerms.filter(st => st.targetId === 'T2');
     const broadTerms = result.searchTerms.filter(st => st.targetId === 'T3');
     expect(exactTerms.length).toBeGreaterThanOrEqual(2);

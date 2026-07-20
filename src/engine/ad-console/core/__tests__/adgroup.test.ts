@@ -6,6 +6,7 @@ import {
   setAdGroupDefaultBid,
   removeAdGroup,
   addTarget,
+  addKeyword,
 } from '../engine';
 import type { Campaign, AdGroup } from '../types';
 
@@ -44,6 +45,8 @@ function makeCampaign(adGroups: { id?: string; name?: string; status?: AdGroup['
     searchTerms: [],
     negatives: [],
     budgetRules: [],
+    productAds: [],
+    ads: [],
     history: [],
   };
 }
@@ -81,7 +84,7 @@ describe('renameAdGroup', () => {
 describe('setAdGroupStatus', () => {
   it('updates status and cascades to its targets', () => {
     let c = makeCampaign();
-    const { campaign } = addTarget(c, 'kw', 'Exact', 1, 'AG1');
+    const { campaign } = addKeyword(c, 'kw', 'Exact', 1, 'AG1');
     c = campaign;
     const next = setAdGroupStatus(c, 'AG1', 'Paused');
     expect(next.adGroups[0]!.status).toBe('Paused');
@@ -110,7 +113,7 @@ describe('removeAdGroup', () => {
       { id: 'AG1', name: 'A' },
       { id: 'AG2', name: 'B' },
     ]);
-    const { campaign } = addTarget(c, 'kw', 'Exact', 1, 'AG2');
+    const { campaign } = addKeyword(c, 'kw', 'Exact', 1, 'AG2');
     c = campaign;
     const next = removeAdGroup(c, 'AG2');
     expect(next.adGroups.map((a) => a.id)).toEqual(['AG1']);
@@ -128,12 +131,12 @@ describe('addTarget with ad group', () => {
       { id: 'AG1', name: 'A' },
       { id: 'AG2', name: 'B' },
     ]);
-    const { campaign, target } = addTarget(c, 'running shoes', 'Broad', 1.5, 'AG2');
+    const { campaign, target } = addKeyword(c, 'running shoes', 'Broad', 1.5, 'AG2');
     expect(target.adGroupId).toBe('AG2');
     expect(campaign.targets).toHaveLength(1);
   });
 
   it('fails fast when the ad group does not exist', () => {
-    expect(() => addTarget(makeCampaign(), 'kw', 'Exact', 1, 'NOPE')).toThrow();
+    expect(() => addKeyword(makeCampaign(), 'kw', 'Exact', 1, 'NOPE')).toThrow();
   });
 });

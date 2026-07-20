@@ -1,24 +1,61 @@
 /**
  * Ad group CRUD operations.
  */
-import type { Campaign, CampaignStatus, AdGroup } from '../types';
+import type { Campaign, CampaignStatus, AdGroup, ProductAd, Ad } from '../types';
 import { assertNonEmpty, assertFiniteNonNegative, ValidationError } from '../../../../lib/validation';
 import { generateId } from './id';
 
-export function addAdGroup(c: Campaign, name: string): Campaign {
+export function addAdGroup(c: Campaign, name: string, defaultBid?: number): Campaign {
   assertNonEmpty('ad group name', name);
   const ag: AdGroup = {
     id: generateId('AG'),
     campaignId: c.id,
     name: name.trim(),
     status: 'Enabled',
-    defaultBid: c.defaultBid ?? 0.75,
+    defaultBid: defaultBid ?? c.defaultBid ?? 0.75,
     metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
   };
   return {
     ...c,
     adGroups: [...c.adGroups, ag],
     history: [...c.history, `Ad group "${ag.name}" created`],
+  };
+}
+
+export function addProductAd(c: Campaign, adGroupId: string, asin: string): Campaign {
+  const ag = c.adGroups.find((a) => a.id === adGroupId);
+  if (!ag) throw new ValidationError(`Unknown ad group: ${adGroupId}`);
+  const pa: ProductAd = {
+    id: generateId('PA'),
+    campaignId: c.id,
+    adGroupId,
+    asin,
+    status: 'Enabled',
+    metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+  };
+  return {
+    ...c,
+    productAds: [...c.productAds, pa],
+    history: [...c.history, `Product ad ${asin} added to ad group "${ag.name}"`],
+  };
+}
+
+export function addAd(c: Campaign, adGroupId: string, adFormat: Ad['adFormat'], creative: Ad['creative']): Campaign {
+  const ag = c.adGroups.find((a) => a.id === adGroupId);
+  if (!ag) throw new ValidationError(`Unknown ad group: ${adGroupId}`);
+  const ad: Ad = {
+    id: generateId('AD'),
+    campaignId: c.id,
+    adGroupId,
+    adFormat,
+    status: 'Enabled',
+    creative,
+    metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+  };
+  return {
+    ...c,
+    ads: [...c.ads, ad],
+    history: [...c.history, `Ad (${adFormat}) added to ad group "${ag.name}"`],
   };
 }
 
@@ -67,6 +104,8 @@ export function removeAdGroup(c: Campaign, adGroupId: string): Campaign {
     ...c,
     adGroups: c.adGroups.filter((a) => a.id !== adGroupId),
     targets: c.targets.filter((t) => t.adGroupId !== adGroupId),
+    productAds: c.productAds.filter((pa) => pa.adGroupId !== adGroupId),
+    ads: c.ads.filter((a) => a.adGroupId !== adGroupId),
     history: [...c.history, `Ad group "${ag.name}" removed`],
   };
 }

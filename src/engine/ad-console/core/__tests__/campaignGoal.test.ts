@@ -26,10 +26,12 @@ function makeCampaign(over: Partial<Campaign> = {}): Campaign {
     creative: null,
     metrics: { impressions: 1000, clicks: 50, spend: 30, sales: 100, orders: 4 },
     adGroups: [{ id: 'AG1', campaignId: 'C1', name: 'AG', status: 'Enabled', defaultBid: 0.75, metrics: { impressions: 1000, clicks: 50, spend: 30, sales: 100, orders: 4 } }],
-    targets: [{ id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Auto', value: 'Close match', match: 'Auto', bid: 0.75, status: 'Enabled', impressions: 1000, clicks: 50, spend: 30, sales: 100, orders: 4 }],
+    targets: [{ id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Auto - close match', value: 'Close match', match: '', bid: 0.75, status: 'Enabled', impressions: 1000, clicks: 50, spend: 30, sales: 100, orders: 4 }],
     searchTerms: [],
     negatives: [],
     budgetRules: [],
+    productAds: [],
+    ads: [],
     history: [],
     ...over,
   };

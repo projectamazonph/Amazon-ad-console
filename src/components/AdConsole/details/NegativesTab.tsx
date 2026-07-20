@@ -9,7 +9,7 @@ interface Props { campaign: Campaign }
 export function NegativesTab({ campaign }: Props) {
   const addNegative = useAdConsoleStore((s) => s.addNegative);
   const [negTerm, setNegTerm] = useState('');
-  const [negType, setNegType] = useState('Negative exact');
+  const [negType, setNegType] = useState<'Negative exact' | 'Negative phrase' | 'Negative ASIN' | 'Negative category'>('Negative exact');
   const c = campaign;
 
   return (
@@ -22,9 +22,11 @@ export function NegativesTab({ campaign }: Props) {
           </div>
           <div className="field" style={{ flex: 1 }}>
             <label>Type</label>
-            <select className="select full" value={negType} onChange={(e) => setNegType(e.target.value)}>
+            <select className="select full" value={negType} onChange={(e) => setNegType(e.target.value as 'Negative exact' | 'Negative phrase' | 'Negative ASIN' | 'Negative category')}>
               <option>Negative exact</option>
               <option>Negative phrase</option>
+              <option>Negative ASIN</option>
+              <option>Negative category</option>
             </select>
           </div>
           <button className="btn primary" onClick={() => {

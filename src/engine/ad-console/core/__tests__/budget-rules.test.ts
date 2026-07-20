@@ -29,6 +29,8 @@ function makeCampaign(over: Partial<Campaign> = {}): Campaign {
     searchTerms: [],
     negatives: [],
     budgetRules: [],
+    productAds: [],
+    ads: [],
     history: [],
     ...over,
   };

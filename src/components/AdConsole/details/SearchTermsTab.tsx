@@ -38,7 +38,7 @@ export function SearchTermsTab({ campaign }: Props) {
             const sx = calc({ impressions, clicks: st.clicks, spend: st.spend, sales: st.sales, orders: st.orders });
             return (
               <tr key={st.id}>
-                <td><strong>{st.term}</strong></td><td>{st.target}</td>
+                <td><strong>{st.term}</strong></td><td>{st.targetValue}</td>
                 <td className="mono">{formatWhole(impressions)}</td>
                 <td className="mono">{formatWhole(st.clicks)}</td>
                 <td className="money">{formatBid(sx.cpc)}</td>

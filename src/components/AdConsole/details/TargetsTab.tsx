@@ -19,7 +19,7 @@ export function TargetsTab({ campaign: c }: Props) {
   const showAddKeywordForm = useAdConsoleStore((s) => s.showAddKeywordForm);
 
   const [newKeywordValue, setNewKeywordValue] = useState('');
-  const [newKeywordMatch, setNewKeywordMatch] = useState('Exact');
+  const [newKeywordMatch, setNewKeywordMatch] = useState<'Exact' | 'Phrase' | 'Broad'>('Exact');
   const [newKeywordBid, setNewKeywordBid] = useState(0.75);
   const [newKeywordAdGroup, setNewKeywordAdGroup] = useState(c.adGroups[0]?.id ?? '');
   const [bidEdits, setBidEdits] = useState<Record<string, string>>({});
@@ -45,7 +45,7 @@ export function TargetsTab({ campaign: c }: Props) {
             </div>
             <div className="field" style={{ flex: 1, minWidth: 100 }}>
               <label>Match type</label>
-              <select className="select full" value={newKeywordMatch} onChange={(e) => setNewKeywordMatch(e.target.value)}>
+              <select className="select full" value={newKeywordMatch} onChange={(e) => setNewKeywordMatch(e.target.value as 'Exact' | 'Phrase' | 'Broad')}>
                 <option>Exact</option><option>Phrase</option><option>Broad</option>
               </select>
             </div>
