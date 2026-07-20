@@ -123,6 +123,7 @@ describe('totalMetrics()', () => {
         products: ['B0TRAIN001'], creative: null,
         metrics: { impressions: 1000, clicks: 50, spend: 25, sales: 100, orders: 4 },
         adGroups: [], targets: [], searchTerms: [], negatives: [], budgetRules: [],
+        productAds: [], ads: [],
         history: ['Created'],
       },
       {
@@ -133,6 +134,7 @@ describe('totalMetrics()', () => {
         products: ['B0TRAIN001'], creative: null,
         metrics: { impressions: 500, clicks: 25, spend: 12.50, sales: 50, orders: 2 },
         adGroups: [], targets: [], searchTerms: [], negatives: [], budgetRules: [],
+        productAds: [], ads: [],
         history: ['Created'],
       },
     ];

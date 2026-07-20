@@ -25,6 +25,8 @@ function baseCampaign(over: Partial<Campaign> = {}): Campaign {
     searchTerms: [],
     negatives: [],
     budgetRules: [],
+    productAds: [],
+    ads: [],
     history: [],
     ...over,
   };
@@ -81,7 +83,7 @@ describe('runIntegrityCheck', () => {
   it('flags orphaned search terms for non-SD campaigns', () => {
     const report = runIntegrityCheck([
       baseCampaign({
-        searchTerms: [{ id: 'ST1', campaignId: 'C1', adGroupId: 'AG1', term: 'blue shoes', target: '', clicks: 0, spend: 0, sales: 0, orders: 0 }],
+        searchTerms: [{ id: 'ST1', campaignId: 'C1', adGroupId: 'AG1', term: 'blue shoes', targetId: '', targetValue: '', targetType: 'Keyword', matchType: '', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 }],
       }),
     ]);
     expect(report.issues.some((i) => i.entityType === 'searchTerm')).toBe(true);
@@ -91,7 +93,7 @@ describe('runIntegrityCheck', () => {
     const report = runIntegrityCheck([
       baseCampaign({
         type: 'SD',
-        searchTerms: [{ id: 'ST1', campaignId: 'C1', adGroupId: 'AG1', term: 'x', target: '', clicks: 0, spend: 0, sales: 0, orders: 0 }],
+        searchTerms: [{ id: 'ST1', campaignId: 'C1', adGroupId: 'AG1', term: 'x', targetId: '', targetValue: '', targetType: 'Keyword', matchType: '', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 }],
       }),
     ]);
     expect(report.issues.some((i) => i.entityType === 'searchTerm')).toBe(false);

@@ -26,6 +26,7 @@ import {
   filteredCampaigns,
   campaignById,
   totalMetrics,
+  normalizeCampaign,
 } from '../engine';
 import type { Campaign, CampaignType, CampaignStatus, Metrics, Target, SearchTerm, Negative } from '../types';
 
@@ -221,7 +222,7 @@ describe('filtering and portfolios', () => {
 
   it('finds campaign by id', () => {
     const c = makeCampaign({ id: 'C1' });
-    const found = campaignById({ campaigns: [c], filter: { type: 'All', status: 'All', portfolio: 'All', search: '' }, selectedCampaignId: null, selectedTab: 'overview', simulationDays: 7, actionLog: [], portfolios: [] }, 'C1');
+    const found = campaignById({ version: '3.6', campaigns: [c], filter: { type: 'All', status: 'All', portfolio: 'All', search: '' }, selectedCampaignId: null, selectedTab: 'overview', simulationDays: 7, actionLog: [], portfolios: [] }, 'C1');
     expect(found).toBe(c);
   });
 });
@@ -239,5 +240,54 @@ describe('simulation', () => {
     const c = makeCampaign({ status: 'Paused' });
     const [result] = simulateDays([c], 7);
     expect(result.metrics.impressions).toBe(0);
+  });
+});
+
+describe('campaign creation flow', () => {
+  it('normalizeCampaign builds a valid campaign from launch input', () => {
+    const id = 'C-SP-test123';
+    const agId = 'AG-C-SP-test123';
+    const targets = [
+      { id: 'T-test1', campaignId: id, adGroupId: agId, type: 'Keyword' as const, value: 'coffee filter', match: 'Exact' as const, bid: 0.75, status: 'Enabled' as CampaignStatus, impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+    ];
+    const campaign = normalizeCampaign({
+      id, type: 'SP', name: 'Launch Test', portfolio: 'Test',
+      status: 'Enabled', dailyBudget: 25, defaultBid: 0.75,
+      bidStrategy: 'Dynamic bids - down only', targetingMode: 'Automatic',
+      products: ['B0TRAIN001'],
+      metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+      adGroups: [{ id: agId, campaignId: id, name: 'SP training ad group', status: 'Enabled', defaultBid: 0.75, metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 } }],
+      targets, searchTerms: [], negatives: [], budgetRules: [],
+      history: ['Campaign launched in simulator'],
+    });
+    expect(campaign.id).toBe(id);
+    expect(campaign.name).toBe('Launch Test');
+    expect(campaign.productAds).toEqual([]);
+    expect(campaign.ads).toEqual([]);
+    expect(campaign.targets).toHaveLength(1);
+    expect(campaign.adGroups).toHaveLength(1);
+    expect(campaign.history).toContain('Campaign launched in simulator');
+  });
+
+  it('launch handles keywords from draft text fields', () => {
+    const id = 'C-SP-launch2';
+    const agId = 'AG-C-SP-launch2';
+    const targets = [
+      { id: 'T-kw1', campaignId: id, adGroupId: agId, type: 'Keyword' as const, value: 'coffee filter', match: 'Exact' as const, bid: 0.75, status: 'Enabled' as CampaignStatus, impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+      { id: 'T-kw2', campaignId: id, adGroupId: agId, type: 'Keyword' as const, value: 'coffee maker', match: 'Exact' as const, bid: 0.75, status: 'Enabled' as CampaignStatus, impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+    ];
+    const campaign = normalizeCampaign({
+      id, type: 'SP', name: 'Keyword Test', portfolio: 'Test',
+      status: 'Enabled', dailyBudget: 25, defaultBid: 0.75,
+      bidStrategy: 'Dynamic bids - down only', targetingMode: 'Automatic',
+      products: ['B0TRAIN001'],
+      metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+      adGroups: [{ id: agId, campaignId: id, name: 'SP training ad group', status: 'Enabled', defaultBid: 0.75, metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 } }],
+      targets, searchTerms: [], negatives: [], budgetRules: [],
+      history: [],
+    });
+    expect(campaign.targets).toHaveLength(2);
+    expect(campaign.targets[0].value).toBe('coffee filter');
+    expect(campaign.targets[1].value).toBe('coffee maker');
   });
 });
