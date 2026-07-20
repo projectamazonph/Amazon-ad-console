@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { selectProduct, removeProduct, parseKeywords } from '../engine';
+import { selectProduct, removeProduct, parseKeywords, draftLaunchErrors, canLeaveWizardStep } from '../engine';
 import type { CampaignDraft } from '../types';
 
 function draft(over: Partial<CampaignDraft> = {}): CampaignDraft {
@@ -82,5 +82,45 @@ describe('parseKeywords', () => {
   it('fails fast on extremely long keyword (>200 chars)', () => {
     const long = 'x'.repeat(201);
     expect(() => parseKeywords(long)).toThrow();
+  });
+});
+
+// ── draft validation (wizard gating) ─────────────────────────────
+
+describe('draftLaunchErrors', () => {
+  it('passes a complete draft', () => {
+    expect(draftLaunchErrors(draft())).toEqual([]);
+  });
+
+  it('flags a blank name', () => {
+    expect(draftLaunchErrors(draft({ name: '   ' }))).toContain('Campaign name is required');
+  });
+
+  it('flags a budget below $1', () => {
+    expect(draftLaunchErrors(draft({ dailyBudget: 0 }))).toContain('Daily budget must be at least $1');
+    expect(draftLaunchErrors(draft({ dailyBudget: -100 }))).toContain('Daily budget must be at least $1');
+  });
+
+  it('flags having no products', () => {
+    expect(draftLaunchErrors(draft({ products: [] }))).toContain('Select at least one product');
+  });
+});
+
+describe('canLeaveWizardStep', () => {
+  it('blocks leaving step 2 without a name or valid budget', () => {
+    expect(canLeaveWizardStep(draft({ name: '' }), 2)).toBe(false);
+    expect(canLeaveWizardStep(draft({ dailyBudget: 0 }), 2)).toBe(false);
+    expect(canLeaveWizardStep(draft(), 2)).toBe(true);
+  });
+
+  it('blocks leaving step 3 with no products', () => {
+    expect(canLeaveWizardStep(draft({ products: [] }), 3)).toBe(false);
+    expect(canLeaveWizardStep(draft(), 3)).toBe(true);
+  });
+
+  it('does not gate steps 1, 4, 5', () => {
+    expect(canLeaveWizardStep(draft({ name: '' }), 1)).toBe(true);
+    expect(canLeaveWizardStep(draft({ name: '' }), 4)).toBe(true);
+    expect(canLeaveWizardStep(draft({ name: '' }), 5)).toBe(true);
   });
 });

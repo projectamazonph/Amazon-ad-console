@@ -7,7 +7,7 @@ import type {
 } from '../types';
 import { assertCampaignType, assertCampaignStatus } from '../../../../lib/validation';
 import { generateId } from './id';
-import { metricDefaults } from './metrics';
+import { metricDefaults, clampBid } from './metrics';
 
 /** Fill a partial target with defaults and clamp its bid to the $0.02 minimum. */
 function normalizeTarget(
@@ -22,7 +22,7 @@ function normalizeTarget(
     type: t.type ?? 'Keyword',
     value: t.value ?? 'training target',
     match: t.match ?? 'Exact',
-    bid: Math.max(0.02, t.bid ?? 0.75),
+    bid: clampBid(t.bid ?? 0.75),
     status: ['Enabled', 'Paused', 'Archived', 'Draft'].includes(t.status ?? '')
       ? (t.status! as CampaignStatus)
       : 'Enabled',
@@ -119,7 +119,7 @@ export function normalizeCampaign(c: Partial<Campaign>): Campaign {
       ? c.status! as CampaignStatus
       : 'Paused',
     dailyBudget: Math.max(1, c.dailyBudget ?? 1),
-    defaultBid: Math.max(0.02, c.defaultBid ?? 0.75),
+    defaultBid: clampBid(c.defaultBid ?? 0.75),
     startDate: c.startDate ?? new Date().toISOString().slice(0, 10),
     endDate: c.endDate ?? null,
     targetingMode: c.targetingMode ?? (type === 'SP' ? 'Automatic' : type === 'SB' ? 'Keyword' : 'Contextual'),

@@ -6,6 +6,19 @@
 
 ---
 
+## ✅ Resolution status (all four ranked fixes applied)
+
+| # | Finding | Status |
+|---|---------|--------|
+| 1 | Simulation cascade drift | **FIXED** — `simulateDays` now distributes activity bottom-up with largest-remainder integer rounding and derives the campaign total from the targets, so `campaign == sum(targets) == sum(ad groups)` exactly, every run. Verified by a test that runs 6 consecutive simulations and asserts the invariant. Campaigns with no targets accrue at the campaign level (unchanged). |
+| 2 | Dead sidebar / unreachable pages | **FIXED** — added a persistent "Training tools" rail linking Drills/Missions/Reports/Bulk/Trainer/Integrity, and the Measurement rail's Sponsored Products/Brands/Display now open Campaign Manager filtered to that ad-product type (Search query performance → Search terms tab). |
+| 3 | Wizard accepts garbage | **FIXED** — `Next` is disabled until step 2 has a name + budget ≥ $1 and step 3 has a product; `Launch` is disabled with an inline error list until the draft is valid (`draftLaunchErrors` / `canLeaveWizardStep`). |
+| 4 | Bid has no bounds | **FIXED** — a shared `clampBid` enforces `[$0.02, $999.99]` across `addTarget`, `setTargetBid`/`adjustTargetBid`, ad-group default bid, and campaign normalization. |
+
+Fixes shipped on branch `claude/backend-engine-ad-console-audit-r51nrh` with new unit + e2e coverage (`e2e/ui-audit-fixes.spec.ts`). The original findings below are preserved for context.
+
+---
+
 ## 1. Navigation — 6 of 7 advertised features are unreachable
 
 **Topbar** (3 items, all work):

@@ -7,6 +7,7 @@ import type {
 } from '../types';
 import { assertNonEmpty, assertFiniteNonNegative, ValidationError } from '../../../../lib/validation';
 import { generateId } from './id';
+import { clampBid } from './metrics';
 
 export interface AddTargetOptions {
   campaign: Campaign;
@@ -34,7 +35,7 @@ export function addTarget(opts: AddTargetOptions): { campaign: Campaign; target:
     type,
     value,
     match: type === 'Keyword' ? (match ?? 'Exact') : '',
-    bid: Math.max(0.02, bid),
+    bid: clampBid(bid),
     status: 'Enabled',
     impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0,
   };
@@ -43,7 +44,7 @@ export function addTarget(opts: AddTargetOptions): { campaign: Campaign; target:
     campaign: {
       ...c,
       targets: [...c.targets, target],
-      history: [...c.history, `Target "${value}" (${type}) added to ad group (${match ?? 'N/A'}, $${Math.max(0.02, bid).toFixed(2)})`],
+      history: [...c.history, `Target "${value}" (${type}) added to ad group (${match ?? 'N/A'}, $${clampBid(bid).toFixed(2)})`],
     },
     target,
   };
@@ -132,11 +133,12 @@ export function removeTarget(c: Campaign, targetId: string): Campaign {
 }
 
 export function setTargetBid(c: Campaign, targetId: string, newBid: number): Campaign {
+  const clamped = clampBid(newBid);
   return {
     ...c,
     targets: c.targets.map((t) =>
       t.id === targetId
-        ? { ...t, bid: Math.max(0.02, newBid) }
+        ? { ...t, bid: clamped }
         : t,
     ),
     history: [
@@ -144,7 +146,7 @@ export function setTargetBid(c: Campaign, targetId: string, newBid: number): Cam
       (() => {
         const t = c.targets.find((x) => x.id === targetId);
         return t
-          ? `Bid for "${t.value}" (${t.type}) changed from $${t.bid.toFixed(2)} to $${Math.max(0.02, newBid).toFixed(2)}`
+          ? `Bid for "${t.value}" (${t.type}) changed from $${t.bid.toFixed(2)} to $${clamped.toFixed(2)}`
           : `Bid updated for target ${targetId}`;
       })(),
     ],

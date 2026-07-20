@@ -7,6 +7,44 @@ import type { Campaign, Metrics, SearchTerm } from './types';
 import { generateId, metricDefaults, isFilteredByNegative, isNegativeActive } from './engine';
 import { generateSearchTermsForTarget } from './engine/search-term-generator';
 
+/** Sum a set of metric-bearing rows into a single Metrics total. */
+function sumMetrics(rows: Array<{ metrics: Metrics } | Metrics>): Metrics {
+  return rows.reduce<Metrics>(
+    (s, row) => {
+      const m = 'metrics' in row ? row.metrics : row;
+      return {
+        impressions: s.impressions + m.impressions,
+        clicks: s.clicks + m.clicks,
+        spend: s.spend + m.spend,
+        sales: s.sales + m.sales,
+        orders: s.orders + m.orders,
+      };
+    },
+    { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+  );
+}
+
+/**
+ * Distribute an integer total across weighted buckets using the largest-remainder
+ * method, so the rounded parts sum back to exactly `total` (no cascade drift).
+ */
+function distributeInt(total: number, weights: number[], weightSum: number): number[] {
+  if (!weights.length) return [];
+  const raw = weights.map((w) => total * (w / weightSum));
+  const floors = raw.map((r) => Math.floor(r));
+  const remaining = total - floors.reduce((a, b) => a + b, 0);
+  const byFrac = raw
+    .map((r, i) => ({ i, frac: r - Math.floor(r) }))
+    .sort((a, b) => b.frac - a.frac);
+  for (let k = 0; k < remaining && k < byFrac.length; k++) floors[byFrac[k].i] += 1;
+  return floors;
+}
+
+/** Distribute a float total across weighted buckets; the parts sum back to `total`. */
+function distributeFloat(total: number, weights: number[], weightSum: number): number[] {
+  return weights.map((w) => total * (w / weightSum));
+}
+
 /**
  * Simulate `days` of performance for each Enabled campaign: accrues metrics on
  * campaigns, targets, and ad groups, and generates negative-filtered search
@@ -35,45 +73,59 @@ export function simulateDays(campaigns: Campaign[], days: number = 7): Campaign[
     const impressions = Math.round(clicks / (0.006 + Math.random() * 0.012));
     const orders = Math.max(0, Math.round(sales / avgPrice));
 
-    const newMetrics: Metrics = {
-      impressions: c.metrics.impressions + impressions,
-      clicks: c.metrics.clicks + clicks,
-      spend: c.metrics.spend + spend,
-      sales: c.metrics.sales + Math.max(0, sales),
-      orders: c.metrics.orders + orders,
-    };
-
+    // ── Cascade-preserving distribution ──────────────────────────────────
+    // When a campaign has enabled targets, this run's activity is distributed
+    // evenly across them so the totals always reconcile: per-target deltas sum
+    // exactly to each ad group, and ad groups sum to the campaign. Integer
+    // metrics use largest-remainder rounding and the campaign total is derived
+    // from the targets, so there's no rounding drift and no independent
+    // per-target randomness to diverge. A campaign with no enabled targets has
+    // nothing to distribute to, so it accrues at the campaign level directly.
     const enabledTargets = c.targets.filter((t) => t.status === 'Enabled');
-    const share = 1 / Math.max(1, enabledTargets.length);
+    const weights = enabledTargets.map(() => 1);
+    const weightSum = weights.reduce((a, b) => a + b, 0) || 1;
+
+    const imprDelta = distributeInt(impressions, weights, weightSum);
+    const clickDelta = distributeInt(clicks, weights, weightSum);
+    const orderDelta = distributeInt(orders, weights, weightSum);
+    const spendDelta = distributeFloat(spend, weights, weightSum);
+    const salesDelta = distributeFloat(Math.max(0, sales), weights, weightSum);
+
+    let ti = 0;
     const newTargets = c.targets.map((t) => {
       if (t.status !== 'Enabled') return t;
+      const k = ti++;
       return {
         ...t,
-        impressions: t.impressions + Math.round(impressions * share),
-        clicks: t.clicks + Math.round(clicks * share),
-        spend: t.spend + spend * share,
-        sales: t.sales + Math.max(0, sales * share * (0.8 + Math.random() * 0.4)),
-        orders: t.orders + Math.round(orders * share),
+        impressions: t.impressions + imprDelta[k],
+        clicks: t.clicks + clickDelta[k],
+        spend: t.spend + spendDelta[k],
+        sales: t.sales + salesDelta[k],
+        orders: t.orders + orderDelta[k],
       };
     });
 
+    const hasTargets = enabledTargets.length > 0;
+
+    // Ad group metrics = sum of its targets (enabled + paused carry history).
+    // Ad groups with no targets keep their existing metrics.
     const newAdGroups = c.adGroups.map((ag) => {
       const tgts = newTargets.filter((t) => t.adGroupId === ag.id);
-      if (tgts.length) {
-        const agMetrics = tgts.reduce(
-          (s, t) => ({
-            impressions: s.impressions + t.impressions,
-            clicks: s.clicks + t.clicks,
-            spend: s.spend + t.spend,
-            sales: s.sales + t.sales,
-            orders: s.orders + t.orders,
-          }),
-          { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
-        );
-        return { ...ag, metrics: agMetrics };
-      }
-      return { ...ag, metrics: metricDefaults({}) };
+      return tgts.length ? { ...ag, metrics: sumMetrics(tgts) } : ag;
     });
+
+    // Campaign metrics: when there are targets, derive from them so
+    // campaign == sum(targets) == sum(ad groups) at every level, every run.
+    // Otherwise accrue this run's activity at the campaign level.
+    const newMetrics: Metrics = hasTargets
+      ? sumMetrics(newTargets)
+      : {
+          impressions: c.metrics.impressions + impressions,
+          clicks: c.metrics.clicks + clicks,
+          spend: c.metrics.spend + spend,
+          sales: c.metrics.sales + Math.max(0, sales),
+          orders: c.metrics.orders + orders,
+        };
 
     // Generate search terms for keyword targets using strategy pattern
     // Supports SP and SB campaigns (SD doesn't have search terms by design)
@@ -134,13 +186,16 @@ export function simulateDays(campaigns: Campaign[], days: number = 7): Campaign[
       }
     }
     const allSearchTerms = c.searchTerms.concat(generatedST);
+    // Log the activity actually applied this run.
+    const appliedSpend = hasTargets ? spendDelta.reduce((a, b) => a + b, 0) : spend;
+    const appliedOrders = hasTargets ? orderDelta.reduce((a, b) => a + b, 0) : orders;
     return {
       ...c,
       metrics: newMetrics,
       targets: newTargets,
       adGroups: newAdGroups,
       searchTerms: allSearchTerms,
-      history: [...c.history, `${days}-day simulation: $${spend.toFixed(2)} spend, ${orders} orders`],
+      history: [...c.history, `${days}-day simulation: $${appliedSpend.toFixed(2)} spend, ${appliedOrders} orders`],
     };
   });
 }
