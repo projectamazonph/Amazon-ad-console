@@ -215,6 +215,7 @@ describe('simulateDays', () => {
     const [result] = simulateDays([c], 7);
     // Campaign is derived from the (paused, unchanged) targets — no drift.
     expect(result.metrics).toEqual({ impressions: 12, clicks: 3, spend: 2.5, sales: 9, orders: 1 });
+    expect(result.targets[0]).toMatchObject({ impressions: 12, clicks: 3, spend: 2.5, sales: 9, orders: 1 });
     expect(result.adGroups[0].metrics).toEqual(result.metrics);
   });
 

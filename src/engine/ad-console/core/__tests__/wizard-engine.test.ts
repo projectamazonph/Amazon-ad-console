@@ -115,6 +115,11 @@ describe('draftLaunchErrors', () => {
     expect(draftLaunchErrors(d)).toContain('Select at least one keyword match type');
   });
 
+  it('flags the SB "Keyword" mode with keywords but no match type selected', () => {
+    const d = draft({ type: 'SB', targetingMode: 'Keyword', keywords: 'brand', keywordMatchTypes: [] });
+    expect(draftLaunchErrors(d)).toContain('Select at least one keyword match type');
+  });
+
   it('does not flag empty match types when there are no keywords', () => {
     const d = draft({ targetingMode: 'Manual keyword', keywords: '', keywordMatchTypes: [] });
     expect(draftLaunchErrors(d)).not.toContain('Select at least one keyword match type');
@@ -147,5 +152,8 @@ describe('canLeaveWizardStep', () => {
     expect(canLeaveWizardStep(draft({ targetingMode: 'Manual keyword', keywords: 'coffee', keywordMatchTypes: [] }), 4)).toBe(false);
     expect(canLeaveWizardStep(draft({ targetingMode: 'Manual keyword', keywords: 'coffee', keywordMatchTypes: ['Exact'] }), 4)).toBe(true);
     expect(canLeaveWizardStep(draft({ targetingMode: 'Automatic', keywords: '', keywordMatchTypes: [] }), 4)).toBe(true);
+    // SB "Keyword" mode is gated the same way.
+    expect(canLeaveWizardStep(draft({ type: 'SB', targetingMode: 'Keyword', keywords: 'brand', keywordMatchTypes: [] }), 4)).toBe(false);
+    expect(canLeaveWizardStep(draft({ type: 'SB', targetingMode: 'Keyword', keywords: 'brand', keywordMatchTypes: ['Phrase'] }), 4)).toBe(true);
   });
 });

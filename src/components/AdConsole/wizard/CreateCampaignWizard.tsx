@@ -113,7 +113,9 @@ export function CreateCampaignWizard() {
                   <div className="coach-tip" style={{ marginTop: 12, color: 'var(--danger)' }}>
                     {wizardStep === 2
                       ? 'Enter a campaign name and a daily budget of at least $1 to continue.'
-                      : 'Select at least one product to continue.'}
+                      : wizardStep === 4
+                        ? 'Select at least one keyword match type to continue.'
+                        : 'Select at least one product to continue.'}
                   </div>
                 )}
                 {wizardStep === 6 && launchErrors.length > 0 && (
