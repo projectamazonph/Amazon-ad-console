@@ -85,26 +85,27 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"   // Neon serverless Postgres
 }
 ```
 
+Prisma 7 connects through `@prisma/adapter-neon` (`@neondatabase/serverless`);
+see `src/lib/prisma.ts`.
+
 ### Environment Variables
 ```env
-# Prisma
-DATABASE_URL="file:./dev.db"
+# Postgres connection string (e.g. Neon)
+DATABASE_URL="postgresql://user:password@host/dbname?sslmode=require"
 
-# NextAuth
-NEXTAUTH_SECRET="your-secret-key-here"
-NEXTAUTH_URL="http://localhost:3000"
+# NextAuth / Auth.js session secret — openssl rand -base64 32
+AUTH_SECRET="your-secret-key-here"
 ```
 
 ### Database Commands
 ```bash
-npx prisma init --datasource-provider sqlite
-npx prisma migrate dev --name init
+npx prisma migrate dev --name init   # local dev
+npx prisma migrate deploy            # apply migrations in production
 npx prisma generate
-npx prisma db push
 ```
 
 ## File Statistics

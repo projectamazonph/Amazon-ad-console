@@ -11,12 +11,22 @@ All types are defined in `src/engine/ad-console/core/types.ts` (core) and `src/e
 ```ts
 type CampaignType    = 'SP' | 'SB' | 'SD';
 type CampaignStatus  = 'Enabled' | 'Paused' | 'Archived' | 'Draft';
-type TargetingMode   = 'Automatic' | 'Manual keyword' | 'Manual product' | 'Keyword' | 'Product' | 'Category' | 'Contextual' | 'Audiences - views remarketing' | 'Audiences - purchases remarketing';
+type CampaignGoal    = 'Awareness' | 'Consideration' | 'Conversions';
+type TargetingMode   = 'Automatic' | 'Manual keyword' | 'Manual product' | 'Keyword' | 'Product' | 'Category' | 'Contextual' | 'Audiences - views remarketing' | 'Audiences - purchases remarketing' | 'Categories';
 type BidStrategy     = 'Dynamic bids - down only' | 'Dynamic bids - up and down' | 'Fixed bids' | 'Cost per click' | 'Cost per thousand impressions';
 type MatchType       = 'Exact' | 'Phrase' | 'Broad';
+type NegativeType    = 'Negative exact' | 'Negative phrase' | 'Negative ASIN' | 'Negative category';
+type NegativeStatus  = 'Enabled' | 'Paused';   // a Paused negative is kept but stops filtering
 type AdFormat        = 'Standard' | 'Video' | 'Product collection' | 'Store spotlight' | 'Auto generated' | 'Custom image' | 'Video creative';
 type ConsoleView     = 'dashboard' | 'campaigns' | 'create' | 'detail' | 'portfolio'
                      | 'drills' | 'reports' | 'bulk' | 'trainer' | 'integrity' | 'missions';
+
+// SP automatic-targeting groups (Step 4 of the wizard)
+interface AutoTargetGroup    { enabled: boolean; bid: number }
+interface AutoTargetSettings {
+  closeMatch: AutoTargetGroup; looseMatch: AutoTargetGroup;
+  substitutes: AutoTargetGroup; complements: AutoTargetGroup;
+}
 ```
 
 ### Metrics
@@ -47,13 +57,15 @@ interface Campaign {
   type: CampaignType;                  // SP, SB, or SD
   name: string;                        // Human-readable name
   portfolio: PortfolioType;            // Portfolio grouping name
+  portfolioId?: string;                // API portfolio id (optional)
   status: CampaignStatus;              // Enabled, Paused, Archived, Draft
   dailyBudget: number;                 // Daily budget in dollars
-  defaultBid: number;                  // Default CPC bid in dollars
+  defaultBid: number;                  // Default CPC bid in dollars (clamped 0.02–999.99)
   startDate: string;                   // ISO date string (YYYY-MM-DD)
   endDate: string | null;              // Optional end date
   targetingMode: TargetingMode;        // How ads are targeted
   adFormat: AdFormat;                  // Creative format
+  campaignGoal?: CampaignGoal;         // Awareness / Consideration / Conversions (SD)
   bidStrategy: BidStrategy;            // Bid optimization strategy
   placements: {                        // Placement bid adjustments (%)
     top: number;     // Top of Search
@@ -66,14 +78,20 @@ interface Campaign {
   creativeIssue?: string;              // Rejection reason text
   metrics: Metrics;                    // Campaign-level metrics
   adGroups: AdGroup[];                 // Child ad groups
-  targets: Target[];                   // Keyword/product targets
+  targets: Target[];                   // Keyword/product/auto/audience targets
   searchTerms: SearchTerm[];           // Customer search term data
-  negatives: Negative[];               // Negative keywords
+  negatives: Negative[];               // Negative keywords/targets
   budgetRules: BudgetRule[];           // Budget rule automation
+  productAds: ProductAd[];             // SP/SB advertised products
+  ads: Ad[];                           // SB/SD creative variations
   history: string[];                   // Change history log
   createdBySimulator?: boolean;        // Flag for simulator-created campaigns
 }
 ```
+
+These fields (`portfolioId`, `campaignGoal`, `productAds`, `ads`,
+`creativeStatus`, `creativeIssue`, `createdBySimulator`) all round-trip through
+the database — see the `Campaign` columns in `prisma/schema.prisma`.
 
 ### Ad Group
 
@@ -97,9 +115,13 @@ interface Target {
   adGroupId: string;       // Parent ad group ID
   type: string;            // 'Keyword' | 'Auto' | 'ASIN' | 'Category' | 'Audience'
   value: string;           // The keyword text or auto-target label
-  match: MatchType | string; // Exact, Phrase, Broad, or Auto
-  bid: number;             // CPC bid in dollars
+  match: MatchType | string; // Exact, Phrase, Broad, or '' for non-keywords
+  bid: number;             // CPC bid in dollars (clamped 0.02–999.99)
   status: CampaignStatus;  // Enabled, Paused, Archived
+  refinements?: {          // product/category targeting refinements
+    brand?: string; minPrice?: number; maxPrice?: number;
+    minRating?: number; primeEligible?: boolean;
+  };
   impressions: number;     // Target-level impressions
   clicks: number;          // Target-level clicks
   spend: number;           // Target-level spend
@@ -116,9 +138,13 @@ interface SearchTerm {
   campaignId: string;      // Parent campaign ID
   adGroupId: string;       // Parent ad group ID
   term: string;            // Customer's search query
-  target: string;          // Matched target value
-  targetId?: string;       // ID of the matched target
+  targetId: string;        // ID of the target that matched
+  targetValue: string;     // Value of that target
+  targetType: string;      // Type of that target (e.g. 'Keyword')
+  matchType: MatchType | string; // Match type of the matched keyword
+  target?: string;         // Legacy alias for targetValue (back-compat)
   recommendation?: string; // 'Add as exact keyword' | 'Negate' | 'Review'
+  impressions: number;
   clicks: number;
   spend: number;
   sales: number;
@@ -132,9 +158,10 @@ interface SearchTerm {
 interface Negative {
   id: string;              // Unique ID (e.g., "NEG-M-001")
   campaignId: string;
-  adGroupId: string;
-  type: string;            // 'Negative exact' | 'Negative phrase'
-  value: string;           // The negative keyword text
+  adGroupId: string | null;    // null = campaign-level, string = ad-group level
+  type: NegativeType;      // Negative exact | phrase | ASIN | category
+  value: string;           // The negative keyword / ASIN / category text
+  status?: NegativeStatus; // Enabled (filtering) or Paused (kept, inactive); default Enabled
   sourceSearchTermId?: string; // Original search term that prompted negation
 }
 ```
@@ -146,9 +173,29 @@ interface BudgetRule {
   id: string;
   campaignId: string;
   name: string;            // Rule name (e.g., "Weekend boost")
-  type: string;            // 'Schedule' | 'Performance'
+  type: 'Schedule' | 'Performance';
   increase: number;        // Budget multiplier (e.g., 1.5 = +50%)
   condition: string;       // Condition description
+  // Schedule-specific
+  startDate?: string;
+  endDate?: string;
+  scheduleType?: 'One-time' | 'Daily' | 'Weekly' | 'Monthly';
+  daysOfWeek?: number[];   // 0=Sun … 6=Sat
+}
+```
+
+### Product Ad / Ad
+
+```ts
+interface ProductAd {      // SP/SB advertised ASIN
+  id: string; campaignId: string; adGroupId: string;
+  asin: string; status: CampaignStatus; metrics: Metrics;
+}
+
+interface Ad {             // SB/SD creative variation
+  id: string; campaignId: string; adGroupId: string;
+  adFormat: AdFormat; status: CampaignStatus;
+  creative: Creative; metrics: Metrics;
 }
 ```
 
@@ -196,12 +243,16 @@ interface CampaignDraft {
   adFormat: AdFormat;
   bidStrategy: BidStrategy;
   placements: { top: number; product: number; rest: number };
+  campaignGoal?: CampaignGoal;
   products: string[];
   creative: Partial<Creative>;
-  keywords: string;        // One-per-line text input
+  keywords: string;          // One-per-line keyword text input
+  keywordMatchTypes: MatchType[]; // Match types each keyword is added under
   asinTargets: string;
   categoryTargets: string;
   audienceTargets: string;
+  audienceLookback: string;  // SB/SD remarketing lookback window (days)
+  autoTargets: AutoTargetSettings; // SP automatic-targeting group bids
 }
 ```
 

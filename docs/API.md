@@ -40,12 +40,12 @@ import {
 | `campaign.ts` | `normalizeCampaign`, `toggleCampaignStatus`, `archiveCampaign`, `duplicateCampaign`, `updateCampaignSettings`, `savePlacements` |
 | `target.ts` | `addTarget`, `addKeyword`, `addAutoTarget`, `addAsinTarget`, `addCategoryTarget`, `removeTarget`, `setTargetBid`, `adjustTargetBid`, `pauseTarget`, `setTargetStatus` |
 | `adgroup.ts` | `addAdGroup`, `addProductAd`, `addAd`, `renameAdGroup`, `setAdGroupStatus`, `setAdGroupDefaultBid`, `removeAdGroup` |
-| `negative.ts` | `isFilteredByNegative`, `addNegative`, `addNegativeKeyword`, `addNegativeAsin`, `addNegativeCategory`, `removeNegative`, `harvestTerm`, `getHarvestCandidates`, `getNegativeCandidates` |
+| `negative.ts` | `isFilteredByNegative`, `isNegativeActive`, `addNegative`, `addNegativeKeyword`, `addNegativeAsin`, `addNegativeCategory`, `removeNegative`, `setNegativeStatus`, `toggleNegative`, `harvestTerm`, `getHarvestCandidates`, `getNegativeCandidates` |
 | `budget.ts` | `addBudgetRule`, `removeBudgetRule`, `updateBudgetRule` |
 | `portfolio.ts` | `createPortfolio`, `renamePortfolio`, `deletePortfolio`, `assignCampaignToPortfolio`, `campaignById`, `filteredCampaigns`, `portfolioNames` |
-| `draft.ts` | `selectProduct`, `removeProduct`, `parseKeywords`, `validateStoreUrl` |
+| `draft.ts` | `selectProduct`, `removeProduct`, `parseKeywords`, `validateStoreUrl`, `draftLaunchErrors`, `canLeaveWizardStep`, `usesKeywordTargeting`, `MIN_DAILY_BUDGET` |
 | `id.ts` | `generateId`, `resetIdCounter` |
-| `metrics.ts` | `calc`, `totalMetrics`, `metricDefaults`, `formatMoney`, `formatWhole`, `formatBid`, `formatPercent`, `formatRoas`, `acosClass` |
+| `metrics.ts` | `calc`, `totalMetrics`, `metricDefaults`, `clampBid`, `MIN_BID`, `MAX_BID`, `formatMoney`, `formatWhole`, `formatBid`, `formatPercent`, `formatRoas`, `acosClass` |
 | `responsive.ts` | `resolveBreakpoint`, `mobileMenuReducer`, `isTouchViewport` |
 | `search-term-generator.ts` | `ExactMatchGenerator`, `PhraseMatchGenerator`, `BroadMatchGenerator`, `generateSearchTermsForTarget`, `registerGenerator` |
 | `simulation.ts` | `simulateDays` |

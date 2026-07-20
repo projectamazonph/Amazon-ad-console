@@ -17,12 +17,13 @@ The Amazon Ad Console follows **SOLID principles** with strict separation betwee
 │  store.ts — composed root store             │
 │  8 independent slices                       │
 ├─────────────────────────────────────────────┤
-│  API Routes (server-side)                   │
+│  API Routes → src/server/ service layer     │
 │  /api/auth/* — authentication               │
 │  /api/campaigns/* — campaign CRUD           │
-│  /api/sync — bulk data sync                 │
+│  /api/simulate — server-side simulation     │
+│  /api/sync — transactional account sync     │
 ├─────────────────────────────────────────────┤
-│  Database Layer (Prisma + Postgres)         │
+│  Database Layer (Prisma 7 + Neon Postgres)  │
 │  User, Campaign, Simulation models          │
 ├─────────────────────────────────────────────┤
 │  Feature Engines (per-module business logic)│
@@ -105,17 +106,20 @@ User Action → Component → Store Slice → Engine Function → New State → 
 - **Zustand Store**: Single source of truth for UI state
 - **8 Core Slices**: Target, AdGroup, Negative, Budget, Portfolio, Draft, Core, Query
 - **7 Feature Slices**: Drills, Profiles, Trainer, Bulk, Reports, Missions, Integrity
-- **Persistence**: LocalStorage via Zustand persist middleware
-- **Cloud Sync**: Optional database persistence via API routes
-- **Persistence**: LocalStorage via Zustand persist middleware
-- **Cloud Sync**: Optional database persistence via API routes
+- **Persistence**: LocalStorage via Zustand persist middleware (signed-out sandbox)
+- **Cloud Sync**: When signed in, the account is server-authoritative — the store hydrates from the server on login and auto-saves (debounced) via `useCloudSync`
 
 ### Server-Side Data Flow
 ```
-Component → API Route → Prisma Client → SQLite Database
+Component → API Route → server service (reuses the engine) → Prisma (Neon adapter) → Postgres
      ↓
-Component ← API Response ← Prisma Query Result
+Component ← API Response ← serialized Campaign(s)
 ```
+
+API routes are thin: they authenticate, then delegate to `src/server/campaign-service.ts`,
+which validates input and runs the same pure engine (`normalizeCampaign`,
+`simulateDays`) against a narrow `CampaignDb` contract — unit-tested with an
+in-memory fake, no live DB required.
 
 ## Authentication & Authorization
 
@@ -123,7 +127,7 @@ Component ← API Response ← Prisma Query Result
 - **Provider**: Credentials (email/password)
 - **Session Strategy**: JWT
 - **Password Hashing**: bcryptjs
-- **Database**: SQLite via Prisma
+- **Database**: PostgreSQL (Neon) via Prisma 7 + `@prisma/adapter-neon`
 
 ### API Route Protection
 All `/api/*` routes check for valid session:

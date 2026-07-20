@@ -9,7 +9,7 @@
 
 ## 1. Architecture Overview
 
-Next.js + Zustand + pure TypeScript engine + Prisma/SQLite database. SOLID principles throughout.
+Next.js + Zustand + pure TypeScript engine (reused on the server) + Prisma 7 / Neon Postgres. SOLID principles throughout.
 
 ```
 src/
@@ -63,8 +63,10 @@ src/
 │       │   └── register/route.ts      — User registration
 │       ├── campaigns/
 │       │   ├── route.ts       — GET/POST campaigns
-│       │   └── [id]/route.ts  — GET/PUT/DELETE single campaign
-│       └── sync/route.ts      — Bulk sync campaigns to/from DB
+│       │   └── [id]/route.ts  — GET/PATCH/DELETE single campaign (PUT alias)
+│       ├── simulate/route.ts  — POST server-side day simulation
+│       └── sync/route.ts      — Transactional account sync (upsert + prune)
+src/server/                    — Server campaign engine (service, serializer, CampaignDb)
 └── prisma/
     ├── schema.prisma          — Database schema (User, Campaign, Simulation)
     └── migrations/            — Database migrations
@@ -81,7 +83,7 @@ tests/                         — Additional engine tests
 - **Provider**: NextAuth v5 with credentials (email/password)
 - **Session**: JWT tokens stored in HTTP-only cookies
 - **Password Hashing**: bcryptjs with 10 salt rounds
-- **Database**: SQLite via Prisma ORM
+- **Database**: PostgreSQL (Neon) via Prisma 7 + `@prisma/adapter-neon`
 
 ### 2.2 Database Schema
 ```prisma
@@ -112,10 +114,11 @@ model Campaign {
 ```
 
 ### 2.3 API Routes
-- `POST /api/auth/register` — Create new user
-- `GET/POST /api/campaigns` — List/create campaigns
-- `GET/PUT/DELETE /api/campaigns/[id]` — Single campaign CRUD
-- `GET/POST /api/sync` — Bulk sync campaigns to/from database
+- `POST /api/auth/register` — Create new user (email format + 8-char password)
+- `GET/POST /api/campaigns` — List / create campaigns (by engine id; 400/409)
+- `GET/PATCH/DELETE /api/campaigns/[id]` — Single campaign (PUT kept as alias)
+- `POST /api/simulate` — Run the day simulation server-side, persist + audit
+- `GET/POST /api/sync` — Load / reconcile the account (transactional upsert + prune)
 
 ### 2.4 Frontend Components
 - `SessionProvider` — Wraps app for client-side session access
