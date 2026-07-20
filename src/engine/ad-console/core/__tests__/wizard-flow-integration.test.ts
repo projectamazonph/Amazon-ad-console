@@ -21,9 +21,9 @@ describe('Wizard Flow Integration: SP Campaign', () => {
     store.updateDraft('portfolio', 'Test Portfolio');
     store.updateDraft('dailyBudget', 50);
     store.updateDraft('defaultBid', 0.85);
-    store.updateDraft('exactKeywords', 'organic coffee\nbest beans');
-    store.updateDraft('phraseKeywords', 'coffee blend');
-    store.updateDraft('broadKeywords', 'coffee accessories');
+    store.updateDraft('targetingMode', 'Manual keyword');
+    store.updateDraft('keywords', 'organic coffee\nbest beans');
+    store.updateDraft('keywordMatchTypes', ['Exact', 'Phrase', 'Broad']);
 
     // Step 2: Launch campaign
     store.launchCampaign();
@@ -75,8 +75,9 @@ describe('Wizard Flow Integration: SP Campaign', () => {
 
     store.updateDraft('type', 'SB');
     store.updateDraft('name', 'SB Integration Test');
-    store.updateDraft('exactKeywords', 'brand store');
-    store.updateDraft('phraseKeywords', 'brand products');
+    store.updateDraft('targetingMode', 'Keyword');
+    store.updateDraft('keywords', 'brand store\nbrand products');
+    store.updateDraft('keywordMatchTypes', ['Exact', 'Phrase']);
 
     store.launchCampaign();
     const campaign = getStore().state.campaigns.find(

@@ -40,8 +40,13 @@ describe('simulateDays', () => {
     expect(result.history).toHaveLength(c.history.length);
   });
 
+  const oneTarget = (over: Partial<Target> = {}): Target => ({
+    id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'test', match: 'Exact',
+    bid: 1, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0, ...over,
+  });
+
   it('increases metrics when campaign is Enabled', () => {
-    const c = makeCampaign({ dailyBudget: 100, defaultBid: 1.0 });
+    const c = makeCampaign({ dailyBudget: 100, defaultBid: 1.0, targets: [oneTarget()] });
     const [result] = simulateDays([c], 7);
     expect(result.metrics.impressions).toBeGreaterThan(0);
     expect(result.metrics.clicks).toBeGreaterThan(0);
@@ -51,7 +56,7 @@ describe('simulateDays', () => {
   });
 
   it('spend does not exceed dailyBudget * days', () => {
-    const c = makeCampaign({ dailyBudget: 10, defaultBid: 1.0 });
+    const c = makeCampaign({ dailyBudget: 10, defaultBid: 1.0, targets: [oneTarget()] });
     const [result] = simulateDays([c], 7);
     expect(result.metrics.spend).toBeLessThanOrEqual(70);
   });
@@ -156,6 +161,62 @@ describe('simulateDays', () => {
     const c = makeCampaign({ type: 'SD', campaignGoal: 'Consideration' });
     const [result] = simulateDays([c], 7);
     expect(result.metrics.sales).toBeGreaterThanOrEqual(0);
+  });
+
+  it('keeps the cascade reconciled: campaign == sum(targets) == sum(ad groups) across repeated runs', () => {
+    let c = makeCampaign({
+      dailyBudget: 100,
+      defaultBid: 1,
+      adGroups: [
+        { id: 'AG1', campaignId: 'C1', name: 'AG1', status: 'Enabled', defaultBid: 1, metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 } },
+        { id: 'AG2', campaignId: 'C1', name: 'AG2', status: 'Enabled', defaultBid: 1, metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 } },
+      ],
+      targets: [
+        { id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'a', match: 'Exact', bid: 1, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+        { id: 'T2', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'b', match: 'Exact', bid: 1, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+        { id: 'T3', campaignId: 'C1', adGroupId: 'AG2', type: 'Keyword', value: 'c', match: 'Exact', bid: 1, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+      ],
+    });
+
+    const sumT = (cc: Campaign, key: keyof Metrics) => cc.targets.reduce((s, t) => s + (t[key] as number), 0);
+    const sumAG = (cc: Campaign, key: keyof Metrics) => cc.adGroups.reduce((s, ag) => s + ag.metrics[key], 0);
+
+    for (let run = 0; run < 6; run++) {
+      [c] = simulateDays([c], 7);
+      for (const key of ['impressions', 'clicks', 'orders'] as (keyof Metrics)[]) {
+        expect(c.metrics[key]).toBe(sumT(c, key));   // integers: exact
+        expect(c.metrics[key]).toBe(sumAG(c, key));
+      }
+      for (const key of ['spend', 'sales'] as (keyof Metrics)[]) {
+        expect(c.metrics[key]).toBeCloseTo(sumT(c, key), 6); // floats: exact within FP
+        expect(c.metrics[key]).toBeCloseTo(sumAG(c, key), 6);
+      }
+    }
+    expect(c.metrics.impressions).toBeGreaterThan(0);
+  });
+
+  it('accrues at the campaign level when there are no targets to distribute to', () => {
+    const c = makeCampaign({ dailyBudget: 100, defaultBid: 1, targets: [] });
+    const [result] = simulateDays([c], 7);
+    expect(result.metrics.impressions).toBeGreaterThan(0);
+    expect(result.metrics.spend).toBeGreaterThan(0);
+  });
+
+  it('stays reconciled (no new activity) when target rows exist but none are enabled', () => {
+    const c = makeCampaign({
+      dailyBudget: 100,
+      defaultBid: 1,
+      targets: [
+        { id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'a', match: 'Exact', bid: 1, status: 'Paused', impressions: 12, clicks: 3, spend: 2.5, sales: 9, orders: 1 },
+      ],
+      metrics: { impressions: 12, clicks: 3, spend: 2.5, sales: 9, orders: 1 },
+      adGroups: [{ id: 'AG1', campaignId: 'C1', name: 'AG', status: 'Enabled', defaultBid: 1, metrics: { impressions: 12, clicks: 3, spend: 2.5, sales: 9, orders: 1 } }],
+    });
+    const [result] = simulateDays([c], 7);
+    // Campaign is derived from the (paused, unchanged) targets — no drift.
+    expect(result.metrics).toEqual({ impressions: 12, clicks: 3, spend: 2.5, sales: 9, orders: 1 });
+    expect(result.targets[0]).toMatchObject({ impressions: 12, clicks: 3, spend: 2.5, sales: 9, orders: 1 });
+    expect(result.adGroups[0].metrics).toEqual(result.metrics);
   });
 
   it('does not add duplicate search terms', () => {

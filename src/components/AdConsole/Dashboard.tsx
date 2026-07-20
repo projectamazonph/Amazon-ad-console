@@ -190,6 +190,7 @@ function renderCampaignTable(
             <th>Targeting</th>
             <th>Impr.</th>
             <th>Clicks</th>
+            <th>CPC</th>
             <th>Spend</th>
             <th>Sales</th>
             <th>ACOS</th>
@@ -229,6 +230,7 @@ function renderCampaignTable(
                 </td>
                 <td className="mono">{fmtWhole(c.metrics.impressions)}</td>
                 <td className="mono">{fmtWhole(c.metrics.clicks)}</td>
+                <td className="money">{fmtMoney(x.cpc)}</td>
                 <td className="money">{fmtMoney(c.metrics.spend)}</td>
                 <td className="money">{fmtMoney(c.metrics.sales)}</td>
                 <td className={`mono ${acosClass(x.acos)}`}>{fmtPercent(x.acos)}</td>

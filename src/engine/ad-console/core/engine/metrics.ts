@@ -32,6 +32,16 @@ export function totalMetrics(campaigns: Campaign[]): Metrics {
   );
 }
 
+/** Amazon bid bounds enforced across the engine and forms. */
+export const MIN_BID = 0.02;
+export const MAX_BID = 999.99;
+
+/** Clamp a bid into [MIN_BID, MAX_BID]; non-finite input falls back to MIN_BID. */
+export function clampBid(bid: number): number {
+  if (!Number.isFinite(bid)) return MIN_BID;
+  return Math.min(MAX_BID, Math.max(MIN_BID, bid));
+}
+
 export function metricDefaults(m: Partial<Metrics>): Metrics {
   return {
     impressions: m.impressions ?? 0,

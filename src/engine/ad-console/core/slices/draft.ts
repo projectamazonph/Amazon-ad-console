@@ -24,10 +24,15 @@ function makeDraft(): CampaignDraft {
     bidStrategy: 'Dynamic bids - down only',
     placements: { top: 0, product: 0, rest: 0 },
     products: ['B0TRAIN001'], creative: {},
-    exactKeywords: '',
-    phraseKeywords: '',
-    broadKeywords: '', asinTargets: '', categoryTargets: '', audienceTargets: '',
+    keywords: '',
+    keywordMatchTypes: ['Exact'], asinTargets: '', categoryTargets: '', audienceTargets: '',
     audienceLookback: '30',
+    autoTargets: {
+      closeMatch: { enabled: true, bid: 0.75 },
+      looseMatch: { enabled: true, bid: 0.75 },
+      substitutes: { enabled: true, bid: 0.75 },
+      complements: { enabled: true, bid: 0.75 },
+    },
   };
 }
 

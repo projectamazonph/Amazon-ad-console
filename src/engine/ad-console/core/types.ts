@@ -279,6 +279,20 @@ export interface Product {
 // Campaign creation wizard
 // ---------------------------------------------------------------------------
 
+/** One SP automatic-targeting group (close/loose match, substitutes, complements). */
+export interface AutoTargetGroup {
+  enabled: boolean;
+  bid: number;
+}
+
+/** The four SP automatic-targeting groups, each with its own enable flag and bid. */
+export interface AutoTargetSettings {
+  closeMatch: AutoTargetGroup;
+  looseMatch: AutoTargetGroup;
+  substitutes: AutoTargetGroup;
+  complements: AutoTargetGroup;
+}
+
 export interface CampaignDraft {
   type: CampaignType;
   name: string;
@@ -295,13 +309,13 @@ export interface CampaignDraft {
   placements: { top: number; product: number; rest: number };
   products: string[];
   creative: Partial<Creative>;
-  exactKeywords: string;       // One-per-line text input
-  phraseKeywords: string;      // One-per-line text input
-  broadKeywords: string;       // One-per-line text input
+  keywords: string;            // One-per-line keyword text input
+  keywordMatchTypes: MatchType[]; // Match types each keyword is added under (e.g. all of Exact/Phrase/Broad)
   asinTargets: string;
   categoryTargets: string;
   audienceTargets: string;
   audienceLookback: string;
+  autoTargets: AutoTargetSettings; // SP automatic-targeting group bids
 }
 
 // ---------------------------------------------------------------------------

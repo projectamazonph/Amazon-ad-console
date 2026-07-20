@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import type { CampaignType, CampaignDraft } from '@/engine/ad-console/types';
 import { PRODUCTS, BRANDS } from '@/engine/ad-console/core/scenarios';
+import { draftLaunchErrors, canLeaveWizardStep } from '@/engine/ad-console/core/engine';
 
 // Step components
 import { Step1AdType } from './Step1AdType';
@@ -36,9 +37,6 @@ export function CreateCampaignWizard() {
   const d = draft;
 
   // Local state for forms
-  const [exactKeywords, setExactKeywords] = useState(d.exactKeywords || '');
-  const [phraseKeywords, setPhraseKeywords] = useState(d.phraseKeywords || '');
-  const [broadKeywords, setBroadKeywords] = useState(d.broadKeywords || '');
   const [asinTargets, setAsinTargets] = useState(d.asinTargets || '');
   const [categoryTargets, setCategoryTargets] = useState(d.categoryTargets || '');
   const [audienceTargets, setAudienceTargets] = useState(d.audienceTargets || '');
@@ -106,20 +104,41 @@ export function CreateCampaignWizard() {
         <div className="wizard-panel">
           {renderStep(wizardStep)}
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginTop: 18 }}>
-            <button className="btn" disabled={wizardStep === 1} onClick={() => setWizardStep(wizardStep - 1)}>Back</button>
-            <div className="pill-row">
-              <button className="btn" onClick={() => { resetDraft(); }}>Reset draft</button>
-              {wizardStep < 6 ? (
-                <button className="btn primary" onClick={() => setWizardStep(wizardStep + 1)}>Next</button>
-              ) : (
-                <button className="btn primary" onClick={() => {
-                  if (!d.name.trim()) return;
-                  launchCampaign();
-                }}>Launch campaign</button>
-              )}
-            </div>
-          </div>
+          {(() => {
+            const launchErrors = draftLaunchErrors(d);
+            const canAdvance = canLeaveWizardStep(d, wizardStep);
+            return (
+              <>
+                {wizardStep < 6 && !canAdvance && (
+                  <div className="coach-tip" style={{ marginTop: 12, color: 'var(--danger)' }}>
+                    {wizardStep === 2
+                      ? 'Enter a campaign name and a daily budget of at least $1 to continue.'
+                      : wizardStep === 4
+                        ? 'Select at least one keyword match type to continue.'
+                        : 'Select at least one product to continue.'}
+                  </div>
+                )}
+                {wizardStep === 6 && launchErrors.length > 0 && (
+                  <div className="coach-tip" style={{ marginTop: 12, color: 'var(--danger)' }}>
+                    Fix before launching: {launchErrors.join(' · ')}
+                  </div>
+                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginTop: 18 }}>
+                  <button className="btn" disabled={wizardStep === 1} onClick={() => setWizardStep(wizardStep - 1)}>Back</button>
+                  <div className="pill-row">
+                    <button className="btn" onClick={() => { resetDraft(); }}>Reset draft</button>
+                    {wizardStep < 6 ? (
+                      <button className="btn primary" disabled={!canAdvance} onClick={() => { if (canAdvance) setWizardStep(wizardStep + 1); }}>Next</button>
+                    ) : (
+                      <button className="btn primary" disabled={launchErrors.length > 0} onClick={() => {
+                        if (draftLaunchErrors(d).length === 0) launchCampaign();
+                      }}>Launch campaign</button>
+                    )}
+                  </div>
+                </div>
+              </>
+            );
+          })()}
         </div>
       </div>
     </div>

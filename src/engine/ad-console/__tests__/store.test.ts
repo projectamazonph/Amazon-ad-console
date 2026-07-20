@@ -14,9 +14,10 @@ describe('Store actions', () => {
     it('creates a new campaign with keyword targets from draft', () => {
       const store = useAdConsoleStore.getState();
       store.updateDraft('name', 'Test Campaign');
-      store.updateDraft('exactKeywords', 'coffee filter');
-      store.updateDraft('phraseKeywords', 'coffee maker');
-      store.updateDraft('broadKeywords', 'coffee');
+      store.updateDraft('targetingMode', 'Manual keyword');
+      // One keyword, added under all three match types at once.
+      store.updateDraft('keywords', 'coffee filter');
+      store.updateDraft('keywordMatchTypes', ['Exact', 'Phrase', 'Broad']);
       store.launchCampaign();
 
       const state = useAdConsoleStore.getState().state;
@@ -24,6 +25,29 @@ describe('Store actions', () => {
       expect(campaign).toBeDefined();
       expect(campaign?.targets).toHaveLength(3);
       expect(campaign?.targets.map(t => t.match)).toEqual(['Exact', 'Phrase', 'Broad']);
+      expect(campaign?.targets.every(t => t.value === 'coffee filter')).toBe(true);
+    });
+
+    it('creates auto-targeting groups with individual bids for an Automatic campaign', () => {
+      const store = useAdConsoleStore.getState();
+      store.resetDraft();
+      store.updateDraft('name', 'Auto Campaign');
+      store.updateDraft('targetingMode', 'Automatic');
+      store.updateDraft('autoTargets', {
+        closeMatch: { enabled: true, bid: 0.90 },
+        looseMatch: { enabled: true, bid: 0.55 },
+        substitutes: { enabled: false, bid: 0.75 },
+        complements: { enabled: true, bid: 1.20 },
+      });
+      store.launchCampaign();
+
+      const campaign = useAdConsoleStore.getState().state.campaigns.find(c => c.name === 'Auto Campaign')!;
+      const autoTargets = campaign.targets.filter(t => t.type.startsWith('Auto'));
+      expect(autoTargets).toHaveLength(3); // substitutes disabled
+      expect(autoTargets.find(t => t.type === 'Auto - close match')!.bid).toBe(0.90);
+      expect(autoTargets.find(t => t.type === 'Auto - loose match')!.bid).toBe(0.55);
+      expect(autoTargets.find(t => t.type === 'Auto - complements')!.bid).toBe(1.20);
+      expect(autoTargets.some(t => t.type === 'Auto - substitutes')).toBe(false);
     });
 
     it('does not create campaign if name is empty', () => {
@@ -103,7 +127,9 @@ describe('Store actions', () => {
     it('filters search terms by negatives', () => {
       const store = useAdConsoleStore.getState();
       store.updateDraft('name', 'Neg Test');
-      store.updateDraft('exactKeywords', 'plastic');
+      store.updateDraft('targetingMode', 'Manual keyword');
+      store.updateDraft('keywords', 'plastic');
+      store.updateDraft('keywordMatchTypes', ['Exact']);
       store.launchCampaign();
 
       const campaignId = useAdConsoleStore.getState().state.campaigns[0].id;

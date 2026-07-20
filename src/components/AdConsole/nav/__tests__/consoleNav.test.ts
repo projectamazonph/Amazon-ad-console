@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import {
   GLOBAL_NAV,
   getLeftRail,
+  getToolsRail,
+  resolveSidebarClick,
   KPI_TILES,
   getKpiTiles,
   type NavSection,
@@ -41,11 +43,45 @@ describe('getLeftRail', () => {
   });
 });
 
+describe('training tools rail', () => {
+  it('exposes all six feature pages that were previously unreachable', () => {
+    const views = getToolsRail().map((i) => i.view).sort();
+    expect(views).toEqual(['bulk', 'drills', 'integrity', 'missions', 'reports', 'trainer']);
+  });
+});
+
+describe('resolveSidebarClick', () => {
+  it('filters Campaign Manager by ad-product type for SP/SB/SD items', () => {
+    const action = resolveSidebarClick({ view: 'campaigns', filterType: 'SB' }, 'dashboard');
+    expect(action).toEqual({ type: 'filterAndView', view: 'campaigns', filterType: 'SB' });
+  });
+
+  it('sets tab + view when a tab item is clicked from outside detail', () => {
+    const action = resolveSidebarClick({ view: 'campaigns', tab: 'searchTerms' }, 'dashboard');
+    expect(action).toEqual({ type: 'setTabAndView', view: 'campaigns', tab: 'searchTerms' });
+  });
+
+  it('navigates by view for a plain feature-page item', () => {
+    const action = resolveSidebarClick({ view: 'drills' }, 'campaigns');
+    expect(action).toEqual({ type: 'setView', view: 'drills' });
+  });
+});
+
+describe('dashboard measurement rail', () => {
+  it('routes Sponsored Products/Brands/Display into Campaign Manager with a type filter', () => {
+    const rail = getLeftRail('dashboard');
+    const sp = rail.find((i) => i.label === 'Sponsored Products');
+    expect(sp?.view).toBe('campaigns');
+    expect(sp?.filterType).toBe('SP');
+  });
+});
+
 describe('KPI tiles', () => {
-  it('defines the 8 Amazon console KPI tiles', () => {
+  it('defines the Amazon console KPI tiles in order (including CPC)', () => {
     expect(KPI_TILES.map((t: KpiTile) => t.key)).toEqual([
       'impressions',
       'clicks',
+      'cpc',
       'spend',
       'sales',
       'orders',
@@ -68,6 +104,7 @@ describe('KPI tiles', () => {
     const byKey = Object.fromEntries(tiles.map((t) => [t.key, t.value]));
     expect(byKey.impressions).toBe('1,000');
     expect(byKey.clicks).toBe('50');
+    expect(byKey.cpc).toBe('$0.50'); // 25 spend / 50 clicks
     expect(byKey.spend).toBe('$25.00');
     expect(byKey.sales).toBe('$100.00');
     expect(byKey.orders).toBe('5');

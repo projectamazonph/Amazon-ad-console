@@ -163,6 +163,17 @@ describe('target operations', () => {
     expect(target.bid).toBe(0.02);
   });
 
+  it('clamps an over-max bid down to 999.99', () => {
+    const { target } = addKeyword(makeCampaign(), 'kw', 'Exact', 99999);
+    expect(target.bid).toBe(999.99);
+  });
+
+  it('clamps setTargetBid to [0.02, 999.99]', () => {
+    const c = makeCampaign({ targets: [{ id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'kw', match: 'Exact', bid: 0.75, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 }] });
+    expect(setTargetBid(c, 'T1', -5).targets[0]!.bid).toBe(0.02);
+    expect(setTargetBid(c, 'T1', 100000).targets[0]!.bid).toBe(999.99);
+  });
+
   it('removes a target by id', () => {
     const c = makeCampaign({ targets: [{ id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'kw', match: 'Exact', bid: 0.75, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 }] });
     expect(removeTarget(c, 'T1').targets).toHaveLength(0);

@@ -7,6 +7,7 @@
  */
 
 import { ValidationError } from '../../../lib/validation';
+import type { CampaignType } from '../../../engine/ad-console/core/types';
 
 export type NavView =
   | 'dashboard'
@@ -28,8 +29,10 @@ export interface NavSection {
 export interface LeftRailItem {
   label: string;
   view: NavView;
-  group: 'campaigns' | 'portfolios' | 'measurement';
+  group: 'campaigns' | 'portfolios' | 'measurement' | 'tools';
   tab?: string;
+  /** When set, clicking filters Campaign Manager to this ad-product type. */
+  filterType?: CampaignType;
 }
 
 export interface KpiTile {
@@ -68,11 +71,11 @@ const LEFT_RAIL: Record<NavView, LeftRailItem[]> = {
     { label: 'Budget rules', view: 'portfolio', group: 'portfolios', tab: 'budgetRules' },
   ],
   dashboard: [
-    { label: 'Sponsored Products', view: 'dashboard', group: 'measurement' },
-    { label: 'Sponsored Brands', view: 'dashboard', group: 'measurement' },
-    { label: 'Sponsored Display', view: 'dashboard', group: 'measurement' },
-    { label: 'Search catalog', view: 'dashboard', group: 'measurement' },
-    { label: 'Search query performance', view: 'dashboard', group: 'measurement' },
+    { label: 'Sponsored Products', view: 'campaigns', group: 'measurement', filterType: 'SP' },
+    { label: 'Sponsored Brands', view: 'campaigns', group: 'measurement', filterType: 'SB' },
+    { label: 'Sponsored Display', view: 'campaigns', group: 'measurement', filterType: 'SD' },
+    { label: 'Search catalog', view: 'campaigns', group: 'measurement' },
+    { label: 'Search query performance', view: 'campaigns', group: 'measurement', tab: 'searchTerms' },
   ],
   create: [],
   reports: [],
@@ -88,10 +91,30 @@ export function getLeftRail(section: NavView): LeftRailItem[] {
   return LEFT_RAIL[section] ?? LEFT_RAIL.campaigns;
 }
 
+/**
+ * Training-tools rail — the feature pages that are built into the engine but
+ * were previously unreachable from any nav link. Rendered persistently in the
+ * sidebar so every module is one click away.
+ */
+export const TOOLS_RAIL: LeftRailItem[] = [
+  { label: 'Drills', view: 'drills', group: 'tools' },
+  { label: 'Missions', view: 'missions', group: 'tools' },
+  { label: 'Reports', view: 'reports', group: 'tools' },
+  { label: 'Bulk operations', view: 'bulk', group: 'tools' },
+  { label: 'Trainer', view: 'trainer', group: 'tools' },
+  { label: 'Integrity', view: 'integrity', group: 'tools' },
+];
+
+/** Returns the always-available training-tools rail items. */
+export function getToolsRail(): LeftRailItem[] {
+  return TOOLS_RAIL;
+}
+
 /** KPI tile definitions in Amazon console order. */
 export const KPI_TILES: KpiTile[] = [
   { key: 'impressions', label: 'Impressions' },
   { key: 'clicks', label: 'Clicks' },
+  { key: 'cpc', label: 'CPC' },
   { key: 'spend', label: 'Spend' },
   { key: 'sales', label: 'Sales' },
   { key: 'orders', label: 'Orders' },
@@ -114,15 +137,20 @@ function pct(n: number): string {
 }
 
 export interface SidebarClickAction {
-  type: 'setView' | 'setTab' | 'setTabAndView';
+  type: 'setView' | 'setTab' | 'setTabAndView' | 'filterAndView';
   view?: NavView;
   tab?: string;
+  filterType?: CampaignType;
 }
 
+/** Translate a left-rail click into the store action(s) the sidebar should dispatch. */
 export function resolveSidebarClick(
-  item: { view: NavView; tab?: string },
+  item: { view: NavView; tab?: string; filterType?: CampaignType },
   currentView: string,
 ): SidebarClickAction {
+  if (item.filterType) {
+    return { type: 'filterAndView', view: item.view, filterType: item.filterType };
+  }
   if (item.tab && currentView === 'detail') {
     return { type: 'setTab', tab: item.tab };
   }
@@ -147,9 +175,11 @@ export function getKpiTiles(m: MetricsSnapshot): KpiTile[] {
   const ctr = m.impressions ? (m.clicks / m.impressions) * 100 : 0;
   const acos = m.sales ? (m.spend / m.sales) * 100 : 0;
   const roas = m.spend ? m.sales / m.spend : 0;
+  const cpc = m.clicks ? m.spend / m.clicks : 0;
   return [
     { key: 'impressions', label: 'Impressions', value: whole(m.impressions) },
     { key: 'clicks', label: 'Clicks', value: whole(m.clicks) },
+    { key: 'cpc', label: 'CPC', value: money(cpc) },
     { key: 'spend', label: 'Spend', value: money(m.spend) },
     { key: 'sales', label: 'Sales', value: money(m.sales) },
     { key: 'orders', label: 'Orders', value: whole(m.orders) },

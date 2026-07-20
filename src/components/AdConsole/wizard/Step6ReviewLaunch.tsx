@@ -2,6 +2,7 @@
 
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { PRODUCTS, BRANDS } from '@/engine/ad-console/core/scenarios';
+import { usesKeywordTargeting } from '@/engine/ad-console/core/engine';
 
 interface Step6ReviewLaunchProps {
   isActive: boolean;
@@ -33,9 +34,23 @@ export function Step6ReviewLaunch({ isActive, isComplete }: Step6ReviewLaunchPro
           {d.campaignGoal && <div className="review-row"><span>Campaign goal</span><strong>{d.campaignGoal}</strong></div>}
           <div className="review-row"><span>Status</span><strong>{d.status}</strong></div>
           <div className="review-row"><span>Products</span><strong>{d.products.length} selected</strong></div>
-          {d.exactKeywords && <div className="review-row"><span>Exact keywords</span><strong>{d.exactKeywords.split('\n').filter(Boolean).length} entered</strong></div>}
-          {d.phraseKeywords && <div className="review-row"><span>Phrase keywords</span><strong>{d.phraseKeywords.split('\n').filter(Boolean).length} entered</strong></div>}
-          {d.broadKeywords && <div className="review-row"><span>Broad keywords</span><strong>{d.broadKeywords.split('\n').filter(Boolean).length} entered</strong></div>}
+          {usesKeywordTargeting(d.targetingMode) && d.keywords.trim() && (
+            <div className="review-row">
+              <span>Keywords</span>
+              <strong>
+                {d.keywords.split('\n').filter((k) => k.trim()).length} keyword(s) × {d.keywordMatchTypes.join(', ') || 'no match type'}
+              </strong>
+            </div>
+          )}
+          {d.targetingMode === 'Automatic' && (
+            <div className="review-row">
+              <span>Auto targeting</span>
+              <strong>
+                {(['closeMatch', 'looseMatch', 'substitutes', 'complements'] as const)
+                  .filter((k) => d.autoTargets[k].enabled).length} group(s) enabled
+              </strong>
+            </div>
+          )}
           {d.audienceLookback && <div className="review-row"><span>Lookback</span><strong>{d.audienceLookback} days</strong></div>}
         </div>
         {!d.name.trim() && <div className="coach-tip" style={{ marginTop: 10 }}>Campaign name is required before launch.</div>}

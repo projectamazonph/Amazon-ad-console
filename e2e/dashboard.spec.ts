@@ -4,7 +4,7 @@ test.describe('Dashboard', () => {
   test('loads with KPI tiles and campaign table', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('h1')).toContainText('Advertising dashboard');
-    await expect(page.locator('.kpi-grid .kpi-tile')).toHaveCount(9);
+    await expect(page.locator('.kpi-grid .kpi-tile')).toHaveCount(10);
     await expect(page.locator('table')).toBeVisible();
   });
 

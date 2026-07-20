@@ -30,7 +30,8 @@ test.describe('Navigation', () => {
     await page.goto('/');
     await page.click('.nav-section:has-text("Campaign Manager")');
     // Sidebar should show campaign-related items
-    await expect(page.locator('.sidebar-item')).toHaveCount(7); // 5 campaign items + Run 7-day sim + Reset sandbox
+    // 5 campaign items + 6 training-tools items + Run 7-day sim + Reset sandbox
+    await expect(page.locator('.sidebar-item')).toHaveCount(13);
   });
 
   test('sidebar has simulation controls', async ({ page }) => {

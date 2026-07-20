@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
-import { calc, formatMoney, formatWhole, formatPercent, formatBid, acosClass } from '@/engine/ad-console/engine';
+import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
 import { EmptyState } from './EmptyState';
 
 interface Props {
@@ -65,7 +65,7 @@ export function AdGroupsTab({ campaign: c }: Props) {
         ) : (
           <div className="table-wrap">
             <table>
-              <thead><tr><th>Target</th><th>Type</th><th>Match</th><th>Status</th><th>Bid</th><th>Impr.</th><th>Clicks</th><th>Spend</th><th>Sales</th><th>ACOS</th></tr></thead>
+              <thead><tr><th>Target</th><th>Type</th><th>Match</th><th>Status</th><th>Bid</th><th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>ACOS</th></tr></thead>
               <tbody>
                 {agTargets.map((t) => {
                   const tx = calc(t);
@@ -77,6 +77,7 @@ export function AdGroupsTab({ campaign: c }: Props) {
                       <td className="money">{formatBid(t.bid)}</td>
                       <td className="mono">{formatWhole(t.impressions)}</td>
                       <td className="mono">{formatWhole(t.clicks)}</td>
+                      <td className="money">{formatBid(tx.cpc)}</td>
                       <td className="money">{formatMoney(t.spend)}</td>
                       <td className="money">{formatMoney(t.sales)}</td>
                       <td className={`mono ${acosClass(tx.acos)}`}>{t.sales ? formatPercent(tx.acos) : 'No sales'}</td>
@@ -105,7 +106,7 @@ export function AdGroupsTab({ campaign: c }: Props) {
       </div>
       <div className="table-wrap">
         <table>
-          <thead><tr><th>Ad group</th><th>Status</th><th>Default bid</th><th>Impr.</th><th>Clicks</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Targets</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Ad group</th><th>Status</th><th>Default bid</th><th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Targets</th><th>Actions</th></tr></thead>
           <tbody>
             {c.adGroups.map((ag) => {
               const m = ag.metrics || { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 };
@@ -128,6 +129,7 @@ export function AdGroupsTab({ campaign: c }: Props) {
                   <td className="money">{formatBid(ag.defaultBid)}</td>
                   <td className="mono">{formatWhole(m.impressions)}</td>
                   <td className="mono">{formatWhole(m.clicks)}</td>
+                  <td className="money">{formatBid(ax.cpc)}</td>
                   <td className="money">{formatMoney(m.spend)}</td>
                   <td className="money">{formatMoney(m.sales)}</td>
                   <td className={`mono ${acosClass(ax.acos)}`}>{ax.acos ? formatPercent(ax.acos) : '-'}</td>

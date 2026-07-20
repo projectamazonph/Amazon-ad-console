@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { selectProduct, removeProduct, parseKeywords } from '../engine';
+import { selectProduct, removeProduct, parseKeywords, draftLaunchErrors, canLeaveWizardStep } from '../engine';
 import type { CampaignDraft } from '../types';
 
 function draft(over: Partial<CampaignDraft> = {}): CampaignDraft {
@@ -11,10 +11,15 @@ function draft(over: Partial<CampaignDraft> = {}): CampaignDraft {
     bidStrategy: 'Dynamic bids - down only',
     placements: { top: 0, product: 0, rest: 0 },
     products: ['B0TRAIN001'], creative: {},
-    phraseKeywords: '',
-    broadKeywords: '',
-    exactKeywords: '', asinTargets: '', categoryTargets: '', audienceLookback: '30',
+    keywords: '',
+    keywordMatchTypes: ['Exact'], asinTargets: '', categoryTargets: '', audienceLookback: '30',
     audienceTargets: '',
+    autoTargets: {
+      closeMatch: { enabled: true, bid: 0.75 },
+      looseMatch: { enabled: true, bid: 0.75 },
+      substitutes: { enabled: true, bid: 0.75 },
+      complements: { enabled: true, bid: 0.75 },
+    },
     ...over,
   };
 }
@@ -82,5 +87,73 @@ describe('parseKeywords', () => {
   it('fails fast on extremely long keyword (>200 chars)', () => {
     const long = 'x'.repeat(201);
     expect(() => parseKeywords(long)).toThrow();
+  });
+});
+
+// ── draft validation (wizard gating) ─────────────────────────────
+
+describe('draftLaunchErrors', () => {
+  it('passes a complete draft', () => {
+    expect(draftLaunchErrors(draft())).toEqual([]);
+  });
+
+  it('flags a blank name', () => {
+    expect(draftLaunchErrors(draft({ name: '   ' }))).toContain('Campaign name is required');
+  });
+
+  it('flags a budget below $1', () => {
+    expect(draftLaunchErrors(draft({ dailyBudget: 0 }))).toContain('Daily budget must be at least $1');
+    expect(draftLaunchErrors(draft({ dailyBudget: -100 }))).toContain('Daily budget must be at least $1');
+  });
+
+  it('flags having no products', () => {
+    expect(draftLaunchErrors(draft({ products: [] }))).toContain('Select at least one product');
+  });
+
+  it('flags keyword targeting with keywords but no match type selected', () => {
+    const d = draft({ targetingMode: 'Manual keyword', keywords: 'coffee', keywordMatchTypes: [] });
+    expect(draftLaunchErrors(d)).toContain('Select at least one keyword match type');
+  });
+
+  it('flags the SB "Keyword" mode with keywords but no match type selected', () => {
+    const d = draft({ type: 'SB', targetingMode: 'Keyword', keywords: 'brand', keywordMatchTypes: [] });
+    expect(draftLaunchErrors(d)).toContain('Select at least one keyword match type');
+  });
+
+  it('does not flag empty match types when there are no keywords', () => {
+    const d = draft({ targetingMode: 'Manual keyword', keywords: '', keywordMatchTypes: [] });
+    expect(draftLaunchErrors(d)).not.toContain('Select at least one keyword match type');
+  });
+
+  it('does not flag empty match types for non-keyword modes', () => {
+    const d = draft({ targetingMode: 'Automatic', keywords: 'coffee', keywordMatchTypes: [] });
+    expect(draftLaunchErrors(d)).not.toContain('Select at least one keyword match type');
+  });
+});
+
+describe('canLeaveWizardStep', () => {
+  it('blocks leaving step 2 without a name or valid budget', () => {
+    expect(canLeaveWizardStep(draft({ name: '' }), 2)).toBe(false);
+    expect(canLeaveWizardStep(draft({ dailyBudget: 0 }), 2)).toBe(false);
+    expect(canLeaveWizardStep(draft(), 2)).toBe(true);
+  });
+
+  it('blocks leaving step 3 with no products', () => {
+    expect(canLeaveWizardStep(draft({ products: [] }), 3)).toBe(false);
+    expect(canLeaveWizardStep(draft(), 3)).toBe(true);
+  });
+
+  it('does not gate steps 1, 5', () => {
+    expect(canLeaveWizardStep(draft({ name: '' }), 1)).toBe(true);
+    expect(canLeaveWizardStep(draft({ name: '' }), 5)).toBe(true);
+  });
+
+  it('blocks leaving step 4 when keywords are entered with no match type', () => {
+    expect(canLeaveWizardStep(draft({ targetingMode: 'Manual keyword', keywords: 'coffee', keywordMatchTypes: [] }), 4)).toBe(false);
+    expect(canLeaveWizardStep(draft({ targetingMode: 'Manual keyword', keywords: 'coffee', keywordMatchTypes: ['Exact'] }), 4)).toBe(true);
+    expect(canLeaveWizardStep(draft({ targetingMode: 'Automatic', keywords: '', keywordMatchTypes: [] }), 4)).toBe(true);
+    // SB "Keyword" mode is gated the same way.
+    expect(canLeaveWizardStep(draft({ type: 'SB', targetingMode: 'Keyword', keywords: 'brand', keywordMatchTypes: [] }), 4)).toBe(false);
+    expect(canLeaveWizardStep(draft({ type: 'SB', targetingMode: 'Keyword', keywords: 'brand', keywordMatchTypes: ['Phrase'] }), 4)).toBe(true);
   });
 });
