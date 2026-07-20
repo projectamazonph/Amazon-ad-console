@@ -2,6 +2,7 @@
 
 import type { Campaign } from '@/engine/ad-console/types';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
+import { EmptyState } from './EmptyState';
 
 interface Props {
   campaigns: Campaign[];
@@ -10,7 +11,7 @@ interface Props {
 export function ManagerTargetsTab({ campaigns }: Props) {
   const rows = campaigns.flatMap((c) => c.targets.map((t) => ({ c, t })));
   if (!rows.length) {
-    return <div className="empty"><h3>No targets</h3><p>Targets are created when you add keywords, products, or audiences to your campaigns.</p></div>;
+    return <EmptyState icon="target" title="No targets" message="Targets are created when you add keywords, products, or audiences to your campaigns." />;
   }
 
   return (

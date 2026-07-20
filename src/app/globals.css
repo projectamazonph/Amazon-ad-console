@@ -391,19 +391,39 @@ code, pre {
 
 .toolbar {
   display: flex;
-  gap: var(--space-3);
-  margin-bottom: var(--space-6);
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
   flex-wrap: wrap;
   align-items: center;
+  padding: var(--space-3);
+  background: var(--surface-1);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
 }
 
 .toolbar .search {
   flex: 1;
-  min-width: 200px;
+  min-width: 220px;
+  position: relative;
+}
+
+.toolbar .search::before {
+  content: '';
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  width: 15px;
+  height: 15px;
+  transform: translateY(-50%);
+  background-color: var(--ink-400);
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7'/><path d='m21 21-4.3-4.3'/></svg>") center / contain no-repeat;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7'/><path d='m21 21-4.3-4.3'/></svg>") center / contain no-repeat;
+  pointer-events: none;
 }
 
 .toolbar .search input {
   width: 100%;
+  padding-left: calc(var(--space-3) + 15px + var(--space-2));
 }
 
 /* ── Tabs ───────────────────────────────────────────────────────── */
@@ -486,73 +506,218 @@ code, pre {
 
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-4);
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
   margin-bottom: var(--space-6);
 }
 
 .kpi-tile {
+  position: relative;
   background: var(--surface-1);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  transition: all var(--duration-fast) var(--ease-out);
+  gap: var(--space-2);
+  transition: border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+  overflow: hidden;
+}
+
+.kpi-tile::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out);
 }
 
 .kpi-tile:hover {
   border-color: var(--border);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
+.kpi-tile:hover::before { opacity: 1; }
+
+.kpi-tile.primary {
+  background: linear-gradient(180deg, var(--surface-1), var(--surface-2));
+  border-color: var(--border);
+}
+
+.kpi-tile.primary::before { opacity: 1; }
+
 .kpi-tile .label {
-  font-size: var(--text-xs);
-  color: var(--ink-400);
-  font-weight: 500;
+  font-size: var(--text-2xs);
+  color: var(--ink-500);
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .kpi-tile .value {
-  font-size: var(--text-2xl);
+  font-size: var(--text-3xl);
   font-weight: 700;
   color: var(--ink-900);
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  line-height: 1;
 }
 
 .kpi-tile .delta {
   font-size: var(--text-xs);
+  color: var(--ink-500);
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.kpi-tile .delta.good { color: var(--success); }
+.kpi-tile .delta.bad { color: var(--danger); }
+
+.kpi-trend {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: 700;
+}
+.kpi-trend.good { background: var(--success-soft); color: var(--success); }
+.kpi-trend.bad { background: var(--danger-soft); color: var(--danger); }
+.kpi-trend.flat { background: var(--surface-2); color: var(--ink-400); }
+
+/* ── Section Header (shared rhythm across pages) ────────────────── */
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.section-head h2 {
+  font-size: var(--text-base);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--ink-900);
+}
+
+.section-head .meta {
+  font-size: var(--text-xs);
   color: var(--ink-400);
-  margin-top: var(--space-1);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ── Tab Toolbar (inline action/form bar above a tab's table) ───── */
+
+.tab-toolbar {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+
+.tab-toolbar.center { align-items: center; }
+.tab-toolbar .field { margin-bottom: 0; }
+
+/* ── Timeline (change history) ──────────────────────────────────── */
+
+.timeline {
+  position: relative;
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-5);
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: var(--border);
+}
+
+.timeline-item {
+  position: relative;
+  padding: 0 0 var(--space-4) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--ink-700);
+  line-height: 1.5;
+}
+
+.timeline-item:last-child { padding-bottom: 0; }
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: var(--surface-1);
+  border: 2px solid var(--accent);
 }
 
 /* ── Metric Cards ─────────────────────────────────────────────── */
 
 .metric-card {
+  position: relative;
   background: var(--surface-1);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  transition: all var(--duration-fast) var(--ease-out);
+  gap: var(--space-2);
+  transition: border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+  overflow: hidden;
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out);
 }
 
 .metric-card:hover {
   border-color: var(--border);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
+.metric-card:hover::before { opacity: 1; }
+
 .metric-card .label {
-  font-size: var(--text-xs);
-  color: var(--ink-400);
-  font-weight: 500;
+  font-size: var(--text-2xs);
+  color: var(--ink-500);
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
 }
 
 .metric-card .value {
@@ -561,13 +726,17 @@ code, pre {
   color: var(--ink-900);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
 .metric-card .delta {
   font-size: var(--text-xs);
-  color: var(--ink-400);
-  margin-top: var(--space-1);
+  color: var(--ink-500);
+  margin-top: auto;
 }
+
+.metric-card .delta.good { color: var(--success); }
+.metric-card .delta.bad { color: var(--danger); }
 
 /* ── Insight Cards ────────────────────────────────────────────── */
 
@@ -935,11 +1104,20 @@ textarea.input {
 
 .detail-meta {
   display: flex;
-  gap: var(--space-3);
+  gap: var(--space-2);
   align-items: center;
-  margin-top: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
   color: var(--ink-500);
   font-size: var(--text-sm);
+}
+
+.pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: currentColor;
+  flex-shrink: 0;
 }
 
 .detail-actions {
@@ -960,6 +1138,19 @@ textarea.input {
   font-size: 48px;
   margin-bottom: var(--space-4);
   opacity: 0.5;
+}
+
+.empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  border: 1px solid var(--border-light);
+  color: var(--accent);
 }
 
 .empty h3 {
@@ -1405,7 +1596,7 @@ textarea.input {
   
   .kpi-grid { 
     grid-template-columns: repeat(2, 1fr); 
-    gap: var(--space-3);
+    gap: var(--space-2);
   }
   
   .grid-4 { grid-template-columns: repeat(2, 1fr); }

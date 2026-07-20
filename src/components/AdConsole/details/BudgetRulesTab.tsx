@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
+import { EmptyState } from './EmptyState';
 
 interface Props { campaign: Campaign }
 
@@ -23,7 +24,7 @@ export function BudgetRulesTab({ campaign }: Props) {
   return (
     <div>
       <div className="card pad" style={{ marginBottom: 14 }}>
-        <div className="card-title"><h2>Add budget rule</h2><span>Schedule or performance-based</span></div>
+        <div className="section-head"><h2>Add budget rule</h2><span className="meta">Schedule or performance-based</span></div>
         <div className="form-grid">
           <div className="field">
             <label>Rule name</label>
@@ -52,7 +53,7 @@ export function BudgetRulesTab({ campaign }: Props) {
         }}>Add rule</button>
       </div>
       {c.budgetRules.length === 0 ? (
-        <div className="empty"><h3>No budget rules</h3><p>Schedule-based or performance-based rules let you automate budget adjustments. Create one using the form above.</p></div>
+        <EmptyState icon="rule" title="No budget rules" message="Schedule-based or performance-based rules let you automate budget adjustments. Create one using the form above." />
       ) : (
         <div className="table-wrap">
           <table>

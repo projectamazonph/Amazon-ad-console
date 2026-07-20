@@ -69,7 +69,7 @@ export function CampaignManager() {
             }}>Run 7-day sim</button>
       </div>
 
-      <div className="grid-4" style={{ marginBottom: 14 }}>
+      <div className="grid-4" style={{ marginBottom: 'var(--space-5)' }}>
         {(() => {
           const m = filteredCampaigns.reduce(
             (acc, c) => {
@@ -83,12 +83,13 @@ export function CampaignManager() {
             { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
           );
           const x = calc(m);
+          const acosTone = x.acos <= 0 ? '' : x.acos <= 30 ? 'good' : 'bad';
           return (
             <>
-              <MetricCard label="Impressions" value={formatWhole(m.impressions)} delta="Filtered campaigns" />
+              <MetricCard label="Spend" value={formatMoney(m.spend)} delta={`CPC $${x.cpc.toFixed(2)}`} />
+              <MetricCard label="Sales" value={formatMoney(m.sales)} delta={`${m.orders} orders`} tone={m.sales > 0 ? 'good' : ''} />
+              <MetricCard label="ACOS" value={x.acos > 0 ? formatPercent(x.acos) : '—'} delta={x.acos > 0 ? `ROAS ${x.roas.toFixed(2)}×` : 'No spend yet'} tone={acosTone} />
               <MetricCard label="Clicks" value={formatWhole(m.clicks)} delta={`CTR ${formatPercent(x.ctr)}`} />
-              <MetricCard label="Spend" value={formatMoney(m.spend)} delta={`CPC ${x.cpc.toFixed(2)}`} />
-              <MetricCard label="ACOS" value={formatPercent(x.acos)} delta={`ROAS ${x.roas.toFixed(2)}`} tone={x.acos <= 30 ? 'good' : 'bad'} />
             </>
           );
         })()}

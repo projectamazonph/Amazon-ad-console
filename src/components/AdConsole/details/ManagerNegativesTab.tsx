@@ -1,6 +1,7 @@
 'use client';
 
 import type { Campaign } from '@/engine/ad-console/types';
+import { EmptyState } from './EmptyState';
 
 interface Props {
   campaigns: Campaign[];
@@ -9,7 +10,7 @@ interface Props {
 export function ManagerNegativesTab({ campaigns }: Props) {
   const rows = campaigns.flatMap((c) => c.negatives.map((n) => ({ c, n })));
   if (!rows.length) {
-    return <div className="empty"><span className="icon">🚫</span><h3>No negatives</h3><p>Negative keywords prevent your ads from showing for irrelevant searches. Add negatives from the Search terms tab or Campaign detail view.</p></div>;
+    return <EmptyState icon="block" title="No negatives" message="Negative keywords prevent your ads from showing for irrelevant searches. Add negatives from the Search terms tab or Campaign detail view." />;
   }
 
   return (

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, acosClass } from '@/engine/ad-console/engine';
+import { EmptyState } from './EmptyState';
 
 interface Props {
   campaign: Campaign;
@@ -22,7 +23,7 @@ export function AdGroupsTab({ campaign: c }: Props) {
   const [newAdGroupName, setNewAdGroupName] = useState('');
 
   if (!c.adGroups.length) {
-    return <div className="empty"><span className="icon">👥</span><h3>No ad groups</h3><p>This campaign has no ad groups. Add one to organize your targets.</p></div>;
+    return <EmptyState icon="group" title="No ad groups" message="This campaign has no ad groups. Add one to organize your targets." />;
   }
 
   const focused = selectedAdGroupId ? c.adGroups.find((ag) => ag.id === selectedAdGroupId) : null;
@@ -35,9 +36,9 @@ export function AdGroupsTab({ campaign: c }: Props) {
           ← All ad groups
         </button>
         <div className="card pad" style={{ marginBottom: 12 }}>
-          <div className="card-title">
+          <div className="section-head">
             <h2>{focused.name}</h2>
-            <span>{agTargets.length} targets</span>
+            <span className="meta">{agTargets.length} targets</span>
           </div>
           <div className="form-grid" style={{ maxWidth: 460 }}>
             <div className="field">
@@ -60,7 +61,7 @@ export function AdGroupsTab({ campaign: c }: Props) {
           </button>
         </div>
         {!agTargets.length ? (
-          <div className="empty"><h3>{`No targets in "${focused.name}" yet.`}</h3></div>
+          <EmptyState icon="target" title={`No targets in "${focused.name}" yet`} message="Add keywords or product targets to this ad group from the Targeting tab." />
         ) : (
           <div className="table-wrap">
             <table>
@@ -92,7 +93,7 @@ export function AdGroupsTab({ campaign: c }: Props) {
 
   return (
     <div>
-      <div style={{ marginBottom: 10, display: 'flex', gap: 8, alignItems: 'end', flexWrap: 'wrap' }}>
+      <div className="tab-toolbar">
         <div className="field" style={{ flex: 1, minWidth: 180 }}>
           <label>New ad group name</label>
           <input className="input full" value={newAdGroupName}
