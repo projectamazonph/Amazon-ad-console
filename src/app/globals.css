@@ -1312,7 +1312,7 @@ textarea.input {
   gap: var(--space-4);
 }
 
-.choice-card {
+.choice {
   padding: var(--space-5);
   border: 2px solid var(--border);
   border-radius: var(--radius-lg);
@@ -1321,28 +1321,29 @@ textarea.input {
   background: var(--surface-1);
 }
 
-.choice-card:hover {
+.choice:hover {
   border-color: var(--border-strong);
   box-shadow: var(--shadow-sm);
 }
 
-.choice-card.selected {
+.choice.active {
   border-color: var(--accent);
   background: var(--accent-soft);
+  box-shadow: var(--shadow-sm);
 }
 
-.choice-card h3 {
+.choice h3 {
   font-size: var(--text-base);
   margin-bottom: var(--space-2);
 }
 
-.choice-card p {
+.choice p {
   font-size: var(--text-sm);
   color: var(--ink-500);
   line-height: 1.5;
 }
 
-.choice-card .foot {
+.choice .foot {
   font-size: var(--text-xs);
   color: var(--ink-400);
   margin-top: var(--space-3);
