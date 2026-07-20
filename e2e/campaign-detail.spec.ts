@@ -42,8 +42,8 @@ test.describe('Campaign Detail', () => {
     // Default tab is Ad groups, click into Overview
     await page.click('.tab:has-text("Overview")');
     await expect(page.locator('.tab.active')).toContainText('Overview');
-    await expect(page.locator('.card-title:has-text("Campaign settings")')).toBeVisible();
-    await expect(page.locator('.card-title:has-text("Products")')).toBeVisible();
+    await expect(page.locator('.section-head:has-text("Campaign settings")')).toBeVisible();
+    await expect(page.locator('.section-head:has-text("Products")')).toBeVisible();
   });
 
   test('duplicate campaign creates a copy', async ({ page }) => {
@@ -91,8 +91,8 @@ test.describe('Campaign Detail', () => {
   test('change history tab shows event log', async ({ page }) => {
     await page.click('.tab:has-text("Change history")');
     await expect(page.locator('.tab.active')).toContainText('Change history');
-    // Should have log entries (table rows in the history tab)
-    const historyRows = await page.locator('.table-wrap tbody tr').count();
+    // Should have log entries (timeline items in the history tab)
+    const historyRows = await page.locator('.timeline-item').count();
     expect(historyRows).toBeGreaterThan(0);
   });
 

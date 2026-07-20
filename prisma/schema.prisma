@@ -26,6 +26,7 @@ model Campaign {
   type          String    // SP, SB, SD
   name          String
   portfolio     String?
+  portfolioId   String?
   status        String    @default("Enabled")
   dailyBudget   Float     @default(25)
   defaultBid    Float     @default(0.75)
@@ -35,6 +36,9 @@ model Campaign {
   adFormat      String?
   campaignGoal  String?
   bidStrategy   String?
+  creativeStatus String?
+  creativeIssue  String?
+  createdBySimulator Boolean @default(false)
   placements   String?   // JSON string
   products     String?   // JSON array
   creative     String?   // JSON object
@@ -44,10 +48,12 @@ model Campaign {
   searchTerms  String?   // JSON array
   negatives    String?   // JSON array
   budgetRules  String?   // JSON array
+  productAds   String?   // JSON array
+  ads          String?   // JSON array
   history      String?   // JSON array
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
-  
+
   @@unique([userId, campaignId])
 }
 

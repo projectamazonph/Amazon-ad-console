@@ -5,7 +5,7 @@ test.describe('Navigation', () => {
     await page.goto('/');
 
     // Dashboard is default
-    await expect(page.locator('h1')).toContainText('Advertising Dashboard');
+    await expect(page.locator('h1')).toContainText('Advertising dashboard');
 
     // Navigate to campaigns via topbar
     await page.click('.nav-section:has-text("Campaign Manager")');
@@ -17,7 +17,7 @@ test.describe('Navigation', () => {
 
     // Navigate back to dashboard via topbar
     await page.click('.nav-section:has-text("Measurement")');
-    await expect(page.locator('h1')).toContainText('Advertising Dashboard');
+    await expect(page.locator('h1')).toContainText('Advertising dashboard');
   });
 
   test('topbar shows global nav sections', async ({ page }) => {

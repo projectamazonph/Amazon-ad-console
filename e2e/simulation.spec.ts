@@ -35,6 +35,6 @@ test.describe('Simulation', () => {
     await page.waitForTimeout(500);
 
     // Dashboard should still be visible with fresh data
-    await expect(page.locator('h1')).toContainText('Advertising Dashboard');
+    await expect(page.locator('h1')).toContainText('Advertising dashboard');
   });
 });

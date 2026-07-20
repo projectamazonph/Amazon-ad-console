@@ -102,6 +102,9 @@ Request body:
 }
 ```
 
+Validation: `email` must be a valid address; `password` must be at least
+8 characters. Invalid input returns `400`.
+
 Response:
 ```json
 {
@@ -118,22 +121,29 @@ POST /api/auth/[...nextauth]
 
 ### Campaign Management
 
+All campaign routes address campaigns by their **engine campaign id**
+(e.g. `C-SP-123456`) — the same id shown in the UI — and are scoped to the
+authenticated user. Validation errors return `400`, missing campaigns `404`,
+duplicate ids `409`.
+
 #### List Campaigns
 ```
 GET /api/campaigns
 ```
 
-Returns all campaigns for the authenticated user.
+Returns all campaigns for the authenticated user, in full engine shape
+(ad groups, targets, search terms, negatives, product ads, ads, history).
 
 #### Create Campaign
 ```
 POST /api/campaigns
 ```
 
-Request body:
+Request body is an engine `Campaign` (or partial — missing fields are
+normalized to engine defaults):
 ```json
 {
-  "campaignId": "C-SP-123456",
+  "id": "C-SP-123456",
   "type": "SP",
   "name": "My Campaign",
   "dailyBudget": 25,
@@ -141,17 +151,21 @@ Request body:
 }
 ```
 
-#### Update Campaign
-```
-PUT /api/campaigns/[id]
-```
+Constraints: `name` required, `type` one of `SP|SB|SD`, `dailyBudget ≥ 1`,
+`defaultBid ≥ 0.02`.
 
-#### Delete Campaign
+#### Get / Update / Delete Campaign
 ```
+GET    /api/campaigns/[id]
+PATCH  /api/campaigns/[id]   (partial update; PUT kept as an alias)
 DELETE /api/campaigns/[id]
 ```
 
 ### Data Sync
+
+When signed in, the app auto-syncs: the store hydrates from `GET /api/sync`
+on login and pushes changes (debounced) to `POST /api/sync`. See
+`src/lib/cloud-sync.ts`.
 
 #### Sync All Campaigns
 ```
@@ -165,10 +179,25 @@ Request body:
 }
 ```
 
+Upserts every campaign and prunes campaigns absent from the payload, in a
+single transaction. Returns `{ "synced": n, "campaigns": [...] }`.
+
 #### Load All Campaigns
 ```
 GET /api/sync
 ```
+
+### Simulation
+
+#### Run Server-Side Simulation
+```
+POST /api/simulate
+```
+
+Request body: `{ "days": 7 }` (integer 1–90, default 7). Runs the engine's
+day simulation over the user's campaigns on the server, persists the results,
+records an audit row in the `Simulation` table, and returns
+`{ "days": n, "campaigns": [...] }`.
 
 ## Frontend Components
 
@@ -224,41 +253,11 @@ export function UserMenu() {
 ### SyncButton
 Handles cloud sync:
 
-```tsx
-// src/components/SyncButton.tsx
-'use client';
-
-import { useSession } from 'next-auth/react';
-import { useAdConsoleStore } from '@/engine/ad-console/store';
-
-export function SyncButton() {
-  const { data: session } = useSession();
-  
-  const handleSync = async (direction: 'upload' | 'download') => {
-    if (direction === 'upload') {
-      const state = useAdConsoleStore.getState().state;
-      await fetch('/api/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ campaigns: state.campaigns }),
-      });
-    } else {
-      const response = await fetch('/api/sync');
-      const campaigns = await response.json();
-      useAdConsoleStore.setState((s) => ({
-        state: { ...s.state, campaigns },
-      }));
-    }
-  };
-
-  return (
-    <div className="flex items-center gap-2">
-      <button onClick={() => handleSync('upload')}>↑ Save</button>
-      <button onClick={() => handleSync('download')}>↓ Load</button>
-    </div>
-  );
-}
-```
+`SyncButton` (`src/components/SyncButton.tsx`) renders the sync status plus
+manual Save/Load buttons. The actual sync logic lives in the `useCloudSync`
+hook (`src/lib/cloud-sync.ts`): on login it hydrates the store from
+`GET /api/sync` (or seeds the server from local state on first login), then
+auto-saves campaign changes to `POST /api/sync` with a 2-second debounce.
 
 ## Pages
 
@@ -290,7 +289,7 @@ export function SyncButton() {
 ### Input Validation
 - Server-side validation on all endpoints
 - Email format validation
-- Password strength requirements (minimum 6 characters)
+- Password strength requirements (minimum 8 characters)
 
 ## Production Deployment
 
