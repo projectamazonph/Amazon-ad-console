@@ -127,6 +127,7 @@ describe('Store actions', () => {
     it('filters search terms by negatives', () => {
       const store = useAdConsoleStore.getState();
       store.updateDraft('name', 'Neg Test');
+      store.updateDraft('targetingMode', 'Manual keyword');
       store.updateDraft('keywords', 'plastic');
       store.updateDraft('keywordMatchTypes', ['Exact']);
       store.launchCampaign();

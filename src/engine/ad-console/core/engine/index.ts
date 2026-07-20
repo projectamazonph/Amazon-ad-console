@@ -9,7 +9,7 @@ export { addAdGroup, addProductAd, addAd, renameAdGroup, setAdGroupStatus, setAd
 export { isFilteredByNegative, isNegativeActive, addNegative, addNegativeKeyword, addNegativeAsin, addNegativeCategory, removeNegative, setNegativeStatus, toggleNegative, harvestTerm, getHarvestCandidates, getNegativeCandidates } from './negative';
 export { addBudgetRule, removeBudgetRule, updateBudgetRule } from './budget';
 export { createPortfolio, renamePortfolio, deletePortfolio, assignCampaignToPortfolio, campaignById, filteredCampaigns, portfolioNames } from './portfolio';
-export { selectProduct, removeProduct, parseKeywords, validateStoreUrl, draftLaunchErrors, canLeaveWizardStep, MIN_DAILY_BUDGET, type ValidationResult } from './draft';
+export { selectProduct, removeProduct, parseKeywords, validateStoreUrl, draftLaunchErrors, canLeaveWizardStep, usesKeywordTargeting, MIN_DAILY_BUDGET, type ValidationResult } from './draft';
 export { resolveBreakpoint, mobileMenuReducer, isTouchViewport } from './responsive';
 export type { Breakpoint, MenuStatus, MobileMenuState, MobileMenuAction } from './responsive';
 export { simulateDays } from '../simulation';

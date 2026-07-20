@@ -2,6 +2,7 @@
 
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { PRODUCTS, BRANDS } from '@/engine/ad-console/core/scenarios';
+import { usesKeywordTargeting } from '@/engine/ad-console/core/engine';
 
 interface Step6ReviewLaunchProps {
   isActive: boolean;
@@ -33,7 +34,7 @@ export function Step6ReviewLaunch({ isActive, isComplete }: Step6ReviewLaunchPro
           {d.campaignGoal && <div className="review-row"><span>Campaign goal</span><strong>{d.campaignGoal}</strong></div>}
           <div className="review-row"><span>Status</span><strong>{d.status}</strong></div>
           <div className="review-row"><span>Products</span><strong>{d.products.length} selected</strong></div>
-          {d.keywords.trim() && (
+          {usesKeywordTargeting(d.targetingMode) && d.keywords.trim() && (
             <div className="review-row">
               <span>Keywords</span>
               <strong>

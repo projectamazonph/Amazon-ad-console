@@ -95,7 +95,7 @@ export function normalizeCampaign(c: Partial<Campaign>): Campaign {
     campaignId: id,
     name: c.adGroups?.[0]?.name ?? `${type} default ad group`,
     status: c.adGroups?.[0]?.status ?? 'Enabled',
-    defaultBid: c.adGroups?.[0]?.defaultBid ?? c.defaultBid ?? 0.75,
+    defaultBid: clampBid(c.adGroups?.[0]?.defaultBid ?? c.defaultBid ?? 0.75),
     metrics: metricDefaults(c.adGroups?.[0]?.metrics ?? {}),
   };
 
@@ -103,6 +103,7 @@ export function normalizeCampaign(c: Partial<Campaign>): Campaign {
     ? c.adGroups.map((ag) => ({
         ...primaryAg,
         ...ag,
+        defaultBid: clampBid(ag.defaultBid ?? primaryAg.defaultBid),
         metrics: metricDefaults(ag.metrics ?? {}),
       }))
     : [primaryAg];

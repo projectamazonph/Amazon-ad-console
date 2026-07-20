@@ -36,8 +36,13 @@ test.describe('UI audit fixes', () => {
     const nameInput = page.locator('.wizard input').first();
     await nameInput.fill('');
     await expect(page.locator('.wizard button:has-text("Next")')).toBeDisabled();
-    // Give it a name and a valid budget → Next enables
+    // Give it a name but a bad (below-minimum) budget → Next stays disabled
     await nameInput.fill('My test campaign');
+    const budgetInput = page.locator('.wizard input[type="number"]').first();
+    await budgetInput.fill('0');
+    await expect(page.locator('.wizard button:has-text("Next")')).toBeDisabled();
+    // Valid budget → Next enables
+    await budgetInput.fill('25');
     await expect(page.locator('.wizard button:has-text("Next")')).toBeEnabled();
   });
 });

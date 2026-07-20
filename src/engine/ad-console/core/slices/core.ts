@@ -75,9 +75,14 @@ export const createCoreSlice = (set: any, get: any, ..._rest: any[]): CoreSlice 
         bid: d.defaultBid, status: 'Enabled' as CampaignStatus,
         impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0,
       }));
-    // One keyword box expands into a target per selected match type.
+    // One keyword box expands into a target per selected match type — but only
+    // for keyword targeting modes (SP "Manual keyword" / SB "Keyword"), so
+    // stale keyword text can't leak into an Automatic/Product/Category campaign.
+    const usesKeywords = d.targetingMode === 'Manual keyword' || d.targetingMode === 'Keyword';
     const matchTypes: string[] = d.keywordMatchTypes.length ? d.keywordMatchTypes : ['Exact'];
-    const keywordTargets: any[] = matchTypes.flatMap((mt: string) => buildKeywords(d.keywords, mt));
+    const keywordTargets: any[] = usesKeywords
+      ? matchTypes.flatMap((mt: string) => buildKeywords(d.keywords, mt))
+      : [];
 
     // Automatic SP campaigns get an auto-targeting group per enabled bucket,
     // each carrying its own bid.

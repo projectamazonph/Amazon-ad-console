@@ -109,6 +109,21 @@ describe('draftLaunchErrors', () => {
   it('flags having no products', () => {
     expect(draftLaunchErrors(draft({ products: [] }))).toContain('Select at least one product');
   });
+
+  it('flags keyword targeting with keywords but no match type selected', () => {
+    const d = draft({ targetingMode: 'Manual keyword', keywords: 'coffee', keywordMatchTypes: [] });
+    expect(draftLaunchErrors(d)).toContain('Select at least one keyword match type');
+  });
+
+  it('does not flag empty match types when there are no keywords', () => {
+    const d = draft({ targetingMode: 'Manual keyword', keywords: '', keywordMatchTypes: [] });
+    expect(draftLaunchErrors(d)).not.toContain('Select at least one keyword match type');
+  });
+
+  it('does not flag empty match types for non-keyword modes', () => {
+    const d = draft({ targetingMode: 'Automatic', keywords: 'coffee', keywordMatchTypes: [] });
+    expect(draftLaunchErrors(d)).not.toContain('Select at least one keyword match type');
+  });
 });
 
 describe('canLeaveWizardStep', () => {
@@ -123,9 +138,14 @@ describe('canLeaveWizardStep', () => {
     expect(canLeaveWizardStep(draft(), 3)).toBe(true);
   });
 
-  it('does not gate steps 1, 4, 5', () => {
+  it('does not gate steps 1, 5', () => {
     expect(canLeaveWizardStep(draft({ name: '' }), 1)).toBe(true);
-    expect(canLeaveWizardStep(draft({ name: '' }), 4)).toBe(true);
     expect(canLeaveWizardStep(draft({ name: '' }), 5)).toBe(true);
+  });
+
+  it('blocks leaving step 4 when keywords are entered with no match type', () => {
+    expect(canLeaveWizardStep(draft({ targetingMode: 'Manual keyword', keywords: 'coffee', keywordMatchTypes: [] }), 4)).toBe(false);
+    expect(canLeaveWizardStep(draft({ targetingMode: 'Manual keyword', keywords: 'coffee', keywordMatchTypes: ['Exact'] }), 4)).toBe(true);
+    expect(canLeaveWizardStep(draft({ targetingMode: 'Automatic', keywords: '', keywordMatchTypes: [] }), 4)).toBe(true);
   });
 });

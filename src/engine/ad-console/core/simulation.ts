@@ -105,7 +105,11 @@ export function simulateDays(campaigns: Campaign[], days: number = 7): Campaign[
       };
     });
 
-    const hasTargets = enabledTargets.length > 0;
+    // A campaign that owns no target rows accrues activity at the campaign
+    // level; once it has target rows the campaign is always derived from them,
+    // even if every target is currently paused (nothing serves, but the
+    // campaign stays reconciled with sum(targets) == sum(ad groups)).
+    const hasTargetRows = c.targets.length > 0;
 
     // Ad group metrics = sum of its targets (enabled + paused carry history).
     // Ad groups with no targets keep their existing metrics.
@@ -114,10 +118,7 @@ export function simulateDays(campaigns: Campaign[], days: number = 7): Campaign[
       return tgts.length ? { ...ag, metrics: sumMetrics(tgts) } : ag;
     });
 
-    // Campaign metrics: when there are targets, derive from them so
-    // campaign == sum(targets) == sum(ad groups) at every level, every run.
-    // Otherwise accrue this run's activity at the campaign level.
-    const newMetrics: Metrics = hasTargets
+    const newMetrics: Metrics = hasTargetRows
       ? sumMetrics(newTargets)
       : {
           impressions: c.metrics.impressions + impressions,
@@ -186,9 +187,9 @@ export function simulateDays(campaigns: Campaign[], days: number = 7): Campaign[
       }
     }
     const allSearchTerms = c.searchTerms.concat(generatedST);
-    // Log the activity actually applied this run.
-    const appliedSpend = hasTargets ? spendDelta.reduce((a, b) => a + b, 0) : spend;
-    const appliedOrders = hasTargets ? orderDelta.reduce((a, b) => a + b, 0) : orders;
+    // Log the activity actually applied this run (0 when nothing can serve).
+    const appliedSpend = hasTargetRows ? spendDelta.reduce((a, b) => a + b, 0) : spend;
+    const appliedOrders = hasTargetRows ? orderDelta.reduce((a, b) => a + b, 0) : orders;
     return {
       ...c,
       metrics: newMetrics,

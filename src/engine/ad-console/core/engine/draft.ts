@@ -56,7 +56,15 @@ export function draftLaunchErrors(draft: CampaignDraft): string[] {
     errors.push(`Daily budget must be at least $${MIN_DAILY_BUDGET}`);
   }
   if (!draft.products.length) errors.push('Select at least one product');
+  if (usesKeywordTargeting(draft.targetingMode) && draft.keywords.trim() && draft.keywordMatchTypes.length === 0) {
+    errors.push('Select at least one keyword match type');
+  }
   return errors;
+}
+
+/** Whether a targeting mode adds keyword targets (SP "Manual keyword" / SB "Keyword"). */
+export function usesKeywordTargeting(mode: string): boolean {
+  return mode === 'Manual keyword' || mode === 'Keyword';
 }
 
 /**
@@ -66,6 +74,10 @@ export function draftLaunchErrors(draft: CampaignDraft): string[] {
 export function canLeaveWizardStep(draft: CampaignDraft, step: number): boolean {
   if (step === 2) return draft.name.trim().length > 0 && Number.isFinite(draft.dailyBudget) && draft.dailyBudget >= MIN_DAILY_BUDGET;
   if (step === 3) return draft.products.length > 0;
+  // Step 4 is targeting: if keywords are entered, at least one match type is required.
+  if (step === 4 && usesKeywordTargeting(draft.targetingMode) && draft.keywords.trim()) {
+    return draft.keywordMatchTypes.length > 0;
+  }
   return true;
 }
 

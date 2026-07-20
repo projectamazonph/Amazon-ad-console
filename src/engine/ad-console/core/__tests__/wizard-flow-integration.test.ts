@@ -21,6 +21,7 @@ describe('Wizard Flow Integration: SP Campaign', () => {
     store.updateDraft('portfolio', 'Test Portfolio');
     store.updateDraft('dailyBudget', 50);
     store.updateDraft('defaultBid', 0.85);
+    store.updateDraft('targetingMode', 'Manual keyword');
     store.updateDraft('keywords', 'organic coffee\nbest beans');
     store.updateDraft('keywordMatchTypes', ['Exact', 'Phrase', 'Broad']);
 
@@ -74,6 +75,7 @@ describe('Wizard Flow Integration: SP Campaign', () => {
 
     store.updateDraft('type', 'SB');
     store.updateDraft('name', 'SB Integration Test');
+    store.updateDraft('targetingMode', 'Keyword');
     store.updateDraft('keywords', 'brand store\nbrand products');
     store.updateDraft('keywordMatchTypes', ['Exact', 'Phrase']);
 

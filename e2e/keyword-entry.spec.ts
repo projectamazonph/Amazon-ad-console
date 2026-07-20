@@ -65,6 +65,9 @@ test('auto campaign launches a target per enabled auto-targeting group with its 
 
   await page.click('.tab:has-text("Targeting")');
   // 3 auto groups enabled (complements disabled)
-  await expect(page.locator('table tbody tr', { hasText: 'close match' })).toHaveCount(1);
+  const closeMatchRow = page.locator('table tbody tr', { hasText: 'close match' });
+  await expect(closeMatchRow).toHaveCount(1);
+  // The edited bid reached the launched target (shown in the row's bid input).
+  await expect(closeMatchRow.locator('input[type="number"]')).toHaveValue('1.25');
   await expect(page.locator('table tbody tr', { hasText: 'complements' })).toHaveCount(0);
 });

@@ -344,10 +344,16 @@ code, pre {
   color: var(--ink-700);
   font-size: var(--text-sm);
   cursor: pointer;
+  border: none;
   border-left: 3px solid transparent;
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   transition: all var(--duration-fast) var(--ease-out);
   min-height: 40px;
+  /* Button reset so these can be semantic <button>s without losing the look. */
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  background: transparent;
 }
 
 .sidebar-item:hover {

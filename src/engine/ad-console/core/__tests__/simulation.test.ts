@@ -202,6 +202,22 @@ describe('simulateDays', () => {
     expect(result.metrics.spend).toBeGreaterThan(0);
   });
 
+  it('stays reconciled (no new activity) when target rows exist but none are enabled', () => {
+    const c = makeCampaign({
+      dailyBudget: 100,
+      defaultBid: 1,
+      targets: [
+        { id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'a', match: 'Exact', bid: 1, status: 'Paused', impressions: 12, clicks: 3, spend: 2.5, sales: 9, orders: 1 },
+      ],
+      metrics: { impressions: 12, clicks: 3, spend: 2.5, sales: 9, orders: 1 },
+      adGroups: [{ id: 'AG1', campaignId: 'C1', name: 'AG', status: 'Enabled', defaultBid: 1, metrics: { impressions: 12, clicks: 3, spend: 2.5, sales: 9, orders: 1 } }],
+    });
+    const [result] = simulateDays([c], 7);
+    // Campaign is derived from the (paused, unchanged) targets — no drift.
+    expect(result.metrics).toEqual({ impressions: 12, clicks: 3, spend: 2.5, sales: 9, orders: 1 });
+    expect(result.adGroups[0].metrics).toEqual(result.metrics);
+  });
+
   it('does not add duplicate search terms', () => {
     const c = makeCampaign({
       targets: [
