@@ -1,0 +1,646 @@
+import { useState, useEffect, useMemo } from "react";
+import {
+  Plus,
+  Search,
+  ChevronDown,
+  Check,
+  X,
+  MoreHorizontal,
+  Pause,
+  PlayCircle,
+  Archive,
+  Columns3,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+// ---------------------------------------------------------------------------
+// Design tokens (from ppc-simulator-ui-ux-spec.md §1) — kept inline here so
+// this file is drop-in runnable; in the real app these belong in tailwind.config
+// ---------------------------------------------------------------------------
+const TYPE_BADGE = {
+  SP: "bg-[#E8F1FF] text-[#0B5FBA] border-[#0B5FBA]/20",
+  SB: "bg-[#F3ECFB] text-[#7B3FBF] border-[#7B3FBF]/20",
+  SD: "bg-[#EAF7EC] text-[#1C7C2E] border-[#1C7C2E]/20",
+};
+
+const STATUS_STYLE = {
+  ENABLED: "bg-[#F0F8EC] text-[#007600]",
+  PAUSED: "bg-[#F0F2F2] text-[#565959]",
+  ARCHIVED: "bg-[#F0F2F2] text-[#565959]",
+  PENDING_REVIEW: "bg-[#FDF4EC] text-[#C7511F]",
+};
+
+// ---------------------------------------------------------------------------
+// Mock data — stands in for a GET /api/campaigns response shaped from the
+// Prisma Campaign model. Swap for real fetch + react-query in production.
+// ---------------------------------------------------------------------------
+const MOCK_CAMPAIGNS = [
+  {
+    id: "c1",
+    name: "Summer Sale — Broad Auto",
+    campaignType: "SP",
+    subtype: "Auto",
+    status: "ENABLED",
+    portfolio: "Kitchen — Core",
+    budget: 50.0,
+    impressions: 84210,
+    clicks: 1320,
+    ctr: 1.57,
+    spend: 412.18,
+    sales: 1840.0,
+    acos: 22.4,
+    roas: 4.46,
+  },
+  {
+    id: "c2",
+    name: "Hero ASIN — Manual Exact",
+    campaignType: "SP",
+    subtype: "Manual · Keyword",
+    status: "ENABLED",
+    portfolio: "Kitchen — Core",
+    budget: 75.0,
+    impressions: 51900,
+    clicks: 980,
+    ctr: 1.89,
+    spend: 588.0,
+    sales: 2940.0,
+    acos: 20.0,
+    roas: 5.0,
+  },
+  {
+    id: "c3",
+    name: "Brand Defense — Branded Terms",
+    campaignType: "SP",
+    subtype: "Manual · Keyword",
+    status: "PAUSED",
+    portfolio: "Brand Defense",
+    budget: 20.0,
+    impressions: 12400,
+    clicks: 410,
+    ctr: 3.31,
+    spend: 96.5,
+    sales: 720.0,
+    acos: 13.4,
+    roas: 7.46,
+  },
+  {
+    id: "c4",
+    name: "Holiday Collection — Product Collection",
+    campaignType: "SB",
+    subtype: "Product Collection",
+    status: "ENABLED",
+    portfolio: "Seasonal",
+    budget: 40.0,
+    impressions: 38500,
+    clicks: 612,
+    ctr: 1.59,
+    spend: 301.0,
+    sales: 1120.0,
+    acos: 26.9,
+    roas: 3.72,
+  },
+  {
+    id: "c5",
+    name: "New Launch — SB Video",
+    campaignType: "SB",
+    subtype: "Video",
+    status: "PENDING_REVIEW",
+    portfolio: "Launches",
+    budget: 30.0,
+    impressions: 0,
+    clicks: 0,
+    ctr: 0,
+    spend: 0,
+    sales: 0,
+    acos: 0,
+    roas: 0,
+  },
+  {
+    id: "c6",
+    name: "Views Remarketing — 30 Day",
+    campaignType: "SD",
+    subtype: "Audiences",
+    status: "ENABLED",
+    portfolio: "Retargeting",
+    budget: 25.0,
+    impressions: 22100,
+    clicks: 198,
+    ctr: 0.9,
+    spend: 144.2,
+    sales: 410.0,
+    acos: 35.2,
+    roas: 2.84,
+  },
+  {
+    id: "c7",
+    name: "Competitor Conquest — Contextual",
+    campaignType: "SD",
+    subtype: "Contextual",
+    status: "ARCHIVED",
+    portfolio: "Retargeting",
+    budget: 15.0,
+    impressions: 8900,
+    clicks: 61,
+    ctr: 0.69,
+    spend: 52.4,
+    sales: 0,
+    acos: 0,
+    roas: 0,
+  },
+];
+
+const ALL_COLUMNS = [
+  { key: "impressions", label: "Impressions" },
+  { key: "clicks", label: "Clicks" },
+  { key: "ctr", label: "CTR" },
+  { key: "spend", label: "Spend" },
+  { key: "sales", label: "Sales" },
+  { key: "acos", label: "ACOS" },
+  { key: "roas", label: "ROAS" },
+];
+
+function fmtCurrency(n) {
+  return `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+function fmtPercent(n) {
+  return `${n.toFixed(1)}%`;
+}
+
+// ---------------------------------------------------------------------------
+// KPI strip
+// ---------------------------------------------------------------------------
+function KpiStrip({ campaigns }) {
+  const totals = useMemo(() => {
+    const live = campaigns.filter((c) => c.status !== "ARCHIVED");
+    const spend = live.reduce((a, c) => a + c.spend, 0);
+    const sales = live.reduce((a, c) => a + c.sales, 0);
+    const impressions = live.reduce((a, c) => a + c.impressions, 0);
+    const clicks = live.reduce((a, c) => a + c.clicks, 0);
+    const acos = sales > 0 ? (spend / sales) * 100 : 0;
+    const roas = spend > 0 ? sales / spend : 0;
+    return { spend, sales, acos, roas, impressions, clicks };
+  }, [campaigns]);
+
+  const cards = [
+    { label: "Spend", value: fmtCurrency(totals.spend) },
+    { label: "Sales", value: fmtCurrency(totals.sales) },
+    { label: "ACOS", value: fmtPercent(totals.acos) },
+    { label: "ROAS", value: totals.roas.toFixed(2) },
+    { label: "Impressions", value: totals.impressions.toLocaleString() },
+    { label: "Clicks", value: totals.clicks.toLocaleString() },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-4">
+      {cards.map((c) => (
+        <div
+          key={c.label}
+          className="border border-[#D5D9D9] rounded bg-white px-4 py-3"
+        >
+          <div className="text-[11px] uppercase tracking-wide text-[#565959]">
+            {c.label}
+          </div>
+          <div className="text-2xl font-semibold text-[#0F1111] mt-1">
+            {c.value}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Inline-editable budget cell
+// ---------------------------------------------------------------------------
+function BudgetCell({ value, onSave }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+
+  if (!editing) {
+    return (
+      <button
+        className="text-[#0F1111] hover:underline underline-offset-2 text-left"
+        onClick={() => {
+          setDraft(value);
+          setEditing(true);
+        }}
+      >
+        {fmtCurrency(value)}
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-1">
+      <span className="text-[#565959]">$</span>
+      <Input
+        autoFocus
+        type="number"
+        step="0.01"
+        value={draft}
+        onChange={(e) => setDraft(parseFloat(e.target.value) || 0)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            onSave(draft);
+            setEditing(false);
+          }
+          if (e.key === "Escape") setEditing(false);
+        }}
+        className="h-7 w-20 px-1 text-sm"
+      />
+      <button
+        className="text-[#007600]"
+        onClick={() => {
+          onSave(draft);
+          setEditing(false);
+        }}
+      >
+        <Check size={16} />
+      </button>
+      <button className="text-[#565959]" onClick={() => setEditing(false)}>
+        <X size={16} />
+      </button>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Skeleton row (loading state)
+// ---------------------------------------------------------------------------
+function SkeletonRow() {
+  return (
+    <tr className="border-b border-[#D5D9D9]">
+      {Array.from({ length: 9 }).map((_, i) => (
+        <td key={i} className="px-3 py-3">
+          <div className="h-3 bg-[#EEEFF1] rounded animate-pulse w-full" />
+        </td>
+      ))}
+    </tr>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
+export default function CampaignManager() {
+  const [campaigns, setCampaigns] = useState(MOCK_CAMPAIGNS);
+  const [loading, setLoading] = useState(true);
+  const [typeFilter, setTypeFilter] = useState("ALL");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [search, setSearch] = useState("");
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [visibleCols, setVisibleCols] = useState(
+    ALL_COLUMNS.reduce((acc, c) => ({ ...acc, [c.key]: true }), {})
+  );
+
+  // Simulates an initial fetch — replace with real data loading.
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 600);
+    return () => clearTimeout(t);
+  }, []);
+
+  const filtered = useMemo(() => {
+    return campaigns.filter((c) => {
+      if (typeFilter !== "ALL" && c.campaignType !== typeFilter) return false;
+      if (statusFilter !== "ALL" && c.status !== statusFilter) return false;
+      if (search && !c.name.toLowerCase().includes(search.toLowerCase()))
+        return false;
+      return true;
+    });
+  }, [campaigns, typeFilter, statusFilter, search]);
+
+  function toggleStatus(id) {
+    setCampaigns((prev) =>
+      prev.map((c) =>
+        c.id === id
+          ? {
+              ...c,
+              status:
+                c.status === "ENABLED"
+                  ? "PAUSED"
+                  : c.status === "PAUSED"
+                  ? "ENABLED"
+                  : c.status,
+            }
+          : c
+      )
+    );
+  }
+
+  function saveBudget(id, newBudget) {
+    setCampaigns((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, budget: newBudget } : c))
+    );
+  }
+
+  function bulkAction(action) {
+    setCampaigns((prev) =>
+      prev.map((c) => {
+        if (!selectedIds.includes(c.id)) return c;
+        if (action === "pause") return { ...c, status: "PAUSED" };
+        if (action === "enable") return { ...c, status: "ENABLED" };
+        if (action === "archive") return { ...c, status: "ARCHIVED" };
+        return c;
+      })
+    );
+    setSelectedIds([]);
+  }
+
+  const allChecked =
+    filtered.length > 0 && filtered.every((c) => selectedIds.includes(c.id));
+
+  return (
+    <div className="min-h-screen bg-[#F7F8FA] p-6 font-sans text-[13px] text-[#0F1111]">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-xl font-semibold">Campaign Manager</h1>
+        </div>
+
+        <KpiStrip campaigns={campaigns} />
+
+        {/* Filter row */}
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <div className="flex border border-[#D5D9D9] rounded overflow-hidden">
+            {["ALL", "SP", "SB", "SD"].map((t) => (
+              <button
+                key={t}
+                onClick={() => setTypeFilter(t)}
+                className={`px-3 py-1.5 text-[13px] ${
+                  typeFilter === t
+                    ? "bg-[#007185] text-white"
+                    : "bg-white text-[#0F1111] hover:bg-[#F0F2F2]"
+                }`}
+              >
+                {t === "ALL" ? "All" : t}
+              </button>
+            ))}
+          </div>
+
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="h-8 w-[160px] text-[13px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All statuses</SelectItem>
+              <SelectItem value="ENABLED">Enabled</SelectItem>
+              <SelectItem value="PAUSED">Paused</SelectItem>
+              <SelectItem value="ARCHIVED">Archived</SelectItem>
+              <SelectItem value="PENDING_REVIEW">Pending review</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <div className="relative">
+            <Search
+              size={14}
+              className="absolute left-2 top-1/2 -translate-y-1/2 text-[#565959]"
+            />
+            <Input
+              placeholder="Search campaigns"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="h-8 pl-7 w-56 text-[13px]"
+            />
+          </div>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-8 gap-1">
+                <Columns3 size={14} /> Columns <ChevronDown size={14} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {ALL_COLUMNS.map((col) => (
+                <DropdownMenuCheckboxItem
+                  key={col.key}
+                  checked={visibleCols[col.key]}
+                  onCheckedChange={(v) =>
+                    setVisibleCols((prev) => ({ ...prev, [col.key]: v }))
+                  }
+                >
+                  {col.label}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <div className="ml-auto">
+            <Button className="h-8 bg-[#FFA41C] hover:bg-[#FA8900] text-[#0F1111] gap-1">
+              <Plus size={14} /> Create campaign
+            </Button>
+          </div>
+        </div>
+
+        {/* Bulk action bar */}
+        {selectedIds.length > 0 && (
+          <div className="flex items-center gap-3 bg-[#0F1111] text-white rounded px-4 py-2 mb-2 text-[13px]">
+            <span>{selectedIds.length} selected</span>
+            <button
+              className="flex items-center gap-1 hover:text-[#FFA41C]"
+              onClick={() => bulkAction("enable")}
+            >
+              <PlayCircle size={14} /> Enable
+            </button>
+            <button
+              className="flex items-center gap-1 hover:text-[#FFA41C]"
+              onClick={() => bulkAction("pause")}
+            >
+              <Pause size={14} /> Pause
+            </button>
+            <button
+              className="flex items-center gap-1 hover:text-[#FFA41C]"
+              onClick={() => bulkAction("archive")}
+            >
+              <Archive size={14} /> Archive
+            </button>
+            <button
+              className="ml-auto text-[#A7A7A7] hover:text-white"
+              onClick={() => setSelectedIds([])}
+            >
+              Clear
+            </button>
+          </div>
+        )}
+
+        {/* Table */}
+        <div className="border border-[#D5D9D9] rounded bg-white overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-[#D5D9D9] bg-[#F7F8FA] text-[#565959] text-[11px] uppercase tracking-wide">
+                <th className="px-3 py-2 w-8">
+                  <Checkbox
+                    checked={allChecked}
+                    onCheckedChange={(v) =>
+                      setSelectedIds(v ? filtered.map((c) => c.id) : [])
+                    }
+                  />
+                </th>
+                <th className="px-3 py-2 text-left">Status</th>
+                <th className="px-3 py-2 text-left">Name</th>
+                <th className="px-3 py-2 text-left">Type</th>
+                <th className="px-3 py-2 text-left">Portfolio</th>
+                <th className="px-3 py-2 text-left">Budget</th>
+                {ALL_COLUMNS.filter((c) => visibleCols[c.key]).map((c) => (
+                  <th key={c.key} className="px-3 py-2 text-right">
+                    {c.label}
+                  </th>
+                ))}
+                <th className="px-3 py-2 w-8" />
+              </tr>
+            </thead>
+            <tbody>
+              {loading &&
+                Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)}
+
+              {!loading && filtered.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={9}
+                    className="px-3 py-12 text-center text-[#565959]"
+                  >
+                    No campaigns match these filters.{" "}
+                    <button
+                      className="text-[#007185] hover:underline"
+                      onClick={() => {
+                        setSearch("");
+                        setTypeFilter("ALL");
+                        setStatusFilter("ALL");
+                      }}
+                    >
+                      Clear filters
+                    </button>
+                  </td>
+                </tr>
+              )}
+
+              {!loading &&
+                filtered.map((c) => (
+                  <tr
+                    key={c.id}
+                    className="border-b border-[#D5D9D9] hover:bg-[#F7F8FA] group"
+                  >
+                    <td className="px-3 py-3">
+                      <Checkbox
+                        checked={selectedIds.includes(c.id)}
+                        onCheckedChange={(v) =>
+                          setSelectedIds((prev) =>
+                            v ? [...prev, c.id] : prev.filter((id) => id !== c.id)
+                          )
+                        }
+                      />
+                    </td>
+                    <td className="px-3 py-3">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div>
+                            <Switch
+                              checked={c.status === "ENABLED"}
+                              disabled={
+                                c.status === "ARCHIVED" ||
+                                c.status === "PENDING_REVIEW"
+                              }
+                              onCheckedChange={() => toggleStatus(c.id)}
+                            />
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <Badge
+                            className={`${STATUS_STYLE[c.status]} border-0`}
+                          >
+                            {c.status.replace("_", " ")}
+                          </Badge>
+                        </TooltipContent>
+                      </Tooltip>
+                    </td>
+                    <td className="px-3 py-3">
+                      <button className="text-[#007185] hover:underline text-left font-medium">
+                        {c.name}
+                      </button>
+                    </td>
+                    <td className="px-3 py-3">
+                      <Badge
+                        className={`${TYPE_BADGE[c.campaignType]} border font-medium`}
+                      >
+                        {c.campaignType}
+                      </Badge>
+                      <div className="text-[11px] text-[#565959] mt-0.5">
+                        {c.subtype}
+                      </div>
+                    </td>
+                    <td className="px-3 py-3 text-[#565959]">{c.portfolio}</td>
+                    <td className="px-3 py-3">
+                      <BudgetCell
+                        value={c.budget}
+                        onSave={(v) => saveBudget(c.id, v)}
+                      />
+                    </td>
+                    {visibleCols.impressions && (
+                      <td className="px-3 py-3 text-right">
+                        {c.impressions.toLocaleString()}
+                      </td>
+                    )}
+                    {visibleCols.clicks && (
+                      <td className="px-3 py-3 text-right">
+                        {c.clicks.toLocaleString()}
+                      </td>
+                    )}
+                    {visibleCols.ctr && (
+                      <td className="px-3 py-3 text-right">
+                        {fmtPercent(c.ctr)}
+                      </td>
+                    )}
+                    {visibleCols.spend && (
+                      <td className="px-3 py-3 text-right">
+                        {fmtCurrency(c.spend)}
+                      </td>
+                    )}
+                    {visibleCols.sales && (
+                      <td className="px-3 py-3 text-right">
+                        {fmtCurrency(c.sales)}
+                      </td>
+                    )}
+                    {visibleCols.acos && (
+                      <td className="px-3 py-3 text-right">
+                        {c.sales > 0 ? fmtPercent(c.acos) : "—"}
+                      </td>
+                    )}
+                    {visibleCols.roas && (
+                      <td className="px-3 py-3 text-right">
+                        {c.sales > 0 ? c.roas.toFixed(2) : "—"}
+                      </td>
+                    )}
+                    <td className="px-3 py-3">
+                      <button className="opacity-0 group-hover:opacity-100 text-[#565959]">
+                        <MoreHorizontal size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
