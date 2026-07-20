@@ -5,7 +5,7 @@ test.describe('User Journey — Full simulation from root', () => {
     // ── STEP 1: Landing on Dashboard ──────────────────────────────────
     await page.goto('/');
     await expect(page.locator('h1')).toContainText('Advertising dashboard');
-    await expect(page.locator('.kpi-grid .kpi-tile')).toHaveCount(9);
+    await expect(page.locator('.kpi-grid .kpi-tile')).toHaveCount(10);
     await expect(page.locator('table')).toBeVisible();
     await expect(page.locator('.insight-list .insight')).toHaveCount(3);
 
@@ -122,7 +122,7 @@ test.describe('User Journey — Full simulation from root', () => {
 
     // ── STEP 16: Verify KPI metrics updated from simulation ───────────
     const kpiValueTexts = await page.locator('.kpi-grid .kpi-tile .value').allTextContents();
-    expect(kpiValueTexts).toHaveLength(9);
+    expect(kpiValueTexts).toHaveLength(10);
 
     // ── STEP 17: Verify campaign count updated ────────────────────────
     await expect(page.locator('.section-head h2').first()).toContainText('Campaigns');

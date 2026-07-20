@@ -27,6 +27,12 @@ function makeDraft(): CampaignDraft {
     keywords: '',
     keywordMatchTypes: ['Exact'], asinTargets: '', categoryTargets: '', audienceTargets: '',
     audienceLookback: '30',
+    autoTargets: {
+      closeMatch: { enabled: true, bid: 0.75 },
+      looseMatch: { enabled: true, bid: 0.75 },
+      substitutes: { enabled: true, bid: 0.75 },
+      complements: { enabled: true, bid: 0.75 },
+    },
   };
 }
 

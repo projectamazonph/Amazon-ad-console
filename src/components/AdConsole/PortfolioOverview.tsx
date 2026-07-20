@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
-import { calc, formatMoney, formatWhole, formatPercent, formatRoas, acosClass } from '@/engine/ad-console/engine';
+import { calc, formatMoney, formatWhole, formatPercent, formatRoas, formatBid, acosClass } from '@/engine/ad-console/engine';
 
 export function PortfolioOverview() {
   const state = useAdConsoleStore((s) => s.state);
@@ -149,7 +149,7 @@ export function PortfolioOverview() {
                 <table>
                   <thead>
                     <tr>
-                      <th>Campaign</th><th>Type</th><th>Status</th><th>Budget</th><th>Spend</th><th>Sales</th><th>ACOS</th>
+                      <th>Campaign</th><th>Type</th><th>Status</th><th>Budget</th><th>CPC</th><th>Spend</th><th>Sales</th><th>ACOS</th>
                       {manageMode && <th>Assign to</th>}
                     </tr>
                   </thead>
@@ -167,6 +167,7 @@ export function PortfolioOverview() {
                           <td><span className={`pill ${c.type === 'SP' ? 'active' : c.type === 'SB' ? 'orange' : 'purple'}`}>{c.type}</span></td>
                           <td><span className={`pill ${c.status === 'Enabled' ? 'green' : c.status === 'Paused' ? 'orange' : 'bad'}`}>{c.status}</span></td>
                           <td className="money">{formatMoney(c.dailyBudget)}</td>
+                          <td className="money">{formatBid(cx.cpc)}</td>
                           <td className="money">{formatMoney(c.metrics.spend)}</td>
                           <td className="money">{formatMoney(c.metrics.sales)}</td>
                           <td className={`mono ${acosClass(cx.acos)}`}>{formatPercent(cx.acos)}</td>

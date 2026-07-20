@@ -14,6 +14,12 @@ function draft(over: Partial<CampaignDraft> = {}): CampaignDraft {
     keywords: '',
     keywordMatchTypes: ['Exact'], asinTargets: '', categoryTargets: '', audienceLookback: '30',
     audienceTargets: '',
+    autoTargets: {
+      closeMatch: { enabled: true, bid: 0.75 },
+      looseMatch: { enabled: true, bid: 0.75 },
+      substitutes: { enabled: true, bid: 0.75 },
+      complements: { enabled: true, bid: 0.75 },
+    },
     ...over,
   };
 }

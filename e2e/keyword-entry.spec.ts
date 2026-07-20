@@ -41,3 +41,30 @@ test('one keyword launches under all three selected match types', async ({ page 
   await expect(page.locator('table tbody tr', { hasText: 'coffee filter' }).filter({ hasText: 'Phrase' })).toHaveCount(1);
   await expect(page.locator('table tbody tr', { hasText: 'coffee filter' }).filter({ hasText: 'Broad' })).toHaveCount(1);
 });
+
+// SP Automatic campaigns expose an individual bid box per auto-targeting group.
+test('auto campaign launches a target per enabled auto-targeting group with its bid', async ({ page }) => {
+  await page.goto('/');
+  await page.click('button:has-text("Create campaign")');
+  await page.click('.wizard button:has-text("Next")'); // 1 → 2
+  await page.locator('.wizard input').first().fill('Auto bids test');
+  await page.click('.wizard button:has-text("Next")'); // 2 → 3
+  await page.click('.wizard button:has-text("Next")'); // 3 → 4
+
+  // Automatic mode is the default; the auto-targeting groups table shows.
+  await expect(page.locator('.wizard:has-text("Automatic targeting groups")')).toBeVisible();
+  const bidBoxes = page.locator('.wizard input[type="number"]');
+  await expect(bidBoxes).toHaveCount(4);
+  await bidBoxes.first().fill('1.25'); // close match bid
+  // Disable the last group (complements)
+  await page.locator('.wizard input[type="checkbox"]').last().uncheck();
+
+  await page.click('.wizard button:has-text("Next")'); // 4 → 5
+  await page.click('.wizard button:has-text("Next")'); // 5 → 6
+  await page.click('.wizard button:has-text("Launch campaign")');
+
+  await page.click('.tab:has-text("Targeting")');
+  // 3 auto groups enabled (complements disabled)
+  await expect(page.locator('table tbody tr', { hasText: 'close match' })).toHaveCount(1);
+  await expect(page.locator('table tbody tr', { hasText: 'complements' })).toHaveCount(0);
+});

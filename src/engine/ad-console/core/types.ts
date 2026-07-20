@@ -279,6 +279,20 @@ export interface Product {
 // Campaign creation wizard
 // ---------------------------------------------------------------------------
 
+/** One SP automatic-targeting group (close/loose match, substitutes, complements). */
+export interface AutoTargetGroup {
+  enabled: boolean;
+  bid: number;
+}
+
+/** The four SP automatic-targeting groups, each with its own enable flag and bid. */
+export interface AutoTargetSettings {
+  closeMatch: AutoTargetGroup;
+  looseMatch: AutoTargetGroup;
+  substitutes: AutoTargetGroup;
+  complements: AutoTargetGroup;
+}
+
 export interface CampaignDraft {
   type: CampaignType;
   name: string;
@@ -301,6 +315,7 @@ export interface CampaignDraft {
   categoryTargets: string;
   audienceTargets: string;
   audienceLookback: string;
+  autoTargets: AutoTargetSettings; // SP automatic-targeting group bids
 }
 
 // ---------------------------------------------------------------------------

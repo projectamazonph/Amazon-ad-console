@@ -15,7 +15,7 @@ test.describe('Simulation', () => {
 
     // Metrics should be present (may or may not change depending on initial state)
     const afterTiles = await page.locator('.kpi-grid .kpi-tile .value').allTextContents();
-    expect(afterTiles).toHaveLength(9);
+    expect(afterTiles).toHaveLength(10);
   });
 
   test('Run 7-day sim from campaign manager', async ({ page }) => {

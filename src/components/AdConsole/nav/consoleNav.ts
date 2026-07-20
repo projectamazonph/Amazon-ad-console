@@ -114,6 +114,7 @@ export function getToolsRail(): LeftRailItem[] {
 export const KPI_TILES: KpiTile[] = [
   { key: 'impressions', label: 'Impressions' },
   { key: 'clicks', label: 'Clicks' },
+  { key: 'cpc', label: 'CPC' },
   { key: 'spend', label: 'Spend' },
   { key: 'sales', label: 'Sales' },
   { key: 'orders', label: 'Orders' },
@@ -174,9 +175,11 @@ export function getKpiTiles(m: MetricsSnapshot): KpiTile[] {
   const ctr = m.impressions ? (m.clicks / m.impressions) * 100 : 0;
   const acos = m.sales ? (m.spend / m.sales) * 100 : 0;
   const roas = m.spend ? m.sales / m.spend : 0;
+  const cpc = m.clicks ? m.spend / m.clicks : 0;
   return [
     { key: 'impressions', label: 'Impressions', value: whole(m.impressions) },
     { key: 'clicks', label: 'Clicks', value: whole(m.clicks) },
+    { key: 'cpc', label: 'CPC', value: money(cpc) },
     { key: 'spend', label: 'Spend', value: money(m.spend) },
     { key: 'sales', label: 'Sales', value: money(m.sales) },
     { key: 'orders', label: 'Orders', value: whole(m.orders) },

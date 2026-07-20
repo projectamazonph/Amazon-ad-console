@@ -77,7 +77,28 @@ export const createCoreSlice = (set: any, get: any, ..._rest: any[]): CoreSlice 
       }));
     // One keyword box expands into a target per selected match type.
     const matchTypes: string[] = d.keywordMatchTypes.length ? d.keywordMatchTypes : ['Exact'];
-    const targets: any[] = matchTypes.flatMap((mt: string) => buildKeywords(d.keywords, mt));
+    const keywordTargets: any[] = matchTypes.flatMap((mt: string) => buildKeywords(d.keywords, mt));
+
+    // Automatic SP campaigns get an auto-targeting group per enabled bucket,
+    // each carrying its own bid.
+    const autoGroupDefs = [
+      ['closeMatch', 'Auto - close match', 'close match'],
+      ['looseMatch', 'Auto - loose match', 'loose match'],
+      ['substitutes', 'Auto - substitutes', 'substitutes'],
+      ['complements', 'Auto - complements', 'complements'],
+    ] as const;
+    const autoTargets: any[] = d.type === 'SP' && d.targetingMode === 'Automatic'
+      ? autoGroupDefs
+          .filter(([key]) => d.autoTargets[key].enabled)
+          .map(([key, type, value]) => ({
+            id: generateId('T'), campaignId: id, adGroupId: agId,
+            type, value, match: '',
+            bid: d.autoTargets[key].bid, status: 'Enabled' as CampaignStatus,
+            impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0,
+          }))
+      : [];
+
+    const targets: any[] = [...keywordTargets, ...autoTargets];
     const campaign = normalizeCampaign({
       id, type: d.type, name: d.name, portfolio: portfolioName,
       status: d.status, dailyBudget: d.dailyBudget, defaultBid: d.defaultBid,
@@ -122,6 +143,12 @@ export function makeDraft(): CampaignDraft {
     keywords: '',
     keywordMatchTypes: ['Exact'], asinTargets: '', categoryTargets: '', audienceTargets: '',
     audienceLookback: '30',
+    autoTargets: {
+      closeMatch: { enabled: true, bid: 0.75 },
+      looseMatch: { enabled: true, bid: 0.75 },
+      substitutes: { enabled: true, bid: 0.75 },
+      complements: { enabled: true, bid: 0.75 },
+    },
   };
 }
 

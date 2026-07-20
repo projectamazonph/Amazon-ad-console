@@ -41,6 +41,15 @@ export function Step6ReviewLaunch({ isActive, isComplete }: Step6ReviewLaunchPro
               </strong>
             </div>
           )}
+          {d.targetingMode === 'Automatic' && (
+            <div className="review-row">
+              <span>Auto targeting</span>
+              <strong>
+                {(['closeMatch', 'looseMatch', 'substitutes', 'complements'] as const)
+                  .filter((k) => d.autoTargets[k].enabled).length} group(s) enabled
+              </strong>
+            </div>
+          )}
           {d.audienceLookback && <div className="review-row"><span>Lookback</span><strong>{d.audienceLookback} days</strong></div>}
         </div>
         {!d.name.trim() && <div className="coach-tip" style={{ marginTop: 10 }}>Campaign name is required before launch.</div>}

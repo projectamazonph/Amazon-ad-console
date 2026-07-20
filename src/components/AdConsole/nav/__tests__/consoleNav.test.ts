@@ -77,10 +77,11 @@ describe('dashboard measurement rail', () => {
 });
 
 describe('KPI tiles', () => {
-  it('defines the 8 Amazon console KPI tiles', () => {
+  it('defines the Amazon console KPI tiles in order (including CPC)', () => {
     expect(KPI_TILES.map((t: KpiTile) => t.key)).toEqual([
       'impressions',
       'clicks',
+      'cpc',
       'spend',
       'sales',
       'orders',
@@ -103,6 +104,7 @@ describe('KPI tiles', () => {
     const byKey = Object.fromEntries(tiles.map((t) => [t.key, t.value]));
     expect(byKey.impressions).toBe('1,000');
     expect(byKey.clicks).toBe('50');
+    expect(byKey.cpc).toBe('$0.50'); // 25 spend / 50 clicks
     expect(byKey.spend).toBe('$25.00');
     expect(byKey.sales).toBe('$100.00');
     expect(byKey.orders).toBe('5');
