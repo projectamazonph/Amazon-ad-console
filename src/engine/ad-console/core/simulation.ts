@@ -78,11 +78,14 @@ export function simulateDays(campaigns: Campaign[], days: number = 7): Campaign[
         const tgt = enabledTargets[si];
         if (tgt.type !== 'Keyword') continue;
         
-        // Use the new generator with negative filtering during generation
+        // Use the new generator with negative filtering during generation.
+        // Only enabled negatives block terms (disabled ones are kept but inactive).
         const generatedTerms = generateSearchTermsForTarget(
           tgt.value,
           tgt.match as 'Exact' | 'Phrase' | 'Broad',
-          c.negatives.map(n => ({ value: n.value, type: n.type }))
+          c.negatives
+            .filter((n) => !n.status || n.status === 'Enabled')
+            .map(n => ({ value: n.value, type: n.type }))
         );
         
         for (let gi = 0; gi < generatedTerms.length; gi++) {

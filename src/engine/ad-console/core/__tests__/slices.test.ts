@@ -289,6 +289,26 @@ describe('NegativeSlice', () => {
     const updated = getStore().state.campaigns.find((x: Campaign) => x.id === c.id)!;
     expect(updated.targets.some((t) => t.value === 'harvested term')).toBe(true);
   });
+
+  it('removeNegative deletes a negative', () => {
+    const c = firstCampaign();
+    getStore().addNegative(c.id, 'removable', 'Negative exact');
+    let updated = getStore().state.campaigns.find((x: Campaign) => x.id === c.id)!;
+    const neg = updated.negatives.find((n) => n.value === 'removable')!;
+    getStore().removeNegative(c.id, neg.id);
+    updated = getStore().state.campaigns.find((x: Campaign) => x.id === c.id)!;
+    expect(updated.negatives.some((n) => n.id === neg.id)).toBe(false);
+  });
+
+  it('toggleNegative flips a negative status', () => {
+    const c = firstCampaign();
+    getStore().addNegative(c.id, 'toggleable', 'Negative exact');
+    let updated = getStore().state.campaigns.find((x: Campaign) => x.id === c.id)!;
+    const neg = updated.negatives.find((n) => n.value === 'toggleable')!;
+    getStore().toggleNegative(c.id, neg.id);
+    updated = getStore().state.campaigns.find((x: Campaign) => x.id === c.id)!;
+    expect(updated.negatives.find((n) => n.id === neg.id)!.status).toBe('Paused');
+  });
 });
 
 describe('BudgetSlice', () => {

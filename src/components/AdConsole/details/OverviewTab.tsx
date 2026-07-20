@@ -11,8 +11,8 @@ interface Props {
 }
 
 export function OverviewTab({ campaign: c }: Props) {
-  const toggleStatus = useAdConsoleStore((s) => s.toggleCampaignStatus);
   const removeCampaignProduct = useAdConsoleStore((s) => s.removeCampaignProduct);
+  const setTab = useAdConsoleStore((s) => s.setTab);
   const [budgetInput, setBudgetInput] = useState(String(c.dailyBudget));
   const [defaultBidInput, setDefaultBidInput] = useState(String(c.defaultBid));
 
@@ -43,7 +43,7 @@ export function OverviewTab({ campaign: c }: Props) {
           <div className="field">
             <label>Status</label>
             <select className="select full" value={c.status}
-              onChange={(e) => toggleStatus(c.id)}>
+              onChange={(e) => useAdConsoleStore.getState().updateCampaignSettings(c.id, { status: e.target.value as any })}>
               {['Enabled', 'Paused', 'Archived'].map((x) => <option key={x}>{x}</option>)}
             </select>
           </div>
@@ -95,7 +95,7 @@ export function OverviewTab({ campaign: c }: Props) {
         )}
       </div>
       <div className="card pad" style={{ gridColumn: '1 / -1' }}>
-        <div className="section-head"><h2>Top targets by profit signal</h2><span className="meta">Use to train bid optimization</span></div>
+        <div className="section-head"><h2>Top targets by profit signal</h2><span className="meta">Click a target to manage it in Targeting</span></div>
         <div className="table-wrap">
           <table>
             <thead><tr><th>Target</th><th>Bid</th><th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th></tr></thead>
@@ -104,7 +104,12 @@ export function OverviewTab({ campaign: c }: Props) {
                 const tx = calc(t);
                 return (
                   <tr key={t.id}>
-                    <td><strong>{t.value}</strong></td>
+                    <td>
+                      <button className="row-link" onClick={() => setTab('targets')}
+                        style={{ border: 'none', background: 'none', color: 'var(--blue)', cursor: 'pointer', fontWeight: 600, textAlign: 'left', padding: 0 }}>
+                        {t.value}
+                      </button>
+                    </td>
                     <td className="money">{formatBid(t.bid)}</td>
                     <td className="mono">{formatWhole(t.impressions)}</td>
                     <td className="mono">{formatWhole(t.clicks)}</td>

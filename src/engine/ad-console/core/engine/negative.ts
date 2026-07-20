@@ -4,13 +4,15 @@
  * Can be applied at campaign level or ad group level.
  */
 import type {
-  Campaign, Negative, NegativeType, SearchTerm, Target
+  Campaign, CampaignStatus, Negative, NegativeType, SearchTerm, Target
 } from '../types';
 import { generateId } from './id';
 
 export function isFilteredByNegative(term: string, negatives: Negative[]): boolean {
   const termLower = term.toLowerCase();
   return negatives.some((n) => {
+    // A disabled negative is kept on the campaign but stops filtering.
+    if (n.status && n.status !== 'Enabled') return false;
     const negLower = n.value.toLowerCase();
     if (n.type === 'Negative exact') return termLower === negLower;
     if (n.type === 'Negative phrase') return termLower.includes(negLower);
@@ -54,6 +56,7 @@ export function addNegative(opts: AddNegativeOptions): Campaign {
         adGroupId: finalAdGroupId,
         type,
         value,
+        status: 'Enabled',
         sourceSearchTermId,
       },
     ],
@@ -95,6 +98,28 @@ export function removeNegative(c: Campaign, negativeId: string): Campaign {
     negatives: c.negatives.filter((n) => n.id !== negativeId),
     history: [...c.history, `Negative "${removed.value}" (${removed.type}) removed`],
   };
+}
+
+export function setNegativeStatus(
+  c: Campaign,
+  negativeId: string,
+  status: CampaignStatus,
+): Campaign {
+  const n = c.negatives.find((x) => x.id === negativeId);
+  if (!n) return c;
+  return {
+    ...c,
+    negatives: c.negatives.map((x) => (x.id === negativeId ? { ...x, status } : x)),
+    history: [...c.history, `Negative "${n.value}" (${n.type}) ${status === 'Enabled' ? 'enabled' : status.toLowerCase()}`],
+  };
+}
+
+/** Flip a negative between Enabled and Paused. */
+export function toggleNegative(c: Campaign, negativeId: string): Campaign {
+  const n = c.negatives.find((x) => x.id === negativeId);
+  if (!n) return c;
+  const next: CampaignStatus = (n.status ?? 'Enabled') === 'Enabled' ? 'Paused' : 'Enabled';
+  return setNegativeStatus(c, negativeId, next);
 }
 
 export function harvestTerm(c: Campaign, term: string, targetValue?: string): Campaign {

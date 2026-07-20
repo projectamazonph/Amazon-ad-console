@@ -30,7 +30,7 @@ export function ManagerAdGroupsTab({ campaigns, onSelectCampaign }: Props) {
             const x = calc(m);
             return (
               <tr key={ag.id}>
-                <td><strong>{ag.name}</strong></td>
+                <td><button className="row-link" onClick={() => onSelectCampaign(c.id)} style={{ border: 'none', background: 'none', color: 'var(--blue)', cursor: 'pointer', fontWeight: 600, textAlign: 'left', padding: 0 }}>{ag.name}</button></td>
                 <td><button className="row-link" onClick={() => onSelectCampaign(c.id)} style={{ border: 'none', background: 'none', color: 'var(--blue)', cursor: 'pointer' }}>{c.name}</button></td>
                 <td><span className={`pill ${c.type === 'SP' ? 'active' : c.type === 'SB' ? 'orange' : 'purple'}`}>{c.type}</span></td>
                 <td><span className={`pill ${ag.status === 'Enabled' ? 'green' : 'orange'}`}>{ag.status}</span></td>

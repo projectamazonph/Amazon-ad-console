@@ -155,6 +155,7 @@ export function normalizeCampaign(c: Partial<Campaign>): Campaign {
       adGroupId: n.adGroupId ?? primaryAgId ?? null,
       type: n.type ?? 'Negative exact',
       value: n.value,
+      status: n.status ?? 'Enabled',
       sourceSearchTermId: n.sourceSearchTermId,
     })),
     budgetRules: (c.budgetRules ?? []).map((r, i) => ({

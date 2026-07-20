@@ -21,6 +21,10 @@ import {
   pauseTarget,
   setTargetStatus,
   addNegative,
+  removeNegative,
+  setNegativeStatus,
+  toggleNegative,
+  isFilteredByNegative,
   harvestTerm,
   simulateDays,
   filteredCampaigns,
@@ -197,6 +201,44 @@ describe('negatives and harvesting', () => {
     const next = harvestTerm(c, 'blue shoes');
     expect(next.targets).toHaveLength(1);
     expect(next.targets[0]!.value).toBe('blue shoes');
+  });
+
+  it('marks a new negative as Enabled', () => {
+    const c = addNegative({ campaign: makeCampaign(), value: 'free', type: 'Negative exact' });
+    expect(c.negatives[0]!.status).toBe('Enabled');
+  });
+
+  it('removes a negative by id', () => {
+    const c = addNegative({ campaign: makeCampaign(), value: 'free', type: 'Negative exact' });
+    const next = removeNegative(c, c.negatives[0]!.id);
+    expect(next.negatives).toHaveLength(0);
+  });
+
+  it('toggles a negative between Enabled and Paused', () => {
+    const c = addNegative({ campaign: makeCampaign(), value: 'free', type: 'Negative exact' });
+    const id = c.negatives[0]!.id;
+    const paused = toggleNegative(c, id);
+    expect(paused.negatives[0]!.status).toBe('Paused');
+    const reenabled = toggleNegative(paused, id);
+    expect(reenabled.negatives[0]!.status).toBe('Enabled');
+  });
+
+  it('setNegativeStatus sets an explicit status', () => {
+    const c = addNegative({ campaign: makeCampaign(), value: 'free', type: 'Negative exact' });
+    const next = setNegativeStatus(c, c.negatives[0]!.id, 'Paused');
+    expect(next.negatives[0]!.status).toBe('Paused');
+  });
+
+  it('a disabled negative no longer filters search terms', () => {
+    const negs: Negative[] = [{ id: 'N1', campaignId: 'C1', adGroupId: null, type: 'Negative phrase', value: 'free', status: 'Enabled' }];
+    expect(isFilteredByNegative('free shipping', negs)).toBe(true);
+    const disabled: Negative[] = [{ ...negs[0], status: 'Paused' }];
+    expect(isFilteredByNegative('free shipping', disabled)).toBe(false);
+  });
+
+  it('treats a negative with no status as Enabled (backwards compatible)', () => {
+    const negs: Negative[] = [{ id: 'N1', campaignId: 'C1', adGroupId: null, type: 'Negative exact', value: 'free' }];
+    expect(isFilteredByNegative('free', negs)).toBe(true);
   });
 });
 
