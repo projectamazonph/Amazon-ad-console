@@ -1,8 +1,26 @@
 import { NextResponse } from 'next/server';
+import type { Prisma } from '@/generated/prisma/client';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 
+/**
+ * Wire shape of a campaign as the browser sends it in the sync payload.
+ * Defined locally so this file typechecks before `prisma generate` has run
+ * (the generated client is gitignored). The Prisma layer is the source of
+ * truth for what's actually persisted.
+ */
+type WireCampaign = { id?: unknown } & Record<string, unknown>;
+
 // POST /api/sync - Sync all campaigns from local state to database
+//
+// Atomicity contract: either every campaign in `campaigns` is written and the
+// user's previous cloud snapshot is fully replaced, or no write happens at all.
+// On any failure inside the transaction (validation, DB error, partial insert)
+// the original cloud state is preserved.
+//
+// Audit B-03 fix: previous implementation ran `deleteMany` followed by
+// `createMany` outside a transaction, so a single bad record could leave the
+// user with an empty cloud account while their previous data was already gone.
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -10,28 +28,47 @@ export async function POST(request: Request) {
   }
 
   const userId = session.user.id;
-  const { campaigns } = await request.json();
-  
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
+
+  const { campaigns } = (body ?? {}) as { campaigns?: unknown };
   if (!Array.isArray(campaigns)) {
     return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
   }
 
-  // Delete existing campaigns for this user
-  await prisma.campaign.deleteMany({
-    where: { userId },
-  });
-
-  // Insert all campaigns
-  const created = await prisma.campaign.createMany({
-    data: campaigns.map((c: any) => ({
+  // Reject obviously malformed rows up front so we never enter the
+  // transaction with input that cannot be written. Per-row validation stays
+  // inside the transaction so we still benefit from atomic rollback if the
+  // DB rejects something the JS layer can't catch.
+  const rows: Prisma.CampaignCreateManyInput[] = [];
+  for (const c of campaigns as any[]) {
+    if (!c || typeof c !== 'object') {
+      return NextResponse.json(
+        { error: 'Invalid campaign record: expected object' },
+        { status: 400 },
+      );
+    }
+    const wire = c as WireCampaign;
+    if (typeof wire.id !== 'string' || wire.id.length === 0) {
+      return NextResponse.json(
+        { error: 'Invalid campaign record: missing string id' },
+        { status: 400 },
+      );
+    }
+    rows.push({
       userId,
-      campaignId: c.id,
+      campaignId: wire.id,
       type: c.type || 'SP',
       name: c.name || 'Untitled',
       portfolio: c.portfolio,
       status: c.status || 'Enabled',
-      dailyBudget: c.dailyBudget || 25,
-      defaultBid: c.defaultBid || 0.75,
+      dailyBudget: c.dailyBudget ?? 25,
+      defaultBid: c.defaultBid ?? 0.75,
       startDate: c.startDate,
       endDate: c.endDate,
       targetingMode: c.targetingMode,
@@ -48,10 +85,38 @@ export async function POST(request: Request) {
       negatives: c.negatives ? JSON.stringify(c.negatives) : null,
       budgetRules: c.budgetRules ? JSON.stringify(c.budgetRules) : null,
       history: c.history ? JSON.stringify(c.history) : null,
-    })),
-  });
+    });
+  }
 
-  return NextResponse.json({ synced: created.count });
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      // Delete inside the transaction so the rollback path restores the
+      // user's previous snapshot. We do NOT touch other users' data because
+      // userId is in the where clause.
+      await tx.campaign.deleteMany({ where: { userId } });
+
+      // Empty payload is a valid "clear cloud" action: still atomic, still
+      // inside the transaction, still scoped to this user.
+      if (rows.length === 0) {
+        return { synced: 0 };
+      }
+
+      const created = await tx.campaign.createMany({ data: rows });
+      return { synced: created.count };
+    });
+
+    return NextResponse.json(result);
+  } catch (err) {
+    // Log on the server, do not leak DB internals to the client.
+    console.error('[sync] atomic replace failed; user cloud state preserved', {
+      userId,
+      error: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json(
+      { error: 'Sync failed; previous cloud data preserved' },
+      { status: 500 },
+    );
+  }
 }
 
 // GET /api/sync - Load campaigns from database
