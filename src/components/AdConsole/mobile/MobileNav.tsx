@@ -3,7 +3,7 @@
 import { useRef, useEffect } from 'react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { useBreakpoint } from '@/lib/useBreakpoint';
-import { getLeftRail, isSidebarItemActive, resolveSidebarClick, type NavView } from '../nav/consoleNav';
+import { GLOBAL_NAV, getLeftRail, isSidebarItemActive, resolveSidebarClick, type NavView } from '../nav/consoleNav';
 
 const GROUP_TITLES: Record<string, string> = {
   campaigns: 'Campaign Manager',
@@ -27,6 +27,7 @@ export function MobileNav() {
   const resetAll = useAdConsoleStore((s) => s.resetAll);
 
   const drawerRef = useRef<HTMLDivElement>(null);
+  const activeSectionTabRef = useRef<HTMLButtonElement>(null);
 
   // Mirror the desktop sidebar's section resolution so the drawer shows the
   // same rail as the active global-nav section instead of always defaulting
@@ -55,6 +56,13 @@ export function MobileNav() {
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, [mobileMenu.status, closeMobileMenu]);
+
+  // The section switcher can scroll horizontally on narrow drawers — make
+  // sure the active section is always the one in view, not clipped off.
+  useEffect(() => {
+    if (mobileMenu.status !== 'open') return;
+    activeSectionTabRef.current?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+  }, [mobileMenu.status, section]);
 
   if (!isMobileOrTablet) return null;
 
@@ -99,6 +107,24 @@ export function MobileNav() {
           <button className="mobile-drawer-close" onClick={closeMobileMenu} aria-label="Close menu">
             ✕
           </button>
+        </div>
+
+        {/* .nav-section (the desktop equivalent) is hidden below 768px, so this
+            is the only way for phone-width users to switch top-level sections. */}
+        <div className="tabs mobile-drawer-tabs" role="tablist" aria-label="Console sections">
+          {GLOBAL_NAV.map((navSection) => {
+            const isActive = section === navSection.view;
+            return (
+              <button
+                key={navSection.view}
+                ref={isActive ? activeSectionTabRef : undefined}
+                className={`tab ${isActive ? 'active' : ''}`}
+                onClick={() => setView(navSection.view)}
+              >
+                {navSection.label}
+              </button>
+            );
+          })}
         </div>
 
         {Object.entries(groups).map(([group, groupItems]) => (

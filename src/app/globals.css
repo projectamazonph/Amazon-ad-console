@@ -1452,6 +1452,17 @@ textarea.input {
   background: var(--accent-soft);
 }
 
+.mobile-drawer-tabs {
+  margin: 0 calc(var(--space-4) * -1) var(--space-4);
+  padding: 0 var(--space-4);
+}
+
+.mobile-drawer-tabs .tab {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-xs);
+  min-height: 40px;
+}
+
 /* ── Responsive — Mobile First ──────────────────────────────────── */
 
 @media (max-width: 768px) {
