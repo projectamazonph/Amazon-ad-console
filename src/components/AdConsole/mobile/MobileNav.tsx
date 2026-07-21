@@ -3,7 +3,7 @@
 import { useRef, useEffect } from 'react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { useBreakpoint } from '@/lib/useBreakpoint';
-import { getLeftRail, type NavView } from '../nav/consoleNav';
+import { GLOBAL_NAV, getLeftRail, isSidebarItemActive, resolveSidebarClick, type NavView } from '../nav/consoleNav';
 
 const GROUP_TITLES: Record<string, string> = {
   campaigns: 'Campaign Manager',
@@ -20,13 +20,19 @@ export function MobileNav() {
   const closeMobileMenu = useAdConsoleStore((s) => s.closeMobileMenu);
   const mobileMenuAnimationEnd = useAdConsoleStore((s) => s.mobileMenuAnimationEnd);
   const view = useAdConsoleStore((s) => s.view);
+  const selectedTab = useAdConsoleStore((s) => s.state.selectedTab);
   const setView = useAdConsoleStore((s) => s.setView);
+  const setTab = useAdConsoleStore((s) => s.setTab);
   const runSimulation = useAdConsoleStore((s) => s.runSimulation);
   const resetAll = useAdConsoleStore((s) => s.resetAll);
 
   const drawerRef = useRef<HTMLDivElement>(null);
+  const activeSectionTabRef = useRef<HTMLButtonElement>(null);
 
-  const section: NavView = view === 'portfolio' ? 'portfolio' : 'campaigns';
+  // Mirror the desktop sidebar's section resolution so the drawer shows the
+  // same rail as the active global-nav section instead of always defaulting
+  // to Campaign Manager.
+  const section: NavView = view === 'portfolio' ? 'portfolio' : view === 'dashboard' ? 'dashboard' : 'campaigns';
   const items = getLeftRail(section);
 
   const groups: Record<string, typeof items> = {};
@@ -50,6 +56,13 @@ export function MobileNav() {
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, [mobileMenu.status, closeMobileMenu]);
+
+  // The section switcher can scroll horizontally on narrow drawers — make
+  // sure the active section is always the one in view, not clipped off.
+  useEffect(() => {
+    if (mobileMenu.status !== 'open') return;
+    activeSectionTabRef.current?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+  }, [mobileMenu.status, section]);
 
   if (!isMobileOrTablet) return null;
 
@@ -96,15 +109,36 @@ export function MobileNav() {
           </button>
         </div>
 
+        {/* .nav-section (the desktop equivalent) is hidden below 768px, so this
+            is the only way for phone-width users to switch top-level sections. */}
+        <div className="tabs mobile-drawer-tabs" role="tablist" aria-label="Console sections">
+          {GLOBAL_NAV.map((navSection) => {
+            const isActive = section === navSection.view;
+            return (
+              <button
+                key={navSection.view}
+                ref={isActive ? activeSectionTabRef : undefined}
+                className={`tab ${isActive ? 'active' : ''}`}
+                onClick={() => setView(navSection.view)}
+              >
+                {navSection.label}
+              </button>
+            );
+          })}
+        </div>
+
         {Object.entries(groups).map(([group, groupItems]) => (
           <div key={group}>
             <div className="sidebar-group-title">{GROUP_TITLES[group]}</div>
             {groupItems.map((item) => (
               <button
                 key={item.label}
-                className={`mobile-drawer-item ${view === item.view && group === 'campaigns' ? 'active' : ''}`}
+                className={`mobile-drawer-item ${isSidebarItemActive(item, view, selectedTab) ? 'active' : ''}`}
                 onClick={() => {
-                  setView(item.view);
+                  const action = resolveSidebarClick(item, view);
+                  if (action.type === 'setTab') setTab(action.tab!);
+                  else if (action.type === 'setTabAndView') { setTab(action.tab!); setView(action.view!); }
+                  else setView(action.view!);
                   closeMobileMenu();
                 }}
               >

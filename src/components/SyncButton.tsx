@@ -44,11 +44,12 @@ export function SyncButton() {
   };
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+    <div className="sync-controls">
+      {lastSync && <span className="sync-status">{lastSync}</span>}
       <button
         onClick={() => handleSync('upload')}
         disabled={syncing}
-        style={{ fontSize: 'var(--text-xs)', background: 'rgba(6, 125, 98, 0.1)', color: 'var(--success)', padding: '6px 12px', borderRadius: 'var(--radius-full)', border: 'none', cursor: 'pointer', transition: 'all var(--duration-fast) var(--ease-out)', opacity: syncing ? 0.5 : 1 }}
+        className="sync-btn save"
         title="Save campaigns to cloud"
       >
         {syncing ? '...' : '↑ Save'}
@@ -56,14 +57,11 @@ export function SyncButton() {
       <button
         onClick={() => handleSync('download')}
         disabled={syncing}
-        style={{ fontSize: 'var(--text-xs)', background: 'rgba(0, 113, 133, 0.1)', color: 'var(--info)', padding: '6px 12px', borderRadius: 'var(--radius-full)', border: 'none', cursor: 'pointer', transition: 'all var(--duration-fast) var(--ease-out)', opacity: syncing ? 0.5 : 1 }}
+        className="sync-btn load"
         title="Load campaigns from cloud"
       >
         {syncing ? '...' : '↓ Load'}
       </button>
-      {lastSync && (
-        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--nav-ink-dim)' }}>{lastSync}</span>
-      )}
     </div>
   );
 }

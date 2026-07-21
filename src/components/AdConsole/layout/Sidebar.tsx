@@ -1,7 +1,7 @@
 'use client';
 
 import { useAdConsoleStore } from '@/engine/ad-console/store';
-import { getLeftRail, resolveSidebarClick, type NavView } from '../nav/consoleNav';
+import { getLeftRail, isSidebarItemActive, resolveSidebarClick, type NavView } from '../nav/consoleNav';
 
 const GROUP_TITLES: Record<string, string> = {
   campaigns: 'Campaign Manager',
@@ -11,6 +11,7 @@ const GROUP_TITLES: Record<string, string> = {
 
 export function Sidebar() {
   const view = useAdConsoleStore((s) => s.view);
+  const selectedTab = useAdConsoleStore((s) => s.state.selectedTab);
   const setView = useAdConsoleStore((s) => s.setView);
   const setTab = useAdConsoleStore((s) => s.setTab);
   const runSimulation = useAdConsoleStore((s) => s.runSimulation);
@@ -35,7 +36,7 @@ export function Sidebar() {
             <div
               key={item.label}
               className={`sidebar-item ${
-                (item.tab ? view === 'detail' : view === item.view) ? 'active' : ''
+                isSidebarItemActive(item, view, selectedTab) ? 'active' : ''
               }`}
               onClick={() => {
                 const action = resolveSidebarClick(item, view);
