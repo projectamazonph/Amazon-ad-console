@@ -4,45 +4,56 @@
  */
 
 :root {
-  /* Surfaces — Refined Amazon canvas */
-  --surface-0: #f5f6f6;
-  --surface-1: #ffffff;
-  --surface-2: #f8f9fa;
-  --surface-3: #232f3e;
-  --surface-4: #1a252f;
+  /* ============================================================================
+   * Amazon Platform Theme — official brand tokens
+   * ----------------------------------------------------------------------------
+   * Surfaces, nav, ink, borders, and accent all use Amazon's published palette
+   * (advertising.amazon.com + retail amazon.com shared design system).
+   * Refs:
+   *   - Amazon retail: #131921 top nav, #eaeded page bg, #ff9900 accent
+   *   - Amazon Ads:    same accent + #007185 clickable teal for focus/links
+   *   - AWS technical: error red #cc0c39, success green #1d8102
+   * ============================================================================ */
 
-  /* Ink (text) — Amazon's near-black with better contrast */
-  --ink-900: #0f1111;
-  --ink-800: #1a1c1e;
-  --ink-700: #3d464d;
-  --ink-500: #6b7278;
-  --ink-400: #90969c;
-  --ink-300: #c4c9cc;
-  --ink-200: #e0e3e5;
-  --ink-inverse: #ffffff;
+  /* Surfaces — Amazon retail canvas (page, panels, top nav, deeper nav) */
+  --surface-0: #eaeded;     /* Amazon page background (canonical #eaeded) */
+  --surface-1: #ffffff;     /* Cards, panels, modals */
+  --surface-2: #f7f8f8;     /* Subtle elevation, hover wells */
+  --surface-3: #131921;     /* Top nav + dark surfaces (Amazon retail dark navy) */
+  --surface-4: #0f1111;     /* Deepest surface, marketing page hero */
 
-  /* Border — Subtle, refined hairlines */
-  --border: #d5d9d9;
-  --border-light: #e8eaeb;
-  --border-strong: #8d9096;
-  --border-focus: #007185;
+  /* Ink (text) — Amazon's text ramp */
+  --ink-900: #0f1111;       /* Primary text on light surfaces */
+  --ink-800: #16191e;       /* Strong text */
+  --ink-700: #2b3947;       /* Section labels, secondary headings */
+  --ink-500: #5f6b7a;       /* Muted body, helper text */
+  --ink-400: #8a93a0;       /* Placeholder, disabled */
+  --ink-300: #c7cbd0;       /* Hairlines-on-light decorative */
+  --ink-200: #e7e9ec;       /* Subtle dividers */
+  --ink-inverse: #ffffff;   /* Text on dark surfaces */
 
-  /* Brand — Amazon orange (refined) */
+  /* Border — Amazon's hairline ramp */
+  --border: #d5d9d9;        /* Default border (matches Amazon retail) */
+  --border-light: #e7e9ec;  /* Lighter divider */
+  --border-strong: #8d9096; /* Strong border, focus contrast */
+  --border-focus: #007185;  /* Amazon "clickable" teal — focus + links */
+
+  /* Brand — Amazon orange (canonical #ff9900) */
   --accent: #ff9900;
-  --accent-hover: #e68a00;
-  --accent-active: #cc7a00;
-  --accent-soft: #fff8e6;
-  --accent-ink: #0f1111;
+  --accent-hover: #e47911;     /* Canonical Amazon hover */
+  --accent-active: #c45500;    /* Canonical Amazon active */
+  --accent-soft: #fef3e0;      /* Tint for chips/wells */
+  --accent-ink: #0f1111;       /* Text on accent fills */
 
-  /* Semantic — Refined palette */
-  --success: #067d62;
-  --success-soft: #e6f7f1;
-  --warning: #b45309;
-  --warning-soft: #fef3c7;
-  --danger: #c40000;
-  --danger-soft: #fee2e2;
-  --info: #007185;
-  --info-soft: #e0f2fe;
+  /* Semantic — Amazon platform pairings */
+  --success: #067d62;          /* Teal/green that Amazon Ads uses */
+  --success-soft: #e6f4f1;
+  --warning: #b12704;          /* Amazon warning (slightly hotter) */
+  --warning-soft: #fef3e0;
+  --danger: #cc0c39;           /* Amazon error red */
+  --danger-soft: #fde7ee;
+  --info: #007185;             /* Amazon clickable teal (same as focus) */
+  --info-soft: #e0f2f5;
 
   /* Typography — Premium font stack */
   --font-display: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -104,9 +115,9 @@
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  /* Global nav — Amazon dark slate */
-  --nav-bg: #232f3e;
-  --nav-bg-hover: #37475a;
+  /* Global nav — Amazon retail dark navy (advertising.amazon.com) */
+  --nav-bg: #131921;
+  --nav-bg-hover: #232f3e;
   --nav-ink: #ffffff;
   --nav-ink-dim: #b9c2cc;
 
@@ -2413,7 +2424,7 @@ textarea.input {
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
-  background: rgba(26, 37, 47, 0.85);
+  background: rgba(19, 25, 33, 0.85);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
@@ -2442,8 +2453,8 @@ textarea.input {
   font-weight: 500;
   padding: 2px var(--space-2);
   border-radius: var(--radius-full);
-  background: rgba(6, 125, 98, 0.15);
-  color: var(--success);
+  background: rgba(6, 125, 98, 0.18);
+  color: #5dd3a8;  /* brighter success on dark backdrop */
 }
 .landing-nav-links {
   display: flex;
@@ -2475,7 +2486,7 @@ textarea.input {
 }
 .landing-cta--primary {
   background: var(--ink-inverse);
-  color: var(--surface-4);
+  color: var(--surface-3);
 }
 .landing-cta--primary:hover {
   background: var(--ink-200);
@@ -2548,11 +2559,11 @@ textarea.input {
   gap: var(--space-8);
 }
 .landing-card {
-  background: rgba(35, 47, 62, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(19, 25, 33, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
-  transition: border-color 150ms cubic-bezier(0.32, 0.72, 0, 1);
+  transition: border-color, background-color 150ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 .landing-card:hover {
   border-color: rgba(255, 255, 255, 0.12);
@@ -2632,9 +2643,10 @@ textarea.input {
 }
 .auth-card {
   background: var(--surface-3);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-xl);
   padding: var(--space-8);
+  box-shadow: var(--shadow-lg);
 }
 .auth-form {
   display: flex;
@@ -2671,9 +2683,9 @@ textarea.input {
   outline: none;
 }
 .auth-error {
-  background: rgba(196, 0, 0, 0.12);
-  border: 1px solid rgba(196, 0, 0, 0.3);
-  color: var(--danger);
+  background: rgba(204, 12, 57, 0.14);
+  border: 1px solid rgba(204, 12, 57, 0.35);
+  color: #ff7a93;
   font-size: var(--text-sm);
   padding: var(--space-3);
   border-radius: var(--radius-md);
@@ -2689,7 +2701,7 @@ textarea.input {
   font-size: var(--text-sm);
 }
 .auth-link {
-  color: var(--success);
+  color: #5dd3a8;
   text-decoration: none;
   transition: color 150ms cubic-bezier(0.32, 0.72, 0, 1);
 }
