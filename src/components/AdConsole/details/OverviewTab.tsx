@@ -22,18 +22,18 @@ export function OverviewTab({ campaign: c }: Props) {
         <div className="section-head"><h2>Campaign settings</h2><span className="meta">Editable training controls</span></div>
         <div className="form-grid">
           <div className="field">
-            <label>Daily budget</label>
-            <input className="input full" type="number" min="1" value={budgetInput}
+            <label htmlFor="ot-budget">Daily budget</label>
+            <input id="ot-budget" className="input full" type="number" min="1" value={budgetInput}
               onChange={(e) => setBudgetInput(e.target.value)} />
           </div>
           <div className="field">
-            <label>Default bid</label>
-            <input className="input full" type="number" min="0.02" step="0.01" value={defaultBidInput}
+            <label htmlFor="ot-bid">Default bid</label>
+            <input id="ot-bid" className="input full" type="number" min="0.02" step="0.01" value={defaultBidInput}
               onChange={(e) => setDefaultBidInput(e.target.value)} />
           </div>
           <div className="field">
-            <label>Bid strategy</label>
-            <select className="select full" value={c.bidStrategy}
+            <label htmlFor="ot-strategy">Bid strategy</label>
+            <select id="ot-strategy" className="select full" value={c.bidStrategy}
               onChange={(e) => useAdConsoleStore.getState().updateCampaignSettings(c.id, { bidStrategy: e.target.value as any })}>
               {['Dynamic bids - down only', 'Dynamic bids - up and down', 'Fixed bids', 'Cost per click', 'Cost per thousand impressions'].map((x) => (
                 <option key={x}>{x}</option>
@@ -41,8 +41,8 @@ export function OverviewTab({ campaign: c }: Props) {
             </select>
           </div>
           <div className="field">
-            <label>Status</label>
-            <select className="select full" value={c.status}
+            <label htmlFor="ot-status">Status</label>
+            <select id="ot-status" className="select full" value={c.status}
               onChange={(e) => toggleStatus(c.id)}>
               {['Enabled', 'Paused', 'Archived'].map((x) => <option key={x}>{x}</option>)}
             </select>

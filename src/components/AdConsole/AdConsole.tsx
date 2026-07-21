@@ -47,14 +47,15 @@ export function AdConsole() {
 
   return (
     <div className="app-layout">
+      <a className="skip-link" href="#main-content">Skip to main content</a>
       <Topbar />
       <div className="app-body">
         <Sidebar />
-        <div className="app-main">
+        <main id="main-content" className="app-main" tabIndex={-1}>
           <ErrorBoundary>
             <div className="app-content">{renderView()}</div>
           </ErrorBoundary>
-        </div>
+        </main>
       </div>
     </div>
   );

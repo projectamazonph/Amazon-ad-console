@@ -17,12 +17,12 @@ export function NegativesTab({ campaign }: Props) {
     <div>
       <div className="tab-toolbar">
         <div className="field" style={{ flex: 2, minWidth: 200 }}>
-          <label>Add negative</label>
-          <input className="input full" value={negTerm} onChange={(e) => setNegTerm(e.target.value)} placeholder="Enter term to negate" />
+          <label htmlFor="neg-term">Add negative</label>
+          <input id="neg-term" className="input full" value={negTerm} onChange={(e) => setNegTerm(e.target.value)} placeholder="Enter term to negate" />
         </div>
         <div className="field" style={{ flex: 1, minWidth: 150 }}>
-          <label>Type</label>
-          <select className="select full" value={negType} onChange={(e) => setNegType(e.target.value as 'Negative exact' | 'Negative phrase' | 'Negative ASIN' | 'Negative category')}>
+          <label htmlFor="neg-type">Type</label>
+          <select id="neg-type" className="select full" value={negType} onChange={(e) => setNegType(e.target.value as 'Negative exact' | 'Negative phrase' | 'Negative ASIN' | 'Negative category')}>
             <option>Negative exact</option>
             <option>Negative phrase</option>
             <option>Negative ASIN</option>

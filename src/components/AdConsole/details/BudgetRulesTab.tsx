@@ -27,22 +27,22 @@ export function BudgetRulesTab({ campaign }: Props) {
         <div className="section-head"><h2>Add budget rule</h2><span className="meta">Schedule or performance-based</span></div>
         <div className="form-grid">
           <div className="field">
-            <label>Rule name</label>
-            <input className="input full" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Weekend boost" />
+            <label htmlFor="br-name">Rule name</label>
+            <input id="br-name" className="input full" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Weekend boost" />
           </div>
           <div className="field">
-            <label>Type</label>
-            <select className="select full" value={newType} onChange={(e) => setNewType(e.target.value as 'Schedule' | 'Performance')}>
+            <label htmlFor="br-type">Type</label>
+            <select id="br-type" className="select full" value={newType} onChange={(e) => setNewType(e.target.value as 'Schedule' | 'Performance')}>
               <option>Schedule</option><option>Performance</option>
             </select>
           </div>
           <div className="field">
-            <label>Budget increase (x)</label>
-            <input className="input full" type="number" min="0.01" step="0.1" value={newIncrease} onChange={(e) => setNewIncrease(e.target.value)} />
+            <label htmlFor="br-increase">Budget increase (x)</label>
+            <input id="br-increase" className="input full" type="number" min="0.01" step="0.1" value={newIncrease} onChange={(e) => setNewIncrease(e.target.value)} />
           </div>
           <div className="field">
-            <label>Condition</label>
-            <input className="input full" value={newCondition} onChange={(e) => setNewCondition(e.target.value)} placeholder={newType === 'Schedule' ? 'Saturday through Sunday' : 'ACoS below 25%'} />
+            <label htmlFor="br-condition">Condition</label>
+            <input id="br-condition" className="input full" value={newCondition} onChange={(e) => setNewCondition(e.target.value)} placeholder={newType === 'Schedule' ? 'Saturday through Sunday' : 'ACoS below 25%'} />
           </div>
         </div>
         <button className="btn primary" style={{ marginTop: 10 }} onClick={() => {
@@ -62,25 +62,29 @@ export function BudgetRulesTab({ campaign }: Props) {
               {c.budgetRules.map((r) => (
                 <tr key={r.id}>
                   <td>
-                    <input className="input" style={{ width: 160, fontWeight: 600 }}
+                    <label htmlFor={`br-row-name-${r.id}`} className="visually-hidden">Rule name</label>
+                    <input id={`br-row-name-${r.id}`} className="input" style={{ width: 160, fontWeight: 600 }}
                       value={nameEdits[r.id] ?? r.name}
                       onChange={(e) => setNameEdits((p) => ({ ...p, [r.id]: e.target.value }))}
                       onBlur={(e) => { if (e.target.value.trim() && e.target.value !== r.name) updateBudgetRule(c.id, r.id, { name: e.target.value.trim() }); }} />
                   </td>
                   <td>
-                    <select className="select" value={r.type as 'Schedule' | 'Performance'}
+                    <label htmlFor={`br-row-type-${r.id}`} className="visually-hidden">Rule type</label>
+                    <select id={`br-row-type-${r.id}`} className="select" value={r.type as 'Schedule' | 'Performance'}
                       onChange={(e) => updateBudgetRule(c.id, r.id, { type: e.target.value as 'Schedule' | 'Performance' })}>
                       <option>Schedule</option><option>Performance</option>
                     </select>
                   </td>
                   <td>
-                    <input className="input" style={{ width: 70 }} type="number" min="0.01" step="0.1"
+                    <label htmlFor={`br-row-increase-${r.id}`} className="visually-hidden">Budget increase</label>
+                    <input id={`br-row-increase-${r.id}`} className="input" style={{ width: 70 }} type="number" min="0.01" step="0.1"
                       value={increaseEdits[r.id] ?? String(r.increase)}
                       onChange={(e) => setIncreaseEdits((p) => ({ ...p, [r.id]: e.target.value }))}
                       onBlur={(e) => { const v = Number(e.target.value); if (v > 0 && v !== r.increase) updateBudgetRule(c.id, r.id, { increase: v }); }} />
                   </td>
                   <td>
-                    <input className="input" style={{ width: 180 }}
+                    <label htmlFor={`br-row-condition-${r.id}`} className="visually-hidden">Condition</label>
+                    <input id={`br-row-condition-${r.id}`} className="input" style={{ width: 180 }}
                       value={conditionEdits[r.id] ?? r.condition}
                       onChange={(e) => setConditionEdits((p) => ({ ...p, [r.id]: e.target.value }))}
                       onBlur={(e) => { if (e.target.value.trim() && e.target.value !== r.condition) updateBudgetRule(c.id, r.id, { condition: e.target.value.trim() }); }} />

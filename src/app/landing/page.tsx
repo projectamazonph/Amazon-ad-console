@@ -34,108 +34,82 @@ export default function LandingPage() {
   const reduce = useReducedMotion();
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-zinc-950/80 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-xl font-semibold tracking-tight">AdConsole</span>
-            <span className="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-medium">Training</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href="/auth/login" className="text-zinc-400 hover:text-white text-sm font-medium transition-colors">
-              Sign in
-            </Link>
-            <Link href="/auth/register" className="bg-white/10 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-white/20 transition-colors">
-              Sign up
-            </Link>
-            <Link href="/" className="bg-white text-zinc-950 px-5 py-2 rounded-full text-sm font-medium hover:bg-zinc-200 transition-colors">
-              Open simulator
-            </Link>
-          </div>
+    <div className="landing">
+      <header className="landing-nav">
+        <div className="landing-nav-inner">
+          <Link href="/" className="landing-brand">
+            AdConsole
+            <span className="landing-pill">Training</span>
+          </Link>
+          <nav className="landing-nav-links" aria-label="Account">
+            <Link href="/auth/login" className="landing-link">Sign in</Link>
+            <Link href="/auth/register" className="landing-link">Sign up</Link>
+            <Link href="/" className="landing-cta">Open simulator</Link>
+          </nav>
         </div>
-      </nav>
+      </header>
 
-      <section className="pt-24 pb-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="max-w-3xl">
-            <motion.div
-              initial={reduce ? false : { opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <h1 className="text-5xl md:text-7xl font-semibold tracking-tight leading-[1.1] mb-6">
-                Train your team on the real Amazon Ads Console
-              </h1>
-              <p className="text-xl text-zinc-400 max-w-2xl leading-relaxed mb-8">
-                A replica of Amazon&apos;s advertising platform. Create campaigns, optimize bids, and mine search terms without touching a live account.
-              </p>
-            </motion.div>
+      <section className="landing-hero">
+        <div className="landing-container">
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="landing-hero-copy"
+          >
+            <h1 className="landing-h1">
+              Train your team on the real Amazon Ads Console
+            </h1>
+            <p className="landing-lede">
+              A replica of Amazon&apos;s advertising platform. Create campaigns, optimize bids,
+              and mine search terms without touching a live account.
+            </p>
+          </motion.div>
 
-            <motion.div
-              initial={reduce ? false : { opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-wrap gap-4"
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            className="landing-cta-row"
+          >
+            <Link href="/" className="landing-cta landing-cta--primary">Open simulator</Link>
+            <a
+              href="https://github.com/projectamazonph/Amazon-ad-console"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="landing-cta landing-cta--ghost"
             >
-              <Link href="/" className="bg-white text-zinc-950 px-8 py-3.5 rounded-full text-base font-medium hover:bg-zinc-200 transition-colors">
-                Open simulator
-              </Link>
-              <a
-                href="https://github.com/projectamazonph/Amazon-ad-console"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-white/5 text-white border border-white/10 px-8 py-3.5 rounded-full text-base font-medium hover:bg-white/10 transition-colors"
-              >
-                View source
-              </a>
-            </motion.div>
-          </div>
+              View source
+            </a>
+          </motion.div>
         </div>
       </section>
 
-      <section className="py-20 px-6 border-t border-white/5">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={reduce ? false : { opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mb-4">What you get</h2>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <section className="landing-section">
+        <div className="landing-container">
+          <h2 className="landing-h2">What you get</h2>
+          <div className="landing-grid">
             {FEATURES.map((feature, i) => (
-              <motion.div
+              <motion.article
                 key={feature.title}
                 initial={reduce ? false : { opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-                className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6 hover:border-white/10 transition-colors"
+                className="landing-card"
               >
-                <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                <p className="text-zinc-400 text-sm leading-relaxed">{feature.description}</p>
-              </motion.div>
+                <h3 className="landing-h3">{feature.title}</h3>
+                <p className="landing-card-body">{feature.description}</p>
+              </motion.article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-20 px-6 border-t border-white/5">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={reduce ? false : { opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-16"
-          >
-            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mb-4">How it works</h2>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+      <section className="landing-section">
+        <div className="landing-container">
+          <h2 className="landing-h2">How it works</h2>
+          <div className="landing-grid landing-grid--3">
             {[
               {
                 title: 'Create a campaign',
@@ -156,52 +130,37 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                className="landing-step"
               >
-                <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-                <p className="text-zinc-400 leading-relaxed">{item.description}</p>
+                <h3 className="landing-h3">{item.title}</h3>
+                <p className="landing-step-body">{item.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-24 px-6 border-t border-white/5">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={reduce ? false : { opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="text-center"
-          >
-            <h2 className="text-3xl md:text-5xl font-semibold tracking-tight mb-6">
-              Ready to train your team?
-            </h2>
-            <p className="text-zinc-400 text-lg max-w-2xl mx-auto mb-8">
-              No API access required. No live account risk.
-            </p>
-            <Link href="/" className="inline-block bg-white text-zinc-950 px-10 py-4 rounded-full text-base font-medium hover:bg-zinc-200 transition-colors">
-              Open simulator
-            </Link>
-          </motion.div>
+      <section className="landing-section landing-cta-band">
+        <div className="landing-container landing-container--center">
+          <h2 className="landing-h2">Ready to train your team?</h2>
+          <p className="landing-lede">No API access required. No live account risk.</p>
+          <Link href="/" className="landing-cta landing-cta--primary">Open simulator</Link>
         </div>
       </section>
 
-      <footer className="py-12 px-6 border-t border-white/5">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="text-zinc-500 text-sm">
-            Amazon Ad Console Training Simulator
-          </div>
-          <div className="flex items-center gap-6">
+      <footer className="landing-footer">
+        <div className="landing-container landing-footer-inner">
+          <span className="muted">Amazon Ad Console Training Simulator</span>
+          <div className="landing-footer-links">
             <a
               href="https://github.com/projectamazonph/Amazon-ad-console"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-zinc-400 hover:text-white text-sm transition-colors"
+              className="landing-link"
             >
               GitHub
             </a>
-            <span className="text-zinc-500 text-sm">Not affiliated with Amazon</span>
+            <span className="muted">Not affiliated with Amazon</span>
           </div>
         </div>
       </footer>

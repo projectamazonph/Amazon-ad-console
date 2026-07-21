@@ -69,8 +69,8 @@ export function Step3ProductsCreativeSB({ isActive, isComplete }: Step3ProductsC
         <div className="card pad" style={{ marginBottom: 14 }}>
           <div className="card-title"><h3>Store spotlight</h3><span>Store URL</span></div>
           <div className="field full">
-            <label>Store URL</label>
-            <input className="input full" placeholder="https://www.amazon.com/stores/YourStore"
+            <label htmlFor="sb3-store-url">Store URL</label>
+            <input id="sb3-store-url" className="input full" placeholder="https://www.amazon.com/stores/YourStore"
               value={storeUrl}
               onChange={(e) => { setStoreUrl(e.target.value); updateDraft('creative', { ...draft.creative, destination: e.target.value }); }} />
             <p className="muted" style={{ fontSize: 'var(--text-xs)', marginTop: 4 }}>
@@ -85,19 +85,19 @@ export function Step3ProductsCreativeSB({ isActive, isComplete }: Step3ProductsC
           <div className="card-title"><h3>Creative</h3></div>
           <div className="form-grid">
             <div className="field">
-              <label>Brand</label>
-              <select className="select full" value={brand} onChange={(e) => { setBrand(e.target.value); const b = BRANDS.find(x => x.id === e.target.value); updateDraft('creative', { ...draft.creative, brandName: b?.name || e.target.value, logo: b?.logo || '' }); }}>
+              <label htmlFor="sb3-pc-brand">Brand</label>
+              <select id="sb3-pc-brand" className="select full" value={brand} onChange={(e) => { setBrand(e.target.value); const b = BRANDS.find(x => x.id === e.target.value); updateDraft('creative', { ...draft.creative, brandName: b?.name || e.target.value, logo: b?.logo || '' }); }}>
                 <option value="">Select brand</option>
                 {BRANDS.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
             </div>
             <div className="field">
-              <label>Logo</label>
-              <input className="input full" value={logo} onChange={(e) => { setLogo(e.target.value); updateDraft('creative', { ...draft.creative, logo: e.target.value }); }} />
+              <label htmlFor="sb3-pc-logo">Logo</label>
+              <input id="sb3-pc-logo" className="input full" value={logo} onChange={(e) => { setLogo(e.target.value); updateDraft('creative', { ...draft.creative, logo: e.target.value }); }} />
             </div>
             <div className="field full">
-              <label>Headline <span className="muted">({headline.length}/{HEADLINE_MAX})</span></label>
-              <input className="input full" value={headline}
+              <label htmlFor="sb3-pc-headline">Headline <span className="muted">({headline.length}/{HEADLINE_MAX})</span></label>
+              <input id="sb3-pc-headline" className="input full" value={headline}
                 maxLength={HEADLINE_MAX}
                 onChange={(e) => { setHeadline(e.target.value); updateDraft('creative', { ...draft.creative, headline: e.target.value }); }}
                 placeholder="Discover your perfect brew"
@@ -105,12 +105,12 @@ export function Step3ProductsCreativeSB({ isActive, isComplete }: Step3ProductsC
               {headline.length >= HEADLINE_MAX && <small style={{ color: 'var(--danger)' }}>Maximum {HEADLINE_MAX} characters.</small>}
             </div>
             <div className="field">
-              <label>Destination</label>
-              <input className="input full" value={storeUrl} onChange={(e) => { setStoreUrl(e.target.value); updateDraft('creative', { ...draft.creative, destination: e.target.value }); }} placeholder="Brand Store URL" />
+              <label htmlFor="sb3-pc-destination">Destination</label>
+              <input id="sb3-pc-destination" className="input full" value={storeUrl} onChange={(e) => { setStoreUrl(e.target.value); updateDraft('creative', { ...draft.creative, destination: e.target.value }); }} placeholder="Brand Store URL" />
             </div>
             <div className="field">
-              <label>Image</label>
-              <input className="input full" value={image} onChange={(e) => { setImage(e.target.value); updateDraft('creative', { ...draft.creative, image: e.target.value }); }} placeholder="Auto generated or custom" />
+              <label htmlFor="sb3-pc-image">Image</label>
+              <input id="sb3-pc-image" className="input full" value={image} onChange={(e) => { setImage(e.target.value); updateDraft('creative', { ...draft.creative, image: e.target.value }); }} placeholder="Auto generated or custom" />
             </div>
           </div>
         </div>
@@ -121,19 +121,19 @@ export function Step3ProductsCreativeSB({ isActive, isComplete }: Step3ProductsC
           <div className="card-title"><h3>Video creative</h3></div>
           <div className="form-grid">
             <div className="field">
-              <label>Brand</label>
-              <select className="select full" value={brand} onChange={(e) => { setBrand(e.target.value); const b = BRANDS.find(x => x.id === e.target.value); updateDraft('creative', { ...draft.creative, brandName: b?.name || e.target.value, logo: b?.logo || '' }); }}>
+              <label htmlFor="sb3-vid-brand">Brand</label>
+              <select id="sb3-vid-brand" className="select full" value={brand} onChange={(e) => { setBrand(e.target.value); const b = BRANDS.find(x => x.id === e.target.value); updateDraft('creative', { ...draft.creative, brandName: b?.name || e.target.value, logo: b?.logo || '' }); }}>
                 <option value="">Select brand</option>
                 {BRANDS.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
             </div>
             <div className="field">
-              <label>Logo</label>
-              <input className="input full" value={logo} onChange={(e) => { setLogo(e.target.value); updateDraft('creative', { ...draft.creative, logo: e.target.value }); }} />
+              <label htmlFor="sb3-vid-logo">Logo</label>
+              <input id="sb3-vid-logo" className="input full" value={logo} onChange={(e) => { setLogo(e.target.value); updateDraft('creative', { ...draft.creative, logo: e.target.value }); }} />
             </div>
             <div className="field full">
-              <label>Headline <span className="muted">({headline.length}/{HEADLINE_MAX})</span></label>
-              <input className="input full" value={headline}
+              <label htmlFor="sb3-vid-headline">Headline <span className="muted">({headline.length}/{HEADLINE_MAX})</span></label>
+              <input id="sb3-vid-headline" className="input full" value={headline}
                 maxLength={HEADLINE_MAX}
                 onChange={(e) => { setHeadline(e.target.value); updateDraft('creative', { ...draft.creative, headline: e.target.value }); }}
                 placeholder="Discover your perfect brew"
@@ -141,12 +141,12 @@ export function Step3ProductsCreativeSB({ isActive, isComplete }: Step3ProductsC
               {headline.length >= HEADLINE_MAX && <small style={{ color: 'var(--danger)' }}>Maximum {HEADLINE_MAX} characters.</small>}
             </div>
             <div className="field">
-              <label>Destination</label>
-              <input className="input full" value={storeUrl} onChange={(e) => { setStoreUrl(e.target.value); updateDraft('creative', { ...draft.creative, destination: e.target.value }); }} placeholder="Product detail page or Store URL" />
+              <label htmlFor="sb3-vid-destination">Destination</label>
+              <input id="sb3-vid-destination" className="input full" value={storeUrl} onChange={(e) => { setStoreUrl(e.target.value); updateDraft('creative', { ...draft.creative, destination: e.target.value }); }} placeholder="Product detail page or Store URL" />
             </div>
             <div className="field full">
-              <label>Video URL</label>
-              <input className="input full" value={video} onChange={(e) => { setVideo(e.target.value); updateDraft('creative', { ...draft.creative, video: e.target.value }); }} placeholder="https://..." />
+              <label htmlFor="sb3-vid-video">Video URL</label>
+              <input id="sb3-vid-video" className="input full" value={video} onChange={(e) => { setVideo(e.target.value); updateDraft('creative', { ...draft.creative, video: e.target.value }); }} placeholder="https://..." />
             </div>
           </div>
         </div>

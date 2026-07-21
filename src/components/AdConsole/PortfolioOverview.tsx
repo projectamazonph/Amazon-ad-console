@@ -76,8 +76,8 @@ export function PortfolioOverview() {
           <div className="card-title"><h2>Create portfolio</h2><span>New portfolio group</span></div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'end' }}>
             <div className="field" style={{ flex: 1 }}>
-              <label>Portfolio name</label>
-              <input className="input full" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Holiday Campaigns" />
+              <label htmlFor="po-new-name">Portfolio name</label>
+              <input id="po-new-name" className="input full" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Holiday Campaigns" />
             </div>
             <button className="btn primary" onClick={() => {
               if (newName.trim()) {
@@ -120,7 +120,8 @@ export function PortfolioOverview() {
               <div className="card-title">
                 {manageMode ? (
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center', flex: 1 }}>
-                    <input className="input" style={{ fontWeight: 600, flex: 1 }}
+                    <label htmlFor={`po-rename-${pf.name}`} className="visually-hidden">Portfolio name</label>
+                    <input id={`po-rename-${pf.name}`} className="input" style={{ fontWeight: 600, flex: 1 }}
                       value={renameMap[pf.name] ?? pf.name}
                       onChange={(e) => setRenameMap((m) => ({ ...m, [pf.name]: e.target.value }))}
                       onBlur={(e) => {

@@ -29,13 +29,15 @@ export function Topbar() {
         Amazon Ads <span className="brand-sub">Console</span>
       </div>
       {GLOBAL_NAV.map((section) => (
-        <div
+        <button
           key={section.view}
+          type="button"
           className={`nav-section ${activeSection === section.view ? 'active' : ''}`}
+          aria-current={activeSection === section.view ? 'page' : undefined}
           onClick={() => setView(SECTION_TO_VIEW[section.view] ?? 'campaigns')}
         >
           {section.label}
-        </div>
+        </button>
       ))}
       <div className="nav-spacer" />
       <SyncButton />

@@ -38,48 +38,40 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link href="/" className="text-2xl font-semibold text-white tracking-tight">
-            AdConsole
-          </Link>
-          <p className="text-zinc-400 mt-2">Sign in to your training account</p>
+    <div className="auth-page">
+      <div className="auth-card-wrap">
+        <div className="auth-header">
+          <Link href="/" className="auth-brand">AdConsole</Link>
+          <p className="auth-subtitle">Sign in to your training account</p>
         </div>
 
-        <div className="bg-zinc-900 border border-white/5 rounded-2xl p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="auth-card">
+          <form onSubmit={handleSubmit} className="auth-form">
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-lg">
-                {error}
-              </div>
+              <div className="auth-error" role="alert">{error}</div>
             )}
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-zinc-300 mb-2">
-                Email
-              </label>
+            <div className="auth-field">
+              <label htmlFor="email" className="auth-label">Email</label>
               <input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-zinc-800 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="auth-input"
                 placeholder="you@example.com"
                 required
               />
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-zinc-300 mb-2">
-                Password
-              </label>
+            <div className="auth-field">
+              <label htmlFor="password" className="auth-label">Password</label>
               <input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-zinc-800 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="auth-input"
                 placeholder="••••••••"
                 required
               />
@@ -88,27 +80,21 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-white text-zinc-950 py-3 rounded-lg font-medium hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn primary auth-submit"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-zinc-400 text-sm">
-              Don&apos;t have an account?{' '}
-              <Link href="/auth/register" className="text-emerald-400 hover:text-emerald-300">
-                Create one
-              </Link>
-            </p>
-          </div>
+          <p className="auth-footer">
+            Don&apos;t have an account?{' '}
+            <Link href="/auth/register" className="auth-link">Create one</Link>
+          </p>
         </div>
 
-        <div className="mt-6 text-center">
-          <Link href="/" className="text-zinc-500 hover:text-zinc-300 text-sm">
-            Back to simulator
-          </Link>
-        </div>
+        <p className="auth-back">
+          <Link href="/" className="auth-link">Back to simulator</Link>
+        </p>
       </div>
     </div>
   );
