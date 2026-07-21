@@ -7,11 +7,13 @@ export function IntegrityPage() {
   const runIntegrity = useAdConsoleStore((s) => s.runIntegrity);
   const campaigns = useAdConsoleStore((s) => s.state.campaigns);
   const clear = useAdConsoleStore((s) => s.clearIntegrity);
+  const setView = useAdConsoleStore((s) => s.setView);
 
   return (
     <div>
       <div className="page-title">
-        <h1>Integrity center</h1>
+        <button className="btn small" onClick={() => setView('campaigns')} aria-label="Back to campaigns">← Back to campaigns</button>
+        <h1 style={{ marginTop: 'var(--space-2)' }}>Integrity center</h1>
         <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
           <button className="btn primary" onClick={() => runIntegrity(campaigns)}>Run integrity check</button>
           {report && <button className="btn" onClick={clear}>Clear results</button>}

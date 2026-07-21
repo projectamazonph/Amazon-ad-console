@@ -3,6 +3,8 @@ import {
   GLOBAL_NAV,
   getLeftRail,
   isSidebarItemActive,
+  activeTopbarSection,
+  sidebarSectionForView,
   KPI_TILES,
   getKpiTiles,
   type NavSection,
@@ -11,9 +13,9 @@ import {
 } from '../consoleNav';
 
 describe('GLOBAL_NAV', () => {
-  it('lists the three primary Amazon console sections in order', () => {
+  it('lists the four Amazon console sections in order', () => {
     const labels = GLOBAL_NAV.map((s) => s.label);
-    expect(labels).toEqual(['Campaign Manager', 'Portfolios', 'Measurement']);
+    expect(labels).toEqual(['Campaign Manager', 'Portfolios', 'Measurement', 'Training']);
   });
 
   it('each section targets a valid view', () => {
@@ -21,6 +23,12 @@ describe('GLOBAL_NAV', () => {
       expect(typeof s.view).toBe('string');
       expect(s.label.length).toBeGreaterThan(0);
     });
+  });
+
+  it('includes a Training section that lands on the drills view by default', () => {
+    const training = GLOBAL_NAV.find((s) => s.label === 'Training');
+    expect(training).toBeDefined();
+    expect(training?.view).toBe('drills');
   });
 });
 
@@ -118,6 +126,99 @@ describe('getLeftRail tab mapping', () => {
     const items = getLeftRail('campaigns');
     const campaigns = items.find((i) => i.label === 'Campaigns');
     expect(campaigns?.tab).toBeUndefined();
+  });
+});
+
+describe('getLeftRail — training wiring (H-03)', () => {
+  const TRAINING_VIEWS = [
+    'drills',
+    'missions',
+    'reports',
+    'bulk',
+    'trainer',
+    'integrity',
+  ] as const;
+
+  it('returns a non-empty rail for every training view', () => {
+    for (const v of TRAINING_VIEWS) {
+      const items = getLeftRail(v);
+      expect(items.length, `getLeftRail(${v}) should be non-empty`).toBeGreaterThan(0);
+    }
+  });
+
+  it('exposes every advertised training page as a rail item somewhere', () => {
+    // Each of the 6 training views must be reachable from the training rail.
+    // We collect views that appear in at least one training rail and check
+    // that all 6 are present.
+    const reachable = new Set<string>();
+    for (const v of TRAINING_VIEWS) {
+      for (const item of getLeftRail(v)) {
+        reachable.add(item.view);
+      }
+    }
+    for (const v of TRAINING_VIEWS) {
+      expect(reachable.has(v), `${v} must appear in some training rail`).toBe(true);
+    }
+  });
+
+  it('every training rail item targets a real NavView', () => {
+    const validViews = new Set([
+      'dashboard', 'campaigns', 'portfolio', 'create',
+      'reports', 'bulk', 'integrity', 'trainer', 'missions', 'drills',
+    ]);
+    for (const v of TRAINING_VIEWS) {
+      for (const item of getLeftRail(v)) {
+        expect(validViews.has(item.view), `${v} rail item "${item.label}" targets invalid view ${item.view}`).toBe(true);
+      }
+    }
+  });
+});
+
+/**
+ * Audit H-03: maps a topbar `view` to the global-nav section that should
+ * highlight. The Training section must light up for any of the 6 training
+ * views so the trainee can tell where they are in the product.
+ */
+describe('activeTopbarSection (H-03)', () => {
+  const TRAINING_VIEWS = ['drills', 'missions', 'reports', 'bulk', 'trainer', 'integrity'] as const;
+
+  it('Training section highlights for every training view', () => {
+    for (const v of TRAINING_VIEWS) {
+      expect(activeTopbarSection(v), `${v} should map to training`).toBe('training');
+    }
+  });
+
+  it('Campaign Manager highlights for campaigns, create, and detail', () => {
+    expect(activeTopbarSection('campaigns')).toBe('campaigns');
+    expect(activeTopbarSection('create')).toBe('campaigns');
+    expect(activeTopbarSection('detail')).toBe('campaigns');
+  });
+
+  it('Portfolios highlights for portfolio', () => {
+    expect(activeTopbarSection('portfolio')).toBe('portfolio');
+  });
+
+  it('Measurement highlights for dashboard', () => {
+    expect(activeTopbarSection('dashboard')).toBe('dashboard');
+  });
+});
+
+describe('sidebarSectionForView (H-03)', () => {
+  it('training views resolve to the training rail', () => {
+    expect(sidebarSectionForView('drills')).toBe('training');
+    expect(sidebarSectionForView('missions')).toBe('training');
+    expect(sidebarSectionForView('reports')).toBe('training');
+    expect(sidebarSectionForView('bulk')).toBe('training');
+    expect(sidebarSectionForView('trainer')).toBe('training');
+    expect(sidebarSectionForView('integrity')).toBe('training');
+  });
+
+  it('non-training views keep their existing section mapping', () => {
+    expect(sidebarSectionForView('dashboard')).toBe('dashboard');
+    expect(sidebarSectionForView('portfolio')).toBe('portfolio');
+    expect(sidebarSectionForView('campaigns')).toBe('campaigns');
+    expect(sidebarSectionForView('detail')).toBe('campaigns');
+    expect(sidebarSectionForView('create')).toBe('campaigns');
   });
 });
 

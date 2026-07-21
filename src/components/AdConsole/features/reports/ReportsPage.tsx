@@ -10,13 +10,15 @@ export function ReportsPage() {
   const requestReport = useAdConsoleStore((s) => s.requestReport);
   const selectReport = useAdConsoleStore((s) => s.selectReport);
   const exportCsv = useAdConsoleStore((s) => s.exportReportCsv);
+  const setView = useAdConsoleStore((s) => s.setView);
 
   const selected = selectedReportId ? reports.find((r) => r.id === selectedReportId) : null;
 
   return (
     <div>
       <div className="page-title">
-        <h1>Reports</h1>
+        <button className="btn small" onClick={() => setView('campaigns')} aria-label="Back to campaigns">← Back to campaigns</button>
+        <h1 style={{ marginTop: 'var(--space-2)' }}>Reports</h1>
         <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
           <button className="btn" onClick={() => requestReport('campaign')}>Campaign report</button>
           <button className="btn" onClick={() => requestReport('target')}>Target report</button>
