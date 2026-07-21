@@ -5,6 +5,7 @@
   "description": "Amazon PPC Training Simulator — Amazon Ads Console replica for VA training",
   "scripts": {
     "dev": "next dev",
+    "postinstall": "prisma generate",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
