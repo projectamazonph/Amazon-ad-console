@@ -1,61 +1,68 @@
 'use client';
 
 import { useSession, signOut } from 'next-auth/react';
-import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export function UserMenu() {
   const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
+  const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = () => setOpen(false);
+    window.addEventListener('resize', close);
+    window.addEventListener('scroll', close, true);
+    return () => {
+      window.removeEventListener('resize', close);
+      window.removeEventListener('scroll', close, true);
+    };
+  }, [open]);
 
   if (status === 'loading') {
-    return (
-      <div className="w-8 h-8 rounded-full bg-zinc-800 animate-pulse" />
-    );
+    return <div className="nav-account-skeleton" aria-hidden="true" />;
   }
 
-  if (!session) {
-    return (
-      <div className="flex items-center gap-3">
-        <Link
-          href="/auth/login"
-          className="text-zinc-400 hover:text-white text-sm transition-colors"
-        >
-          Sign in
-        </Link>
-        <Link
-          href="/auth/register"
-          className="bg-white/10 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-white/20 transition-colors"
-        >
-          Sign up
-        </Link>
-      </div>
-    );
-  }
+  // Sign-in/sign-up live on the landing and auth pages — the console itself
+  // is usable without an account, so there's nothing to show here.
+  if (!session) return null;
+
+  const name = session.user?.name || session.user?.email || '';
+  const initial = (session.user?.name?.[0] || session.user?.email?.[0] || '?').toUpperCase();
+
+  const toggle = () => {
+    if (!open && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setMenuPos({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
+    }
+    setOpen((o) => !o);
+  };
 
   return (
-    <div className="relative">
+    <div className="nav-account-wrap">
       <button
-        onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 text-zinc-300 hover:text-white transition-colors"
+        ref={buttonRef}
+        className="nav-account"
+        onClick={toggle}
+        aria-haspopup="true"
+        aria-expanded={open}
       >
-        <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm font-medium">
-          {session.user?.name?.[0]?.toUpperCase() || session.user?.email?.[0]?.toUpperCase() || '?'}
-        </div>
-        <span className="text-sm hidden md:block">{session.user?.name || session.user?.email}</span>
+        <span className="nav-account-avatar">{initial}</span>
+        <span className="nav-account-name">{name}</span>
       </button>
 
       {open && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-full mt-2 w-48 bg-zinc-800 border border-white/10 rounded-lg py-1 z-50 shadow-xl">
-            <div className="px-4 py-2 border-b border-white/5">
-              <p className="text-sm text-zinc-300">{session.user?.name}</p>
-              <p className="text-xs text-zinc-500">{session.user?.email}</p>
+          <div className="nav-account-backdrop" onClick={() => setOpen(false)} />
+          <div className="nav-account-menu" style={{ top: menuPos.top, right: menuPos.right }}>
+            <div className="nav-account-menu-header">
+              <p className="nav-account-menu-name">{session.user?.name}</p>
+              <p className="nav-account-menu-email">{session.user?.email}</p>
             </div>
             <button
+              className="nav-account-menu-item"
               onClick={() => signOut({ callbackUrl: '/' })}
-              className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white transition-colors"
             >
               Sign out
             </button>

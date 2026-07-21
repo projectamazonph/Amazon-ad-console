@@ -47,11 +47,12 @@ export function SyncButton() {
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="sync-controls">
+      {lastSync && <span className="sync-status">{lastSync}</span>}
       <button
         onClick={() => handleSync('upload')}
         disabled={syncing}
-        className="text-xs bg-emerald-500/10 text-emerald-400 px-3 py-1.5 rounded-full hover:bg-emerald-500/20 transition-colors disabled:opacity-50"
+        className="sync-btn save"
         title="Save campaigns to cloud"
       >
         {syncing ? '...' : '↑ Save'}
@@ -59,14 +60,11 @@ export function SyncButton() {
       <button
         onClick={() => handleSync('download')}
         disabled={syncing}
-        className="text-xs bg-blue-500/10 text-blue-400 px-3 py-1.5 rounded-full hover:bg-blue-500/20 transition-colors disabled:opacity-50"
+        className="sync-btn load"
         title="Load campaigns from cloud"
       >
         {syncing ? '...' : '↓ Load'}
       </button>
-      {lastSync && (
-        <span className="text-xs text-zinc-500">{lastSync}</span>
-      )}
     </div>
   );
 }
