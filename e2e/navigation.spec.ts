@@ -39,9 +39,8 @@ test.describe('Navigation', () => {
     await expect(page.locator('.sidebar-item:has-text("Reset sandbox")')).toBeVisible();
   });
 
-  test('topbar has Create campaign button', async ({ page }) => {
+  test('dashboard has Create campaign button', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('.nav-account')).toBeVisible();
-    await expect(page.locator('.app-navbar button:has-text("Create campaign")')).toBeVisible();
+    await expect(page.locator('.page-title button:has-text("Create campaign")')).toBeVisible();
   });
 });

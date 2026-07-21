@@ -42,9 +42,6 @@ export function Topbar() {
       <div className="nav-spacer" />
       <SyncButton />
       <UserMenu />
-      <button className="btn primary small" onClick={() => setView('create')}>
-        + Create campaign
-      </button>
     </nav>
   );
 }

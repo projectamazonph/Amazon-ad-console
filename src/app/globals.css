@@ -1504,12 +1504,6 @@ textarea.input {
     display: none;
   }
 
-  .app-navbar .btn.primary.small {
-    font-size: var(--text-xs);
-    padding: var(--space-2) var(--space-3);
-    white-space: nowrap;
-  }
-
   .app-content {
     padding: var(--space-4);
   }
