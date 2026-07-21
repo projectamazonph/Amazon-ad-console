@@ -152,6 +152,7 @@ Campaigns grouped by portfolio with aggregate metrics per group.
 **Component**: `DrillsPage.tsx` (126 lines)
 **Engine**: `features/drills/engine.ts`
 **View**: `drills`
+**Reachable from**: topbar `Training` section (lands here by default) and the Training left rail
 
 Click-by-click navigation coaching through real Amazon Ads Console workflows.
 
@@ -179,6 +180,8 @@ Click-by-click navigation coaching through real Amazon Ads Console workflows.
 ## 7. Training Missions
 
 **Component**: `MissionsPage.tsx` (68 lines)
+**View**: `missions`
+**Reachable from**: topbar `Training` section and the Training left rail
 **Engine**: `features/missions/engine.ts`
 **View**: `missions`
 
@@ -203,6 +206,8 @@ Scenario-based challenges that test real campaign management skills.
 ## 8. Reports
 
 **Component**: `ReportsPage.tsx` (89 lines)
+**View**: `reports`
+**Reachable from**: topbar `Training` section and the Training left rail
 **Engine**: `features/reports/engine.ts`
 **View**: `reports`
 
@@ -230,6 +235,8 @@ Generate and export performance reports matching Amazon Ads Console report types
 ## 9. Bulk Operations
 
 **Component**: `BulkOpsPage.tsx` (85 lines)
+**View**: `bulk`
+**Reachable from**: topbar `Training` section and the Training left rail
 **Engine**: `features/bulk/engine.ts`
 **View**: `bulk`
 
@@ -264,6 +271,8 @@ Returns row-level error messages with specific field and reason.
 ## 10. Integrity Center
 
 **Component**: `IntegrityPage.tsx` (76 lines)
+**View**: `integrity`
+**Reachable from**: topbar `Training` section and the Training left rail
 **Engine**: `features/integrity/engine.ts`
 **View**: `integrity`
 
@@ -294,6 +303,8 @@ Each issue includes a `recommendation` string explaining how to fix the problem.
 ## 11. Trainer Dashboard
 
 **Component**: `TrainerPage.tsx` (124 lines)
+**View**: `trainer`
+**Reachable from**: topbar `Training` section and the Training left rail
 **Engine**: `features/trainer/engine.ts`
 **View**: `trainer`
 
