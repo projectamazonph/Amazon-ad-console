@@ -10,7 +10,16 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) — the simulator loads with 4 pre-built training campaigns across SP, SB, and SD.
+Open [http://localhost:3000](http://localhost:3000) — the simulator loads with 6 pre-built training campaigns across SP, SB, and SD:
+
+| # | Type | Name | Targeting |
+|---|---|---|---|
+| 1 | SP | Auto \| Coffee Filter \| Discovery | Automatic |
+| 2 | SP | Manual \| Coffee Filter \| Exact Winners | Manual keyword |
+| 3 | SB | Video \| Coffee Brand Awareness | Video creative |
+| 4 | SD | Views Remarketing \| 30 Day | Audience |
+| 5 | SB | Product Collection \| Coffee Variety | Product targeting |
+| 6 | SD | Contextual \| Coffee Accessories | Contextual |
 
 ## What You Can Do
 
@@ -45,11 +54,13 @@ Open [http://localhost:3000](http://localhost:3000) — the simulator loads with
 - Metrics cascade correctly: keyword → ad group → campaign → dashboard
 
 ### Training Features
+- **Training** global nav section in the topbar exposes all 6 training-product pages.
+- **Drills** — click-by-click navigation coaching with mistake tracking
 - **Missions** — scenario-based challenges (Beginner → Advanced) with scoring and hints
-- **Guided Drills** — click-by-click navigation coaching with mistake tracking
-- **Integrity Center** — automated data-quality checks (orphaned terms, duplicate IDs, creative issues)
+- **Reports** — generate and export campaign / target / search-term / placement reports as CSV
 - **Bulk Operations** — paste Amazon Ads bulk CSV for validation and preview
 - **Trainer Dashboard** — certification checklist, action grading, notes
+- **Integrity Center** — automated data-quality checks (orphaned terms, duplicate IDs, creative issues)
 - **Multi-User Profiles** — separate training state per trainee
 
 ### Multi-User Access
@@ -221,6 +232,7 @@ See [docs/INTEGRATION.md](docs/INTEGRATION.md) for the full porting guide.
 - [Tech Specs](docs/TECH-SPECS.md) — Dependencies, configuration, performance
 - [Mobile Redesign Plan](docs/MOBILE_REDESIGN_PLAN.md) — Mobile-first redesign strategy
 - [Authentication Guide](docs/AUTH.md) — Multi-user access setup and configuration
+- [Audit Follow-Ups](docs/AUDIT-FOLLOWUPS.md) — Status of each finding from the 2026-07-21 audit, with PR links
 
 ## License
 
