@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   GLOBAL_NAV,
   getLeftRail,
+  isSidebarItemActive,
   KPI_TILES,
   getKpiTiles,
   type NavSection,
@@ -117,6 +118,32 @@ describe('getLeftRail tab mapping', () => {
     const items = getLeftRail('campaigns');
     const campaigns = items.find((i) => i.label === 'Campaigns');
     expect(campaigns?.tab).toBeUndefined();
+  });
+});
+
+describe('isSidebarItemActive', () => {
+  const adGroups = getLeftRail('campaigns').find((i) => i.label === 'Ad groups')!;
+  const targeting = getLeftRail('campaigns').find((i) => i.label === 'Targeting')!;
+  const campaigns = getLeftRail('campaigns').find((i) => i.label === 'Campaigns')!;
+  const budgetRules = getLeftRail('portfolio').find((i) => i.label === 'Budget rules')!;
+
+  it('only the item matching the selected tab is active in detail view', () => {
+    expect(isSidebarItemActive(adGroups, 'detail', 'adgroups')).toBe(true);
+    expect(isSidebarItemActive(targeting, 'detail', 'adgroups')).toBe(false);
+  });
+
+  it('only the item matching the selected tab is active in the campaigns list view', () => {
+    expect(isSidebarItemActive(adGroups, 'campaigns', 'adgroups')).toBe(true);
+    expect(isSidebarItemActive(targeting, 'campaigns', 'adgroups')).toBe(false);
+  });
+
+  it('a tab item is not active when its view is not current', () => {
+    expect(isSidebarItemActive(budgetRules, 'campaigns', 'budgetRules')).toBe(false);
+  });
+
+  it('a tab-less item is active purely by view match', () => {
+    expect(isSidebarItemActive(campaigns, 'campaigns', 'adgroups')).toBe(true);
+    expect(isSidebarItemActive(campaigns, 'detail', 'adgroups')).toBe(false);
   });
 });
 

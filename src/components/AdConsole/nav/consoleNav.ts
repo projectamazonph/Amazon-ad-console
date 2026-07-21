@@ -132,6 +132,23 @@ export function resolveSidebarClick(
   return { type: 'setView', view: item.view };
 }
 
+/**
+ * Whether a left-rail item should render as the active nav entry.
+ * Tab-bearing items (Ad groups, Targeting, ...) share one view with their
+ * siblings, so they're only active when the selected tab actually matches —
+ * otherwise every tab in the group would highlight at once.
+ */
+export function isSidebarItemActive(
+  item: { view: NavView; tab?: string },
+  currentView: string,
+  selectedTab: string | undefined,
+): boolean {
+  if (item.tab) {
+    return (currentView === 'detail' || currentView === item.view) && selectedTab === item.tab;
+  }
+  return currentView === item.view;
+}
+
 /** Builds the formatted KPI tiles from a metrics snapshot (fail-fast on missing fields). */
 export function getKpiTiles(m: MetricsSnapshot): KpiTile[] {
   if (
