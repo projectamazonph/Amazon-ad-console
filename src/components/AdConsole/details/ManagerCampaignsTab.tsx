@@ -51,10 +51,10 @@ export function ManagerCampaignsTab({ campaigns, onSelect, onToggleStatus, onDup
                 <td><span className="muted">{c.targetingMode}</span></td>
                 <td className="mono">{formatWhole(c.metrics.impressions)}</td>
                 <td className="mono">{formatWhole(c.metrics.clicks)}</td>
+                <td className="money">{formatBid(x.cpc)}</td>
                 <td className="money">{formatMoney(c.metrics.spend)}</td>
                 <td className="money">{formatMoney(c.metrics.sales)}</td>
                 <td className="mono">{formatWhole(c.metrics.orders)}</td>
-                <td className="money">{formatBid(x.cpc)}</td>
                 <td className={`mono ${acosClass(x.acos)}`}>{formatPercent(x.acos)}</td>
                 <td className="mono">{formatRoas(x.roas)}</td>
                 <td>
