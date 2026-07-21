@@ -3,12 +3,13 @@
 import { useRef, useEffect } from 'react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { useBreakpoint } from '@/lib/useBreakpoint';
-import { GLOBAL_NAV, getLeftRail, isSidebarItemActive, resolveSidebarClick, type NavView } from '../nav/consoleNav';
+import { GLOBAL_NAV, getLeftRail, isSidebarItemActive, resolveSidebarClick, sidebarSectionForView, type RailSection } from '../nav/consoleNav';
 
 const GROUP_TITLES: Record<string, string> = {
   campaigns: 'Campaign Manager',
   portfolios: 'Portfolios',
   measurement: 'Measurement',
+  training: 'Training',
 };
 
 export function MobileNav() {
@@ -31,8 +32,9 @@ export function MobileNav() {
 
   // Mirror the desktop sidebar's section resolution so the drawer shows the
   // same rail as the active global-nav section instead of always defaulting
-  // to Campaign Manager.
-  const section: NavView = view === 'portfolio' ? 'portfolio' : view === 'dashboard' ? 'dashboard' : 'campaigns';
+  // to Campaign Manager. `sidebarSectionForView` is shared with the desktop
+  // sidebar (H-03) so the two stay in sync.
+  const section: RailSection = sidebarSectionForView(view);
   const items = getLeftRail(section);
 
   const groups: Record<string, typeof items> = {};

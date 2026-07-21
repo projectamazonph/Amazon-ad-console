@@ -12,6 +12,7 @@ export function TrainerPage() {
   const toggleCertItem = useAdConsoleStore((s) => s.toggleCertItem);
   const certScore = useAdConsoleStore((s) => s.certScore);
   const drillResults = useAdConsoleStore((s) => s.drillResults);
+  const setView = useAdConsoleStore((s) => s.setView);
 
   const [noteText, setNoteText] = useState('');
 
@@ -19,7 +20,10 @@ export function TrainerPage() {
 
   return (
     <div>
-      <div className="page-title"><h1>Trainer dashboard</h1></div>
+      <div className="page-title">
+        <button className="btn small" onClick={() => setView('campaigns')} aria-label="Back to campaigns">← Back to campaigns</button>
+        <h1 style={{ marginTop: 'var(--space-2)' }}>Trainer dashboard</h1>
+      </div>
 
       <div className="grid-4" style={{ marginBottom: 'var(--space-4)' }}>
         <div className="metric-card">

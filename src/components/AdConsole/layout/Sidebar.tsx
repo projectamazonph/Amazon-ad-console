@@ -1,12 +1,13 @@
 'use client';
 
 import { useAdConsoleStore } from '@/engine/ad-console/store';
-import { getLeftRail, isSidebarItemActive, resolveSidebarClick, type NavView } from '../nav/consoleNav';
+import { getLeftRail, isSidebarItemActive, resolveSidebarClick, sidebarSectionForView, type RailSection } from '../nav/consoleNav';
 
 const GROUP_TITLES: Record<string, string> = {
   campaigns: 'Campaign Manager',
   portfolios: 'Portfolios',
   measurement: 'Measurement',
+  training: 'Training',
 };
 
 export function Sidebar() {
@@ -17,8 +18,9 @@ export function Sidebar() {
   const runSimulation = useAdConsoleStore((s) => s.runSimulation);
   const resetAll = useAdConsoleStore((s) => s.resetAll);
 
-  // The left rail reflects the active global-nav section.
-  const section: NavView = view === 'portfolio' ? 'portfolio' : view === 'dashboard' ? 'dashboard' : 'campaigns';
+  // The left rail reflects the active global-nav section. Pulled into
+  // `sidebarSectionForView` so the topbar and sidebar stay in sync (H-03).
+  const section: RailSection = sidebarSectionForView(view);
   const items = getLeftRail(section);
 
   // Group items by their area for Amazon-style sectioned rail.

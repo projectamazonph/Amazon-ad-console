@@ -10,6 +10,7 @@ export function MissionsPage() {
   const stopMission = useAdConsoleStore((s) => s.stopMission);
   const completeStep = useAdConsoleStore((s) => s.completeMissionStep);
   const useHint = useAdConsoleStore((s) => s.useHint);
+  const setView = useAdConsoleStore((s) => s.setView);
 
   const activeMission = session.missionId ? getMission(session.missionId) : null;
 
@@ -46,7 +47,10 @@ export function MissionsPage() {
 
   return (
     <div>
-      <div className="page-title"><h1>Training missions</h1></div>
+      <div className="page-title">
+        <button className="btn small" onClick={() => setView('campaigns')} aria-label="Back to campaigns">← Back to campaigns</button>
+        <h1 style={{ marginTop: 'var(--space-2)' }}>Training missions</h1>
+      </div>
       <div className="drill-grid">
         {missions.map((m) => (
           <div key={m.id} className="card pad">

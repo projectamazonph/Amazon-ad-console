@@ -28,7 +28,7 @@ export interface NavSection {
 export interface LeftRailItem {
   label: string;
   view: NavView;
-  group: 'campaigns' | 'portfolios' | 'measurement';
+  group: 'campaigns' | 'portfolios' | 'measurement' | 'training';
   tab?: string;
 }
 
@@ -53,6 +53,24 @@ export const GLOBAL_NAV: NavSection[] = [
   { label: 'Campaign Manager', view: 'campaigns' },
   { label: 'Portfolios', view: 'portfolio' },
   { label: 'Measurement', view: 'dashboard' },
+  // Training is the entry point for the 6 training-product pages (Drills,
+  // Missions, Reports, Bulk, Trainer, Integrity). Clicking it lands on the
+  // drills view; the sidebar rail then exposes the other 5.
+  { label: 'Training', view: 'drills' },
+];
+
+/**
+ * Rail items for the Training section. The order matches the typical
+ * trainee journey: hands-on drills first, then missions, then reporting
+ * and bulk ops, then trainer dashboard, then integrity checks.
+ */
+const TRAINING_RAIL: LeftRailItem[] = [
+  { label: 'Drills',       view: 'drills',     group: 'training' },
+  { label: 'Missions',     view: 'missions',   group: 'training' },
+  { label: 'Reports',      view: 'reports',    group: 'training' },
+  { label: 'Bulk ops',     view: 'bulk',       group: 'training' },
+  { label: 'Trainer',      view: 'trainer',    group: 'training' },
+  { label: 'Integrity',    view: 'integrity',  group: 'training' },
 ];
 
 const LEFT_RAIL: Record<NavView, LeftRailItem[]> = {
@@ -75,17 +93,84 @@ const LEFT_RAIL: Record<NavView, LeftRailItem[]> = {
     { label: 'Search query performance', view: 'dashboard', group: 'measurement' },
   ],
   create: [],
-  reports: [],
-  bulk: [],
-  integrity: [],
-  trainer: [],
-  missions: [],
-  drills: [],
+  reports: TRAINING_RAIL,
+  bulk: TRAINING_RAIL,
+  integrity: TRAINING_RAIL,
+  trainer: TRAINING_RAIL,
+  missions: TRAINING_RAIL,
+  drills: TRAINING_RAIL,
 };
 
+/**
+ * Section keys for the sidebar rail. Distinct from `NavView` because the
+ * Training section rolls up all 6 training views into a single rail
+ * (audit H-03), so 'training' is a section that has no corresponding
+ * single view.
+ */
+export type RailSection = 'campaigns' | 'portfolio' | 'dashboard' | 'training';
+
 /** Returns the left-rail items for a global-nav section, defaulting to Campaign Manager. */
-export function getLeftRail(section: NavView): LeftRailItem[] {
-  return LEFT_RAIL[section] ?? LEFT_RAIL.campaigns;
+export function getLeftRail(section: NavView | RailSection): LeftRailItem[] {
+  // The training rail is registered under each of the 6 training views
+  // in LEFT_RAIL, so passing any of them returns the same training rail.
+  if (section === 'training') return TRAINING_RAIL;
+  if (
+    section === 'drills' ||
+    section === 'missions' ||
+    section === 'reports' ||
+    section === 'bulk' ||
+    section === 'trainer' ||
+    section === 'integrity'
+  ) {
+    return TRAINING_RAIL;
+  }
+  return LEFT_RAIL[section as NavView] ?? LEFT_RAIL.campaigns;
+}
+
+/**
+ * Maps a topbar `view` to the global-nav section that should highlight.
+ * Pulled out so the Topbar and Sidebar stay consistent and so it can be
+ * unit-tested in isolation.
+ *
+ * Audit H-03 fix: any of the 6 training views highlights the Training
+ * section, not the Campaign Manager fallback that was silently applied
+ * before.
+ */
+export function activeTopbarSection(view: string): RailSection {
+  if (view === 'portfolio') return 'portfolio';
+  if (view === 'dashboard') return 'dashboard';
+  if (
+    view === 'drills' ||
+    view === 'missions' ||
+    view === 'reports' ||
+    view === 'bulk' ||
+    view === 'trainer' ||
+    view === 'integrity'
+  ) {
+    return 'training';
+  }
+  return 'campaigns';
+}
+
+/**
+ * Maps a topbar `view` to the section key used by `getLeftRail`. Training
+ * views get the dedicated Training rail; everything else keeps the
+ * Campaign Manager / Portfolios / Measurement mapping it had before.
+ */
+export function sidebarSectionForView(view: string): RailSection {
+  if (view === 'portfolio') return 'portfolio';
+  if (view === 'dashboard') return 'dashboard';
+  if (
+    view === 'drills' ||
+    view === 'missions' ||
+    view === 'reports' ||
+    view === 'bulk' ||
+    view === 'trainer' ||
+    view === 'integrity'
+  ) {
+    return 'training';
+  }
+  return 'campaigns';
 }
 
 /** KPI tile definitions in Amazon console order. */
