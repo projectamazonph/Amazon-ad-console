@@ -3,6 +3,12 @@
  *
  * Pure TypeScript, zero dependencies. Designed to be portable
  * across projects (amph-v2, standalone, etc.).
+ *
+ * Entity hierarchy mirrors Amazon Ads API:
+ * Account → Portfolio → Campaign → AdGroup → (Target/Keyword | ProductAd | Ad)
+ *                              → SearchTerm (report, linked to Target)
+ *                              → Negative (campaign or ad group level)
+ *                              → BudgetRule (campaign level)
  */
 
 // ---------------------------------------------------------------------------
@@ -11,6 +17,8 @@
 
 export type CampaignType = 'SP' | 'SB' | 'SD';
 export type CampaignStatus = 'Enabled' | 'Paused' | 'Archived' | 'Draft';
+
+/** Campaign targeting mode (SP only: Automatic vs Manual keyword/product) */
 export type TargetingMode =
   | 'Automatic'
   | 'Manual keyword'
@@ -22,13 +30,19 @@ export type TargetingMode =
   | 'Audiences - views remarketing'
   | 'Audiences - purchases remarketing'
   | 'Categories';
+
+/** Bid strategy at campaign level */
 export type BidStrategy =
   | 'Dynamic bids - down only'
   | 'Dynamic bids - up and down'
   | 'Fixed bids'
   | 'Cost per click'
   | 'Cost per thousand impressions';
+
+/** Keyword match types */
 export type MatchType = 'Exact' | 'Phrase' | 'Broad';
+
+/** Ad formats by campaign type */
 export type AdFormat =
   | 'Standard'
   | 'Video'
@@ -37,8 +51,40 @@ export type AdFormat =
   | 'Auto generated'
   | 'Custom image'
   | 'Video creative';
-export type PortfolioType = string; // Free-text portfolio name
+
+/** Portfolio is free-text name in simulator; API uses portfolioId */
+export type PortfolioType = string;
 export type CampaignGoal = 'Awareness' | 'Consideration' | 'Conversions';
+
+/** Target types across campaign types */
+export type TargetType =
+  | 'Keyword'
+  | 'Auto - close match'
+  | 'Auto - loose match'
+  | 'Auto - substitutes'
+  | 'Auto - complements'
+  | 'ASIN'
+  | 'Category'
+  | 'Audience - views remarketing'
+  | 'Audience - purchases remarketing'
+  | 'Audience - in-market'
+  | 'Audience - lifestyle'
+  | 'Audience - interests'
+  | 'Audience - life events'
+  | 'Contextual';
+
+/** Negative keyword/target types */
+export type NegativeType =
+  | 'Negative exact'
+  | 'Negative phrase'
+  | 'Negative ASIN'
+  | 'Negative category';
+
+/** Budget rule types */
+export type BudgetRuleType = 'Schedule' | 'Performance';
+
+/** Schedule types for budget rules */
+export type ScheduleType = 'One-time' | 'Daily' | 'Weekly' | 'Monthly';
 
 // ---------------------------------------------------------------------------
 // Metrics
@@ -61,18 +107,27 @@ export interface DerivedMetrics {
 }
 
 // ---------------------------------------------------------------------------
-// Campaign objects (mirror Amazon Ads Console data shapes)
+// Campaign entities (mirror Amazon Ads Console data shapes)
 // ---------------------------------------------------------------------------
 
+/** Target/Keyword at ad group level */
 export interface Target {
   id: string;
   campaignId: string;
   adGroupId: string;
-  type: string;          // 'Keyword' | 'Auto' | 'ASIN' | 'Category'
-  value: string;
-  match: MatchType | string;
-  bid: number;
+  type: TargetType;
+  value: string;           // keyword text, ASIN, category path, audience name
+  match: MatchType | string; // MatchType for keywords, empty for others
+  bid: number;             // individual bid (overrides ad group defaultBid)
   status: CampaignStatus;
+  // Refinements for product/category targeting
+  refinements?: {
+    brand?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    minRating?: number;
+    primeEligible?: boolean;
+  };
   // Performance
   impressions: number;
   clicks: number;
@@ -81,39 +136,53 @@ export interface Target {
   orders: number;
 }
 
+/** Search term report row — linked to the target it matched */
 export interface SearchTerm {
   id: string;
   campaignId: string;
   adGroupId: string;
-  term: string;
-  target: string;       // Matched target value
-  targetId?: string;
-  recommendation?: string;
-  impressions?: number;
+  term: string;           // actual shopper search query
+  targetId: string;       // ID of the target/keyword that matched
+  targetValue: string;    // value of that target
+  targetType: TargetType; // type of that target
+  matchType: MatchType | string; // match type of the target (for keywords)
+  // Legacy field for backward compat during migration
+  target?: string;
+  // Performance
+  impressions: number;
   clicks: number;
   spend: number;
   sales: number;
   orders: number;
+  recommendation?: string; // 'Add as exact' | 'Add as negative' | 'Review'
 }
 
+/** Negative keyword or target at campaign or ad group level */
 export interface Negative {
   id: string;
   campaignId: string;
-  adGroupId: string;
-  type: string;          // 'Negative exact' | 'Negative phrase'
-  value: string;
-  sourceSearchTermId?: string;
+  adGroupId: string | null;      // null = campaign-level, string = ad group level
+  type: NegativeType;
+  value: string;          // keyword text, ASIN, or category path
+  sourceSearchTermId?: string; // if created from search term harvesting
 }
 
+/** Budget rule at campaign level */
 export interface BudgetRule {
   id: string;
   campaignId: string;
   name: string;
-  type: string;          // 'Schedule' | 'Performance'
-  increase: number;      // Multiplier
-  condition: string;
+  type: BudgetRuleType;
+  increase: number;       // multiplier (e.g., 1.5 = 50% increase)
+  condition: string;      // 'ACOS < 20%' or schedule description
+  // Schedule-specific fields
+  startDate?: string;
+  endDate?: string;
+  scheduleType?: ScheduleType;
+  daysOfWeek?: number[];  // 0=Sun ... 6=Sat
 }
 
+/** Creative for SB/SD campaigns */
 export interface Creative {
   brandName: string;
   logo: string;
@@ -123,23 +192,47 @@ export interface Creative {
   image: string;
 }
 
+/** Ad group — contains targets/keywords and product ads */
 export interface AdGroup {
   id: string;
   campaignId: string;
   name: string;
   status: CampaignStatus;
-  defaultBid: number;
+  defaultBid: number;     // default bid for targets in this ad group
   metrics: Metrics;
 }
 
+/** Product ad (Sponsored Products / Sponsored Brands) — the ASIN being advertised */
+export interface ProductAd {
+  id: string;
+  campaignId: string;
+  adGroupId: string;
+  asin: string;
+  status: CampaignStatus;
+  metrics: Metrics;
+}
+
+/** Ad (Sponsored Brands / Sponsored Display) — creative variation */
+export interface Ad {
+  id: string;
+  campaignId: string;
+  adGroupId: string;
+  adFormat: AdFormat;
+  status: CampaignStatus;
+  creative: Creative;
+  metrics: Metrics;
+}
+
+/** Campaign — top-level container with budget, strategy, and child entities */
 export interface Campaign {
   id: string;
   type: CampaignType;
   name: string;
   portfolio: PortfolioType;
+  portfolioId?: string;   // API portfolio ID
   status: CampaignStatus;
   dailyBudget: number;
-  defaultBid: number;
+  defaultBid: number;     // fallback bid if ad group doesn't override
   startDate: string;
   endDate: string | null;
   targetingMode: TargetingMode;
@@ -147,7 +240,7 @@ export interface Campaign {
   campaignGoal?: CampaignGoal;
   bidStrategy: BidStrategy;
   placements: { top: number; product: number; rest: number };
-  products: string[];
+  products: string[];     // ASINs advertised
   creative: Creative | null;
   creativeStatus?: string;
   creativeIssue?: string;
@@ -157,6 +250,8 @@ export interface Campaign {
   searchTerms: SearchTerm[];
   negatives: Negative[];
   budgetRules: BudgetRule[];
+  productAds: ProductAd[]; // SP/SB: the advertised products
+  ads: Ad[];               // SB/SD: creative variations
   history: string[];
   createdBySimulator?: boolean;
 }

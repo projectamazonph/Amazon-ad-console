@@ -47,12 +47,22 @@ export function CampaignDetail({ campaign }: Props) {
       </div>
 
       <div className="detail-header">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+        <div className="detail-header-row">
           <div>
-            <h1 style={{ fontSize: 22 }}>{c.name}</h1>
-            <p style={{ color: '#6b7280', fontSize: 13 }}>{c.type} · {c.targetingMode} · {c.portfolio}</p>
+            <h1>{c.name}</h1>
+            <p className="detail-meta">
+              <span className={`pill ${c.status === 'Enabled' ? 'green' : c.status === 'Paused' ? 'orange' : 'red'}`}>
+                <span className="pill-dot" aria-hidden="true" />
+                {c.status}
+              </span>
+              <span>{c.type}</span>
+              <span>·</span>
+              <span>{c.targetingMode}</span>
+              <span>·</span>
+              <span>{c.portfolio}</span>
+            </p>
           </div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <div className="detail-actions">
             <button className="btn" onClick={() => { selectCampaign(null); setView('campaigns'); }}>← Back</button>
             <button className="btn blue" onClick={() => runSimulation()}>Run 7-day sim</button>
             <button className={`btn ${c.status === 'Enabled' ? 'orange' : ''}`} onClick={() => toggleStatus(c.id)}>

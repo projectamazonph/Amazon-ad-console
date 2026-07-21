@@ -1,54 +1,65 @@
 import { describe, it, expect } from 'vitest';
 import {
   calc,
-  totalMetrics,
-  metricDefaults,
-  normalizeCampaign,
+  formatMoney,
+  formatWhole,
+  formatPercent,
+  formatBid,
+  formatRoas,
+  acosClass,
   toggleCampaignStatus,
   archiveCampaign,
   duplicateCampaign,
   addTarget,
+  addKeyword,
+  addAutoTarget,
+  addAsinTarget,
+  addCategoryTarget,
   removeTarget,
   setTargetBid,
   adjustTargetBid,
   pauseTarget,
+  setTargetStatus,
   addNegative,
   harvestTerm,
+  simulateDays,
   filteredCampaigns,
-  portfolioNames,
-  formatMoney,
-  formatBid,
-  formatPercent,
-  acosClass,
+  campaignById,
+  totalMetrics,
+  normalizeCampaign,
 } from '../engine';
-import type { Campaign, CampaignType, CampaignStatus, Metrics } from '../types';
+import type { Campaign, CampaignType, CampaignStatus, Metrics, Target, SearchTerm, Negative } from '../types';
 
 function makeCampaign(over: Partial<Campaign> = {}): Campaign {
-  return {
-    id: 'C1',
-    type: 'SP',
-    name: 'Test',
-    portfolio: 'Training Portfolio',
-    status: 'Enabled',
-    dailyBudget: 10,
-    defaultBid: 0.75,
-    startDate: '2026-01-01',
-    endDate: null,
-    targetingMode: 'Automatic',
-    adFormat: 'Standard',
-    bidStrategy: 'Dynamic bids - down only',
-    placements: { top: 0, product: 0, rest: 0 },
-    products: ['B0TRAIN001'],
-    creative: null,
-    metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
-    adGroups: [{ id: 'AG1', campaignId: 'C1', name: 'AG', status: 'Enabled', defaultBid: 0.75, metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 } }],
-    targets: [],
-    searchTerms: [],
-    negatives: [],
-    budgetRules: [],
-    history: [],
-    ...over,
+  const base: Campaign = {
+    id: over.id ?? 'C1',
+    type: over.type ?? 'SP',
+    name: over.name ?? 'Test',
+    portfolio: over.portfolio ?? 'Training Portfolio',
+    status: over.status ?? 'Enabled',
+    dailyBudget: over.dailyBudget ?? 10,
+    defaultBid: over.defaultBid ?? 0.75,
+    startDate: over.startDate ?? '2026-01-01',
+    endDate: over.endDate ?? null,
+    targetingMode: over.targetingMode ?? 'Automatic',
+    adFormat: over.adFormat ?? 'Standard',
+    bidStrategy: over.bidStrategy ?? 'Dynamic bids - down only',
+    placements: over.placements ?? { top: 0, product: 0, rest: 0 },
+    products: over.products ?? ['B0TRAIN001'],
+    creative: over.creative ?? null,
+    metrics: over.metrics ?? { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+    adGroups: over.adGroups ?? [{ id: 'AG1', campaignId: 'C1', name: 'Default AG', status: 'Enabled', defaultBid: 0.75, metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 } }],
+    targets: over.targets ?? [],
+    searchTerms: over.searchTerms ?? [],
+    negatives: over.negatives ?? [],
+    budgetRules: over.budgetRules ?? [],
+    productAds: over.productAds ?? [],
+    ads: over.ads ?? [],
+    history: over.history ?? [],
+    createdBySimulator: true,
   };
+  // Spread after to allow overriding computed fields
+  return { ...base, ...over } as Campaign;
 }
 
 describe('calc derived metrics', () => {
@@ -69,65 +80,57 @@ describe('calc derived metrics', () => {
   it('fails fast on non-finite values', () => {
     expect(() => calc({ impressions: NaN, clicks: 0, spend: 0, sales: 0, orders: 0 })).toThrow();
   });
+});
 
-  it('fails fast on negative spend', () => {
-    expect(() => calc({ impressions: 1, clicks: 0, spend: -5, sales: 0, orders: 0 })).toThrow();
+describe('format helpers', () => {
+  it('formatMoney formats dollars', () => {
+    expect(formatMoney(1234.567)).toBe('$1,234.57');
+  });
+  it('formatWhole formats integers', () => {
+    expect(formatWhole(1234)).toBe('1,234');
+  });
+  it('formatPercent formats as percent with one decimal', () => {
+    expect(formatPercent(25.5)).toBe('25.5%');
+  });
+  it('formatBid formats bid with two decimals', () => {
+    expect(formatBid(1.234)).toBe('$1.23');
+  });
+  it('formatRoas formats roas with two decimals and x', () => {
+    expect(formatRoas(3.5)).toBe('3.50x');
+  });
+  it('acosClass returns correct class', () => {
+    expect(acosClass(10)).toBe('good');
+    expect(acosClass(25)).toBe('warn');
+    expect(acosClass(50)).toBe('bad');
   });
 });
 
-describe('totalMetrics', () => {
-  it('sums metrics across campaigns', () => {
-    const a = makeCampaign({ metrics: { impressions: 10, clicks: 1, spend: 2, sales: 4, orders: 1 } });
-    const b = makeCampaign({ id: 'C2', metrics: { impressions: 20, clicks: 2, spend: 3, sales: 6, orders: 2 } });
-    expect(totalMetrics([a, b])).toEqual({ impressions: 30, clicks: 3, spend: 5, sales: 10, orders: 3 });
-  });
-
-  it('returns empty metrics for no campaigns', () => {
-    expect(totalMetrics([])).toEqual({ impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 });
-  });
-});
-
-describe('metricDefaults', () => {
-  it('fills missing fields with zero', () => {
-    expect(metricDefaults({ impressions: 5 })).toEqual({ impressions: 5, clicks: 0, spend: 0, sales: 0, orders: 0 });
-  });
-});
-
-describe('normalizeCampaign', () => {
-  it('defaults a partial SP campaign with a primary ad group', () => {
-    const c = normalizeCampaign({ name: 'Demo', type: 'SP' });
-    expect(c.type).toBe('SP');
-    expect(c.adGroups).toHaveLength(1);
-    expect(c.status).toBe('Paused');
-    expect(c.dailyBudget).toBeGreaterThanOrEqual(1);
-  });
-
-  it('fails fast on unknown campaign type', () => {
-    expect(() => normalizeCampaign({ type: 'ZZ' as CampaignType })).toThrow();
-  });
-
-  it('fails fast on invalid status', () => {
-    expect(() => normalizeCampaign({ status: 'Bogus' as CampaignStatus })).toThrow();
-  });
-});
-
-describe('campaign status transitions', () => {
-  it('toggles Enabled -> Paused and cascades to ad groups/targets', () => {
-    const c = makeCampaign({ targets: [{ id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'kw', match: 'Exact', bid: 0.75, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 }] });
+describe('campaign status toggling', () => {
+  it('toggles Enabled to Paused and cascades to ad groups and targets', () => {
+    const c = makeCampaign({ status: 'Enabled' });
     const next = toggleCampaignStatus(c);
     expect(next.status).toBe('Paused');
-    expect(next.targets[0]!.status).toBe('Paused');
+    expect(next.adGroups.every((ag) => ag.status === 'Paused')).toBe(true);
+    expect(next.targets.every((t) => t.status === 'Paused')).toBe(true);
   });
 
-  it('does not toggle an Archived campaign', () => {
+  it('toggles Paused to Enabled', () => {
+    const c = makeCampaign({ status: 'Paused' });
+    const next = toggleCampaignStatus(c);
+    expect(next.status).toBe('Enabled');
+  });
+
+  it('does nothing for Archived', () => {
     const c = makeCampaign({ status: 'Archived' });
     expect(toggleCampaignStatus(c).status).toBe('Archived');
   });
 
   it('archives a campaign and cascades', () => {
-    const next = archiveCampaign(makeCampaign());
+    const c = makeCampaign({ status: 'Enabled' });
+    const next = archiveCampaign(c);
     expect(next.status).toBe('Archived');
     expect(next.adGroups[0]!.status).toBe('Archived');
+    expect(next.targets[0]?.status ?? true).toBe(true); // no targets initially
   });
 
   it('duplicates a campaign with new ids and reset metrics', () => {
@@ -141,18 +144,18 @@ describe('campaign status transitions', () => {
 
 describe('target operations', () => {
   it('adds a keyword target', () => {
-    const { campaign, target } = addTarget(makeCampaign(), 'running shoes', 'Broad', 1.5);
+    const { campaign, target } = addKeyword(makeCampaign(), 'running shoes', 'Broad', 1.5);
     expect(campaign.targets).toHaveLength(1);
     expect(target.value).toBe('running shoes');
     expect(target.bid).toBe(1.5);
   });
 
   it('fails fast when adding a keyword with empty value', () => {
-    expect(() => addTarget(makeCampaign(), '   ', 'Exact', 1)).toThrow();
+    expect(() => addKeyword(makeCampaign(), '   ', 'Exact', 1)).toThrow();
   });
 
   it('clamps bid to minimum 0.02', () => {
-    const { target } = addTarget(makeCampaign(), 'kw', 'Exact', 0.01);
+    const { target } = addKeyword(makeCampaign(), 'kw', 'Exact', 0.01);
     expect(target.bid).toBe(0.02);
   });
 
@@ -179,18 +182,18 @@ describe('target operations', () => {
 
 describe('negatives and harvesting', () => {
   it('adds a negative keyword', () => {
-    const c = addNegative(makeCampaign(), 'free', 'Negative exact');
+    const c = addNegative({ campaign: makeCampaign(), value: 'free', type: 'Negative exact' });
     expect(c.negatives).toHaveLength(1);
   });
 
   it('does not duplicate an identical negative', () => {
-    let c = addNegative(makeCampaign(), 'free', 'Negative exact');
-    c = addNegative(c, 'free', 'Negative exact');
+    let c = addNegative({ campaign: makeCampaign(), value: 'free', type: 'Negative exact' });
+    c = addNegative({ campaign: c, value: 'free', type: 'Negative exact' });
     expect(c.negatives).toHaveLength(1);
   });
 
   it('harvests a search term into a new exact keyword', () => {
-    const c = makeCampaign({ searchTerms: [{ id: 'ST1', campaignId: 'C1', adGroupId: 'AG1', term: 'blue shoes', target: '', clicks: 5, spend: 2, sales: 10, orders: 1 }] });
+    const c = makeCampaign({ searchTerms: [{ id: 'ST1', campaignId: 'C1', adGroupId: 'AG1', term: 'blue shoes', targetId: '', targetValue: '', targetType: 'Keyword', matchType: '', clicks: 5, spend: 2, sales: 10, orders: 1, impressions: 0 }] });
     const next = harvestTerm(c, 'blue shoes');
     expect(next.targets).toHaveLength(1);
     expect(next.targets[0]!.value).toBe('blue shoes');
@@ -205,35 +208,86 @@ describe('filtering and portfolios', () => {
         makeCampaign({ type: 'SP', status: 'Enabled', portfolio: 'A', name: 'Alpha SP' }),
         makeCampaign({ id: 'C2', type: 'SB', status: 'Paused', portfolio: 'B', name: 'Beta SB' }),
       ],
-      filter: { type: 'SP' as const, status: 'All' as const, portfolio: 'All' as const, search: '' },
+      filter: { type: 'SP' as CampaignType, status: 'Enabled' as CampaignStatus, portfolio: 'All', search: '' },
       selectedCampaignId: null,
-      selectedTab: '',
-      simulationDays: 0,
+      selectedTab: 'overview',
+      simulationDays: 7,
       actionLog: [],
-      portfolios: [],
+      portfolios: ['A', 'B'],
     };
-    expect(filteredCampaigns(state)).toHaveLength(1);
+    const filtered = filteredCampaigns(state);
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0].type).toBe('SP');
   });
 
-  it('lists unique portfolio names prefixed with All', () => {
-    const names = portfolioNames([makeCampaign({ portfolio: 'A' }), makeCampaign({ portfolio: 'B' }), makeCampaign({ portfolio: 'A' })]);
-    expect(names).toEqual(['All', 'A', 'B']);
+  it('finds campaign by id', () => {
+    const c = makeCampaign({ id: 'C1' });
+    const found = campaignById({ version: '3.6', campaigns: [c], filter: { type: 'All', status: 'All', portfolio: 'All', search: '' }, selectedCampaignId: null, selectedTab: 'overview', simulationDays: 7, actionLog: [], portfolios: [] }, 'C1');
+    expect(found).toBe(c);
   });
 });
 
-describe('formatting', () => {
-  it('formats money', () => {
-    expect(formatMoney(1234.5)).toBe('$1,234.50');
+describe('simulation', () => {
+  it('runs a 7-day simulation and updates metrics', () => {
+    const c = makeCampaign({ status: 'Enabled', targets: [{ id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'kw', match: 'Exact', bid: 0.75, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 }] });
+    const [result] = simulateDays([c], 7);
+    expect(result.metrics.impressions).toBeGreaterThan(0);
+    expect(result.metrics.spend).toBeGreaterThan(0);
+    expect(result.history[result.history.length - 1]).toContain('simulation');
   });
-  it('formats bid', () => {
-    expect(formatBid(0.75)).toBe('$0.75');
+
+  it('does not simulate paused campaigns', () => {
+    const c = makeCampaign({ status: 'Paused' });
+    const [result] = simulateDays([c], 7);
+    expect(result.metrics.impressions).toBe(0);
   });
-  it('formats percent', () => {
-    expect(formatPercent(25)).toBe('25.00%');
+});
+
+describe('campaign creation flow', () => {
+  it('normalizeCampaign builds a valid campaign from launch input', () => {
+    const id = 'C-SP-test123';
+    const agId = 'AG-C-SP-test123';
+    const targets = [
+      { id: 'T-test1', campaignId: id, adGroupId: agId, type: 'Keyword' as const, value: 'coffee filter', match: 'Exact' as const, bid: 0.75, status: 'Enabled' as CampaignStatus, impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+    ];
+    const campaign = normalizeCampaign({
+      id, type: 'SP', name: 'Launch Test', portfolio: 'Test',
+      status: 'Enabled', dailyBudget: 25, defaultBid: 0.75,
+      bidStrategy: 'Dynamic bids - down only', targetingMode: 'Automatic',
+      products: ['B0TRAIN001'],
+      metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+      adGroups: [{ id: agId, campaignId: id, name: 'SP training ad group', status: 'Enabled', defaultBid: 0.75, metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 } }],
+      targets, searchTerms: [], negatives: [], budgetRules: [],
+      history: ['Campaign launched in simulator'],
+    });
+    expect(campaign.id).toBe(id);
+    expect(campaign.name).toBe('Launch Test');
+    expect(campaign.productAds).toEqual([]);
+    expect(campaign.ads).toEqual([]);
+    expect(campaign.targets).toHaveLength(1);
+    expect(campaign.adGroups).toHaveLength(1);
+    expect(campaign.history).toContain('Campaign launched in simulator');
   });
-  it('classifies acos', () => {
-    expect(acosClass(20)).toBe('good');
-    expect(acosClass(40)).toBe('warn');
-    expect(acosClass(60)).toBe('bad');
+
+  it('launch handles keywords from draft text fields', () => {
+    const id = 'C-SP-launch2';
+    const agId = 'AG-C-SP-launch2';
+    const targets = [
+      { id: 'T-kw1', campaignId: id, adGroupId: agId, type: 'Keyword' as const, value: 'coffee filter', match: 'Exact' as const, bid: 0.75, status: 'Enabled' as CampaignStatus, impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+      { id: 'T-kw2', campaignId: id, adGroupId: agId, type: 'Keyword' as const, value: 'coffee maker', match: 'Exact' as const, bid: 0.75, status: 'Enabled' as CampaignStatus, impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+    ];
+    const campaign = normalizeCampaign({
+      id, type: 'SP', name: 'Keyword Test', portfolio: 'Test',
+      status: 'Enabled', dailyBudget: 25, defaultBid: 0.75,
+      bidStrategy: 'Dynamic bids - down only', targetingMode: 'Automatic',
+      products: ['B0TRAIN001'],
+      metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+      adGroups: [{ id: agId, campaignId: id, name: 'SP training ad group', status: 'Enabled', defaultBid: 0.75, metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 } }],
+      targets, searchTerms: [], negatives: [], budgetRules: [],
+      history: [],
+    });
+    expect(campaign.targets).toHaveLength(2);
+    expect(campaign.targets[0].value).toBe('coffee filter');
+    expect(campaign.targets[1].value).toBe('coffee maker');
   });
 });

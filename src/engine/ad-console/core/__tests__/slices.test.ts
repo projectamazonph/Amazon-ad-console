@@ -278,7 +278,7 @@ describe('NegativeSlice', () => {
   it('addNegative adds a negative keyword', () => {
     const c = firstCampaign();
     const before = c.negatives.length;
-    getStore().addNegative(c.id, 'test neg');
+    getStore().addNegative(c.id, 'test neg', 'Negative exact');
     const updated = getStore().state.campaigns.find((x: Campaign) => x.id === c.id)!;
     expect(updated.negatives.length).toBe(before + 1);
   });

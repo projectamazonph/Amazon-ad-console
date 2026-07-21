@@ -6,10 +6,15 @@ All functions live in `src/engine/ad-console/` and can be imported via the publi
 
 ```ts
 // Full public API
-import { calc, simulateDays, Campaign } from '@/engine/ad-console';
+import { calc, simulateDays, Campaign, Target } from '@/engine/ad-console';
 
 // Core engine only (zero deps)
-import { calc, simulateDays } from '@/engine/ad-console/core/engine';
+import { calc, addTarget, addNegative, normalizeCampaign } from '@/engine/ad-console/core/engine';
+
+// Per-module (specific domain)
+import { addTarget, addKeyword, addAsinTarget } from '@/engine/ad-console/core/engine/target';
+import { addNegative, harvestTerm } from '@/engine/ad-console/core/engine/negative';
+import { calc, formatRoas, acosClass } from '@/engine/ad-console/core/engine/metrics';
 
 // Store hook
 import { useAdConsoleStore } from '@/engine/ad-console/store';
@@ -17,7 +22,33 @@ import { useAdConsoleStore } from '@/engine/ad-console/store';
 
 ---
 
-## Core Engine (`core/engine.ts`)
+## Core Engine (`core/engine/`)
+
+The engine is split into per-domain modules under `core/engine/`. Import from the barrel:
+
+```ts
+import {
+  normalizeCampaign, addTarget, addKeyword, addNegative,
+  calc, simulateDays,
+} from '@/engine/ad-console/core/engine';
+```
+
+### All Module Exports
+
+| Module | Exports |
+|--------|---------|
+| `campaign.ts` | `normalizeCampaign`, `toggleCampaignStatus`, `archiveCampaign`, `duplicateCampaign`, `updateCampaignSettings`, `savePlacements` |
+| `target.ts` | `addTarget`, `addKeyword`, `addAutoTarget`, `addAsinTarget`, `addCategoryTarget`, `removeTarget`, `setTargetBid`, `adjustTargetBid`, `pauseTarget`, `setTargetStatus` |
+| `adgroup.ts` | `addAdGroup`, `addProductAd`, `addAd`, `renameAdGroup`, `setAdGroupStatus`, `setAdGroupDefaultBid`, `removeAdGroup` |
+| `negative.ts` | `isFilteredByNegative`, `addNegative`, `addNegativeKeyword`, `addNegativeAsin`, `addNegativeCategory`, `removeNegative`, `harvestTerm`, `getHarvestCandidates`, `getNegativeCandidates` |
+| `budget.ts` | `addBudgetRule`, `removeBudgetRule`, `updateBudgetRule` |
+| `portfolio.ts` | `createPortfolio`, `renamePortfolio`, `deletePortfolio`, `assignCampaignToPortfolio`, `campaignById`, `filteredCampaigns`, `portfolioNames` |
+| `draft.ts` | `selectProduct`, `removeProduct`, `parseKeywords`, `validateStoreUrl` |
+| `id.ts` | `generateId`, `resetIdCounter` |
+| `metrics.ts` | `calc`, `totalMetrics`, `metricDefaults`, `formatMoney`, `formatWhole`, `formatBid`, `formatPercent`, `formatRoas`, `acosClass` |
+| `responsive.ts` | `resolveBreakpoint`, `mobileMenuReducer`, `isTouchViewport` |
+| `search-term-generator.ts` | `ExactMatchGenerator`, `PhraseMatchGenerator`, `BroadMatchGenerator`, `generateSearchTermsForTarget`, `registerGenerator` |
+| `simulation.ts` | `simulateDays` |
 
 ### ID Generation
 
@@ -82,30 +113,45 @@ Creates a deep copy of a campaign with:
 
 ### Target (Keyword) Operations
 
-#### `addTarget(campaign: Campaign, value: string, match: MatchType | string, bid: number, adGroupId?: string): { campaign: Campaign; target: Target }`
-Adds a new keyword target to a campaign's ad group.
-- **value**: The keyword text
-- **match**: `'Exact'`, `'Phrase'`, or `'Broad'`
-- **bid**: CPC bid in dollars
-- **adGroupId**: (optional) Target ad group ID. Defaults to the first ad group.
-- Logs the addition. Returns both the updated campaign and the new target.
-- Throws `ValidationError` if the specified ad group does not exist.
+#### `addTarget(opts: AddTargetOptions): { campaign: Campaign; target: Target }`
+Adds a new target of any type to a campaign's ad group.
+
+**Options:**
+- `campaign` — Target campaign
+- `value` — Target text (keyword, ASIN, category path)
+- `type` — `'Keyword'`, `'ASIN'`, `'Category'`, `'Auto - close match'`, `'Auto - loose match'`, `'Auto - substitutes'`, `'Auto - complements'`, or any audience type
+- `match` — (optional, keyword only) `'Exact'` | `'Phrase'` | `'Broad'`
+- `bid` — CPC bid in dollars
+- `adGroupId` — (optional) Defaults to first ad group
+
+Throws `ValidationError` on empty value, non-finite bid, or unknown ad group.
+
+#### `addKeyword(campaign: Campaign, value: string, match: MatchType, bid: number, adGroupId?: string): { campaign: Campaign; target: Target }`
+Convenience wrapper — same as `addTarget({ ..., type: 'Keyword' })`.
+
+#### `addAutoTarget(campaign: Campaign, autoType: AutoType, bid: number, adGroupId?: string): { campaign: Campaign; target: Target }`
+Adds an auto-targeting target. `autoType` is one of `'close match'`, `'loose match'`, `'substitutes'`, `'complements'`.
+
+#### `addAsinTarget(campaign: Campaign, asin: string, bid: number, adGroupId?: string): { campaign: Campaign; target: Target }`
+Adds an ASIN product target.
+
+#### `addCategoryTarget(campaign: Campaign, categoryPath: string, bid: number, adGroupId?: string): { campaign: Campaign; target: Target }`
+Adds a category product target.
 
 #### `removeTarget(campaign: Campaign, targetId: string): Campaign`
-Removes a target by ID from the campaign. Logs the removal.
+Removes a target by ID. Logs the removal.
 
 #### `setTargetBid(campaign: Campaign, targetId: string, bid: number): Campaign`
-Sets an exact bid on a target. Logs the change with old/new values.
+Sets an exact bid on a target. Logs the change.
 
 #### `adjustTargetBid(campaign: Campaign, targetId: string, multiplier: number): Campaign`
-Adjusts a target's bid by a multiplier (e.g., `1.2` = +20%, `0.8` = -20%). Logs the adjustment.
+Adjusts a target's bid by a multiplier (e.g., `1.2` = +20%, `0.8` = -20%).
 
 #### `pauseTarget(campaign: Campaign, targetId: string): Campaign`
-Sets a target's status to `'Paused'`. Logs the pause action.
+Sets a target's status to `'Paused'`.
 
----
-
----
+#### `setTargetStatus(campaign: Campaign, targetId: string, status: CampaignStatus): Campaign`
+Sets a target to any valid status (`'Enabled'` | `'Paused'` | `'Archived'`).
 
 ### Ad Group Operations
 
@@ -149,19 +195,46 @@ Removes a budget rule by ID. Returns `removed: false` if the rule does not exist
 Partially updates a budget rule's fields. All fields are validated before applying.
 - Throws `ValidationError` on unknown rule ID or invalid field values.
 
-### Negative Keywords
+### Negatives & Harvesting
 
-#### `addNegative(campaign: Campaign, term: string, type?: string): Campaign`
-Adds a negative keyword to the campaign.
-- **term**: The negative keyword text
-- **type**: `'Negative exact'` (default) or `'Negative phrase'`
-- Logs the addition.
+#### `addNegative(opts: AddNegativeOptions): Campaign`
+Adds a negative keyword or target at campaign or ad-group level.
 
-#### `harvestTerm(campaign: Campaign, term: string): Campaign`
-Finds a matching search term in the campaign and:
-1. Adds it as a new Exact keyword target
-2. Adds a Negative phrase to block it from auto/targeted matching
+**Options:**
+- `campaign` — Target campaign
+- `value` — Negative text (keyword, ASIN, or category ID)
+- `type` — `'Negative exact'` | `'Negative phrase'` | `'Negative ASIN'` | `'Negative category'`
+- `adGroupId` — (optional) Omit for campaign-level, provide for ad-group-level
+- `sourceSearchTermId` — (optional) Link back to the originating search term
+
+Deduplicates by value + type + level. Logs the addition.
+
+#### `addNegativeKeyword(campaign: Campaign, keyword: string, matchType: 'Negative exact' | 'Negative phrase', adGroupId?: string): Campaign`
+Convenience wrapper — same as `addNegative({ ..., type: matchType })`.
+
+#### `addNegativeAsin(campaign: Campaign, asin: string, adGroupId?: string): Campaign`
+Adds an ASIN-level negative (keyword negatives filter search terms; ASIN negatives filter product targeting).
+
+#### `addNegativeCategory(campaign: Campaign, categoryId: string, adGroupId?: string): Campaign`
+Adds a category-level negative.
+
+#### `removeNegative(campaign: Campaign, negativeId: string): Campaign`
+Removes a negative by ID. Logs the removal.
+
+#### `harvestTerm(campaign: Campaign, term: string, targetValue?: string): Campaign`
+Finds a matching search term and:
+1. Adds it as a new Exact keyword target (if not already present)
+2. Links the search term to the new target via `targetId` and `targetValue`
 3. Logs the harvest action
+
+#### `getHarvestCandidates(searchTerms: SearchTerm[], opts?: SearchTermFilterOptions): SearchTerm[]`
+Returns search terms worth harvesting as keywords. Default thresholds: minSpend=0, minClicks=10, maxAcos=30, minOrders=1. Filters out already-converting terms.
+
+#### `getNegativeCandidates(searchTerms: SearchTerm[], opts?: SearchTermFilterOptions): SearchTerm[]`
+Returns search terms worth negating. Default thresholds: minSpend=10, minClicks=5, maxAcos=50, minOrders=0. Returns high-spend, low-converting terms.
+
+#### `isFilteredByNegative(term: string, negatives: Negative[]): boolean`
+Returns `true` if the term matches any negative exact or negative phrase. `Negative exact` requires an exact case-insensitive match; `Negative phrase` checks substring containment. ASIN/category negatives do not filter search terms.
 
 ---
 
@@ -184,8 +257,8 @@ Returns new campaign objects (no mutation).
 
 ### Settings
 
-#### `updateCampaignSettings(campaign: Campaign, updates: Partial<Pick<Campaign, 'dailyBudget' | 'defaultBid' | 'bidStrategy' | 'status'>>): Campaign`
-Updates campaign-level settings. Logs individual changes.
+#### `updateCampaignSettings(campaign: Campaign, updates: Partial<Pick<Campaign, 'dailyBudget' | 'defaultBid' | 'bidStrategy' | 'status' | 'creativeStatus' | 'creativeIssue'>>): Campaign`
+Updates campaign-level settings (budget, bid, strategy, status, creative). Logs individual changes.
 
 #### `savePlacements(campaign: Campaign, placements: { top: number; product: number; rest: number }): Campaign`
 Saves placement bid adjustment percentages. Logs changes.
@@ -245,6 +318,34 @@ Removes an ASIN from the draft products list.
 Parses a multi-line keyword string into trimmed, non-empty keyword values.
 - Skips blank lines. Throws `ValidationError` if any keyword exceeds 200 characters.
 
+### Ad Group & Creative Operations
+
+#### `addAdGroup(campaign: Campaign, name: string): Campaign`
+Appends a new enabled ad group. Throws on empty name.
+
+#### `renameAdGroup(campaign: Campaign, adGroupId: string, name: string): Campaign`
+Renames an existing ad group. Throws on unknown ID or empty name.
+
+#### `setAdGroupStatus(campaign: Campaign, adGroupId: string, status: CampaignStatus): Campaign`
+Sets status and cascades to all targets in that group.
+
+#### `setAdGroupDefaultBid(campaign: Campaign, adGroupId: string, defaultBid: number): Campaign`
+Sets default CPC bid (clamped to ≥ $0.02).
+
+#### `removeAdGroup(campaign: Campaign, adGroupId: string): Campaign`
+Removes an ad group and its targets. Throws if it's the last ad group.
+
+#### `addProductAd(campaign: Campaign, asin: string, adGroupId?: string): Campaign`
+Adds a Sponsored Products product assignment.
+
+#### `addAd(campaign: Campaign, adFormat: AdFormat, creative?: Creative, adGroupId?: string): Campaign`
+Adds a Sponsored Brands or Sponsored Display creative assignment.
+
+### Draft / Wizard Helpers
+
+#### `validateStoreUrl(url: string): ValidationResult`
+Validates an Amazon Store URL format. Returns `{ valid: boolean; error?: string }`.
+
 ### Helpers
 
 #### `campaignById(state: AdConsoleState, id: string): Campaign | undefined`
@@ -266,13 +367,13 @@ Formats a number with locale-aware thousand separators.
 Formats a bid as `$X.XX`.
 
 #### `formatPercent(n: number): string`
-Formats a number as `XX.XX%`.
+Formats a number as `XX.X%` (one decimal place).
 
 #### `formatRoas(n: number): string`
-Formats ROAS as `X.XX`.
+Formats ROAS as `X.XXx`. The `x` suffix indicates the ratio (e.g., `3.50x` = $3.50 return per $1 spend).
 
 #### `acosClass(acos: number): string`
-Returns `'good'` (≤30%), `'warn'` (≤50%), or `'bad'` (>50%).
+Returns `'good'` (≤20%), `'warn'` (20–49%), or `'bad'` (≥50%).
 
 ---
 
@@ -403,6 +504,23 @@ Score: `100 - (errors × 15) - (warnings × 5)`, passes at ≥70.
 | `resetAll` | `()` | Reset to default campaigns |
 | `exportState` | `(): string` | Export state as JSON string (rejects empty/null) |
 | `importState` | `(json: string): boolean` | Import state from JSON string (rejects empty/null) |
+
+### New Actions (from refactoring)
+
+In addition to the existing actions above, the store exposes:
+
+| Action | Parameters | Description |
+|--------|-----------|-------------|
+| `addAutoTarget` | `(campaignId, autoType, bid, adGroupId?)` | Add auto-close/loose/substitutes/complements target |
+| `addAsinTarget` | `(campaignId, asin, bid, adGroupId?)` | Add ASIN product target |
+| `addCategoryTarget` | `(campaignId, categoryPath, bid, adGroupId?)` | Add category target |
+| `addProductAd` | `(campaignId, asin, adGroupId?)` | Add product ad assignment |
+| `addAd` | `(campaignId, adFormat, creative?, adGroupId?)` | Add creative assignment |
+| `addNegativeKeyword` | `(campaignId, keyword, matchType, adGroupId?)` | Add negative keyword |
+| `addNegativeAsin` | `(campaignId, asin, adGroupId?)` | Add ASIN negative |
+| `addNegativeCategory` | `(campaignId, categoryId, adGroupId?)` | Add category negative |
+| `removeNegative` | `(campaignId, negativeId)` | Remove a negative |
+| `setTargetStatus` | `(campaignId, targetId, status)` | Set target to any status |
 
 ### Derived Getters
 

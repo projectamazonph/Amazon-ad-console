@@ -2,6 +2,7 @@
 
 import type { Campaign } from '@/engine/ad-console/types';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass, isFilteredByNegative } from '@/engine/ad-console/engine';
+import { EmptyState } from './EmptyState';
 
 interface Props {
   campaigns: Campaign[];
@@ -15,7 +16,7 @@ export function ManagerSearchTermsTab({ campaigns }: Props) {
   );
 
   if (!rows.length) {
-    return <div className="empty"><h3>No search terms</h3><p>Search terms appear after running a simulation. They are also filtered by negatives: check the Negatives tab.</p></div>;
+    return <EmptyState icon="search" title="No search terms" message="Search terms appear after running a simulation. They are also filtered by negatives: check the Negatives tab." />;
   }
 
   return (
@@ -33,7 +34,7 @@ export function ManagerSearchTermsTab({ campaigns }: Props) {
             return (
               <tr key={st.id}>
                 <td><strong>{st.term}</strong></td>
-                <td>{c.name}</td><td>{st.target}</td>
+                <td>{c.name}</td><td>{st.targetValue}</td>
                 <td className="mono">{formatWhole(st.impressions || 0)}</td>
                 <td className="mono">{formatWhole(st.clicks)}</td>
                 <td className="money">{formatBid(x.cpc)}</td>

@@ -1,11 +1,11 @@
 /**
  * Budget rules slice.
  */
-import type { BudgetRule } from '../types';
+import type { BudgetRule, BudgetRuleType } from '../types';
 import { addBudgetRule, removeBudgetRule, updateBudgetRule } from '../engine';
 
 export interface BudgetSlice {
-  addBudgetRule: (cid: string, name: string, type: string, increase: number, condition: string) => void;
+  addBudgetRule: (cid: string, name: string, type: BudgetRuleType, increase: number, condition: string) => void;
   removeBudgetRule: (cid: string, ruleId: string) => void;
   updateBudgetRule: (cid: string, ruleId: string, updates: Partial<Pick<BudgetRule, 'name' | 'type' | 'increase' | 'condition'>>) => void;
 }

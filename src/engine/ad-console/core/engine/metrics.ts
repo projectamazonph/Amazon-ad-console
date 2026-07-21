@@ -58,15 +58,15 @@ export function formatBid(n: number): string {
 }
 
 export function formatPercent(n: number): string {
-  return n.toFixed(2) + '%';
+  return n.toFixed(1) + '%';
 }
 
 export function formatRoas(n: number): string {
-  return n.toFixed(2);
+  return n.toFixed(2) + 'x';
 }
 
 export function acosClass(acos: number): string {
-  if (acos <= 30) return 'good';
-  if (acos <= 50) return 'warn';
-  return 'bad';
+  if (acos <= 20) return 'good';
+  if (acos >= 50) return 'bad';
+  return 'warn';
 }

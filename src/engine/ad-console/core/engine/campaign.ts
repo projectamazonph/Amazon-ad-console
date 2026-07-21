@@ -3,7 +3,7 @@
  */
 import type {
   Campaign, CampaignType, CampaignStatus,
-  Target, AdGroup,
+  Target, AdGroup, ProductAd, Ad,
 } from '../types';
 import { assertCampaignType, assertCampaignStatus } from '../../../../lib/validation';
 import { generateId } from './id';
@@ -30,6 +30,49 @@ function normalizeTarget(
     spend: t.spend ?? 0,
     sales: t.sales ?? 0,
     orders: t.orders ?? 0,
+    refinements: t.refinements,
+  };
+}
+
+function normalizeProductAd(
+  pa: Partial<ProductAd>,
+  campaignId: string,
+  adGroupId: string,
+): ProductAd {
+  return {
+    id: pa.id ?? generateId('PA'),
+    campaignId: pa.campaignId ?? campaignId,
+    adGroupId: pa.adGroupId ?? adGroupId,
+    asin: pa.asin ?? 'B0TRAIN001',
+    status: ['Enabled', 'Paused', 'Archived', 'Draft'].includes(pa.status ?? '')
+      ? (pa.status! as CampaignStatus)
+      : 'Enabled',
+    metrics: metricDefaults(pa.metrics ?? {}),
+  };
+}
+
+function normalizeAd(
+  a: Partial<Ad>,
+  campaignId: string,
+  adGroupId: string,
+): Ad {
+  return {
+    id: a.id ?? generateId('AD'),
+    campaignId: a.campaignId ?? campaignId,
+    adGroupId: a.adGroupId ?? adGroupId,
+    adFormat: a.adFormat ?? 'Product collection',
+    status: ['Enabled', 'Paused', 'Archived', 'Draft'].includes(a.status ?? '')
+      ? (a.status! as CampaignStatus)
+      : 'Enabled',
+    creative: a.creative ?? {
+      brandName: '',
+      logo: '',
+      headline: '',
+      destination: 'Product detail page',
+      video: '',
+      image: 'Auto generated',
+    },
+    metrics: metricDefaults(a.metrics ?? {}),
   };
 }
 
@@ -47,12 +90,25 @@ export function normalizeCampaign(c: Partial<Campaign>): Campaign {
     metrics: metricDefaults(c.adGroups?.[0]?.metrics ?? {}),
   };
 
+  const adGroups = c.adGroups?.length
+    ? c.adGroups.map((ag) => ({
+        ...primaryAg,
+        ...ag,
+        metrics: metricDefaults(ag.metrics ?? {}),
+      }))
+    : [primaryAg];
+
+  const primaryAgId = adGroups[0].id;
+
   return {
     id,
     type,
     name: c.name ?? `${type} | Training campaign`,
     portfolio: c.portfolio ?? 'Training Portfolio',
-    status: ['Enabled', 'Paused', 'Archived', 'Draft'].includes(c.status ?? '') ? c.status! as CampaignStatus : 'Paused',
+    portfolioId: c.portfolioId,
+    status: ['Enabled', 'Paused', 'Archived', 'Draft'].includes(c.status ?? '')
+      ? c.status! as CampaignStatus
+      : 'Paused',
     dailyBudget: Math.max(1, c.dailyBudget ?? 1),
     defaultBid: Math.max(0.02, c.defaultBid ?? 0.75),
     startDate: c.startDate ?? new Date().toISOString().slice(0, 10),
@@ -75,29 +131,28 @@ export function normalizeCampaign(c: Partial<Campaign>): Campaign {
     creativeStatus: c.creativeStatus ?? 'Approved',
     creativeIssue: c.creativeIssue ?? '',
     metrics: metricDefaults(c.metrics ?? {}),
-    adGroups: c.adGroups?.length ? c.adGroups.map((ag) => ({
-      ...primaryAg,
-      ...ag,
-      metrics: metricDefaults(ag.metrics ?? {}),
-    })) : [primaryAg],
-    targets: (c.targets ?? []).map((t) => normalizeTarget(t, id, primaryAg.id)),
+    adGroups,
+    targets: (c.targets ?? []).map((t) => normalizeTarget(t, id, primaryAgId)),
     searchTerms: (c.searchTerms ?? []).map((st) => ({
       id: st.id ?? generateId('ST'),
       campaignId: st.campaignId ?? id,
-      adGroupId: st.adGroupId ?? primaryAg.id,
+      adGroupId: st.adGroupId ?? primaryAgId,
       term: st.term ?? '',
-      target: st.target ?? '',
-      targetId: st.targetId,
+      targetId: st.targetId ?? '',
+      targetValue: st.targetValue ?? '',
+      targetType: st.targetType ?? 'Keyword',
+      matchType: st.matchType ?? '',
       recommendation: st.recommendation ?? 'Review',
       clicks: st.clicks ?? 0,
       spend: st.spend ?? 0,
       sales: st.sales ?? 0,
       orders: st.orders ?? 0,
+      impressions: st.impressions ?? 0,
     })),
     negatives: (c.negatives ?? []).filter((n) => n.value).map((n) => ({
       id: n.id ?? generateId('NEG'),
       campaignId: n.campaignId ?? id,
-      adGroupId: n.adGroupId ?? primaryAg.id,
+      adGroupId: n.adGroupId ?? primaryAgId ?? null,
       type: n.type ?? 'Negative exact',
       value: n.value,
       sourceSearchTermId: n.sourceSearchTermId,
@@ -109,7 +164,13 @@ export function normalizeCampaign(c: Partial<Campaign>): Campaign {
       type: r.type ?? 'Schedule',
       increase: Math.max(1, r.increase ?? 1),
       condition: r.condition ?? 'Training condition',
+      startDate: r.startDate,
+      endDate: r.endDate,
+      scheduleType: r.scheduleType,
+      daysOfWeek: r.daysOfWeek,
     })),
+    productAds: (c.productAds ?? []).map((pa) => normalizeProductAd(pa, id, primaryAgId)),
+    ads: (c.ads ?? []).map((a) => normalizeAd(a, id, primaryAgId)),
     history: [...(c.history ?? [])],
     createdBySimulator: c.createdBySimulator ?? true,
   };
@@ -123,6 +184,8 @@ export function toggleCampaignStatus(c: Campaign): Campaign {
     status: next,
     adGroups: c.adGroups.map((ag) => ({ ...ag, status: next })),
     targets: c.targets.map((t) => ({ ...t, status: next })),
+    productAds: c.productAds.map((pa) => ({ ...pa, status: next })),
+    ads: c.ads.map((a) => ({ ...a, status: next })),
     history: [...c.history, `Status changed to ${next}`],
   };
 }
@@ -133,6 +196,8 @@ export function archiveCampaign(c: Campaign): Campaign {
     status: 'Archived',
     adGroups: c.adGroups.map((ag) => ({ ...ag, status: 'Archived' })),
     targets: c.targets.map((t) => ({ ...t, status: 'Archived' })),
+    productAds: c.productAds.map((pa) => ({ ...pa, status: 'Archived' })),
+    ads: c.ads.map((a) => ({ ...a, status: 'Archived' })),
     history: [...c.history, 'Campaign archived'],
   };
 }
@@ -170,6 +235,20 @@ export function duplicateCampaign(c: Campaign): Campaign {
       ...r,
       id: generateId('BR'),
       campaignId: newId,
+    })),
+    productAds: c.productAds.map((pa) => ({
+      ...pa,
+      id: generateId('PA'),
+      campaignId: newId,
+      adGroupId: newAgId,
+      metrics: metricDefaults({}),
+    })),
+    ads: c.ads.map((a) => ({
+      ...a,
+      id: generateId('AD'),
+      campaignId: newId,
+      adGroupId: newAgId,
+      metrics: metricDefaults({}),
     })),
   });
 }

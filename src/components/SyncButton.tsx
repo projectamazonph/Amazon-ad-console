@@ -15,7 +15,6 @@ export function SyncButton() {
     setSyncing(true);
     try {
       if (direction === 'upload') {
-        // Get campaigns from local store
         const state = useAdConsoleStore.getState().state;
         const response = await fetch('/api/sync', {
           method: 'POST',
@@ -26,11 +25,9 @@ export function SyncButton() {
           setLastSync('Saved to cloud');
         }
       } else {
-        // Load campaigns from server
         const response = await fetch('/api/sync');
         if (response.ok) {
           const campaigns = await response.json();
-          // Update local store with server data
           useAdConsoleStore.setState((s) => ({
             state: { ...s.state, campaigns },
           }));

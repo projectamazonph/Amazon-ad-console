@@ -88,7 +88,7 @@ describe('defaultCampaigns', () => {
     const spCampaigns = defaultCampaigns().filter(c => c.type === 'SP');
     for (const c of spCampaigns) {
       for (const t of c.targets) {
-        expect(['Keyword', 'Auto']).toContain(t.type);
+        expect(['Keyword', 'Auto - close match', 'Auto - loose match', 'Auto - substitutes', 'Auto - complements']).toContain(t.type);
       }
     }
   });

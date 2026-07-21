@@ -11,7 +11,7 @@ export interface CampaignDetailActions {
   toggleStatus: () => void;
   archiveCampaign: () => void;
   duplicateCampaign: () => void;
-  addNegative: (term: string, type?: string) => void;
+  addNegative: (term: string, type?: 'Negative exact' | 'Negative phrase' | 'Negative ASIN' | 'Negative category', adGroupId?: string) => void;
   harvestTerm: (term: string) => void;
   runSimulation: (days?: number) => void;
   addAdGroup: (name: string) => void;
@@ -19,12 +19,12 @@ export interface CampaignDetailActions {
   setAdGroupStatus: (adGroupId: string, status: CampaignStatus) => void;
   setAdGroupDefaultBid: (adGroupId: string, bid: number) => void;
   removeAdGroup: (adGroupId: string) => void;
-  addKeyword: (value: string, match: string, bid: number, adGroupId?: string) => void;
+  addKeyword: (value: string, match: 'Exact' | 'Phrase' | 'Broad', bid: number, adGroupId?: string) => void;
   removeTarget: (targetId: string) => void;
   setTargetBid: (targetId: string, bid: number) => void;
   adjustTargetBid: (targetId: string, multiplier: number) => void;
   pauseTarget: (targetId: string) => void;
-  addBudgetRule: (name: string, type: string, increase: number, condition: string) => void;
+  addBudgetRule: (name: string, type: 'Schedule' | 'Performance', increase: number, condition: string) => void;
   removeBudgetRule: (ruleId: string) => void;
   updateBudgetRule: (ruleId: string, updates: Record<string, unknown>) => void;
 }
@@ -44,8 +44,8 @@ export function useCampaignDetail(campaign: Campaign): CampaignDetailActions {
     store.getState().duplicateCampaign(campaign.id);
   }, [campaign.id]);
 
-  const addNeg = useCallback((term: string, type?: string) => {
-    store.getState().addNegative(campaign.id, term, type);
+  const addNeg = useCallback((term: string, type: 'Negative exact' | 'Negative phrase' | 'Negative ASIN' | 'Negative category' = 'Negative exact', adGroupId?: string) => {
+    store.getState().addNegative(campaign.id, term, type, adGroupId);
   }, [campaign.id]);
 
   const harvest = useCallback((term: string) => {
@@ -76,7 +76,7 @@ export function useCampaignDetail(campaign: Campaign): CampaignDetailActions {
     store.getState().removeAdGroup(campaign.id, agId);
   }, [campaign.id]);
 
-  const addKw = useCallback((value: string, match: string, bid: number, adGroupId?: string) => {
+  const addKw = useCallback((value: string, match: 'Exact' | 'Phrase' | 'Broad', bid: number, adGroupId?: string) => {
     store.getState().addKeyword(campaign.id, value, match, bid, adGroupId);
   }, [campaign.id]);
 
@@ -96,7 +96,7 @@ export function useCampaignDetail(campaign: Campaign): CampaignDetailActions {
     store.getState().pauseTarget(campaign.id, targetId);
   }, [campaign.id]);
 
-  const addBr = useCallback((name: string, type: string, increase: number, condition: string) => {
+  const addBr = useCallback((name: string, type: 'Schedule' | 'Performance', increase: number, condition: string) => {
     store.getState().addBudgetRule(campaign.id, name, type, increase, condition);
   }, [campaign.id]);
 

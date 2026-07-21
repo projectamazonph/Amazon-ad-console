@@ -123,6 +123,7 @@ describe('totalMetrics()', () => {
         products: ['B0TRAIN001'], creative: null,
         metrics: { impressions: 1000, clicks: 50, spend: 25, sales: 100, orders: 4 },
         adGroups: [], targets: [], searchTerms: [], negatives: [], budgetRules: [],
+        productAds: [], ads: [],
         history: ['Created'],
       },
       {
@@ -133,6 +134,7 @@ describe('totalMetrics()', () => {
         products: ['B0TRAIN001'], creative: null,
         metrics: { impressions: 500, clicks: 25, spend: 12.50, sales: 50, orders: 2 },
         adGroups: [], targets: [], searchTerms: [], negatives: [], budgetRules: [],
+        productAds: [], ads: [],
         history: ['Created'],
       },
     ];
@@ -247,7 +249,7 @@ describe('addTarget()', () => {
   const baseCampaign = normalizeCampaign({ id: 'c1', name: 'Test' });
 
   it('adds a keyword target with correct match type', () => {
-    const result = addTarget(baseCampaign, 'coffee filter', 'Exact', 0.75);
+    const result = addTarget({ campaign: baseCampaign, value: 'coffee filter', type: 'Keyword', match: 'Exact', bid: 0.75 });
     expect(result.target.value).toBe('coffee filter');
     expect(result.target.match).toBe('Exact');
     expect(result.target.bid).toBe(0.75);
@@ -255,17 +257,17 @@ describe('addTarget()', () => {
   });
 
   it('adds Phrase match targets', () => {
-    const r = addTarget(baseCampaign, 'coffee maker', 'Phrase', 1.00);
+    const r = addTarget({ campaign: baseCampaign, value: 'coffee maker', type: 'Keyword', match: 'Phrase', bid: 1.00 });
     expect(r.target.match).toBe('Phrase');
   });
 
   it('adds Broad match targets', () => {
-    const r = addTarget(baseCampaign, 'coffee', 'Broad', 0.50);
+    const r = addTarget({ campaign: baseCampaign, value: 'coffee', type: 'Keyword', match: 'Broad', bid: 0.50 });
     expect(r.target.match).toBe('Broad');
   });
 
   it('clamps bid to minimum 0.02', () => {
-    const r = addTarget(baseCampaign, 'test', 'Exact', 0);
+    const r = addTarget({ campaign: baseCampaign, value: 'test', type: 'Keyword', match: 'Exact', bid: 0 });
     expect(r.target.bid).toBe(0.02);
   });
 });
@@ -297,7 +299,7 @@ describe('addNegative()', () => {
   const c = normalizeCampaign({ id: 'c1', name: 'Test' });
 
   it('adds a Negative exact', () => {
-    const result = addNegative(c, 'plastic cone coffee filter', 'Negative exact');
+    const result = addNegative({ campaign: c, value: 'plastic cone coffee filter', type: 'Negative exact' });
     expect(result.negatives.length).toBe(1);
     expect(result.negatives[0].type).toBe('Negative exact');
     expect(result.negatives[0].value).toBe('plastic cone coffee filter');
@@ -305,22 +307,22 @@ describe('addNegative()', () => {
 
   it('adds a Negative phrase', () => {
     const c2 = normalizeCampaign({ id: 'c2', name: 'Test2' });
-    const result = addNegative(c2, 'cheap', 'Negative phrase');
+    const result = addNegative({ campaign: c2, value: 'cheap', type: 'Negative phrase' });
     expect(result.negatives.length).toBe(1);
     expect(result.negatives[0].type).toBe('Negative phrase');
   });
 
   it('does not duplicate existing negative', () => {
     const c2 = normalizeCampaign({ id: 'c3', name: 'Test3' });
-    const r1 = addNegative(c2, 'plastic', 'Negative phrase');
-    const r2 = addNegative(r1, 'plastic', 'Negative phrase');
+    const r1 = addNegative({ campaign: c2, value: 'plastic', type: 'Negative phrase' });
+    const r2 = addNegative({ campaign: r1, value: 'plastic', type: 'Negative phrase' });
     expect(r2.negatives.length).toBe(1);
   });
 
   it('is case insensitive for dedup', () => {
     const c2 = normalizeCampaign({ id: 'c4', name: 'Test4' });
-    const r1 = addNegative(c2, 'Plastic', 'Negative phrase');
-    const r2 = addNegative(r1, 'plastic', 'Negative phrase');
+    const r1 = addNegative({ campaign: c2, value: 'Plastic', type: 'Negative phrase' });
+    const r2 = addNegative({ campaign: r1, value: 'plastic', type: 'Negative phrase' });
     expect(r2.negatives.length).toBe(1);
   });
 });
@@ -607,11 +609,11 @@ describe('formatWhole()', () => {
 // ============================================================================
 
 describe('formatRoas()', () => {
-  it('formats ROAS to 2 decimal places', () => {
-    expect(formatRoas(3.333)).toBe('3.33');
+  it('formats ROAS to 2 decimal places with x', () => {
+    expect(formatRoas(3.333)).toBe('3.33x');
   });
 
   it('formats zero', () => {
-    expect(formatRoas(0)).toBe('0.00');
+    expect(formatRoas(0)).toBe('0.00x');
   });
 });

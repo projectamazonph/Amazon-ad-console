@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
+import { EmptyState } from './EmptyState';
 
 interface Props {
   campaign: Campaign;
@@ -19,22 +20,26 @@ export function TargetsTab({ campaign: c }: Props) {
   const showAddKeywordForm = useAdConsoleStore((s) => s.showAddKeywordForm);
 
   const [newKeywordValue, setNewKeywordValue] = useState('');
-  const [newKeywordMatch, setNewKeywordMatch] = useState('Exact');
+  const [newKeywordMatch, setNewKeywordMatch] = useState<'Exact' | 'Phrase' | 'Broad'>('Exact');
   const [newKeywordBid, setNewKeywordBid] = useState(0.75);
   const [newKeywordAdGroup, setNewKeywordAdGroup] = useState(c.adGroups[0]?.id ?? '');
   const [bidEdits, setBidEdits] = useState<Record<string, string>>({});
 
   if (!c.targets.length && !showAddKeywordForm) {
-    return <div className="empty"><h3>No targets</h3><p>Add keywords, products, or audience targets to start targeting shoppers.</p></div>;
+    return (
+      <EmptyState icon="target" title="No targets" message="Add keywords, products, or audience targets to start targeting shoppers.">
+        <button className="btn primary" onClick={() => toggleAddKeywordForm()}>+ Add keyword</button>
+      </EmptyState>
+    );
   }
 
   return (
     <div>
-      <div style={{ marginBottom: 10, display: 'flex', gap: 8, alignItems: 'center' }}>
-        {!showAddKeywordForm && (
+      {!showAddKeywordForm && (
+        <div className="tab-toolbar center">
           <button className="btn primary" onClick={() => toggleAddKeywordForm()}>+ Add keyword</button>
-        )}
-      </div>
+        </div>
+      )}
 
       {showAddKeywordForm && (
         <div className="card pad" style={{ marginBottom: 10, background: '#f8fafc' }}>
@@ -45,7 +50,7 @@ export function TargetsTab({ campaign: c }: Props) {
             </div>
             <div className="field" style={{ flex: 1, minWidth: 100 }}>
               <label>Match type</label>
-              <select className="select full" value={newKeywordMatch} onChange={(e) => setNewKeywordMatch(e.target.value)}>
+              <select className="select full" value={newKeywordMatch} onChange={(e) => setNewKeywordMatch(e.target.value as 'Exact' | 'Phrase' | 'Broad')}>
                 <option>Exact</option><option>Phrase</option><option>Broad</option>
               </select>
             </div>

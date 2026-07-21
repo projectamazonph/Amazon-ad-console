@@ -1,6 +1,7 @@
 'use client';
 
 import type { Campaign } from '@/engine/ad-console/types';
+import { EmptyState } from './EmptyState';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
 
 interface Props {
@@ -11,7 +12,7 @@ interface Props {
 export function ManagerAdGroupsTab({ campaigns, onSelectCampaign }: Props) {
   const rows = campaigns.flatMap((c) => c.adGroups.map((ag) => ({ c, ag })));
   if (!rows.length) {
-    return <div className="empty"><span className="icon">👥</span><h3>No ad groups</h3><p>Ad groups are created automatically when a campaign is launched. Create a campaign to see ad groups.</p></div>;
+    return <EmptyState icon="group" title="No ad groups" message="Ad groups are created automatically when a campaign is launched. Create a campaign to see ad groups." />;
   }
 
   return (

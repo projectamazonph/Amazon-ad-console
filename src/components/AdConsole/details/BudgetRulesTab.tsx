@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
+import { EmptyState } from './EmptyState';
 
 interface Props { campaign: Campaign }
 
@@ -13,7 +14,7 @@ export function BudgetRulesTab({ campaign }: Props) {
   const c = campaign;
 
   const [newName, setNewName] = useState('');
-  const [newType, setNewType] = useState('Schedule');
+  const [newType, setNewType] = useState<'Schedule' | 'Performance'>('Schedule');
   const [newIncrease, setNewIncrease] = useState('1.5');
   const [newCondition, setNewCondition] = useState('');
   const [nameEdits, setNameEdits] = useState<Record<string, string>>({});
@@ -23,7 +24,7 @@ export function BudgetRulesTab({ campaign }: Props) {
   return (
     <div>
       <div className="card pad" style={{ marginBottom: 14 }}>
-        <div className="card-title"><h2>Add budget rule</h2><span>Schedule or performance-based</span></div>
+        <div className="section-head"><h2>Add budget rule</h2><span className="meta">Schedule or performance-based</span></div>
         <div className="form-grid">
           <div className="field">
             <label>Rule name</label>
@@ -31,7 +32,7 @@ export function BudgetRulesTab({ campaign }: Props) {
           </div>
           <div className="field">
             <label>Type</label>
-            <select className="select full" value={newType} onChange={(e) => setNewType(e.target.value)}>
+            <select className="select full" value={newType} onChange={(e) => setNewType(e.target.value as 'Schedule' | 'Performance')}>
               <option>Schedule</option><option>Performance</option>
             </select>
           </div>
@@ -52,7 +53,7 @@ export function BudgetRulesTab({ campaign }: Props) {
         }}>Add rule</button>
       </div>
       {c.budgetRules.length === 0 ? (
-        <div className="empty"><h3>No budget rules</h3><p>Schedule-based or performance-based rules let you automate budget adjustments. Create one using the form above.</p></div>
+        <EmptyState icon="rule" title="No budget rules" message="Schedule-based or performance-based rules let you automate budget adjustments. Create one using the form above." />
       ) : (
         <div className="table-wrap">
           <table>
@@ -67,8 +68,8 @@ export function BudgetRulesTab({ campaign }: Props) {
                       onBlur={(e) => { if (e.target.value.trim() && e.target.value !== r.name) updateBudgetRule(c.id, r.id, { name: e.target.value.trim() }); }} />
                   </td>
                   <td>
-                    <select className="select" value={r.type}
-                      onChange={(e) => updateBudgetRule(c.id, r.id, { type: e.target.value })}>
+                    <select className="select" value={r.type as 'Schedule' | 'Performance'}
+                      onChange={(e) => updateBudgetRule(c.id, r.id, { type: e.target.value as 'Schedule' | 'Performance' })}>
                       <option>Schedule</option><option>Performance</option>
                     </select>
                   </td>

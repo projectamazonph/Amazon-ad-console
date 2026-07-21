@@ -22,7 +22,7 @@ The Amazon Ad Console follows **SOLID principles** with strict separation betwee
 │  /api/campaigns/* — campaign CRUD           │
 │  /api/sync — bulk data sync                 │
 ├─────────────────────────────────────────────┤
-│  Database Layer (Prisma + SQLite)           │
+│  Database Layer (Prisma + Postgres)         │
 │  User, Campaign, Simulation models          │
 ├─────────────────────────────────────────────┤
 │  Feature Engines (per-module business logic)│
@@ -35,10 +35,21 @@ The Amazon Ad Console follows **SOLID principles** with strict separation betwee
 │  features/integrity/engine.ts               │
 ├─────────────────────────────────────────────┤
 │  Core Engine (zero dependencies)            │
-│  core/engine.ts — stateless pure functions  │
-│    — also: responsive/mobile state machine  │
+│  core/engine/ — per-domain modules:         │
+│    campaign.ts — normalization, lifecycle   │
+│    target.ts — keyword, ASIN, category, auto│
+│    adgroup.ts — ad group CRUD               │
+│    negative.ts — filters, harvesting        │
+│    budget.ts    — budget rule CRUD          │
+│    portfolio.ts — portfolio operations      │
+│    draft.ts    — campaign wizard helpers    │
+│    id.ts       — ID generation              │
+│    metrics.ts  — calc, format helpers       │
+│    search-term-generator.ts — Strategy pat. │
+│    responsive.ts — breakpoints, mobile menu │
+│  core/simulation.ts — 7-day perf simulation │
 │  core/types.ts — all domain interfaces      │
-│  core/scenarios.ts — training data          │
+│  core/scenarios.ts — training scenario defs │
 └─────────────────────────────────────────────┘
 ```
 
@@ -67,6 +78,23 @@ Each feature exports its own typed slice interface (`DrillsSlice`, `ProfilesSlic
 - Components depend on the `useAdConsoleStore` hook (abstraction), not on concrete state shape
 - Feature engines depend only on `core/types.ts` interfaces (abstractions)
 
+## Entity Hierarchy
+
+The console models the Amazon Advertising API entity structure:
+
+```
+Account (system level)
+└── Portfolio — free-text grouping of campaigns
+└── Campaign (SP / SB / SD)
+    ├── AdGroup — bid + status container
+    │   └── Target — keyword, ASIN, category, auto, audience
+    ├── ProductAd — SP/SB product assignment
+    ├── Ad — SB/SD creative assignment
+    ├── SearchTerm — shopper query report (linked to Target)
+    ├── Negative — campaign-level or ad-group-level filter
+    └── BudgetRule — Schedule or Performance automation
+```
+
 ## Data Flow
 
 ```
@@ -75,8 +103,10 @@ User Action → Component → Store Slice → Engine Function → New State → 
 
 ### State Management
 - **Zustand Store**: Single source of truth for UI state
-- **8 Slices**: Core, Target, AdGroup, Negative, Budget, Portfolio, Draft, Query
-- **Feature Slices**: Drills, Profiles, Trainer, Bulk, Reports, Missions, Integrity
+- **8 Core Slices**: Target, AdGroup, Negative, Budget, Portfolio, Draft, Core, Query
+- **7 Feature Slices**: Drills, Profiles, Trainer, Bulk, Reports, Missions, Integrity
+- **Persistence**: LocalStorage via Zustand persist middleware
+- **Cloud Sync**: Optional database persistence via API routes
 - **Persistence**: LocalStorage via Zustand persist middleware
 - **Cloud Sync**: Optional database persistence via API routes
 
@@ -161,10 +191,11 @@ model Campaign {
 ## Testing Strategy
 
 ### Unit Tests
-- **Location**: `src/engine/ad-console/core/__tests__/`
+- **Location**: `src/engine/ad-console/core/__tests__/` + `tests/engine.test.ts`
 - **Framework**: Vitest
-- **Coverage**: 239+ tests for engine logic
+- **Coverage**: 446 tests across 27 test files
 - **Principle**: TDD — write failing test first
+- **Strategy**: Red-Green-Refactor cycle with SOLID compliance gates
 
 ### Integration Tests
 - **Location**: `src/components/AdConsole/__tests__/`
@@ -189,7 +220,7 @@ model Campaign {
 - Static generation for landing pages
 
 ### Database
-- SQLite for development (zero config)
+- Postgres (production via Vercel Postgres, local via Docker or pg)
 - Connection pooling via Prisma
 - Indexes on frequently queried fields
 
@@ -214,13 +245,13 @@ model Campaign {
 
 ### Environment Variables
 ```env
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="postgresql://..."
 NEXTAUTH_SECRET="your-secret-here"
 NEXTAUTH_URL="http://localhost:3000"
 ```
 
 ### Production Considerations
-- Replace SQLite with PostgreSQL/MySQL
-- Add rate limiting to API routes
-- Implement CSRF protection
-- Add logging and monitoring
+- Rate limiting on API routes
+- CSRF protection
+- Logging and monitoring
+- Connection pooling for Postgres

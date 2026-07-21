@@ -5,7 +5,7 @@
  * for a training session. Matches the structure used in the HTML simulator.
  */
 
-import type { Campaign, Product } from './types';
+import type { Campaign, Product, TargetType } from './types';
 
 // ---------------------------------------------------------------------------
 // Product catalog
@@ -53,19 +53,21 @@ export function defaultCampaigns(): Campaign[] {
       metrics: { impressions: 43800, clicks: 285, spend: 205.20, sales: 684.00, orders: 28 },
       adGroups: [{ id: 'AG-SP-001', campaignId: 'C-SP-AUTO-001', name: 'SP Auto ad group', status: 'Enabled', defaultBid: 0.72, metrics: { impressions: 43800, clicks: 285, spend: 205.20, sales: 684.00, orders: 28 } }],
       targets: [
-        { id: 'T-SP-001', campaignId: 'C-SP-AUTO-001', adGroupId: 'AG-SP-001', type: 'Auto', value: 'Close match', match: 'Auto', bid: 0.72, status: 'Enabled', impressions: 16200, clicks: 105, spend: 75.60, sales: 302.40, orders: 12 },
-        { id: 'T-SP-002', campaignId: 'C-SP-AUTO-001', adGroupId: 'AG-SP-001', type: 'Auto', value: 'Loose match', match: 'Auto', bid: 0.72, status: 'Enabled', impressions: 13800, clicks: 90, spend: 64.80, sales: 129.60, orders: 5 },
-        { id: 'T-SP-003', campaignId: 'C-SP-AUTO-001', adGroupId: 'AG-SP-001', type: 'Auto', value: 'Substitutes', match: 'Auto', bid: 0.72, status: 'Enabled', impressions: 7600, clicks: 50, spend: 36.00, sales: 144.00, orders: 6 },
-        { id: 'T-SP-004', campaignId: 'C-SP-AUTO-001', adGroupId: 'AG-SP-001', type: 'Auto', value: 'Complements', match: 'Auto', bid: 0.72, status: 'Enabled', impressions: 6200, clicks: 40, spend: 28.80, sales: 108.00, orders: 5 },
+        { id: 'T-SP-001', campaignId: 'C-SP-AUTO-001', adGroupId: 'AG-SP-001', type: 'Auto - close match', value: 'Close match', match: '', bid: 0.72, status: 'Enabled', impressions: 16200, clicks: 105, spend: 75.60, sales: 302.40, orders: 12 },
+        { id: 'T-SP-002', campaignId: 'C-SP-AUTO-001', adGroupId: 'AG-SP-001', type: 'Auto - loose match', value: 'Loose match', match: '', bid: 0.72, status: 'Enabled', impressions: 13800, clicks: 90, spend: 64.80, sales: 129.60, orders: 5 },
+        { id: 'T-SP-003', campaignId: 'C-SP-AUTO-001', adGroupId: 'AG-SP-001', type: 'Auto - substitutes', value: 'Substitutes', match: '', bid: 0.72, status: 'Enabled', impressions: 7600, clicks: 50, spend: 36.00, sales: 144.00, orders: 6 },
+        { id: 'T-SP-004', campaignId: 'C-SP-AUTO-001', adGroupId: 'AG-SP-001', type: 'Auto - complements', value: 'Complements', match: '', bid: 0.72, status: 'Enabled', impressions: 6200, clicks: 40, spend: 28.80, sales: 108.00, orders: 5 },
       ],
       searchTerms: [
-        { id: 'ST-A-001', campaignId: 'C-SP-AUTO-001', adGroupId: 'AG-SP-001', term: 'paper coffee filters bulk', target: 'Loose match', targetId: 'T-SP-002', recommendation: 'Add as exact keyword' as const, clicks: 38, spend: 27.36, sales: 109.44, orders: 4 },
-        { id: 'ST-A-002', campaignId: 'C-SP-AUTO-001', adGroupId: 'AG-SP-001', term: 'coffee filter reusable', target: 'Close match', targetId: 'T-SP-001', recommendation: 'Review' as const, clicks: 42, spend: 30.24, sales: 151.20, orders: 6 },
-        { id: 'ST-A-003', campaignId: 'C-SP-AUTO-001', adGroupId: 'AG-SP-001', term: 'plastic cone coffee filter', target: 'Loose match', targetId: 'T-SP-002', recommendation: 'Negate' as const, clicks: 18, spend: 12.96, sales: 0, orders: 0 },
-        { id: 'ST-A-004', campaignId: 'C-SP-AUTO-001', adGroupId: 'AG-SP-001', term: 'cheap paper plates', target: 'Loose match', targetId: 'T-SP-002', recommendation: 'Negate' as const, clicks: 8, spend: 5.76, sales: 0, orders: 0 },
+        { id: 'ST-A-001', campaignId: 'C-SP-AUTO-001', adGroupId: 'AG-SP-001', term: 'paper coffee filters bulk', targetId: 'T-SP-002', targetValue: 'Loose match', targetType: 'Auto - loose match', matchType: '', recommendation: 'Add as exact keyword', clicks: 38, spend: 27.36, sales: 109.44, orders: 4, impressions: 0 },
+        { id: 'ST-A-002', campaignId: 'C-SP-AUTO-001', adGroupId: 'AG-SP-001', term: 'coffee filter reusable', targetId: 'T-SP-001', targetValue: 'Close match', targetType: 'Auto - close match', matchType: '', recommendation: 'Review', clicks: 42, spend: 30.24, sales: 151.20, orders: 6, impressions: 0 },
+        { id: 'ST-A-003', campaignId: 'C-SP-AUTO-001', adGroupId: 'AG-SP-001', term: 'plastic cone coffee filter', targetId: 'T-SP-002', targetValue: 'Loose match', targetType: 'Auto - loose match', matchType: '', recommendation: 'Negate', clicks: 18, spend: 12.96, sales: 0, orders: 0, impressions: 0 },
+        { id: 'ST-A-004', campaignId: 'C-SP-AUTO-001', adGroupId: 'AG-SP-001', term: 'cheap paper plates', targetId: 'T-SP-002', targetValue: 'Loose match', targetType: 'Auto - loose match', matchType: '', recommendation: 'Negate', clicks: 8, spend: 5.76, sales: 0, orders: 0, impressions: 0 },
       ],
       negatives: [],
       budgetRules: [],
+      productAds: [{ id: 'PA-SP-001', campaignId: 'C-SP-AUTO-001', adGroupId: 'AG-SP-001', asin: 'B0TRAIN001', status: 'Enabled', metrics: { impressions: 43800, clicks: 285, spend: 205.20, sales: 684.00, orders: 28 } }],
+      ads: [],
       history: ['Campaign launched in simulator', '7-day simulation run added performance data'],
     },
     // SP - Manual Exact
@@ -87,9 +89,9 @@ export function defaultCampaigns(): Campaign[] {
         { id: 'T-SP-008', campaignId: 'C-SP-MAN-002', adGroupId: 'AG-SP-002', type: 'Keyword', value: 'coffee filter', match: 'Broad', bid: 0.75, status: 'Paused', impressions: 10000, clicks: 120, spend: 114.85, sales: 365.90, orders: 15 },
       ],
       searchTerms: [
-        { id: 'ST-M-001', campaignId: 'C-SP-MAN-002', adGroupId: 'AG-SP-002', term: 'coffee cone filter size 4', target: 'coffee filter cone', targetId: 'T-SP-005', recommendation: 'Review', clicks: 28, spend: 30.80, sales: 154.00, orders: 6 },
-        { id: 'ST-M-002', campaignId: 'C-SP-MAN-002', adGroupId: 'AG-SP-002', term: 'melitta coffee filters', target: 'coffee filter paper', targetId: 'T-SP-006', recommendation: 'Add as exact keyword', clicks: 15, spend: 14.25, sales: 57.00, orders: 2 },
-        { id: 'ST-M-003', campaignId: 'C-SP-MAN-002', adGroupId: 'AG-SP-002', term: 'coffee filter size 6', target: 'coffee filter', targetId: 'T-SP-008', recommendation: 'Negate', clicks: 22, spend: 20.90, sales: 0, orders: 0 },
+        { id: 'ST-M-001', campaignId: 'C-SP-MAN-002', adGroupId: 'AG-SP-002', term: 'coffee cone filter size 4', targetId: 'T-SP-005', targetValue: 'coffee filter cone', targetType: 'Keyword', matchType: 'Exact', recommendation: 'Review', clicks: 28, spend: 30.80, sales: 154.00, orders: 6, impressions: 0 },
+        { id: 'ST-M-002', campaignId: 'C-SP-MAN-002', adGroupId: 'AG-SP-002', term: 'melitta coffee filters', targetId: 'T-SP-006', targetValue: 'coffee filter paper', targetType: 'Keyword', matchType: 'Exact', recommendation: 'Add as exact keyword', clicks: 15, spend: 14.25, sales: 57.00, orders: 2, impressions: 0 },
+        { id: 'ST-M-003', campaignId: 'C-SP-MAN-002', adGroupId: 'AG-SP-002', term: 'coffee filter size 6', targetId: 'T-SP-008', targetValue: 'coffee filter', targetType: 'Keyword', matchType: 'Broad', recommendation: 'Negate', clicks: 22, spend: 20.90, sales: 0, orders: 0, impressions: 0 },
       ],
       negatives: [
         { id: 'NEG-M-001', campaignId: 'C-SP-MAN-002', adGroupId: 'AG-SP-002', type: 'Negative exact', value: 'plastic cone coffee filter' },
@@ -97,6 +99,8 @@ export function defaultCampaigns(): Campaign[] {
       budgetRules: [
         { id: 'BR-SP-001', campaignId: 'C-SP-MAN-002', name: 'Weekend boost', type: 'Schedule', increase: 1.5, condition: 'Saturday through Sunday' },
       ],
+      productAds: [{ id: 'PA-SP-002', campaignId: 'C-SP-MAN-002', adGroupId: 'AG-SP-002', asin: 'B0TRAIN001', status: 'Enabled', metrics: { impressions: 31800, clicks: 410, spend: 393.60, sales: 1574.40, orders: 63 } }],
+      ads: [],
       history: ['Campaign launched in simulator', '7-day simulation added performance data'],
     },
     // SB - Video
@@ -118,10 +122,15 @@ export function defaultCampaigns(): Campaign[] {
         { id: 'T-SB-002', campaignId: 'C-SB-VID-003', adGroupId: 'AG-SB-003', type: 'Keyword', value: 'best coffee brand', match: 'Phrase', bid: 1.10, status: 'Enabled', impressions: 14000, clicks: 96, spend: 115.20, sales: 288.00, orders: 9 },
       ],
       searchTerms: [
-        { id: 'ST-SB-001', campaignId: 'C-SB-VID-003', adGroupId: 'AG-SB-003', term: 'best coffee maker 2026', target: 'best coffee brand', targetId: 'T-SB-002', recommendation: 'Review', clicks: 12, spend: 14.40, sales: 36.00, orders: 1 },
+        { id: 'ST-SB-001', campaignId: 'C-SB-VID-003', adGroupId: 'AG-SB-003', term: 'best coffee maker 2026', targetId: 'T-SB-002', targetValue: 'best coffee brand', targetType: 'Keyword', matchType: 'Phrase', recommendation: 'Review', clicks: 12, spend: 14.40, sales: 36.00, orders: 1, impressions: 0 },
       ],
       negatives: [],
       budgetRules: [],
+      productAds: [
+        { id: 'PA-SB-001', campaignId: 'C-SB-VID-003', adGroupId: 'AG-SB-003', asin: 'B0TRAIN001', status: 'Enabled', metrics: { impressions: 11200, clicks: 84, spend: 100.80, sales: 252.00, orders: 8 } },
+        { id: 'PA-SB-002', campaignId: 'C-SB-VID-003', adGroupId: 'AG-SB-003', asin: 'B0TRAIN005', status: 'Enabled', metrics: { impressions: 11200, clicks: 84, spend: 100.80, sales: 252.00, orders: 9 } },
+      ],
+      ads: [{ id: 'AD-SB-001', campaignId: 'C-SB-VID-003', adGroupId: 'AG-SB-003', adFormat: 'Video', status: 'Enabled', creative: { brandName: 'BrewCo', logo: 'BC', headline: 'Perfect coffee, every morning', destination: 'Brand Store', video: 'BrewCo brand video', image: '' }, metrics: { impressions: 22400, clicks: 168, spend: 201.60, sales: 504.00, orders: 17 } }],
       history: ['Campaign launched in simulator', 'SB creative flagged for review'],
     },
     // SD - Views Remarketing
@@ -137,15 +146,21 @@ export function defaultCampaigns(): Campaign[] {
       metrics: { impressions: 18600, clicks: 142, spend: 110.76, sales: 553.80, orders: 24 },
       adGroups: [{ id: 'AG-SD-004', campaignId: 'C-SD-AUD-004', name: 'SD Remarketing ad group', status: 'Enabled', defaultBid: 0.78, metrics: { impressions: 18600, clicks: 142, spend: 110.76, sales: 553.80, orders: 24 } }],
       targets: [
-        { id: 'T-SD-001', campaignId: 'C-SD-AUD-004', adGroupId: 'AG-SD-004', type: 'Audience', value: 'Viewed advertised products 30 days', match: 'Audience', bid: 0.78, status: 'Enabled', impressions: 18600, clicks: 142, spend: 110.76, sales: 553.80, orders: 24 },
+        { id: 'T-SD-001', campaignId: 'C-SD-AUD-004', adGroupId: 'AG-SD-004', type: 'Audience - views remarketing', value: 'Viewed advertised products 30 days', match: '', bid: 0.78, status: 'Enabled', impressions: 18600, clicks: 142, spend: 110.76, sales: 553.80, orders: 24 },
       ],
       searchTerms: [],
       negatives: [],
       budgetRules: [],
+      productAds: [
+        { id: 'PA-SD-001', campaignId: 'C-SD-AUD-004', adGroupId: 'AG-SD-004', asin: 'B0TRAIN001', status: 'Enabled', metrics: { impressions: 6200, clicks: 47, spend: 36.92, sales: 184.60, orders: 8 } },
+        { id: 'PA-SD-002', campaignId: 'C-SD-AUD-004', adGroupId: 'AG-SD-004', asin: 'B0TRAIN002', status: 'Enabled', metrics: { impressions: 6200, clicks: 47, spend: 36.92, sales: 184.60, orders: 8 } },
+        { id: 'PA-SD-003', campaignId: 'C-SD-AUD-004', adGroupId: 'AG-SD-004', asin: 'B0TRAIN005', status: 'Enabled', metrics: { impressions: 6200, clicks: 48, spend: 36.92, sales: 184.60, orders: 8 } },
+      ],
+      ads: [{ id: 'AD-SD-001', campaignId: 'C-SD-AUD-004', adGroupId: 'AG-SD-004', adFormat: 'Auto generated', status: 'Enabled', creative: { brandName: 'Training Labs', logo: 'TL', headline: 'Still comparing coffee upgrades?', destination: 'Product detail page', video: '', image: 'Auto generated' }, metrics: { impressions: 18600, clicks: 142, spend: 110.76, sales: 553.80, orders: 24 } }],
       history: ['Campaign launched in simulator', '7-day simulation run added performance data'],
     },
 
-    // SB - Product Collection (added by handoff implementation)
+    // SB - Product Collection
     {
       id: 'C-SB-PROD-005', type: 'SB', name: 'SB | Product Collection | Coffee Variety',
       portfolio: 'Brand Campaigns', status: 'Paused', dailyBudget: 50, defaultBid: 0.95,
@@ -159,16 +174,22 @@ export function defaultCampaigns(): Campaign[] {
       metrics: { impressions: 12500, clicks: 98, spend: 93.10, sales: 279.30, orders: 11 },
       adGroups: [{ id: 'AG-SB-005', campaignId: 'C-SB-PROD-005', name: 'SB Product Collection ad group', status: 'Enabled', defaultBid: 0.95, metrics: { impressions: 12500, clicks: 98, spend: 93.10, sales: 279.30, orders: 11 } }],
       targets: [
-        { id: 'T-SB-003', campaignId: 'C-SB-PROD-005', adGroupId: 'AG-SB-005', type: 'Product', value: 'Coffee Filters', match: 'Product', bid: 0.95, status: 'Enabled', impressions: 12500, clicks: 98, spend: 93.10, sales: 279.30, orders: 11 },
+        { id: 'T-SB-003', campaignId: 'C-SB-PROD-005', adGroupId: 'AG-SB-005', type: 'ASIN', value: 'Coffee Filters', match: '', bid: 0.95, status: 'Enabled', impressions: 12500, clicks: 98, spend: 93.10, sales: 279.30, orders: 11 },
       ],
       searchTerms: [],
       negatives: [
         { id: 'NEG-SB-001', campaignId: 'C-SB-PROD-005', adGroupId: 'AG-SB-005', type: 'Negative phrase', value: 'plastic' },
       ],
       budgetRules: [],
+      productAds: [
+        { id: 'PA-SB-003', campaignId: 'C-SB-PROD-005', adGroupId: 'AG-SB-005', asin: 'B0TRAIN001', status: 'Enabled', metrics: { impressions: 4166, clicks: 32, spend: 31.03, sales: 93.10, orders: 3 } },
+        { id: 'PA-SB-004', campaignId: 'C-SB-PROD-005', adGroupId: 'AG-SB-005', asin: 'B0TRAIN002', status: 'Enabled', metrics: { impressions: 4167, clicks: 33, spend: 31.03, sales: 93.10, orders: 4 } },
+        { id: 'PA-SB-005', campaignId: 'C-SB-PROD-005', adGroupId: 'AG-SB-005', asin: 'B0TRAIN003', status: 'Enabled', metrics: { impressions: 4167, clicks: 33, spend: 31.04, sales: 93.10, orders: 4 } },
+      ],
+      ads: [{ id: 'AD-SB-002', campaignId: 'C-SB-PROD-005', adGroupId: 'AG-SB-005', adFormat: 'Product collection', status: 'Enabled', creative: { brandName: 'BrewCo', logo: 'BC', headline: 'Discover your perfect brew', destination: 'Brand Store', video: '', image: 'Auto generated' }, metrics: { impressions: 12500, clicks: 98, spend: 93.10, sales: 279.30, orders: 11 } }],
       history: ['Campaign created', 'Negative added for "plastic"'],
     },
-    // SD - Contextual (added by handoff implementation)
+    // SD - Contextual
     {
       id: 'C-SD-CTX-006', type: 'SD', name: 'SD | Contextual | Coffee Accessories',
       portfolio: 'Defensive and Remarketing', status: 'Enabled', dailyBudget: 35, defaultBid: 0.55,
@@ -181,11 +202,13 @@ export function defaultCampaigns(): Campaign[] {
       metrics: { impressions: 8900, clicks: 45, spend: 24.75, sales: 99.00, orders: 4 },
       adGroups: [{ id: 'AG-SD-006', campaignId: 'C-SD-CTX-006', name: 'SD Contextual ad group', status: 'Enabled', defaultBid: 0.55, metrics: { impressions: 8900, clicks: 45, spend: 24.75, sales: 99.00, orders: 4 } }],
       targets: [
-        { id: 'T-SD-003', campaignId: 'C-SD-CTX-006', adGroupId: 'AG-SD-006', type: 'Contextual', value: 'Coffee & Espresso Accessories', match: 'Contextual', bid: 0.55, status: 'Enabled', impressions: 8900, clicks: 45, spend: 24.75, sales: 99.00, orders: 4 },
+        { id: 'T-SD-003', campaignId: 'C-SD-CTX-006', adGroupId: 'AG-SD-006', type: 'Contextual', value: 'Coffee & Espresso Accessories', match: '', bid: 0.55, status: 'Enabled', impressions: 8900, clicks: 45, spend: 24.75, sales: 99.00, orders: 4 },
       ],
       searchTerms: [],
       negatives: [],
       budgetRules: [],
+      productAds: [{ id: 'PA-SD-004', campaignId: 'C-SD-CTX-006', adGroupId: 'AG-SD-006', asin: 'B0TRAIN001', status: 'Enabled', metrics: { impressions: 8900, clicks: 45, spend: 24.75, sales: 99.00, orders: 4 } }],
+      ads: [{ id: 'AD-SD-002', campaignId: 'C-SD-CTX-006', adGroupId: 'AG-SD-006', adFormat: 'Auto generated', status: 'Enabled', creative: { brandName: 'Training Labs', logo: 'TL', headline: 'Perfect coffee starts here', destination: 'Product detail page', video: '', image: 'Auto generated' }, metrics: { impressions: 8900, clicks: 45, spend: 24.75, sales: 99.00, orders: 4 } }],
       history: ['Campaign launched in simulator'],
     },
   ];

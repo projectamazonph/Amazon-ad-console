@@ -22,24 +22,22 @@ export function MissionsPage() {
           <button className="btn" onClick={() => stopMission()}>Stop mission</button>
         </div>
         {session.completed ? (
-          <div className="card pad" style={{ textAlign: 'center', padding: 40 }}>
+          <div className="card pad mission-complete-card">
             <h2>🏆 Mission complete!</h2>
-            <p style={{ fontSize: 24, fontWeight: 700, margin: '12px 0' }}>Score: {session.score}/100</p>
+            <p className="mission-complete-score">Score: {session.score}/100</p>
             <p className="muted">Hints used: {session.hintsUsed}</p>
-            <button className="btn primary" style={{ marginTop: 16 }} onClick={() => stopMission()}>Back to missions</button>
+            <button className="btn primary" style={{ marginTop: 'var(--space-4)' }} onClick={() => stopMission()}>Back to missions</button>
           </div>
         ) : (
           <div className="card pad">
             <h3>Step {session.currentStep + 1} of {activeMission.steps.length}</h3>
-            <p style={{ fontSize: 16, margin: '12px 0' }}>{step?.instruction}</p>
-            <div className="coach-tip" style={{ marginBottom: 16 }}>💡 {step?.hint}</div>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <p className="mission-step-instruction">{step?.instruction}</p>
+            <div className="coach-tip mission-hint">💡 {step?.hint}</div>
+            <div className="mission-step-actions">
               <button className="btn primary" onClick={completeStep}>✓ Complete step</button>
               <button className="btn" onClick={useHint}>💡 Use hint (-10 pts)</button>
             </div>
-            <div style={{ marginTop: 16 }}>
-              <p className="muted">Score: {session.score}/100 · Hints: {session.hintsUsed}</p>
-            </div>
+            <p className="mission-score-label">Score: {session.score}/100 · Hints: {session.hintsUsed}</p>
           </div>
         )}
       </div>
@@ -49,17 +47,17 @@ export function MissionsPage() {
   return (
     <div>
       <div className="page-title"><h1>Training missions</h1></div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 14 }}>
+      <div className="drill-grid">
         {missions.map((m) => (
           <div key={m.id} className="card pad">
-            <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
+            <div className="mission-card-tags">
               <span className={`pill ${m.adType === 'SP' ? 'active' : m.adType === 'SB' ? 'orange' : 'purple'}`}>{m.adType}</span>
               <span className={`pill ${m.difficulty === 'beginner' ? 'green' : 'orange'}`}>{m.difficulty}</span>
             </div>
-            <h3>{m.title}</h3>
-            <p className="muted" style={{ fontSize: 12, margin: '4px 0 8px' }}>{m.description}</p>
-            <p className="muted" style={{ fontSize: 11 }}>{m.steps.length} steps</p>
-            <button className="btn primary" style={{ marginTop: 8 }} onClick={() => startMission(m.id)}>Start mission</button>
+            <h3 className="mission-card-title">{m.title}</h3>
+            <p className="mission-card-desc">{m.description}</p>
+            <p className="mission-card-steps">{m.steps.length} steps</p>
+            <button className="btn primary" style={{ marginTop: 'var(--space-2)' }} onClick={() => startMission(m.id)}>Start mission</button>
           </div>
         ))}
       </div>

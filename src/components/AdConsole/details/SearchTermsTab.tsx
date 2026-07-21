@@ -3,6 +3,7 @@
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass, isFilteredByNegative } from '@/engine/ad-console/engine';
+import { EmptyState } from './EmptyState';
 
 interface Props { campaign: Campaign }
 
@@ -19,12 +20,13 @@ export function SearchTermsTab({ campaign }: Props) {
   if (!visibleSearchTerms.length) {
     const hasNegatives = c.negatives.length > 0;
     return (
-      <div className="empty">
-        
-        <h3>No search terms</h3>
-        <p>{hasNegatives ? 'All search terms are filtered by negatives. Check the Negatives tab to review.' : 'Run a simulation to generate search terms from your keyword targets.'}</p>
+      <EmptyState
+        icon="search"
+        title="No search terms"
+        message={hasNegatives ? 'All search terms are filtered by negatives. Check the Negatives tab to review.' : 'Run a simulation to generate search terms from your keyword targets.'}
+      >
         {!hasNegatives && <button className="btn primary" onClick={() => runSimulation()}>Run 7-day simulation</button>}
-      </div>
+      </EmptyState>
     );
   }
 
@@ -38,7 +40,7 @@ export function SearchTermsTab({ campaign }: Props) {
             const sx = calc({ impressions, clicks: st.clicks, spend: st.spend, sales: st.sales, orders: st.orders });
             return (
               <tr key={st.id}>
-                <td><strong>{st.term}</strong></td><td>{st.target}</td>
+                <td><strong>{st.term}</strong></td><td>{st.targetValue}</td>
                 <td className="mono">{formatWhole(impressions)}</td>
                 <td className="mono">{formatWhole(st.clicks)}</td>
                 <td className="money">{formatBid(sx.cpc)}</td>

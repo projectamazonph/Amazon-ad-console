@@ -1,7 +1,7 @@
 /**
  * Budget rule CRUD operations.
  */
-import type { Campaign, BudgetRule } from '../types';
+import type { Campaign, BudgetRule, BudgetRuleType } from '../types';
 import { assertNonEmpty, ValidationError } from '../../../../lib/validation';
 import { generateId } from './id';
 
@@ -10,7 +10,7 @@ const VALID_RULE_TYPES = ['Schedule', 'Performance'] as const;
 export function addBudgetRule(
   c: Campaign,
   name: string,
-  type: string,
+  type: BudgetRuleType,
   increase: number,
   condition: string,
 ): { campaign: Campaign; rule: BudgetRule } {

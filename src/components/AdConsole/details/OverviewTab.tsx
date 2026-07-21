@@ -19,7 +19,7 @@ export function OverviewTab({ campaign: c }: Props) {
   return (
     <div className="split">
       <div className="card pad">
-        <div className="card-title"><h2>Campaign settings</h2><span>Editable training controls</span></div>
+        <div className="section-head"><h2>Campaign settings</h2><span className="meta">Editable training controls</span></div>
         <div className="form-grid">
           <div className="field">
             <label>Daily budget</label>
@@ -57,7 +57,7 @@ export function OverviewTab({ campaign: c }: Props) {
           }}>Save settings</button>
       </div>
       <div className="card pad">
-        <div className="card-title"><h2>Products</h2><span>{c.type}</span></div>
+        <div className="section-head"><h2>Products</h2><span className="meta">{c.type}</span></div>
         {c.products.map((asin) => {
           const p = PRODUCTS.find(x => x.asin === asin);
           return (
@@ -95,7 +95,7 @@ export function OverviewTab({ campaign: c }: Props) {
         )}
       </div>
       <div className="card pad" style={{ gridColumn: '1 / -1' }}>
-        <div className="card-title"><h2>Top targets by profit signal</h2><span>Use to train bid optimization</span></div>
+        <div className="section-head"><h2>Top targets by profit signal</h2><span className="meta">Use to train bid optimization</span></div>
         <div className="table-wrap">
           <table>
             <thead><tr><th>Target</th><th>Bid</th><th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th></tr></thead>

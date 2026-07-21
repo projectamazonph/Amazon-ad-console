@@ -13,7 +13,7 @@ export function PlacementsTab({ campaign }: Props) {
 
   return (
     <div className="card pad">
-      <div className="card-title"><h2>Placement adjustments</h2><span>Percentage modifiers</span></div>
+      <div className="section-head"><h2>Placement adjustments</h2><span className="meta">Percentage modifiers</span></div>
       <div className="form-grid" style={{ maxWidth: 400 }}>
         <div className="field">
           <label>Top of Search (%)</label>
