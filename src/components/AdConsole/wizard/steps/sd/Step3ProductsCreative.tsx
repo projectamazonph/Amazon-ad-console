@@ -91,12 +91,12 @@ export function Step3ProductsCreativeSD({ isActive, isComplete }: Step3ProductsC
             </select>
           </div>
           <div className="field">
-            <label>Logo</label>
-            <input className="input full" value={logo} onChange={(e) => { setLogo(e.target.value); updateDraft('creative', { ...draft.creative, logo: e.target.value }); }} placeholder="TL" />
+            <label htmlFor="sd3-logo">Logo</label>
+            <input id="sd3-logo" className="input full" value={logo} onChange={(e) => { setLogo(e.target.value); updateDraft('creative', { ...draft.creative, logo: e.target.value }); }} placeholder="TL" />
           </div>
           <div className="field full">
-            <label>Headline <span className="muted">({headline.length}/{HEADLINE_MAX})</span></label>
-            <input className="input full" value={headline}
+            <label htmlFor="sd3-headline">Headline <span className="muted">({headline.length}/{HEADLINE_MAX})</span></label>
+            <input id="sd3-headline" className="input full" value={headline}
               maxLength={HEADLINE_MAX}
               onChange={(e) => { setHeadline(e.target.value); updateDraft('creative', { ...draft.creative, headline: e.target.value }); }}
               placeholder="Perfect coffee starts here"
@@ -104,22 +104,22 @@ export function Step3ProductsCreativeSD({ isActive, isComplete }: Step3ProductsC
             {headline.length >= HEADLINE_MAX && <small style={{ color: 'var(--danger)' }}>Maximum {HEADLINE_MAX} characters.</small>}
           </div>
           <div className="field">
-            <label>Destination</label>
-            <select className="select full" value={destination} onChange={(e) => { setDestination(e.target.value); updateDraft('creative', { ...draft.creative, destination: e.target.value }); }}>
+            <label htmlFor="sd3-destination">Destination</label>
+            <select id="sd3-destination" className="select full" value={destination} onChange={(e) => { setDestination(e.target.value); updateDraft('creative', { ...draft.creative, destination: e.target.value }); }}>
               <option value="Product detail page">Product detail page</option>
               <option value="Brand Store">Brand Store</option>
             </select>
           </div>
           {(draft.adFormat === 'Custom image' || draft.adFormat === 'Video creative') && (
             <div className="field full">
-              <label>Image URL</label>
-              <input className="input full" value={image} onChange={(e) => { setImage(e.target.value); updateDraft('creative', { ...draft.creative, image: e.target.value }); }} placeholder="https://..." />
+              <label htmlFor="sd3-image">Image URL</label>
+              <input id="sd3-image" className="input full" value={image} onChange={(e) => { setImage(e.target.value); updateDraft('creative', { ...draft.creative, image: e.target.value }); }} placeholder="https://..." />
             </div>
           )}
           {draft.adFormat === 'Video creative' && (
             <div className="field full">
-              <label>Video URL</label>
-              <input className="input full" value={video} onChange={(e) => { setVideo(e.target.value); updateDraft('creative', { ...draft.creative, video: e.target.value }); }} placeholder="https://..." />
+              <label htmlFor="sd3-video">Video URL</label>
+              <input id="sd3-video" className="input full" value={video} onChange={(e) => { setVideo(e.target.value); updateDraft('creative', { ...draft.creative, video: e.target.value }); }} placeholder="https://..." />
             </div>
           )}
         </div>

@@ -44,19 +44,24 @@ export function CampaignManager() {
 
       <div className="toolbar">
         <div className="search">
+          <label htmlFor="cm-search" className="visually-hidden">Search campaigns</label>
           <input
+            id="cm-search"
             placeholder="Search campaigns, portfolio, targeting"
             value={filter.search}
             onChange={(e) => setFilter({ search: e.target.value })}
           />
         </div>
-        <select className="select" value={filter.type} onChange={(e) => setFilter({ type: e.target.value as FilterState['type'] })}>
+        <label htmlFor="cm-filter-type" className="visually-hidden">Campaign type</label>
+        <select id="cm-filter-type" className="select" value={filter.type} onChange={(e) => setFilter({ type: e.target.value as FilterState['type'] })}>
           {['All', 'SP', 'SB', 'SD'].map((x) => <option key={x}>{x}</option>)}
         </select>
-        <select className="select" value={filter.status} onChange={(e) => setFilter({ status: e.target.value as FilterState['status'] })}>
+        <label htmlFor="cm-filter-status" className="visually-hidden">Campaign status</label>
+        <select id="cm-filter-status" className="select" value={filter.status} onChange={(e) => setFilter({ status: e.target.value as FilterState['status'] })}>
           {['All', 'Enabled', 'Paused', 'Archived'].map((x) => <option key={x}>{x}</option>)}
         </select>
-        <select className="select" value={filter.portfolio} onChange={(e) => setFilter({ portfolio: e.target.value })}>
+        <label htmlFor="cm-filter-portfolio" className="visually-hidden">Portfolio filter</label>
+        <select id="cm-filter-portfolio" className="select" value={filter.portfolio} onChange={(e) => setFilter({ portfolio: e.target.value })}>
           {portfolioOptions.map((x) => <option key={x}>{x}</option>)}
         </select>
         <button className="btn" onClick={() => setFilter({ type: 'All', status: 'All', portfolio: 'All', search: '' })}>Reset</button>

@@ -54,7 +54,12 @@ export function UserMenu() {
 
       {open && (
         <>
-          <div className="nav-account-backdrop" onClick={() => setOpen(false)} />
+          <button
+            type="button"
+            className="nav-account-backdrop"
+            aria-label="Close account menu"
+            onClick={() => setOpen(false)}
+          />
           <div className="nav-account-menu" style={{ top: menuPos.top, right: menuPos.right }}>
             <div className="nav-account-menu-header">
               <p className="nav-account-menu-name">{session.user?.name}</p>

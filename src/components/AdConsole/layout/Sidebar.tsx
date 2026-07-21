@@ -35,11 +35,13 @@ export function Sidebar() {
         <div key={group}>
           <div className="sidebar-group-title">{GROUP_TITLES[group]}</div>
           {groupItems.map((item) => (
-            <div
+            <button
               key={item.label}
+              type="button"
               className={`sidebar-item ${
                 isSidebarItemActive(item, view, selectedTab) ? 'active' : ''
               }`}
+              aria-current={isSidebarItemActive(item, view, selectedTab) ? 'page' : undefined}
               onClick={() => {
                 const action = resolveSidebarClick(item, view);
                 if (action.type === 'setTab') setTab(action.tab!);
@@ -48,20 +50,22 @@ export function Sidebar() {
               }}
             >
               {item.label}
-            </div>
+            </button>
           ))}
         </div>
       ))}
 
       <div className="sidebar-spacer" />
-      <div
+      <button
+        type="button"
         className="sidebar-item"
         style={{ color: 'var(--ink-700)' }}
         onClick={() => runSimulation()}
       >
         Run 7-day sim
-      </div>
-      <div
+      </button>
+      <button
+        type="button"
         className="sidebar-item"
         style={{ color: 'var(--ink-700)' }}
         onClick={() => {
@@ -69,7 +73,7 @@ export function Sidebar() {
         }}
       >
         Reset sandbox
-      </div>
+      </button>
     </nav>
   );
 }

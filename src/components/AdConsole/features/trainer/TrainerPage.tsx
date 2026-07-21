@@ -54,7 +54,12 @@ export function TrainerPage() {
             <div className="card-title"><h2>Certification checklist</h2><span>{score}%</span></div>
             {certChecklist.map((item) => (
               <label key={item.id} className="trainer-cert-item">
-                <input type="checkbox" checked={item.checked} onChange={() => toggleCertItem(item.id)} />
+                <input
+                  type="checkbox"
+                  checked={item.checked}
+                  onChange={() => toggleCertItem(item.id)}
+                  aria-label={item.label}
+                />
                 <span>{item.label}</span>
               </label>
             ))}
@@ -82,7 +87,8 @@ export function TrainerPage() {
           <div className="card pad" style={{ marginBottom: 'var(--space-4)' }}>
             <div className="card-title"><h2>Trainer notes</h2></div>
             <div className="trainer-note-input-row">
-              <input className="input trainer-note-input" value={noteText} onChange={(e) => setNoteText(e.target.value)} placeholder="Add note..." />
+              <label htmlFor="tp-note" className="visually-hidden">Trainer note</label>
+              <input id="tp-note" className="input trainer-note-input" value={noteText} onChange={(e) => setNoteText(e.target.value)} placeholder="Add note..." />
               <button className="btn primary" onClick={() => { if (noteText.trim()) { addNote(noteText.trim()); setNoteText(''); } }}>Add</button>
             </div>
             {notes.length === 0 ? (

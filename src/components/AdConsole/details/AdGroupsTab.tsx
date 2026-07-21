@@ -42,15 +42,15 @@ export function AdGroupsTab({ campaign: c }: Props) {
           </div>
           <div className="form-grid" style={{ maxWidth: 460 }}>
             <div className="field">
-              <label>Status</label>
-              <select className="select full" value={focused.status}
+              <label htmlFor={`ag-status-${focused.id}`}>Status</label>
+              <select id={`ag-status-${focused.id}`} className="select full" value={focused.status}
                 onChange={(e) => setAdGroupStatus(c.id, focused.id, e.target.value as any)}>
                 {['Enabled', 'Paused', 'Archived'].map((x) => <option key={x}>{x}</option>)}
               </select>
             </div>
             <div className="field">
-              <label>Default bid</label>
-              <input className="input full" type="number" min="0.02" step="0.01"
+              <label htmlFor={`ag-bid-${focused.id}`}>Default bid</label>
+              <input id={`ag-bid-${focused.id}`} className="input full" type="number" min="0.02" step="0.01"
                 value={adGroupBidEdits[focused.id] ?? String(focused.defaultBid)}
                 onChange={(e) => setAdGroupBidEdits((p) => ({ ...p, [focused.id]: e.target.value }))} />
             </div>
@@ -95,8 +95,8 @@ export function AdGroupsTab({ campaign: c }: Props) {
     <div>
       <div className="tab-toolbar">
         <div className="field" style={{ flex: 1, minWidth: 180 }}>
-          <label>New ad group name</label>
-          <input className="input full" value={newAdGroupName}
+          <label htmlFor="ag-new-name">New ad group name</label>
+          <input id="ag-new-name" className="input full" value={newAdGroupName}
             onChange={(e) => setNewAdGroupName(e.target.value)} placeholder="e.g. Branded keywords" />
         </div>
         <button className="btn primary" onClick={() => { if (newAdGroupName.trim()) { addAdGroup(c.id, newAdGroupName); setNewAdGroupName(''); } }}>
@@ -114,13 +114,15 @@ export function AdGroupsTab({ campaign: c }: Props) {
               return (
                 <tr key={ag.id}>
                   <td>
-                    <input className="input" style={{ width: 180, fontWeight: 600 }}
+                    <label htmlFor={`ag-row-name-${ag.id}`} className="visually-hidden">Ad group name</label>
+                    <input id={`ag-row-name-${ag.id}`} className="input" style={{ width: 180, fontWeight: 600 }}
                       value={adGroupNameEdits[ag.id] ?? ag.name}
                       onChange={(e) => setAdGroupNameEdits((p) => ({ ...p, [ag.id]: e.target.value }))}
                       onBlur={(e) => { if (e.target.value.trim()) renameAdGroup(c.id, ag.id, e.target.value); }} />
                   </td>
                   <td>
-                    <select className="select" value={ag.status}
+                    <label htmlFor={`ag-row-status-${ag.id}`} className="visually-hidden">Ad group status</label>
+                    <select id={`ag-row-status-${ag.id}`} className="select" value={ag.status}
                       onChange={(e) => setAdGroupStatus(c.id, ag.id, e.target.value as any)}>
                       {['Enabled', 'Paused', 'Archived'].map((x) => <option key={x}>{x}</option>)}
                     </select>

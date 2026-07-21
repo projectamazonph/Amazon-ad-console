@@ -18,8 +18,9 @@ export function Step5BiddingSB({ isActive, isComplete }: Step5BiddingSBProps) {
 
       <div className="form-grid">
         <div className="field">
-          <label>Default bid</label>
+          <label htmlFor="sb5-bid">Default bid</label>
           <input
+            id="sb5-bid"
             className="input full"
             type="number"
             min="0.02"
@@ -31,8 +32,8 @@ export function Step5BiddingSB({ isActive, isComplete }: Step5BiddingSBProps) {
           {draft.defaultBid < 0.02 && <small style={{ color: 'var(--danger)' }}>Minimum bid is $0.02.</small>}
         </div>
         <div className="field">
-          <label>Top of Search (%)</label>
-          <input className="input full" type="number" min="0" max="900" value={draft.placements.top} onChange={(e) => updateDraft('placements', { ...draft.placements, top: Number(e.target.value) })} />
+          <label htmlFor="sb5-top">Top of Search (%)</label>
+          <input id="sb5-top" className="input full" type="number" min="0" max="900" value={draft.placements.top} onChange={(e) => updateDraft('placements', { ...draft.placements, top: Number(e.target.value) })} />
         </div>
       </div>
     </div>
