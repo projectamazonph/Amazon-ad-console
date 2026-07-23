@@ -189,7 +189,6 @@ export function OverviewTab({ campaign: c }: Props) {
                       type="body"
                       maxLines={3}
                       hasTruncateTooltip
-                      title={`Creative rejected: ${c.creativeIssue}`}
                       style={{ flex: 1, minWidth: 0 }}
                     >
                       Creative rejected: {c.creativeIssue}

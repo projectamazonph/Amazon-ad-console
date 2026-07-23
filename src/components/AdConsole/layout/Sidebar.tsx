@@ -38,7 +38,7 @@ export function Sidebar() {
   const header = (
     <Text
       type="supporting"
-      size="xs"
+      size="xsm"
       weight="medium"
       maxLines={1}
       hasTruncateTooltip
@@ -117,7 +117,7 @@ export function Sidebar() {
       header={header}
       footer={footer}
       className="amazon-sidebar"
-      xstyle={{
+      style={{
         backgroundColor: 'var(--surface-1, #ffffff)',
         color: 'var(--ink-900, #0f1111)',
         borderRight: '1px solid var(--border, #d5d9d9)',

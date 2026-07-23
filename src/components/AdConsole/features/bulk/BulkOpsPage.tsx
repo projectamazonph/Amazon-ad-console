@@ -67,7 +67,7 @@ export function BulkOpsPage() {
         <div>
           <Card padding={5} variant="default" style={{ marginBottom: 'var(--space-4)' }}>
             <Stack gap={3}>
-              <HStack justify="between" vAlign="baseline">
+              <HStack justify="between" vAlign="center">
                 <Text type="large" weight="semibold" maxLines={1} hasTruncateTooltip as="h2">
                   CSV input
                 </Text>
@@ -163,7 +163,7 @@ export function BulkOpsPage() {
           {preview.length > 0 && (
             <Card padding={5} variant="default">
               <Stack gap={3}>
-                <HStack justify="between" vAlign="baseline">
+                <HStack justify="between" vAlign="center">
                   <Text
                     type="large"
                     weight="semibold"

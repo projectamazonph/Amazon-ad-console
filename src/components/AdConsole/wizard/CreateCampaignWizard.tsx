@@ -125,7 +125,7 @@ export function CreateCampaignWizard() {
       </div>
 
       <Card padding={5} variant="default" style={{ marginBottom: 'var(--space-4)' }}>
-        <HStack gap={2} wrap justify="between">
+        <HStack gap={2} wrap="wrap" justify="between">
           {STEPS.map((label, i) => (
             <Stack key={i} gap={1} align="center">
               <div

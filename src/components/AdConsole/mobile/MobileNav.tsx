@@ -116,7 +116,7 @@ export function MobileNav() {
         label="Close"
         onClick={closeMobileMenu}
         aria-label="Close menu"
-        icon={CloseIcon}
+        icon={<CloseIcon />}
       />
     </div>
   );
@@ -275,7 +275,7 @@ export function MobileNav() {
           header={
             <Text
               type="supporting"
-              size="xs"
+              size="xsm"
               weight="medium"
               maxLines={1}
               hasTruncateTooltip
@@ -290,7 +290,7 @@ export function MobileNav() {
             </Text>
           }
           footer={footer}
-          xstyle={{
+          style={{
             backgroundColor: 'var(--surface-1, #ffffff)',
             color: 'var(--ink-900, #0f1111)',
             fontFamily: 'var(--font-body)',

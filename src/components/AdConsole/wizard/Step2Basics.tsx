@@ -43,7 +43,7 @@ export function Step2Basics({ isActive, isComplete }: Step2BasicsProps) {
             </small>
           )}
         </div>
-        <Stack gap={4} direction="horizontal" wrap>
+        <Stack gap={4} direction="horizontal" wrap="wrap">
           <div className="field">
             <label htmlFor="s2-portfolio">Portfolio</label>
             <input

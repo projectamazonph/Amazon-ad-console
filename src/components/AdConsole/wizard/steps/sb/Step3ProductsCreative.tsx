@@ -86,7 +86,7 @@ export function Step3ProductsCreativeSB({ isActive, isComplete }: Step3ProductsC
         {!(draft.adFormat === 'Store spotlight') && (
           <Card padding={5} variant="default">
             <Stack gap={3}>
-              <HStack justify="between" vAlign="baseline">
+              <HStack justify="between" vAlign="center">
                 <Text
                   type="large"
                   weight="semibold"

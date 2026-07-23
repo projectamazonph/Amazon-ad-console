@@ -18,7 +18,7 @@ export function Step4TargetingSB({ isActive, isComplete }: Step4TargetingSBProps
 
   const [exactKeywords, setExactKeywords] = useState(draft.exactKeywords || '');
   const [phraseKeywords, setPhraseKeywords] = useState(draft.phraseKeywords || '');
-  const [brandKeywords, setBrandKeywords] = useState(draft.brandKeywords || '');
+  const [broadKeywords, setBrandKeywords] = useState(draft.broadKeywords || '');
 
   return (
     <div
@@ -80,10 +80,10 @@ export function Step4TargetingSB({ isActive, isComplete }: Step4TargetingSBProps
               />
               <TextArea
                 label="Brand keywords (one per line)"
-                value={brandKeywords}
+                value={broadKeywords}
                 onChange={(v) => {
                   setBrandKeywords(v);
-                  updateDraft('brandKeywords', v);
+                  updateDraft('broadKeywords', v);
                 }}
                 description="your brand, your-coffee-brand"
                 rows={3}
