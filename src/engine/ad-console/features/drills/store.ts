@@ -1,7 +1,7 @@
 /**
  * Guided Drills — Zustand slice.
  */
-import type { StateCreator } from 'zustand';
+import type { StateCreator } from 'zustand/vanilla';
 import type { DrillId, DrillSession, DrillResult } from './types';
 import { getDrill, createSession, startDrill, isCorrectAction, advanceStep, recordMistake, recordSkip, calculateScore } from './engine';
 
@@ -55,7 +55,6 @@ export const createDrillsSlice: StateCreator<DrillsSlice> = (set, get) => ({
       const newSession = advanceStep(session, drill);
       set({ drillSession: newSession });
       if (newSession.completed) {
-        // Auto-complete drill
         const score = calculateScore(newSession, drill.steps.length);
         const result: DrillResult = {
           drillId: session.drillId,

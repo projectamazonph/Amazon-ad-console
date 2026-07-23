@@ -1,9 +1,9 @@
 /**
  * Draft slice — wizard draft state and actions.
  */
-import type { StateCreator } from 'zustand';
-import type { CampaignDraft, CampaignStatus, MatchType, AdFormat, BidStrategy, TargetingMode, CampaignType } from '../types';
-import { selectProduct, removeProduct, parseKeywords } from '../engine';
+import type { StateCreator } from 'zustand/vanilla';
+import type { CampaignDraft } from '../types';
+import { selectProduct, removeProduct } from '../engine';
 
 export interface DraftSlice {
   draft: CampaignDraft;
@@ -30,6 +30,8 @@ function makeDraft(): CampaignDraft {
     audienceLookback: '30',
   };
 }
+
+export { makeDraft };
 
 export const createDraftSlice: StateCreator<DraftSlice> = (set) => ({
   draft: makeDraft(),

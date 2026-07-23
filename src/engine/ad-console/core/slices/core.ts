@@ -1,10 +1,11 @@
 /**
  * Core slice — central state, filters, view, simulation.
  */
-import type { Campaign, CampaignDraft, CampaignStatus, FilterState, AdConsoleState } from '../types';
-import { simulateDays, normalizeCampaign, portfolioNames, generateId, updateCampaignSettings, savePlacements } from '../engine';
+import type { AdConsoleState, Campaign, CampaignStatus, FilterState } from '../types';
+import { simulateDays, normalizeCampaign, portfolioNames, generateId, updateCampaignSettings, savePlacements, toggleCampaignStatus, archiveCampaign, duplicateCampaign } from '../engine';
 import { defaultCampaigns } from '../scenarios';
 import { mobileMenuReducer, type MobileMenuState } from '../engine';
+import { makeDraft } from './draft';
 
 export interface CoreSlice {
   state: AdConsoleState;
@@ -44,7 +45,10 @@ const coreState: AdConsoleState = {
   portfolios: portfolioNames(defaultCampaigns()).filter((n: string) => n !== 'All'),
 };
 
-export const createCoreSlice = (set: any, get: any, ..._rest: any[]): CoreSlice => ({
+type SetFn = (partial: Partial<import('../../store').AppStore> | ((state: import('../../store').AppStore) => Partial<import('../../store').AppStore>)) => void;
+type GetFn = () => import('../../store').AppStore;
+
+export const createCoreSlice = (set: SetFn, get: GetFn): CoreSlice => ({
   state: coreState,
   view: 'dashboard',
   showAddKeywordForm: false,
@@ -112,77 +116,3 @@ export const createCoreSlice = (set: any, get: any, ..._rest: any[]): CoreSlice 
   importState: (json) => { try { if (!json || !json.trim()) return false; const parsed = JSON.parse(json); if (!parsed || typeof parsed !== 'object') return false; set({ state: parsed }); return true; } catch { return false; } },
 });
 
-export function makeDraft(): CampaignDraft {
-  return {
-    type: 'SP', name: '', portfolio: '', status: 'Enabled',
-    dailyBudget: 25, defaultBid: 0.75,
-    startDate: new Date().toISOString().slice(0, 10), endDate: '',
-    targetingMode: 'Automatic', adFormat: 'Standard',
-    bidStrategy: 'Dynamic bids - down only',
-    placements: { top: 0, product: 0, rest: 0 },
-    products: ['B0TRAIN001'], creative: {},
-    exactKeywords: '',
-    phraseKeywords: '',
-    broadKeywords: '', asinTargets: '', categoryTargets: '', audienceTargets: '',
-    audienceLookback: '30',
-  };
-}
-
-function toggleCampaignStatus(c: Campaign): Campaign {
-  if (c.status === 'Archived') return c;
-  const next: CampaignStatus = c.status === 'Enabled' ? 'Paused' : 'Enabled';
-  return {
-    ...c,
-    status: next,
-    adGroups: c.adGroups.map((ag) => ({ ...ag, status: next })),
-    targets: c.targets.map((t) => ({ ...t, status: next })),
-    history: [...c.history, `Status changed to ${next}`],
-  };
-}
-
-function archiveCampaign(c: Campaign): Campaign {
-  return {
-    ...c,
-    status: 'Archived',
-    adGroups: c.adGroups.map((ag) => ({ ...ag, status: 'Archived' })),
-    targets: c.targets.map((t) => ({ ...t, status: 'Archived' })),
-    history: [...c.history, 'Campaign archived'],
-  };
-}
-
-function duplicateCampaign(c: Campaign): Campaign {
-  const newId = generateId('C-' + c.type);
-  const newAgId = generateId('AG');
-  return normalizeCampaign({
-    ...c,
-    id: newId,
-    name: c.name + ' (copy)',
-    status: 'Paused' as CampaignStatus,
-    metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
-    history: [],
-    adGroups: c.adGroups.map((ag) => ({
-      ...ag,
-      id: ag.id === c.adGroups[0]?.id ? newAgId : generateId('AG'),
-      campaignId: newId,
-    })),
-    targets: c.targets.map((t) => ({
-      ...t,
-      id: generateId('T'),
-      campaignId: newId,
-      adGroupId: newAgId,
-      impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0,
-    })),
-    searchTerms: [],
-    negatives: c.negatives.map((n) => ({
-      ...n,
-      id: generateId('NEG'),
-      campaignId: newId,
-      adGroupId: newAgId,
-    })),
-    budgetRules: c.budgetRules.map((r) => ({
-      ...r,
-      id: generateId('BR'),
-      campaignId: newId,
-    })),
-  });
-}

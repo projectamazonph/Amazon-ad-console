@@ -39,7 +39,7 @@ import { createMissionsSlice } from './features/missions/store';
 import type { IntegritySlice } from './features/integrity/store';
 import { createIntegritySlice } from './features/integrity/store';
 import {
-  createCoreSlice, type CoreSlice, makeDraft,
+  createCoreSlice, type CoreSlice,
 } from './core/slices/core';
 import {
   createTargetSlice, type TargetSlice,
@@ -58,7 +58,7 @@ import {
   createQuerySlice, type QuerySlice,
 } from './core/slices/portfolio';
 import {
-  createDraftSlice, type DraftSlice,
+  createDraftSlice, type DraftSlice, makeDraft,
 } from './core/slices/draft';
 
 // ---------------------------------------------------------------------------
@@ -71,7 +71,7 @@ export type AppStore = CoreSlice & TargetSlice & AdGroupSlice & NegativeSlice & 
   portfolioOptions: () => string[];
   totalMetricsCalc: () => { impressions: number; clicks: number; spend: number; sales: number; orders: number };
   derivedMetrics: (m: { impressions: number; clicks: number; spend: number; sales: number; orders: number }) => { ctr: number; cpc: number; acos: number; roas: number; cvr: number };
-  
+
   // Campaign products
   addCampaignProduct: (campaignId: string, asin: string) => void;
   removeCampaignProduct: (campaignId: string, asin: string) => void;
@@ -83,19 +83,20 @@ const PERSIST_KEY = 'ad-console-storage';
 export const useAdConsoleStore = create<AppStore>()(
   persist(
     (...a) => {
-      const [set, get] = a;
+      const set = a[0];
+      const get = a[1];
       return {
         // Core slice
-        ...createCoreSlice(...a),
-        // Domain slices
-        ...createTargetSlice(...a),
-        ...createAdGroupSlice(...a),
-        ...createNegativeSlice(...a),
-        ...createBudgetSlice(...a),
-        ...createPortfolioSlice(...a),
-        ...createQuerySlice(...a),
+        ...createCoreSlice(set, get),
+        // Domain slices (set-only, typed for cross-slice state access)
+        ...createTargetSlice(set),
+        ...createAdGroupSlice(set),
+        ...createNegativeSlice(set),
+        ...createBudgetSlice(set),
+        ...createPortfolioSlice(set),
+        ...createQuerySlice(set, get),
         ...createDraftSlice(...a),
-        // Feature slices
+        // Feature slices (StateCreator — uses all args)
         ...createDrillsSlice(...a),
         ...createProfilesSlice(...a),
         ...createTrainerSlice(...a),
@@ -113,7 +114,7 @@ export const useAdConsoleStore = create<AppStore>()(
 
         // Campaign products
         addCampaignProduct: (campaignId, asin) => set((s) => ({
-          state: { ...s.state, campaigns: s.state.campaigns.map((c) =>
+          state: { ...s.state!, campaigns: s.state!.campaigns.map((c) =>
             c.id === campaignId && !c.products.includes(asin)
               ? { ...c, products: [...c.products, asin] }
               : c
@@ -121,7 +122,7 @@ export const useAdConsoleStore = create<AppStore>()(
         })),
 
         removeCampaignProduct: (campaignId, asin) => set((s) => ({
-          state: { ...s.state, campaigns: s.state.campaigns.map((c) =>
+          state: { ...s.state!, campaigns: s.state!.campaigns.map((c) =>
             c.id === campaignId
               ? { ...c, products: c.products.filter((p) => p !== asin) }
               : c

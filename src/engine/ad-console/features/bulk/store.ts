@@ -1,5 +1,9 @@
 /**
  * Bulk Operations — Zustand slice.
+ *
+ * Tracks parsing state and execution results.  Actual campaign mutations happen
+ * in the UI layer (BulkOpsPage.tsx) via applyBulkRows() — this keeps the
+ * engine pure and avoids circular store imports.
  */
 import type { StateCreator } from 'zustand';
 import type { BulkRow, BulkValidationError } from './types';
@@ -10,20 +14,26 @@ export interface BulkSlice {
   bulkPreview: BulkRow[];
   bulkErrors: BulkValidationError[];
   bulkValid: boolean;
+  bulkApplied: number;
+  bulkSkipped: number;
+  bulkExecutionErrors: BulkValidationError[];
   setBulkInput: (text: string) => void;
   parseAndValidate: () => void;
   clearBulk: () => void;
   getTemplate: () => string;
 }
 
-export const createBulkSlice: StateCreator<BulkSlice> = (set, get) => ({
+export const createBulkSlice: StateCreator<BulkSlice, [], []> = (set, get) => ({
   bulkInput: generateBulkTemplate(),
   bulkPreview: [],
   bulkErrors: [],
   bulkValid: false,
+  bulkApplied: 0,
+  bulkSkipped: 0,
+  bulkExecutionErrors: [],
 
   setBulkInput: (text) => {
-    set({ bulkInput: text });
+    set({ bulkInput: text, bulkApplied: 0, bulkSkipped: 0, bulkExecutionErrors: [] });
   },
 
   parseAndValidate: () => {
@@ -33,11 +43,22 @@ export const createBulkSlice: StateCreator<BulkSlice> = (set, get) => ({
       bulkPreview: rows,
       bulkErrors: errors,
       bulkValid: errors.length === 0 && rows.length > 0,
+      bulkApplied: 0,
+      bulkSkipped: 0,
+      bulkExecutionErrors: [],
     });
   },
 
   clearBulk: () => {
-    set({ bulkInput: '', bulkPreview: [], bulkErrors: [], bulkValid: false });
+    set({
+      bulkInput: '',
+      bulkPreview: [],
+      bulkErrors: [],
+      bulkValid: false,
+      bulkApplied: 0,
+      bulkSkipped: 0,
+      bulkExecutionErrors: [],
+    });
   },
 
   getTemplate: () => generateBulkTemplate(),

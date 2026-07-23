@@ -100,7 +100,8 @@ describe('format helpers', () => {
   });
   it('acosClass returns correct class', () => {
     expect(acosClass(10)).toBe('good');
-    expect(acosClass(25)).toBe('warn');
+    expect(acosClass(25)).toBe('good');   // acos <= 30 → good (PR4)
+    expect(acosClass(35)).toBe('warn');  // 30 < acos < 50
     expect(acosClass(50)).toBe('bad');
   });
 });

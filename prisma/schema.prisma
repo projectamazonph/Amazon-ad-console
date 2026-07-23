@@ -49,6 +49,7 @@ model Campaign {
   updatedAt    DateTime  @updatedAt
   
   @@unique([userId, campaignId])
+  @@index([userId])
 }
 
 model Simulation {

@@ -66,7 +66,7 @@ export function formatRoas(n: number): string {
 }
 
 export function acosClass(acos: number): string {
-  if (acos <= 20) return 'good';
+  if (acos <= 30) return 'good';   // CHANGED: Use 30% as the good/warn boundary (matches Dashboard.tsx)
   if (acos >= 50) return 'bad';
   return 'warn';
 }

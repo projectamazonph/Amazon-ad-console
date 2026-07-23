@@ -1,7 +1,7 @@
 /**
  * Integrity Center — Zustand slice.
  */
-import type { StateCreator } from 'zustand';
+import type { StateCreator } from 'zustand/vanilla';
 import type { IntegrityReport } from './types';
 import { runIntegrityCheck } from './engine';
 import type { Campaign } from '../../core/types';
