@@ -24,12 +24,15 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
-// Mock ResizeObserver
-globalThis.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
+// Mock ResizeObserver — must be a class so `new` works in jsdom.
+// Astryx Text truncation uses ResizeObserver; a plain function fails
+// with "ResizeObserver constructor is not a constructor" at runtime.
+class ResizeObserverMock {
+  observe = vi.fn();
+  unobserve = vi.fn();
+  disconnect = vi.fn();
+}
+globalThis.ResizeObserver = ResizeObserverMock;
 
 // Setup cleanup after each test
 afterEach(() => {

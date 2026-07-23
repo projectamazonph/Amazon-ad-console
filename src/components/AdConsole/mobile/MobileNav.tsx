@@ -115,10 +115,13 @@ export function MobileNav() {
             is the only way for phone-width users to switch top-level sections. */}
         <div className="tabs mobile-drawer-tabs" role="tablist" aria-label="Console sections">
           {GLOBAL_NAV.map((navSection) => {
-            const isActive = section === navSection.view;
+            // Compare `section` (a RailSection) to `navSection.key`, not
+            // `navSection.view` — the Training section's key is 'training'
+            // while its nav target is 'drills' (H-03).
+            const isActive = section === navSection.key;
             return (
               <button
-                key={navSection.view}
+                key={navSection.key}
                 ref={isActive ? activeSectionTabRef : undefined}
                 className={`tab ${isActive ? 'active' : ''}`}
                 onClick={() => setView(navSection.view)}
