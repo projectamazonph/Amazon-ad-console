@@ -21,6 +21,13 @@ export type NavView =
   | 'drills';
 
 export interface NavSection {
+  /**
+   * Section identity used to determine the active topbar/mobile-drawer tab.
+   * For the Training section this is 'training' (a `RailSection`), even
+   * though `view` is 'drills' (a `NavView`). The two diverge for training
+   * because all 6 training views should highlight the same single tab.
+   */
+  key: RailSection;
   label: string;
   view: NavView;
 }
@@ -50,13 +57,14 @@ export interface MetricsSnapshot {
 
 /** Top-level sections in the Amazon console global navigation bar. */
 export const GLOBAL_NAV: NavSection[] = [
-  { label: 'Campaign Manager', view: 'campaigns' },
-  { label: 'Portfolios', view: 'portfolio' },
-  { label: 'Measurement', view: 'dashboard' },
+  { key: 'campaigns', label: 'Campaign Manager', view: 'campaigns' },
+  { key: 'portfolio', label: 'Portfolios', view: 'portfolio' },
+  { key: 'dashboard', label: 'Measurement', view: 'dashboard' },
   // Training is the entry point for the 6 training-product pages (Drills,
   // Missions, Reports, Bulk, Trainer, Integrity). Clicking it lands on the
-  // drills view; the sidebar rail then exposes the other 5.
-  { label: 'Training', view: 'drills' },
+  // drills view; the sidebar rail then exposes the other 5. `key` stays
+  // 'training' so all 6 views highlight the same tab.
+  { key: 'training', label: 'Training', view: 'drills' },
 ];
 
 /**
