@@ -2,9 +2,10 @@
  * Target/keyword slice — add, remove, bid, pause.
  * Supports all target types: Keyword, ASIN, Category, Auto, Audience.
  */
-import type { TargetType, MatchType, CampaignStatus } from '../types';
+import type { StateCreator } from 'zustand/vanilla';
+import type { MatchType, CampaignStatus, AdConsoleState } from '../types';
 import {
-  addTarget, addKeyword, addAutoTarget, addAsinTarget, addCategoryTarget,
+  addKeyword, addAutoTarget, addAsinTarget, addCategoryTarget,
   removeTarget, setTargetBid, adjustTargetBid, pauseTarget, setTargetStatus,
 } from '../engine';
 
@@ -20,44 +21,46 @@ export interface TargetSlice {
   setTargetStatus: (campaignId: string, targetId: string, status: CampaignStatus) => void;
 }
 
-export const createTargetSlice = (set: any, ..._rest: any[]): TargetSlice => ({
-  addKeyword: (cid, keyword, match, bid, adGroupId) => set((s: any) => {
-    const c = s.state.campaigns.find((x: any) => x.id === cid);
-    if (!c) return s;
+type SetFn = (fn: (s: { state: AdConsoleState }) => { state?: AdConsoleState }) => void;
+
+export const createTargetSlice = (set: SetFn): TargetSlice => ({
+  addKeyword: (cid, keyword, match, bid, adGroupId) => set((s) => {
+    const c = s.state.campaigns.find((x) => x.id === cid);
+    if (!c) return {};
     const { campaign } = addKeyword(c, keyword, match, bid, adGroupId);
-    return { state: { ...s.state, campaigns: s.state.campaigns.map((x: any) => x.id === cid ? campaign : x) } };
+    return { state: { ...s.state, campaigns: s.state.campaigns.map((x) => x.id === cid ? campaign : x) } };
   }),
-  addAutoTarget: (cid, autoType, bid, adGroupId) => set((s: any) => {
-    const c = s.state.campaigns.find((x: any) => x.id === cid);
-    if (!c) return s;
+  addAutoTarget: (cid, autoType, bid, adGroupId) => set((s) => {
+    const c = s.state.campaigns.find((x) => x.id === cid);
+    if (!c) return {};
     const { campaign } = addAutoTarget(c, autoType, bid, adGroupId);
-    return { state: { ...s.state, campaigns: s.state.campaigns.map((x: any) => x.id === cid ? campaign : x) } };
+    return { state: { ...s.state, campaigns: s.state.campaigns.map((x) => x.id === cid ? campaign : x) } };
   }),
-  addAsinTarget: (cid, asin, bid, adGroupId) => set((s: any) => {
-    const c = s.state.campaigns.find((x: any) => x.id === cid);
-    if (!c) return s;
+  addAsinTarget: (cid, asin, bid, adGroupId) => set((s) => {
+    const c = s.state.campaigns.find((x) => x.id === cid);
+    if (!c) return {};
     const { campaign } = addAsinTarget(c, asin, bid, adGroupId);
-    return { state: { ...s.state, campaigns: s.state.campaigns.map((x: any) => x.id === cid ? campaign : x) } };
+    return { state: { ...s.state, campaigns: s.state.campaigns.map((x) => x.id === cid ? campaign : x) } };
   }),
-  addCategoryTarget: (cid, categoryPath, bid, adGroupId) => set((s: any) => {
-    const c = s.state.campaigns.find((x: any) => x.id === cid);
-    if (!c) return s;
+  addCategoryTarget: (cid, categoryPath, bid, adGroupId) => set((s) => {
+    const c = s.state.campaigns.find((x) => x.id === cid);
+    if (!c) return {};
     const { campaign } = addCategoryTarget(c, categoryPath, bid, adGroupId);
-    return { state: { ...s.state, campaigns: s.state.campaigns.map((x: any) => x.id === cid ? campaign : x) } };
+    return { state: { ...s.state, campaigns: s.state.campaigns.map((x) => x.id === cid ? campaign : x) } };
   }),
-  removeTarget: (cid, tid) => set((s: any) => ({
-    state: { ...s.state, campaigns: s.state.campaigns.map((c: any) => c.id === cid ? removeTarget(c, tid) : c) },
+  removeTarget: (cid, tid) => set((s) => ({
+    state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? removeTarget(c, tid) : c) },
   })),
-  setTargetBid: (cid, tid, bid) => set((s: any) => ({
-    state: { ...s.state, campaigns: s.state.campaigns.map((c: any) => c.id === cid ? setTargetBid(c, tid, bid) : c) },
+  setTargetBid: (cid, tid, bid) => set((s) => ({
+    state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? setTargetBid(c, tid, bid) : c) },
   })),
-  adjustTargetBid: (cid, tid, mult) => set((s: any) => ({
-    state: { ...s.state, campaigns: s.state.campaigns.map((c: any) => c.id === cid ? adjustTargetBid(c, tid, mult) : c) },
+  adjustTargetBid: (cid, tid, mult) => set((s) => ({
+    state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? adjustTargetBid(c, tid, mult) : c) },
   })),
-  pauseTarget: (cid, tid) => set((s: any) => ({
-    state: { ...s.state, campaigns: s.state.campaigns.map((c: any) => c.id === cid ? pauseTarget(c, tid) : c) },
+  pauseTarget: (cid, tid) => set((s) => ({
+    state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? pauseTarget(c, tid) : c) },
   })),
-  setTargetStatus: (cid, tid, status) => set((s: any) => ({
-    state: { ...s.state, campaigns: s.state.campaigns.map((c: any) => c.id === cid ? setTargetStatus(c, tid, status) : c) },
+  setTargetStatus: (cid, tid, status) => set((s) => ({
+    state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? setTargetStatus(c, tid, status) : c) },
   })),
 });

@@ -1,7 +1,7 @@
 /**
  * Multi-User Profiles — Zustand slice.
  */
-import type { StateCreator } from 'zustand';
+import type { StateCreator } from 'zustand/vanilla';
 import type { TraineeProfile } from './types';
 import { createProfile, switchProfile, renameProfile, deleteProfile, defaultProfile } from './engine';
 

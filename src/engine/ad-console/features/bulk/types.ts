@@ -11,7 +11,7 @@ export interface BulkRow {
   adGroupId?: string;
   field?: string;
   value?: string;
-  [key: string]: string | undefined;
+  [key: string]: string | undefined;  // enables dynamic access for extra columns
 }
 
 export interface BulkValidationError {

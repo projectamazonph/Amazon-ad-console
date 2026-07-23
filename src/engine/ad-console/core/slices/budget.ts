@@ -1,7 +1,7 @@
 /**
  * Budget rules slice.
  */
-import type { BudgetRule, BudgetRuleType } from '../types';
+import type { BudgetRule, BudgetRuleType, AdConsoleState } from '../types';
 import { addBudgetRule, removeBudgetRule, updateBudgetRule } from '../engine';
 
 export interface BudgetSlice {
@@ -10,14 +10,16 @@ export interface BudgetSlice {
   updateBudgetRule: (cid: string, ruleId: string, updates: Partial<Pick<BudgetRule, 'name' | 'type' | 'increase' | 'condition'>>) => void;
 }
 
-export const createBudgetSlice = (set: any, ..._rest: any[]): BudgetSlice => ({
-  addBudgetRule: (cid, name, type, increase, condition) => set((s: any) => ({
-    state: { ...s.state, campaigns: s.state.campaigns.map((c: any) => c.id === cid ? addBudgetRule(c, name, type, increase, condition).campaign : c) }
+type SetFn = (fn: (s: { state: AdConsoleState }) => { state?: AdConsoleState }) => void;
+
+export const createBudgetSlice = (set: SetFn): BudgetSlice => ({
+  addBudgetRule: (cid, name, type, increase, condition) => set((s) => ({
+    state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? addBudgetRule(c, name, type, increase, condition).campaign : c) }
   })),
-  removeBudgetRule: (cid, ruleId) => set((s: any) => ({
-    state: { ...s.state, campaigns: s.state.campaigns.map((c: any) => c.id === cid ? removeBudgetRule(c, ruleId).campaign : c) }
+  removeBudgetRule: (cid, ruleId) => set((s) => ({
+    state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? removeBudgetRule(c, ruleId).campaign : c) }
   })),
-  updateBudgetRule: (cid, ruleId, updates) => set((s: any) => ({
-    state: { ...s.state, campaigns: s.state.campaigns.map((c: any) => c.id === cid ? updateBudgetRule(c, ruleId, updates).campaign : c) }
+  updateBudgetRule: (cid, ruleId, updates) => set((s) => ({
+    state: { ...s.state, campaigns: s.state.campaigns.map((c) => c.id === cid ? updateBudgetRule(c, ruleId, updates).campaign : c) }
   })),
 });

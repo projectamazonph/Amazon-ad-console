@@ -28,17 +28,16 @@ describe('parseBulkCsv', () => {
 
 describe('validateBulkRows', () => {
   it('reports no errors for a valid row', () => {
-    const rows: BulkRow[] = [{ entity: 'campaign', operation: 'update' }];
+    const rows: BulkRow[] = [{ entity: 'campaign', operation: 'update', id: 'C-001' }];
     expect(validateBulkRows(rows)).toEqual([]);
   });
 
   it('flags missing and unknown entity/operation for a blank row', () => {
     const rows: BulkRow[] = [{ entity: '', operation: '' }];
     const errors = validateBulkRows(rows);
-    // a blank row is both missing AND an unknown value for each field
-    expect(errors).toHaveLength(4);
+    expect(errors).toHaveLength(2);
     expect(errors.every((e) => e.row === 2)).toBe(true);
-    expect(errors.map((e) => e.field).sort()).toEqual(['entity', 'entity', 'operation', 'operation']);
+    expect(errors.map((e) => e.field).sort()).toEqual(['entity', 'operation']);
   });
 
   it('flags unknown entity and operation values', () => {

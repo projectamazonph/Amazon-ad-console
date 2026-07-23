@@ -1,7 +1,7 @@
 /**
  * Training Missions — Zustand slice.
  */
-import type { StateCreator } from 'zustand';
+import type { StateCreator } from 'zustand/vanilla';
 import type { MissionSession, Mission } from './types';
 import { getMissions, getMission, createMissionSession, startMission, useHint, completeStep } from './engine';
 

@@ -1,7 +1,7 @@
 /**
  * Trainer Dashboard — Zustand slice.
  */
-import type { StateCreator } from 'zustand';
+import type { StateCreator } from 'zustand/vanilla';
 import type { TrainerNote, ActionGrade, CertificationItem } from './types';
 import { DEFAULT_CERTIFICATION } from './types';
 import { addNote, calculateCertScore, calculateGrade } from './engine';

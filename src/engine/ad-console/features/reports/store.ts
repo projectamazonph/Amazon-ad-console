@@ -1,7 +1,7 @@
 /**
  * Reports — Zustand slice.
  */
-import type { StateCreator } from 'zustand';
+import type { StateCreator } from 'zustand/vanilla';
 import type { Report, ReportRequest, ReportType } from './types';
 import { createReportRequest, generateReport, reportToCsv } from './engine';
 
@@ -21,7 +21,6 @@ export const createReportsSlice: StateCreator<ReportsSlice> = (set, get) => ({
 
   requestReport: (type) => {
     const request = createReportRequest(type);
-    // Generate the report immediately (simulate processing)
     const report = generateReport(type);
     set((s) => ({
       reportQueue: [{ ...request, status: 'completed', completedAt: new Date().toISOString() }, ...s.reportQueue],
