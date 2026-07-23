@@ -10,6 +10,8 @@ import { SearchTermsTab } from './details/SearchTermsTab';
 import { NegativesTab } from './details/NegativesTab';
 import { PlacementsTab } from './details/PlacementsTab';
 import { BudgetRulesTab } from './details/BudgetRulesTab';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Button } from '@astryxdesign/core/Button';
 
 interface Props {
   campaign: Campaign;
@@ -51,10 +53,7 @@ export function CampaignDetail({ campaign }: Props) {
           <div>
             <h1>{c.name}</h1>
             <p className="detail-meta">
-              <span className={`pill ${c.status === 'Enabled' ? 'green' : c.status === 'Paused' ? 'orange' : 'red'}`}>
-                <span className="pill-dot" aria-hidden="true" />
-                {c.status}
-              </span>
+              <Badge variant={c.status === 'Enabled' ? 'success' : c.status === 'Paused' ? 'warning' : 'error'} label={c.status} />
               <span>{c.type}</span>
               <span>·</span>
               <span>{c.targetingMode}</span>
@@ -63,12 +62,12 @@ export function CampaignDetail({ campaign }: Props) {
             </p>
           </div>
           <div className="detail-actions">
-            <button className="btn" onClick={() => { selectCampaign(null); setView('campaigns'); }}>← Back</button>
-            <button className="btn blue" onClick={() => runSimulation()}>Run 7-day sim</button>
+            <Button variant="secondary" label="← Back" onClick={() => { selectCampaign(null); setView('campaigns'); }} />
+            <Button variant="secondary" label="Run 7-day sim" onClick={() => runSimulation()} />
             <button className={`btn ${c.status === 'Enabled' ? 'orange' : ''}`} onClick={() => toggleStatus(c.id)}>
               {c.status === 'Enabled' ? 'Pause' : 'Enable'}
             </button>
-            <button className="btn" onClick={() => duplicateCampaign(c.id)}>Duplicate</button>
+            <Button variant="secondary" label="Duplicate" onClick={() => duplicateCampaign(c.id)} />
             <button className="btn danger" onClick={() => { if (confirm(`Archive "${c.name}"?`)) archiveCampaign(c.id); }}>Archive</button>
           </div>
         </div>

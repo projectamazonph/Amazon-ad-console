@@ -2,6 +2,7 @@
 
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import type { CampaignType } from '@/engine/ad-console/types';
+import { Badge } from '@astryxdesign/core/Badge';
 
 interface Step1AdTypeProps {
   isActive: boolean;
@@ -32,10 +33,10 @@ export function Step1AdType({ isActive, isComplete }: Step1AdTypeProps) {
               updateDraft('adFormat', choice.type === 'SP' ? 'Standard' : choice.type === 'SB' ? 'Product collection' : 'Auto generated');
             }}
           >
-            <div><span className={`pill ${choice.type === 'SP' ? 'active' : choice.type === 'SB' ? 'orange' : 'purple'}`}>{choice.type}</span></div>
+            <div><Badge variant={choice.type === "SP" ? "blue" : choice.type === "SB" ? "orange" : "purple"} label={choice.type} /></div>
             <h3>{choice.title}</h3>
             <p>{choice.desc}</p>
-            <span className="pill orange" style={{ marginTop: 8 }}>{choice.foot}</span>
+            <Badge variant="warning" label={choice.foot} />
           </div>
         ))}
       </div>
