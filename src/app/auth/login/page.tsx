@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Button } from '@astryxdesign/core/Button';
+import { Banner } from '@astryxdesign/core/Banner';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -48,7 +50,11 @@ export default function LoginPage() {
         <div className="auth-card">
           <form onSubmit={handleSubmit} className="auth-form">
             {error && (
-              <div className="auth-error" role="alert">{error}</div>
+              <Banner
+                status="error"
+                title="Sign in failed"
+                description={error}
+              />
             )}
 
             <div className="auth-field">
@@ -61,6 +67,7 @@ export default function LoginPage() {
                 className="auth-input"
                 placeholder="you@example.com"
                 required
+                autoComplete="email"
               />
             </div>
 
@@ -74,16 +81,17 @@ export default function LoginPage() {
                 className="auth-input"
                 placeholder="••••••••"
                 required
+                autoComplete="current-password"
               />
             </div>
 
-            <button
+            <Button
               type="submit"
-              disabled={loading}
-              className="btn primary auth-submit"
-            >
-              {loading ? 'Signing in…' : 'Sign in'}
-            </button>
+              variant="primary"
+              label={loading ? 'Signing in…' : 'Sign in'}
+              isDisabled={loading}
+              style={{ width: '100%' }}
+            />
           </form>
 
           <p className="auth-footer">

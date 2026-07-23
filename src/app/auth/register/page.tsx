@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Button } from '@astryxdesign/core/Button';
+import { Banner } from '@astryxdesign/core/Banner';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -74,7 +76,11 @@ export default function RegisterPage() {
         <div className="auth-card">
           <form onSubmit={handleSubmit} className="auth-form">
             {error && (
-              <div className="auth-error" role="alert">{error}</div>
+              <Banner
+                status="error"
+                title="Registration failed"
+                description={error}
+              />
             )}
 
             <div className="auth-field">
@@ -86,6 +92,7 @@ export default function RegisterPage() {
                 onChange={(e) => setName(e.target.value)}
                 className="auth-input"
                 placeholder="Your name"
+                autoComplete="name"
               />
             </div>
 
@@ -99,6 +106,7 @@ export default function RegisterPage() {
                 className="auth-input"
                 placeholder="you@example.com"
                 required
+                autoComplete="email"
               />
             </div>
 
@@ -113,6 +121,7 @@ export default function RegisterPage() {
                 placeholder="••••••••"
                 required
                 minLength={6}
+                autoComplete="new-password"
               />
             </div>
 
@@ -127,16 +136,17 @@ export default function RegisterPage() {
                 placeholder="••••••••"
                 required
                 minLength={6}
+                autoComplete="new-password"
               />
             </div>
 
-            <button
+            <Button
               type="submit"
-              disabled={loading}
-              className="btn primary auth-submit"
-            >
-              {loading ? 'Creating account…' : 'Create account'}
-            </button>
+              variant="primary"
+              label={loading ? 'Creating account…' : 'Create account'}
+              isDisabled={loading}
+              style={{ width: '100%' }}
+            />
           </form>
 
           <p className="auth-footer">
