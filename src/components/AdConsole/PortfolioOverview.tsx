@@ -95,7 +95,7 @@ export function PortfolioOverview() {
       {manageMode && (
         <Card padding={6} variant="default" style={{ marginBottom: 14 }}>
           <Stack gap={3}>
-            <HStack justify="between" vAlign="baseline">
+            <HStack justify="between" vAlign="center">
               <Text
                 type="large"
                 weight="semibold"
@@ -218,7 +218,7 @@ export function PortfolioOverview() {
                       />
                     </Stack>
                   ) : (
-                    <HStack justify="between" vAlign="baseline">
+                    <HStack justify="between" vAlign="center">
                       <Text
                         type="large"
                         weight="semibold"

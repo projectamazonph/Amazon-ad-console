@@ -87,7 +87,7 @@ export function IntegrityPage() {
           ) : (
             <Card padding={5} variant="default">
               <Stack gap={3}>
-                <HStack justify="between" vAlign="baseline">
+                <HStack justify="between" vAlign="center">
                   <Text
                     type="large"
                     weight="semibold"
