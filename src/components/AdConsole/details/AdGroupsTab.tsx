@@ -131,7 +131,7 @@ export function AdGroupsTab({ campaign: c }: Props) {
               </thead>
               <tbody>
                 {agTargets.map((t) => {
-                  const x = calc(t.metrics);
+                  const x = calc(t as any);
                   return (
                     <tr key={t.id}>
                       <td style={{ maxWidth: 220 }}>
@@ -162,10 +162,10 @@ export function AdGroupsTab({ campaign: c }: Props) {
                         />
                       </td>
                       <td className="money">{formatBid(t.bid)}</td>
-                      <td className="mono">{formatWhole(t.metrics.impressions)}</td>
-                      <td className="mono">{formatWhole(t.metrics.clicks)}</td>
-                      <td className="money">{formatMoney(t.metrics.spend)}</td>
-                      <td className="money">{formatMoney(t.metrics.sales)}</td>
+                      <td className="mono">{formatWhole(t.impressions)}</td>
+                      <td className="mono">{formatWhole(t.clicks)}</td>
+                      <td className="money">{formatMoney(t.spend)}</td>
+                      <td className="money">{formatMoney(t.sales)}</td>
                       <td className={`mono ${acosClass(x.acos)}`}>
                         {x.acos ? formatPercent(x.acos) : '-'}
                       </td>

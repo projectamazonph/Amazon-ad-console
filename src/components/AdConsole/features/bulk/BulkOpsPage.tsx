@@ -43,7 +43,7 @@ export function BulkOpsPage() {
         <Button
           variant="secondary"
           size="sm"
-          label="← Back to campaigns"
+          label="ΓåÉ Back to campaigns"
           onClick={() => setView('campaigns')}
         />
         <Text
@@ -71,7 +71,7 @@ export function BulkOpsPage() {
         <div>
           <Card padding={5} variant="default" style={{ marginBottom: 'var(--space-4)' }}>
             <Stack gap={3}>
-              <HStack justify="between" vAlign="baseline">
+              <HStack justify="between" vAlign="center">
                 <Text type="large" weight="semibold" maxLines={1} hasTruncateTooltip as="h2">
                   CSV input
                 </Text>
@@ -136,7 +136,7 @@ export function BulkOpsPage() {
                   Execution complete
                 </Text>
                 <Text type="body" style={{ color: 'var(--success)' }}>
-                  Applied: {bulkApplied} · Skipped: {bulkSkipped}
+                  Applied: {bulkApplied} ┬╖ Skipped: {bulkSkipped}
                 </Text>
               </Stack>
             </Card>
@@ -167,7 +167,7 @@ export function BulkOpsPage() {
           {preview.length > 0 && (
             <Card padding={5} variant="default">
               <Stack gap={3}>
-                <HStack justify="between" vAlign="baseline">
+                <HStack justify="between" vAlign="center">
                   <Text
                     type="large"
                     weight="semibold"
@@ -178,7 +178,7 @@ export function BulkOpsPage() {
                     Preview
                   </Text>
                   <Text type="supporting" size="sm" maxLines={1}>
-                    {preview.length} rows · {valid ? '✅ Valid' : '❌ Has errors'}
+                    {preview.length} rows ┬╖ {valid ? 'Γ£à Valid' : 'Γ¥î Has errors'}
                   </Text>
                 </HStack>
                 <div className="table-wrap">

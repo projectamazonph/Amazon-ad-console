@@ -22,6 +22,9 @@ function ProductRow({ asin }: { asin: string }) {
   const selectProductAction = useAdConsoleStore((s) => s.selectProduct);
   const removeProductAction = useAdConsoleStore((s) => s.removeProduct);
   const selected = draft.products.includes(asin);
+  const toggleProduct = () =>
+    selected ? removeProductAction(asin) : selectProductAction(asin);
+
   return (
     <tr
       key={asin}
@@ -29,12 +32,16 @@ function ProductRow({ asin }: { asin: string }) {
         cursor: 'pointer',
         background: selected ? 'var(--accent-soft)' : undefined,
       }}
-      onClick={() =>
-        selected ? removeProductAction(asin) : selectProductAction(asin)
-      }
+      onClick={toggleProduct}
     >
       <td>
-        <input type="checkbox" checked={selected} readOnly aria-label={`Select ${asin}`} />
+        <input
+          type="checkbox"
+          checked={selected}
+          aria-label={`Select ${asin}`}
+          onClick={(event) => event.stopPropagation()}
+          onChange={toggleProduct}
+        />
       </td>
       <td className="mono">{p?.asin || asin}</td>
       <td style={{ maxWidth: 240 }}>
@@ -86,7 +93,7 @@ export function Step3ProductsCreativeSB({ isActive, isComplete }: Step3ProductsC
         {!(draft.adFormat === 'Store spotlight') && (
           <Card padding={5} variant="default">
             <Stack gap={3}>
-              <HStack justify="between" vAlign="baseline">
+              <HStack justify="between" vAlign="center">
                 <Text
                   type="large"
                   weight="semibold"

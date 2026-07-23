@@ -131,7 +131,7 @@ export default function LandingPage() {
 
       <footer className="landing-footer">
         <div className="landing-container landing-footer-inner">
-          <Text tone="muted">Amazon Ad Console Training Simulator</Text>
+          <Text color="placeholder">Amazon Ad Console Training Simulator</Text>
           <div className="landing-footer-links">
             <a
               href="https://github.com/projectamazonph/Amazon-ad-console"
@@ -141,7 +141,7 @@ export default function LandingPage() {
             >
               GitHub
             </a>
-            <Text tone="muted">Not affiliated with Amazon</Text>
+            <Text color="placeholder">Not affiliated with Amazon</Text>
           </div>
         </div>
       </footer>

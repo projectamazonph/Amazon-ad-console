@@ -3,7 +3,7 @@
  * Each tab receives campaign + actions via props (DIP).
  */
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { OverviewTab } from '../details/OverviewTab';
 import { AdGroupsTab } from '../details/AdGroupsTab';
 import { TargetsTab } from '../details/TargetsTab';
@@ -37,6 +37,20 @@ describe('OverviewTab', () => {
     const c = getFirstCampaign();
     render(<OverviewTab campaign={c} />);
     expect(screen.getByText('Bid strategy')).toBeDefined();
+  });
+
+  it('sets the selected campaign status instead of toggling it', () => {
+    const c = getFirstCampaign();
+    render(<OverviewTab campaign={c} />);
+
+    fireEvent.change(screen.getByLabelText('Status'), {
+      target: { value: 'Archived' },
+    });
+
+    const updated = useAdConsoleStore
+      .getState()
+      .state.campaigns.find((campaign) => campaign.id === c.id);
+    expect(updated?.status).toBe('Archived');
   });
 });
 

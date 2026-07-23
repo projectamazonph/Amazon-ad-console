@@ -564,6 +564,76 @@ code, pre {
 
 .sidebar-spacer { flex: 1; }
 
+/* Unified Amazon-branded Sidebar (sidebar + MobileNav share these) */
+.amazon-sidebar,
+.sidebar-action {
+  font-family: var(--font-body);
+}
+
+.sidebar-action:hover {
+  background: var(--surface-2, #f7f8f8);
+  color: var(--ink-900, #0f1111);
+}
+
+.sidebar-action:focus-visible {
+  outline: 2px solid var(--border-focus, #007185);
+  outline-offset: 1px;
+}
+
+/* Make SideNavItem take the full Amazon sidebar-item styling */
+.amazon-sidebar button.sidebar-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 10px var(--space-3);
+  color: var(--ink-700, #2b3947);
+  font-size: var(--text-sm, 0.875rem);
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  border-radius: 0 var(--radius-sm, 6px) var(--radius-sm, 6px) 0;
+  transition: color var(--duration-fast, 120ms) var(--ease-out, ease),
+    background-color var(--duration-fast, 120ms) var(--ease-out, ease),
+    border-color var(--duration-fast, 120ms) var(--ease-out, ease);
+  min-height: 40px;
+}
+
+.amazon-sidebar button.sidebar-item:hover {
+  background: var(--surface-2, #f7f8f8);
+  color: var(--ink-900, #0f1111);
+}
+
+.amazon-sidebar button.sidebar-item.active {
+  background: var(--accent-soft, #fef3e0);
+  color: var(--accent, #ff9900);
+  border-left-color: var(--accent, #ff9900);
+  font-weight: 500;
+}
+
+.amazon-sidebar button.sidebar-item:focus-visible {
+  outline: 2px solid var(--border-focus, #007185);
+  outline-offset: -2px;
+}
+
+/* Topbar (Amazon retail dark navy) */
+.amazon-topbar {
+  display: flex;
+  align-items: stretch;
+  height: 56px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+}
+
+.amazon-topbar .nav-brand {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.amazon-topbar .nav-brand .brand-sub {
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+
 /* ── Page Title ─────────────────────────────────────────────────── */
 
 .page-title {

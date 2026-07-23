@@ -14,6 +14,7 @@ interface Step3ProductsCreativeProps {
 
 function ProductCard({
   product,
+  asin,
   isSelected,
   onSelect,
   onRemove,

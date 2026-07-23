@@ -26,7 +26,7 @@ const BID_STRATEGIES = [
 const STATUS_OPTIONS = ['Enabled', 'Paused', 'Archived'];
 
 export function OverviewTab({ campaign: c }: Props) {
-  const toggleStatus = useAdConsoleStore((s) => s.toggleCampaignStatus);
+  const updateCampaignSettings = useAdConsoleStore((s) => s.updateCampaignSettings);
   const removeCampaignProduct = useAdConsoleStore((s) => s.removeCampaignProduct);
   const [budgetInput, setBudgetInput] = useState(String(c.dailyBudget));
   const [defaultBidInput, setDefaultBidInput] = useState(String(c.defaultBid));
@@ -96,7 +96,11 @@ export function OverviewTab({ campaign: c }: Props) {
                 id="ot-status"
                 className="select full"
                 value={c.status}
-                onChange={() => toggleStatus(c.id)}
+                onChange={(e) =>
+                  updateCampaignSettings(c.id, {
+                    status: e.target.value as Campaign['status'],
+                  })
+                }
               >
                 {STATUS_OPTIONS.map((x) => (
                   <option key={x}>{x}</option>
@@ -189,7 +193,6 @@ export function OverviewTab({ campaign: c }: Props) {
                       type="body"
                       maxLines={3}
                       hasTruncateTooltip
-                      title={`Creative rejected: ${c.creativeIssue}`}
                       style={{ flex: 1, minWidth: 0 }}
                     >
                       Creative rejected: {c.creativeIssue}

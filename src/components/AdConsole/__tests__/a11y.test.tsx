@@ -10,7 +10,7 @@
  *  - The OverviewTab inputs have label htmlFor -> input id wiring
  */
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { SessionProvider } from 'next-auth/react';
 import { AdConsole } from '../AdConsole';
 import { OverviewTab } from '../details/OverviewTab';
@@ -44,6 +44,13 @@ describe('A11y — AdConsole landmarks', () => {
     expect(main).not.toBeNull();
     expect(main?.id).toBe('astryx-app-shell-main');
   });
+
+  it('renders a skip link that points to the main landmark', () => {
+    renderAdConsole();
+    const main = document.querySelector('[role="main"]');
+    const skip = screen.getByRole('link', { name: /skip to content/i });
+    expect(skip.getAttribute('href')).toBe(`#${main?.id}`);
+  });
 });
 
 describe('A11y — Topbar and Sidebar use semantic buttons', () => {
@@ -55,6 +62,16 @@ describe('A11y — Topbar and Sidebar use semantic buttons', () => {
     expect(buttons.length).toBeGreaterThanOrEqual(4);
     const active = buttons.find((b) => b.getAttribute('aria-current') === 'page');
     expect(active).toBeDefined();
+  });
+
+  it('marks Training active for training views', () => {
+    useAdConsoleStore.getState().setView('drills');
+    renderAdConsole();
+    const topbar = screen.getByRole('navigation', { name: 'Global' });
+    const training = Array.from(topbar.querySelectorAll('button.nav-section')).find(
+      (button) => button.textContent === 'Training',
+    );
+    expect(training?.getAttribute('aria-current')).toBe('page');
   });
 
   it('sidebar rail items are <button> elements (no clickable divs)', () => {

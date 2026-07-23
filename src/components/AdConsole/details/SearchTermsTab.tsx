@@ -88,7 +88,7 @@ export function SearchTermsTab({ campaign }: Props) {
                   </Text>
                 </td>
                 <td>
-                  <Text type="body" maxLines={1} hasTruncateTooltip title={st.targetValue}>
+                  <Text type="body" maxLines={1} hasTruncateTooltip>
                     {st.targetValue}
                   </Text>
                 </td>
