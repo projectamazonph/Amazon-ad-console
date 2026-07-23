@@ -5,6 +5,7 @@ import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, acosClass } from '@/engine/ad-console/engine';
 import { EmptyState } from './EmptyState';
+import { Badge } from '@astryxdesign/core/Badge';
 
 interface Props {
   campaign: Campaign;
@@ -73,7 +74,7 @@ export function AdGroupsTab({ campaign: c }: Props) {
                     <tr key={t.id}>
                       <td><strong>{t.value}</strong></td>
                       <td>{t.type}</td><td>{t.match}</td>
-                      <td><span className={`pill ${t.status === 'Enabled' ? 'green' : 'orange'}`}>{t.status}</span></td>
+                      <td><Badge variant={t.status === "Enabled" ? "success" : "warning"} label={t.status} /></td>
                       <td className="money">{formatBid(t.bid)}</td>
                       <td className="mono">{formatWhole(t.impressions)}</td>
                       <td className="mono">{formatWhole(t.clicks)}</td>

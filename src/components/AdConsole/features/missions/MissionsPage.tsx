@@ -2,6 +2,7 @@
 
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { getMission } from '@/engine/ad-console/features/missions/engine';
+import { Badge } from '@astryxdesign/core/Badge';
 
 export function MissionsPage() {
   const missions = useAdConsoleStore((s) => s.missions);
@@ -55,8 +56,8 @@ export function MissionsPage() {
         {missions.map((m) => (
           <div key={m.id} className="card pad">
             <div className="mission-card-tags">
-              <span className={`pill ${m.adType === 'SP' ? 'active' : m.adType === 'SB' ? 'orange' : 'purple'}`}>{m.adType}</span>
-              <span className={`pill ${m.difficulty === 'beginner' ? 'green' : 'orange'}`}>{m.difficulty}</span>
+              <Badge variant={m.adType === "SP" ? "blue" : m.adType === "SB" ? "orange" : "purple"} label={m.adType} />
+              <Badge variant={m.difficulty === "beginner" ? "success" : "warning"} label={m.difficulty} />
             </div>
             <h3 className="mission-card-title">{m.title}</h3>
             <p className="mission-card-desc">{m.description}</p>

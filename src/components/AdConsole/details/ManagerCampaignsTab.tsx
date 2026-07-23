@@ -3,6 +3,7 @@
 import type { Campaign } from '@/engine/ad-console/types';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
 import { EmptyState } from './EmptyState';
+import { Badge } from '@astryxdesign/core/Badge';
 
 interface Props {
   campaigns: Campaign[];
@@ -42,11 +43,11 @@ export function ManagerCampaignsTab({ campaigns, onSelect, onToggleStatus, onDup
                   </button>
                   <div className="muted">{c.portfolio}</div>
                 </td>
-                <td><span className={`pill ${c.type === 'SP' ? 'active' : c.type === 'SB' ? 'orange' : 'purple'}`}>{c.type}</span></td>
+                <td><Badge variant={c.type === "SP" ? "blue" : c.type === "SB" ? "orange" : "purple"} label={c.type} /></td>
                 <td>{(c.type === 'SB' || c.type === 'SD') && c.creativeStatus ? (
-                  <span className={`pill ${c.creativeStatus === 'Approved' ? 'green' : c.creativeStatus === 'Pending' ? '' : 'bad'}`}>{c.creativeStatus}</span>
+                  <Badge variant={c.creativeStatus === "Approved" ? "success" : c.creativeStatus === "Pending" ? "info" : "error"} label={c.creativeStatus} />
                 ) : 'N/A'}</td>
-                <td><span className={`pill ${c.status === 'Enabled' ? 'green' : c.status === 'Paused' ? 'orange' : 'bad'}`}>{c.status}</span></td>
+                <td><Badge variant={c.status === "Enabled" ? "success" : c.status === "Paused" ? "warning" : "error"} label={c.status} /></td>
                 <td className="money">{formatMoney(c.dailyBudget)}</td>
                 <td><span className="muted">{c.targetingMode}</span></td>
                 <td className="mono">{formatWhole(c.metrics.impressions)}</td>

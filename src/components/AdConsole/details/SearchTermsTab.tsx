@@ -4,6 +4,7 @@ import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass, isFilteredByNegative } from '@/engine/ad-console/engine';
 import { EmptyState } from './EmptyState';
+import { Badge } from '@astryxdesign/core/Badge';
 
 interface Props { campaign: Campaign }
 
@@ -49,7 +50,7 @@ export function SearchTermsTab({ campaign }: Props) {
                 <td className="mono">{formatWhole(st.orders)}</td>
                 <td className={`mono ${st.sales ? acosClass(sx.acos) : 'bad'}`}>{st.sales ? formatPercent(sx.acos) : 'No sales'}</td>
                 <td className="mono">{formatRoas(sx.roas)}</td>
-                <td><span className={`pill ${st.recommendation === 'Negate' ? 'bad' : st.recommendation === 'Add as exact keyword' ? 'green' : ''}`}>{st.recommendation}</span></td>
+                <td><Badge variant={st.recommendation === "Negate" ? "error" : st.recommendation === "Add as exact keyword" ? "success" : "neutral"} label={st.recommendation} /></td>
                 <td>
                   <button className="btn small" onClick={() => harvestTerm(c.id, st.term)}>Harvest exact</button>{' '}
                   <button className="btn small danger" onClick={() => addNegative(c.id, st.term, 'Negative exact')}>Negate exact</button>{' '}

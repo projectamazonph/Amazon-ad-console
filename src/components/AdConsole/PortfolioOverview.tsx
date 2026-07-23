@@ -3,6 +3,10 @@
 import { useState, useMemo } from 'react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatRoas, acosClass } from '@/engine/ad-console/engine';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Stack } from '@astryxdesign/core/Stack';
 
 export function PortfolioOverview() {
   const state = useAdConsoleStore((s) => s.state);
@@ -66,27 +70,25 @@ export function PortfolioOverview() {
           <h1>Portfolios</h1>
           <p>Group campaigns into portfolios and manage portfolio structure.</p>
         </div>
-        <button className={`btn ${manageMode ? 'primary' : ''}`} onClick={() => setManageMode((m) => !m)}>
-          {manageMode ? 'Done managing' : 'Manage portfolios'}
-        </button>
+        <Button variant={manageMode ? 'primary' : 'secondary'} label={manageMode ? 'Done managing' : 'Manage portfolios'} onClick={() => setManageMode((m) => !m)} />
       </div>
 
       {manageMode && (
-        <div className="card pad" style={{ marginBottom: 14 }}>
+        <Card padding={6} style={{ marginBottom: 14 }}>
           <div className="card-title"><h2>Create portfolio</h2><span>New portfolio group</span></div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'end' }}>
+          <Stack gap={2} align="end">
             <div className="field" style={{ flex: 1 }}>
               <label htmlFor="po-new-name">Portfolio name</label>
               <input id="po-new-name" className="input full" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Holiday Campaigns" />
             </div>
-            <button className="btn primary" onClick={() => {
+            <Button variant="primary" label="Create" onClick={() => {
               if (newName.trim()) {
                 createPortfolio(newName.trim());
                 setNewName('');
               }
-            }}>Create</button>
-          </div>
-        </div>
+            }} />
+          </Stack>
+        </Card>
       )}
 
       <div className="grid-4" style={{ marginBottom: 14 }}>
@@ -116,10 +118,10 @@ export function PortfolioOverview() {
         portfolios.map((pf) => {
           const x = calc(pf.metrics);
           return (
-            <div key={pf.name} className="card pad" style={{ marginBottom: 14 }}>
+            <Card key={pf.name} padding={6} style={{ marginBottom: 14 }}>
               <div className="card-title">
                 {manageMode ? (
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', flex: 1 }}>
+                  <Stack gap={2} align="center" style={{ flex: 1 }}>
                     <label htmlFor={`po-rename-${pf.name}`} className="visually-hidden">Portfolio name</label>
                     <input id={`po-rename-${pf.name}`} className="input" style={{ fontWeight: 600, flex: 1 }}
                       value={renameMap[pf.name] ?? pf.name}
@@ -129,10 +131,10 @@ export function PortfolioOverview() {
                         if (v && v !== pf.name) renamePortfolio(pf.name, v);
                       }} />
                     <span className="muted">{pf.campaigns.length} campaign{pf.campaigns.length !== 1 ? 's' : ''}</span>
-                    <button className="btn small danger" onClick={() => {
+                    <Button variant="destructive" size="sm" label="Delete" onClick={() => {
                       if (confirm(`Remove portfolio "${pf.name}"? Campaigns will be unassigned.`)) deletePortfolio(pf.name);
-                    }}>Delete</button>
-                  </div>
+                    }} />
+                  </Stack>
                 ) : (
                   <>
                     <h2>{pf.name}</h2>
@@ -160,13 +162,12 @@ export function PortfolioOverview() {
                       return (
                         <tr key={c.id}>
                           <td>
-                            <button onClick={() => selectCampaign(c.id)}
-                              style={{ border: 'none', background: 'none', color: 'var(--blue)', cursor: 'pointer', fontWeight: 500 }}>
+                            <button className="row-link" onClick={() => selectCampaign(c.id)}>
                               {c.name}
                             </button>
                           </td>
-                          <td><span className={`pill ${c.type === 'SP' ? 'active' : c.type === 'SB' ? 'orange' : 'purple'}`}>{c.type}</span></td>
-                          <td><span className={`pill ${c.status === 'Enabled' ? 'green' : c.status === 'Paused' ? 'orange' : 'bad'}`}>{c.status}</span></td>
+                          <td><Badge variant={c.type === 'SP' ? 'blue' : c.type === 'SB' ? 'orange' : 'purple'} label={c.type} /></td>
+                          <td><Badge variant={c.status === 'Enabled' ? 'success' : c.status === 'Paused' ? 'warning' : 'error'} label={c.status} /></td>
                           <td className="money">{formatMoney(c.dailyBudget)}</td>
                           <td className="money">{formatMoney(c.metrics.spend)}</td>
                           <td className="money">{formatMoney(c.metrics.sales)}</td>
@@ -190,7 +191,7 @@ export function PortfolioOverview() {
                   </tbody>
                 </table>
               </div>
-            </div>
+            </Card>
           );
         })
       )}

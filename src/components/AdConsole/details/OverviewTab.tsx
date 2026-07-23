@@ -5,6 +5,7 @@ import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
 import { PRODUCTS } from '@/engine/ad-console/core/scenarios';
+import { Badge } from '@astryxdesign/core/Badge';
 
 interface Props {
   campaign: Campaign;
@@ -62,7 +63,7 @@ export function OverviewTab({ campaign: c }: Props) {
           const p = PRODUCTS.find(x => x.asin === asin);
           return (
             <div key={asin} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-              <span className="pill" style={{ margin: 0 }}>{p ? `${p.image} ${p.title} (${p.asin})` : asin}</span>
+              <Badge variant="neutral" label={p ? `${p.image} ${p.title} (${p.asin})` : asin} />
               <button className="btn small danger" onClick={() => removeCampaignProduct(c.id, asin)} style={{ padding: '2px 6px', fontSize: 11 }}>&times;</button>
             </div>
           );

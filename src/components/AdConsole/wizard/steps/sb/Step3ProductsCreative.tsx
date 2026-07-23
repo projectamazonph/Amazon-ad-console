@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { PRODUCTS, BRANDS } from '@/engine/ad-console/core/scenarios';
+import { Badge } from '@astryxdesign/core/Badge';
 
 const HEADLINE_MAX = 50;
 
@@ -50,7 +51,7 @@ export function Step3ProductsCreativeSB({ isActive, isComplete }: Step3ProductsC
                       <td className="money">${p.price.toFixed(2)}</td>
                       <td>{p.category}</td>
                       <td>{p.rating} ({p.reviews.toLocaleString()})</td>
-                      <td><span className={`pill ${p.status === 'In stock' ? 'green' : 'orange'}`}>{p.status}</span></td>
+                      <td><Badge variant={p.status === "In stock" ? "success" : "warning"} label={p.status} /></td>
                     </tr>
                   );
                 })}

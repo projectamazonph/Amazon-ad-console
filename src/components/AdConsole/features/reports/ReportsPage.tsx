@@ -2,6 +2,7 @@
 
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent } from '@/engine/ad-console/core/engine';
+import { Badge } from '@astryxdesign/core/Badge';
 
 export function ReportsPage() {
   const requests = useAdConsoleStore((s) => s.reportQueue);
@@ -31,7 +32,7 @@ export function ReportsPage() {
           <div className="card-title"><h2>Report queue</h2><span>{requests.length} requests</span></div>
           {requests.slice(0, 10).map((r) => (
             <div key={r.id} className="report-queue-item">
-              <span className={`pill ${r.status === 'completed' ? 'green' : 'orange'}`}>{r.status}</span>
+              <Badge variant={r.status === "completed" ? "success" : "warning"} label={r.status} />
               <span className="report-queue-type">{r.type} report</span>
               <span className="report-queue-time">{new Date(r.requestedAt).toLocaleTimeString()}</span>
               {r.status === 'completed' && (

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
+import { Badge } from '@astryxdesign/core/Badge';
 
 export function TrainerPage() {
   const notes = useAdConsoleStore((s) => s.notes);
@@ -73,7 +74,7 @@ export function TrainerPage() {
               <div className="trainer-log-scroll">
                 {actionLog.slice(0, 50).map((a, i) => (
                   <div key={i} className="trainer-log-item">
-                    <span className={`pill ${a.tone === 'good' ? 'green' : a.tone === 'bad' ? 'bad' : 'orange'}`} style={{ fontSize: 10 }}>{a.tone}</span>
+                    <Badge variant={a.tone === "good" ? "success" : a.tone === "bad" ? "error" : "warning"} label={a.tone} />
                     <span style={{ flex: 1 }}>{a.message}</span>
                     <span className="muted" style={{ fontSize: 10 }}>{new Date(a.timestamp).toLocaleTimeString()}</span>
                   </div>
