@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@astryxdesign/core/Button';
+import { Table } from '@astryxdesign/core/Table';
 import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent } from '@/engine/ad-console/core/engine';
@@ -59,8 +60,7 @@ export function ReportsPage() {
             }} />
           </div>
           {selected.rows.length > 0 && (
-            <div className="table-wrap">
-              <table>
+            <Table>
                 <thead>
                   <tr>{Object.keys(selected.rows[0]).map((h) => <th key={h}>{h}</th>)}</tr>
                 </thead>
@@ -79,8 +79,7 @@ export function ReportsPage() {
                     );
                   })}
                 </tbody>
-              </table>
-            </div>
+              </Table>
           )}
         </Card>
       )}

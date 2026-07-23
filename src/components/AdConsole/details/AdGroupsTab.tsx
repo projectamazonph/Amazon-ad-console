@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { Table } from '@astryxdesign/core/Table';
 import { Card } from '@astryxdesign/core/Card';
 import { NumberInput } from '@astryxdesign/core/NumberInput';
 import { Selector } from '@astryxdesign/core/Selector';
@@ -66,8 +67,7 @@ export function AdGroupsTab({ campaign: c }: Props) {
         {!agTargets.length ? (
           <EmptyState icon="target" title={`No targets in "${focused.name}" yet`} message="Add keywords or product targets to this ad group from the Targeting tab." />
         ) : (
-          <div className="table-wrap">
-            <table>
+          <Table>
               <thead><tr><th>Target</th><th>Type</th><th>Match</th><th>Status</th><th>Bid</th><th>Impr.</th><th>Clicks</th><th>Spend</th><th>Sales</th><th>ACOS</th></tr></thead>
               <tbody>
                 {agTargets.map((t) => {
@@ -87,8 +87,7 @@ export function AdGroupsTab({ campaign: c }: Props) {
                   );
                 })}
               </tbody>
-            </table>
-          </div>
+            </Table>
         )}
       </div>
     );
@@ -108,8 +107,7 @@ export function AdGroupsTab({ campaign: c }: Props) {
         </div>
         <Button label="+ Add ad group" variant="primary" onClick={() => { if (newAdGroupName.trim()) { addAdGroup(c.id, newAdGroupName); setNewAdGroupName(''); } }} />
       </div>
-      <div className="table-wrap">
-        <table>
+      <Table>
           <thead><tr><th>Ad group</th><th>Status</th><th>Default bid</th><th>Impr.</th><th>Clicks</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>Targets</th><th>Actions</th></tr></thead>
           <tbody>
             {c.adGroups.map((ag) => {
@@ -160,8 +158,7 @@ export function AdGroupsTab({ campaign: c }: Props) {
               );
             })}
           </tbody>
-        </table>
-      </div>
+        </Table>
     </div>
   );
 }

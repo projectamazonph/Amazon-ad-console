@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { Table } from '@astryxdesign/core/Table';
 import { Selector } from '@astryxdesign/core/Selector';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import type { Campaign } from '@/engine/ad-console/types';
@@ -45,8 +46,7 @@ export function NegativesTab({ campaign }: Props) {
         }} />
       </div>
       {c.negatives.length > 0 ? (
-        <div className="table-wrap">
-          <table>
+        <Table>
             <thead><tr><th>Negative</th><th>Type</th></tr></thead>
             <tbody>
               {c.negatives.map((n, i) => (
@@ -55,8 +55,7 @@ export function NegativesTab({ campaign }: Props) {
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+          </Table>
       ) : (
         <EmptyState
           icon="block"

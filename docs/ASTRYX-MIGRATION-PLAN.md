@@ -1,6 +1,6 @@
 # Astryx Migration Plan
 
-**Status:** Draft v2 (post-revert)
+**Status:** Phases 0-4 merged; Phase 5 PR open
 **Date:** 2026-07-24
 **Owner:** Amazon Ad Console
 **Approach:** TDD-first, SOLID, theme-preserving, incremental

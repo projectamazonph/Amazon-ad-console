@@ -292,3 +292,32 @@
 .astryx-card[data-variant="muted"] {
   background: var(--surface-2);
 }
+
+/* ============================================================================
+ * Table styles — preserve Amazon platform look
+ * ----------------------------------------------------------------------------
+ * Astryx's `<Table>` (children mode) emits a stable `.astryx-table` class on
+ * the `<table>` element and wraps it in a `.astryx-table-scroll-wrapper` div
+ * (role="group", tabIndex=0 for keyboard scrolling). The global th/td/tr
+ * rules in globals.css already style the cells (sticky header, padding,
+ * hover rows, last-row no border, tabular-nums on `.mono`/`.money`), so the
+ * bridge only needs to give the scroll wrapper the card-in-table appearance
+ * the old `.table-wrap` had: overflow-x: auto, soft border, rounded corners,
+ * surface background, and a tighter mobile radius.
+ *
+ * Astryx defaults to 8px radius on most containers; our Amazon platform uses
+ * --radius-lg (12px) for table chrome, so we bump it explicitly.
+ * ============================================================================ */
+
+.astryx-table-scroll-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  background: var(--surface-1);
+  font-size: var(--text-sm);
+}
+
+/* Note: the mobile `@media (max-width: 768px)` rule in globals.css already
+   overrides `.astryx-table-scroll-wrapper { border-radius: var(--radius-md); }`
+   (replacing the old `.table-wrap` selector). We don't repeat it here to keep
+   a single source of truth. */
