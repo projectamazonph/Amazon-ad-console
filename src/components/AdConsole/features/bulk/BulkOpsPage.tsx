@@ -25,6 +25,10 @@ export function BulkOpsPage() {
       bulkApplied: result.applied,
       bulkSkipped: result.skipped,
       bulkExecutionErrors: result.errors,
+      bulkInput: '',
+      bulkPreview: [],
+      bulkErrors: [],
+      bulkValid: false,
     }));
   };
 
@@ -116,7 +120,7 @@ export function BulkOpsPage() {
             </div>
           )}
 
-          {!preview.length && !errors.length && !bulkApplied && !bulkExecutionErrors && (
+          {!preview.length && !errors.length && bulkApplied === 0 && bulkExecutionErrors.length === 0 && (
             <div className="empty"><h3>Enter CSV data</h3><p>Paste bulk operations CSV and click Preview.</p></div>
           )}
         </div>

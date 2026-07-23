@@ -67,7 +67,7 @@ export function parseBulkCsv(text: string): BulkRow[] {
 // Validation
 // ---------------------------------------------------------------------------
 
-const VALID_ENTITIES = ['campaign', 'adGroup', 'target', 'negative', 'budgetRule'] as const;
+const VALID_ENTITIES = ['campaign', 'target', 'negative', 'budgetRule'] as const;
 const VALID_OPERATIONS = ['update', 'pause', 'enable', 'archive', 'delete'] as const;
 
 const CAMPAIGN_SCALAR_FIELDS = new Set([
@@ -113,7 +113,7 @@ export function validateBulkRows(rows: BulkRow[]): BulkValidationError[] {
     }
 
     if (row.entity === 'negative') {
-      if (!row.campaignId && !row.id) {
+      if (!row.campaignId) {
         errors.push({ row: rowNum, field: 'campaignId', message: 'campaignId is required for negative keyword operations' });
       }
       if (!row.value) {
@@ -175,6 +175,7 @@ export function applyBulkRows(campaigns: Campaign[], rows: BulkRow[]): BulkExecu
         if (!c) { skipped++; return acc; }
 
         if (row.operation === 'update') {
+          applied++;
           const updated = applyCampaignUpdate(c, row);
           return acc.map((x) => x.id === row.id ? updated : x);
         }
@@ -284,9 +285,9 @@ export function generateBulkTemplate(): string {
     'campaign,update,C-SP-AUTO-001,,,status,Paused',
     'campaign,update,C-SP-AUTO-001,,,dailyBudget,50',
     'campaign,update,C-SP-AUTO-001,,,placements_top,30',
-    'target,pause,,C-SP-AUTO-001,T-SP-001,,',
-    'target,update,,C-SP-AUTO-001,T-SP-001,bid,1.50',
+    'target,pause,T-SP-001,C-SP-AUTO-001,,',
+    'target,update,T-SP-001,C-SP-AUTO-001,bid,1.50',
     'negative,update,,C-SP-AUTO-001,,,free trial',
-    'budgetRule,delete,,C-SP-AUTO-001,,BR-SP-001,',
+    'budgetRule,delete,BR-SP-001,C-SP-AUTO-001,,',
   ].join('\n');
 }
