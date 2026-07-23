@@ -2,6 +2,10 @@
 
 import { motion, useReducedMotion } from 'motion/react';
 import Link from 'next/link';
+import { Card } from '@astryxdesign/core/Card';
+import { Stack } from '@astryxdesign/core/Stack';
+import { Text } from '@astryxdesign/core/Text';
+import { Badge } from '@astryxdesign/core/Badge';
 
 const FEATURES = [
   {
@@ -39,7 +43,7 @@ export default function LandingPage() {
         <div className="landing-nav-inner">
           <Link href="/" className="landing-brand">
             AdConsole
-            <span className="landing-pill">Training</span>
+            <Badge label="Training" variant="blue" />
           </Link>
           <nav className="landing-nav-links" aria-label="Account">
             <Link href="/auth/login" className="landing-link">Sign in</Link>
@@ -72,7 +76,9 @@ export default function LandingPage() {
             transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             className="landing-cta-row"
           >
-            <Link href="/" className="landing-cta landing-cta--primary">Open simulator</Link>
+            <Link href="/" className="landing-cta landing-cta--primary">
+              Open simulator
+            </Link>
             <a
               href="https://github.com/projectamazonph/Amazon-ad-console"
               target="_blank"
@@ -96,45 +102,18 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-                className="landing-card"
               >
-                <h3 className="landing-h3">{feature.title}</h3>
-                <p className="landing-card-body">{feature.description}</p>
+                <Card padding={5} variant="default">
+                  <Stack gap={2}>
+                    <Text type="large" weight="semibold" maxLines={2} hasTruncateTooltip>
+                      {feature.title}
+                    </Text>
+                    <Text type="body" color="secondary" maxLines={6} hasTruncateTooltip>
+                      {feature.description}
+                    </Text>
+                  </Stack>
+                </Card>
               </motion.article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="landing-section">
-        <div className="landing-container">
-          <h2 className="landing-h2">How it works</h2>
-          <div className="landing-grid landing-grid--3">
-            {[
-              {
-                title: 'Create a campaign',
-                description: 'Walk through the 6-step wizard. Choose SP, SB, or SD. Set targeting, bidding, and creative.',
-              },
-              {
-                title: 'Run simulations',
-                description: 'Generate 7 days of realistic performance data. Watch impressions, clicks, and sales accumulate.',
-              },
-              {
-                title: 'Optimize and learn',
-                description: 'Mine search terms. Harvest winners. Add negatives. Train the optimization loop.',
-              },
-            ].map((item, i) => (
-              <motion.div
-                key={item.title}
-                initial={reduce ? false : { opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.5, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="landing-step"
-              >
-                <h3 className="landing-h3">{item.title}</h3>
-                <p className="landing-step-body">{item.description}</p>
-              </motion.div>
             ))}
           </div>
         </div>
@@ -144,13 +123,15 @@ export default function LandingPage() {
         <div className="landing-container landing-container--center">
           <h2 className="landing-h2">Ready to train your team?</h2>
           <p className="landing-lede">No API access required. No live account risk.</p>
-          <Link href="/" className="landing-cta landing-cta--primary">Open simulator</Link>
+          <Link href="/" className="landing-cta landing-cta--primary">
+            Open simulator
+          </Link>
         </div>
       </section>
 
       <footer className="landing-footer">
         <div className="landing-container landing-footer-inner">
-          <span className="muted">Amazon Ad Console Training Simulator</span>
+          <Text tone="muted">Amazon Ad Console Training Simulator</Text>
           <div className="landing-footer-links">
             <a
               href="https://github.com/projectamazonph/Amazon-ad-console"
@@ -160,7 +141,7 @@ export default function LandingPage() {
             >
               GitHub
             </a>
-            <span className="muted">Not affiliated with Amazon</span>
+            <Text tone="muted">Not affiliated with Amazon</Text>
           </div>
         </div>
       </footer>

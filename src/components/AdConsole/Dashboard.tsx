@@ -7,7 +7,8 @@ import type { Campaign, DerivedMetrics, ConsoleView, Metrics } from '@/engine/ad
 import { Badge } from '@astryxdesign/core/Badge';
 import { Button } from '@astryxdesign/core/Button';
 import { Card } from '@astryxdesign/core/Card';
-import { Stack } from '@astryxdesign/core/Stack';
+import { Stack, HStack } from '@astryxdesign/core/Stack';
+import { Text } from '@astryxdesign/core/Text';
 
 export function Dashboard() {
   const state = useAdConsoleStore((s) => s.state);
@@ -32,13 +33,19 @@ export function Dashboard() {
   return (
     <div>
       <div className="page-title">
-        <div>
-          <h1>Advertising dashboard</h1>
-          <p>
+        <div style={{ minWidth: 0 }}>
+          <Text type="display-3" size="lg" weight="semibold" maxLines={1} hasTruncateTooltip as="h1">
+            Advertising dashboard
+          </Text>
+          <Text type="body" color="secondary" maxLines={2} hasTruncateTooltip>
             Performance across all enabled campaigns · Coffee Accessories US
-          </p>
+          </Text>
         </div>
-        <Button variant="primary" label="Create campaign" onClick={() => setView('create')} />
+        <Button
+          variant="primary"
+          label="Create campaign"
+          onClick={() => setView('create')}
+        />
       </div>
 
       <div className="kpi-grid">
@@ -65,47 +72,65 @@ export function Dashboard() {
       </div>
 
       <div className="split">
-        <Card padding={6}>
-          <div className="section-head">
-            <h2>Campaigns</h2>
-            <span className="meta">{enabledCount} enabled · {state.campaigns.length} total</span>
-          </div>
-          {renderCampaignTable(state.campaigns.slice(0, 8), selectCampaign, calc, setView)}
+        <Card padding={6} variant="default">
+          <Stack gap={4}>
+            <HStack justify="between" vAlign="center">
+              <Text type="large" weight="semibold" maxLines={1} hasTruncateTooltip as="h2">
+                Campaigns
+              </Text>
+              <Text type="supporting" size="sm" maxLines={1}>
+                {enabledCount} enabled · {state.campaigns.length} total
+              </Text>
+            </HStack>
+            {renderCampaignTable(state.campaigns.slice(0, 8), selectCampaign, calc, setView)}
+          </Stack>
         </Card>
         <div>
-          <Card padding={6} style={{ marginBottom: 'var(--space-4)' }}>
-            <div className="section-head">
-              <h2>Operator alerts</h2>
-              <span className="meta">{acosHealthy ? 'On track' : 'Action needed'}</span>
-            </div>
-            <div className="insight-list">
-              <div className="insight red">
-                <strong>Waste detected</strong>
-                SP Auto has search terms with spend and zero orders. Open Search terms and add negatives.
-              </div>
-              <div className="insight orange">
-                <strong>SB creative review</strong>
-                Paused SB Video campaign is ready for a relaunch exercise after a creative check.
-              </div>
-              <div className="insight green">
-                <strong>Remarketing winner</strong>
-                SD Views Remarketing has strong ROAS. Good campaign for budget rule practice.
-              </div>
-            </div>
+          <Card padding={6} variant="default" style={{ marginBottom: 'var(--space-4)' }}>
+            <Stack gap={4}>
+              <HStack justify="between" vAlign="center">
+                <Text type="large" weight="semibold" maxLines={1} hasTruncateTooltip as="h2">
+                  Operator alerts
+                </Text>
+                <Text type="supporting" size="sm" maxLines={1}>
+                  {acosHealthy ? 'On track' : 'Action needed'}
+                </Text>
+              </HStack>
+              <Stack gap={2}>
+                <div className="insight red">
+                  <strong>Waste detected</strong>
+                  SP Auto has search terms with spend and zero orders. Open Search terms and add negatives.
+                </div>
+                <div className="insight orange">
+                  <strong>SB creative review</strong>
+                  Paused SB Video campaign is ready for a relaunch exercise after a creative check.
+                </div>
+                <div className="insight green">
+                  <strong>Remarketing winner</strong>
+                  SD Views Remarketing has strong ROAS. Good campaign for budget rule practice.
+                </div>
+              </Stack>
+            </Stack>
           </Card>
-          <Card padding={6}>
-            <div className="section-head">
-              <h2>Training coverage</h2>
-              <span className="meta">Core modules</span>
-            </div>
-            <Stack gap={2} wrap="wrap">
-              <Badge variant="blue" label="Sponsored Products" />
-              <Badge variant="blue" label="Sponsored Brands" />
-              <Badge variant="blue" label="Sponsored Display" />
-              <Badge variant="warning" label="Search term harvesting" />
-              <Badge variant="warning" label="Negatives" />
-              <Badge variant="warning" label="Budget rules" />
-              <Badge variant="success" label="Placement controls" />
+          <Card padding={6} variant="default">
+            <Stack gap={4}>
+              <HStack justify="between" vAlign="center">
+                <Text type="large" weight="semibold" maxLines={1} hasTruncateTooltip as="h2">
+                  Training coverage
+                </Text>
+                <Text type="supporting" size="sm" maxLines={1}>
+                  Core modules
+                </Text>
+              </HStack>
+              <Stack gap={2}>
+                <Badge variant="blue" label="Sponsored Products" />
+                <Badge variant="blue" label="Sponsored Brands" />
+                <Badge variant="blue" label="Sponsored Display" />
+                <Badge variant="warning" label="Search term harvesting" />
+                <Badge variant="warning" label="Negatives" />
+                <Badge variant="warning" label="Budget rules" />
+                <Badge variant="success" label="Placement controls" />
+              </Stack>
             </Stack>
           </Card>
         </div>
@@ -164,19 +189,40 @@ function renderCampaignTable(
 ) {
   if (!campaigns.length) {
     return (
-      <div className="empty">
-        <div className="empty-icon" aria-hidden="true">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 3v18h18" />
-            <rect x="7" y="12" width="3" height="5" rx="0.5" />
-            <rect x="12" y="8" width="3" height="9" rx="0.5" />
-            <rect x="17" y="5" width="3" height="12" rx="0.5" />
-          </svg>
-        </div>
-        <h3>No campaigns yet</h3>
-        <p>Your advertising journey starts here. Create your first campaign to see performance data.</p>
-        <Button variant="primary" label="Create campaign" onClick={() => setView?.('create')} />
-      </div>
+      <Card padding={6} variant="muted">
+        <Stack gap={3} align="center">
+          <div className="empty-icon" aria-hidden="true">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M3 3v18h18" />
+              <rect x="7" y="12" width="3" height="5" rx="0.5" />
+              <rect x="12" y="8" width="3" height="9" rx="0.5" />
+              <rect x="17" y="5" width="3" height="12" rx="0.5" />
+            </svg>
+          </div>
+          <Stack gap={1} align="center">
+            <Text type="large" weight="medium" maxLines={2} hasTruncateTooltip as="h3">
+              No campaigns yet
+            </Text>
+            <Text type="body" color="secondary" maxLines={3} hasTruncateTooltip>
+              Your advertising journey starts here. Create your first campaign to see performance data.
+            </Text>
+          </Stack>
+          <Button
+            variant="primary"
+            label="Create campaign"
+            onClick={() => setView?.('create')}
+          />
+        </Stack>
+      </Card>
     );
   }
 
@@ -202,24 +248,41 @@ function renderCampaignTable(
             const x = calc(c.metrics);
             return (
               <tr key={c.id}>
-                <td>
-                  <button
-                    className="row-link"
+                <td style={{ maxWidth: 220 }}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    label={c.name}
                     onClick={() => selectCampaign(c.id)}
-                  >
-                    {c.name}
-                  </button>
-                  <div className="muted">{c.portfolio}</div>
+                    style={{ maxWidth: 200, textAlign: 'left' }}
+                  />
+                  <Text type="supporting" size="sm" maxLines={1} hasTruncateTooltip>
+                    {c.portfolio}
+                  </Text>
                 </td>
                 <td>
-                  <Badge variant={c.type === 'SP' ? 'blue' : c.type === 'SB' ? 'orange' : 'purple'} label={c.type} />
+                  <Badge
+                    variant={c.type === 'SP' ? 'blue' : c.type === 'SB' ? 'orange' : 'purple'}
+                    label={c.type}
+                  />
                 </td>
                 <td>
-                  <Badge variant={c.status === 'Enabled' ? 'success' : c.status === 'Paused' ? 'warning' : 'error'} label={c.status} />
+                  <Badge
+                    variant={
+                      c.status === 'Enabled'
+                        ? 'success'
+                        : c.status === 'Paused'
+                          ? 'warning'
+                          : 'error'
+                    }
+                    label={c.status}
+                  />
                 </td>
                 <td className="money">{fmtMoney(c.dailyBudget)}</td>
                 <td>
-                  <span className="muted">{c.targetingMode}</span>
+                  <Text type="supporting" color="secondary" maxLines={1}>
+                    {c.targetingMode}
+                  </Text>
                 </td>
                 <td className="mono">{fmtWhole(c.metrics.impressions)}</td>
                 <td className="mono">{fmtWhole(c.metrics.clicks)}</td>

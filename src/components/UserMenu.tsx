@@ -2,6 +2,15 @@
 
 import { useSession, signOut } from 'next-auth/react';
 import { useEffect, useRef, useState } from 'react';
+import { Button } from '@astryxdesign/core/Button';
+import { HStack, Stack } from '@astryxdesign/core/Stack';
+import { Text } from '@astryxdesign/core/Text';
+
+interface MenuItem {
+  key: string;
+  label: string;
+  onClick?: () => void;
+}
 
 export function UserMenu() {
   const { data: session, status } = useSession();
@@ -39,18 +48,67 @@ export function UserMenu() {
     setOpen((o) => !o);
   };
 
+  const items: MenuItem[] = [
+    {
+      key: 'signout',
+      label: 'Sign out',
+      onClick: () => signOut({ callbackUrl: '/' }),
+    },
+  ];
+
   return (
     <div className="nav-account-wrap">
-      <button
+      <Button
         ref={buttonRef}
-        className="nav-account"
+        variant="ghost"
+        size="sm"
+        label={name}
         onClick={toggle}
         aria-haspopup="true"
         aria-expanded={open}
+        width="auto"
+        style={{
+          padding: '4px 8px',
+          minWidth: 0,
+          maxWidth: 200,
+        }}
       >
-        <span className="nav-account-avatar">{initial}</span>
-        <span className="nav-account-name">{name}</span>
-      </button>
+        <HStack gap={2} vAlign="center" style={{ minWidth: 0, maxWidth: '100%' }}>
+          <span
+            className="nav-account-avatar"
+            aria-hidden="true"
+            style={{
+              width: 24,
+              height: 24,
+              borderRadius: '50%',
+              background: 'var(--surface-2, #e5e7eb)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 'var(--text-xs, 0.75rem)',
+              fontWeight: 600,
+              flexShrink: 0,
+            }}
+          >
+            {initial}
+          </span>
+          <Text
+            type="body"
+            weight="medium"
+            maxLines={1}
+            hasTruncateTooltip
+            style={{
+              minWidth: 0,
+              maxWidth: 160,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {name}
+          </Text>
+        </HStack>
+      </Button>
 
       {open && (
         <>
@@ -60,17 +118,41 @@ export function UserMenu() {
             aria-label="Close account menu"
             onClick={() => setOpen(false)}
           />
-          <div className="nav-account-menu" style={{ top: menuPos.top, right: menuPos.right }}>
-            <div className="nav-account-menu-header">
-              <p className="nav-account-menu-name">{session.user?.name}</p>
-              <p className="nav-account-menu-email">{session.user?.email}</p>
-            </div>
-            <button
-              className="nav-account-menu-item"
-              onClick={() => signOut({ callbackUrl: '/' })}
-            >
-              Sign out
-            </button>
+          <div
+            className="nav-account-menu"
+            style={{ top: menuPos.top, right: menuPos.right, minWidth: 200, maxWidth: 280 }}
+          >
+            <Stack gap={1}>
+              <div className="nav-account-menu-header">
+                <Text
+                  type="body"
+                  weight="semibold"
+                  maxLines={1}
+                  hasTruncateTooltip
+                >
+                  {session.user?.name}
+                </Text>
+                <Text
+                  type="supporting"
+                  size="sm"
+                  maxLines={1}
+                  hasTruncateTooltip
+                  style={{ display: 'block' }}
+                >
+                  {session.user?.email}
+                </Text>
+              </div>
+              {items.map((item) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  className="nav-account-menu-item"
+                  onClick={item.onClick}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </Stack>
           </div>
         </>
       )}

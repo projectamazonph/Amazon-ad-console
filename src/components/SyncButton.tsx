@@ -3,6 +3,9 @@
 import { useSession } from 'next-auth/react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { useState } from 'react';
+import { Button } from '@astryxdesign/core/Button';
+import { Stack, HStack } from '@astryxdesign/core/Stack';
+import { Text } from '@astryxdesign/core/Text';
 
 export function SyncButton() {
   const { data: session } = useSession();
@@ -45,23 +48,35 @@ export function SyncButton() {
 
   return (
     <div className="sync-controls">
-      {lastSync && <span className="sync-status">{lastSync}</span>}
-      <button
-        onClick={() => handleSync('upload')}
-        disabled={syncing}
-        className="sync-btn save"
-        title="Save campaigns to cloud"
-      >
-        {syncing ? '...' : '↑ Save'}
-      </button>
-      <button
-        onClick={() => handleSync('download')}
-        disabled={syncing}
-        className="sync-btn load"
-        title="Load campaigns from cloud"
-      >
-        {syncing ? '...' : '↓ Load'}
-      </button>
+      <Stack gap={1}>
+        <HStack gap={1} vAlign="center">
+          {lastSync && (
+            <Text
+              type="supporting"
+              size="sm"
+              maxLines={1}
+              hasTruncateTooltip
+              style={{ minWidth: 0 }}
+            >
+              {lastSync}
+            </Text>
+          )}
+          <Button
+            variant="secondary"
+            size="sm"
+            label={syncing ? '...' : 'Save'}
+            isDisabled={syncing}
+            onClick={() => handleSync('upload')}
+          />
+          <Button
+            variant="secondary"
+            size="sm"
+            label={syncing ? '...' : 'Load'}
+            isDisabled={syncing}
+            onClick={() => handleSync('download')}
+          />
+        </HStack>
+      </Stack>
     </div>
   );
 }

@@ -1,6 +1,11 @@
 'use client';
 
 import { useAdConsoleStore } from '@/engine/ad-console/store';
+import { Card } from '@astryxdesign/core/Card';
+import { Button } from '@astryxdesign/core/Button';
+import { Stack, HStack } from '@astryxdesign/core/Stack';
+import { Text } from '@astryxdesign/core/Text';
+import { MetricCard } from '../../metrics/MetricCard';
 
 export function IntegrityPage() {
   const report = useAdConsoleStore((s) => s.integrityReport);
@@ -12,58 +17,128 @@ export function IntegrityPage() {
   return (
     <div>
       <div className="page-title">
-        <button className="btn small" onClick={() => setView('campaigns')} aria-label="Back to campaigns">← Back to campaigns</button>
-        <h1 style={{ marginTop: 'var(--space-2)' }}>Integrity center</h1>
-        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-          <button className="btn primary" onClick={() => runIntegrity(campaigns)}>Run integrity check</button>
-          {report && <button className="btn" onClick={clear}>Clear results</button>}
-        </div>
+        <Button
+          variant="secondary"
+          size="sm"
+          label="← Back to campaigns"
+          onClick={() => setView('campaigns')}
+        />
+        <Text
+          type="display-3"
+          size="lg"
+          weight="semibold"
+          maxLines={1}
+          hasTruncateTooltip
+          as="h1"
+          style={{ marginTop: 'var(--space-2)' }}
+        >
+          Integrity center
+        </Text>
+        <HStack gap={2} wrap="wrap">
+          <Button
+            variant="primary"
+            label="Run integrity check"
+            onClick={() => runIntegrity(campaigns)}
+          />
+          {report && <Button variant="secondary" label="Clear results" onClick={clear} />}
+        </HStack>
       </div>
 
       {report ? (
-        <>
-          <div className="grid-4" style={{ marginBottom: 'var(--space-4)' }}>
-            <div className="metric-card">
-              <div className="label">Integrity score</div>
-              <div className="value" style={{ color: report.score >= 80 ? 'var(--success)' : report.score >= 50 ? 'var(--warning)' : 'var(--danger)' }}>{report.score}%</div>
-              <div className="delta">{report.passed ? '✅ Passed' : '❌ Needs attention'}</div>
-            </div>
-            <div className="metric-card">
-              <div className="label">Errors</div>
-              <div className="value" style={{ color: 'var(--danger)' }}>{report.issues.filter((i) => i.severity === 'error').length}</div>
-            </div>
-            <div className="metric-card">
-              <div className="label">Warnings</div>
-              <div className="value" style={{ color: 'var(--warning)' }}>{report.issues.filter((i) => i.severity === 'warn').length}</div>
-            </div>
-            <div className="metric-card">
-              <div className="label">Last run</div>
-              <div className="value" style={{ fontSize: 'var(--text-base)' }}>{report.lastRun ? new Date(report.lastRun).toLocaleTimeString() : '-'}</div>
-            </div>
+        <Stack gap={4}>
+          <div className="grid-4">
+            <MetricCard
+              label="Integrity score"
+              value={`${report.score}%`}
+              delta={report.passed ? '✅ Passed' : '❌ Needs attention'}
+              tone={report.score >= 80 ? 'good' : report.score >= 50 ? '' : 'bad'}
+            />
+            <MetricCard
+              label="Errors"
+              value={String(report.issues.filter((i) => i.severity === 'error').length)}
+            />
+            <MetricCard
+              label="Warnings"
+              value={String(report.issues.filter((i) => i.severity === 'warn').length)}
+            />
+            <MetricCard
+              label="Last run"
+              value={report.lastRun ? new Date(report.lastRun).toLocaleTimeString() : '-'}
+            />
           </div>
 
           {report.issues.length === 0 ? (
-            <div className="card pad drill-complete-card">
-              <h2>✨ No issues found</h2>
-              <p className="muted">All campaigns pass integrity checks.</p>
-            </div>
+            <Card padding={5} variant="default" className="drill-complete-card">
+              <Stack gap={2}>
+                <Text
+                  type="large"
+                  weight="semibold"
+                  maxLines={1}
+                  hasTruncateTooltip
+                  as="h2"
+                >
+                  ✨ No issues found
+                </Text>
+                <Text type="body" color="secondary" maxLines={2} hasTruncateTooltip>
+                  All campaigns pass integrity checks.
+                </Text>
+              </Stack>
+            </Card>
           ) : (
-            <div className="card pad">
-              <div className="card-title"><h2>Issues</h2><span>{report.issues.length} found</span></div>
-              {report.issues.map((issue) => (
-                <div key={issue.id} className={`integrity-issue ${issue.severity}`}>
-                  <strong className="integrity-issue-message">{issue.message}</strong>
-                  <span className="integrity-issue-recommendation">💡 {issue.recommendation}</span>
-                </div>
-              ))}
-            </div>
+            <Card padding={5} variant="default">
+              <Stack gap={3}>
+                <HStack justify="between" vAlign="center">
+                  <Text
+                    type="large"
+                    weight="semibold"
+                    maxLines={1}
+                    hasTruncateTooltip
+                    as="h2"
+                  >
+                    Issues
+                  </Text>
+                  <Text type="supporting" size="sm" maxLines={1}>
+                    {report.issues.length} found
+                  </Text>
+                </HStack>
+                {report.issues.map((issue) => (
+                  <div
+                    key={issue.id}
+                    className={`integrity-issue ${issue.severity}`}
+                  >
+                    <Text
+                      type="body"
+                      weight="semibold"
+                      maxLines={3}
+                      hasTruncateTooltip
+                    >
+                      {issue.message}
+                    </Text>
+                    <Text
+                      type="supporting"
+                      size="sm"
+                      maxLines={2}
+                      hasTruncateTooltip
+                    >
+                      💡 {issue.recommendation}
+                    </Text>
+                  </div>
+                ))}
+              </Stack>
+            </Card>
           )}
-        </>
+        </Stack>
       ) : (
-        <div className="empty">
-          <h3>No integrity data</h3>
-          <p>Run an integrity check to scan campaigns for common issues.</p>
-        </div>
+        <Card padding={6} variant="muted">
+          <Stack gap={2} align="center">
+            <Text type="large" weight="medium" maxLines={1} hasTruncateTooltip>
+              No integrity data
+            </Text>
+            <Text type="body" color="secondary" maxLines={3} hasTruncateTooltip>
+              Run an integrity check to scan campaigns for common issues.
+            </Text>
+          </Stack>
+        </Card>
       )}
     </div>
   );

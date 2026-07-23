@@ -3,6 +3,10 @@
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent } from '@/engine/ad-console/core/engine';
 import { Badge } from '@astryxdesign/core/Badge';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Stack, HStack } from '@astryxdesign/core/Stack';
+import { Text } from '@astryxdesign/core/Text';
 
 export function ReportsPage() {
   const requests = useAdConsoleStore((s) => s.reportQueue);
@@ -18,74 +22,152 @@ export function ReportsPage() {
   return (
     <div>
       <div className="page-title">
-        <button className="btn small" onClick={() => setView('campaigns')} aria-label="Back to campaigns">← Back to campaigns</button>
-        <h1 style={{ marginTop: 'var(--space-2)' }}>Reports</h1>
-        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-          <button className="btn" onClick={() => requestReport('campaign')}>Campaign report</button>
-          <button className="btn" onClick={() => requestReport('target')}>Target report</button>
-          <button className="btn" onClick={() => requestReport('searchTerm')}>Search term report</button>
-        </div>
+        <Button
+          variant="secondary"
+          size="sm"
+          label="← Back to campaigns"
+          onClick={() => setView('campaigns')}
+        />
+        <Text
+          type="display-3"
+          size="lg"
+          weight="semibold"
+          maxLines={1}
+          hasTruncateTooltip
+          as="h1"
+          style={{ marginTop: 'var(--space-2)' }}
+        >
+          Reports
+        </Text>
+        <HStack gap={2} wrap="wrap">
+          <Button
+            variant="secondary"
+            label="Campaign report"
+            onClick={() => requestReport('campaign')}
+          />
+          <Button
+            variant="secondary"
+            label="Target report"
+            onClick={() => requestReport('target')}
+          />
+          <Button
+            variant="secondary"
+            label="Search term report"
+            onClick={() => requestReport('searchTerm')}
+          />
+        </HStack>
       </div>
 
       {requests.length > 0 && (
-        <div className="card pad" style={{ marginBottom: 'var(--space-4)' }}>
-          <div className="card-title"><h2>Report queue</h2><span>{requests.length} requests</span></div>
-          {requests.slice(0, 10).map((r) => (
-            <div key={r.id} className="report-queue-item">
-              <Badge variant={r.status === "completed" ? "success" : "warning"} label={r.status} />
-              <span className="report-queue-type">{r.type} report</span>
-              <span className="report-queue-time">{new Date(r.requestedAt).toLocaleTimeString()}</span>
-              {r.status === 'completed' && (
-                <button className="btn small" onClick={() => selectReport(r.id)}>View</button>
-              )}
-            </div>
-          ))}
-        </div>
+        <Card padding={5} variant="default" style={{ marginBottom: 'var(--space-4)' }}>
+          <Stack gap={3}>
+            <HStack justify="between" vAlign="center">
+              <Text type="large" weight="semibold" maxLines={1} hasTruncateTooltip as="h2">
+                Report queue
+              </Text>
+              <Text type="supporting" size="sm" maxLines={1}>
+                {requests.length} requests
+              </Text>
+            </HStack>
+            {requests.slice(0, 10).map((r) => (
+              <HStack key={r.id} gap={2} vAlign="center" wrap="wrap">
+                <Badge
+                  variant={r.status === 'completed' ? 'success' : 'warning'}
+                  label={r.status}
+                />
+                <Text type="body" maxLines={1} hasTruncateTooltip>
+                  {r.type} report
+                </Text>
+                <Text type="supporting" size="sm" maxLines={1}>
+                  {new Date(r.requestedAt).toLocaleTimeString()}
+                </Text>
+                {r.status === 'completed' && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    label="View"
+                    onClick={() => selectReport(r.id)}
+                  />
+                )}
+              </HStack>
+            ))}
+          </Stack>
+        </Card>
       )}
 
       {selected && (
-        <div className="card pad">
-          <div className="card-title">
-            <h2>{selected.type} report</h2>
-            <button className="btn small" onClick={() => {
-              const csv = exportCsv(selected.id);
-              if (csv) {
-                const blob = new Blob([csv], { type: 'text/csv' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url; a.download = `${selected.type}-report.csv`; a.click();
-              }
-            }}>Export CSV</button>
-          </div>
-          {selected.rows.length > 0 && (
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr>{Object.keys(selected.rows[0]).map((h) => <th key={h}>{h}</th>)}</tr>
-                </thead>
-                <tbody>
-                  {selected.rows.map((row, i) => {
-                    const m = { impressions: Number(row.impressions || 0), clicks: Number(row.clicks || 0), spend: Number(row.spend || 0), sales: Number(row.sales || 0), orders: Number(row.orders || 0) };
-                    const x = calc(m);
-                    return (
-                      <tr key={i}>
-                        <td className="mono">{formatWhole(m.impressions)}</td>
-                        <td className="mono">{formatWhole(m.clicks)}</td>
-                        <td className="money">{formatMoney(m.spend)}</td>
-                        <td className="money">{formatMoney(m.sales)}</td>
-                        <td className="mono">{formatPercent(x.acos)}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+        <Card padding={5} variant="default">
+          <Stack gap={4}>
+            <HStack justify="between" vAlign="center">
+              <Text type="large" weight="semibold" maxLines={1} hasTruncateTooltip as="h2">
+                {selected.type} report
+              </Text>
+              <Button
+                variant="primary"
+                size="sm"
+                label="Export CSV"
+                onClick={() => {
+                  const csv = exportCsv(selected.id);
+                  if (csv) {
+                    const blob = new Blob([csv], { type: 'text/csv' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${selected.type}-report.csv`;
+                    a.click();
+                  }
+                }}
+              />
+            </HStack>
+            {selected.rows.length > 0 && (
+              <div className="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      {Object.keys(selected.rows[0]).map((h) => (
+                        <th key={h}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selected.rows.map((row, i) => {
+                      const m = {
+                        impressions: Number(row.impressions || 0),
+                        clicks: Number(row.clicks || 0),
+                        spend: Number(row.spend || 0),
+                        sales: Number(row.sales || 0),
+                        orders: Number(row.orders || 0),
+                      };
+                      const x = calc(m);
+                      return (
+                        <tr key={i}>
+                          <td className="mono">{formatWhole(m.impressions)}</td>
+                          <td className="mono">{formatWhole(m.clicks)}</td>
+                          <td className="money">{formatMoney(m.spend)}</td>
+                          <td className="money">{formatMoney(m.sales)}</td>
+                          <td className="mono">{formatPercent(x.acos)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Stack>
+        </Card>
       )}
 
       {!requests.length && (
-        <div className="empty"><h3>No reports yet</h3><p>Request a report above to get started.</p></div>
+        <Card padding={6} variant="muted">
+          <Stack gap={2} align="center">
+            <Text type="large" weight="medium" maxLines={1} hasTruncateTooltip>
+              No reports yet
+            </Text>
+            <Text type="body" color="secondary" maxLines={2} hasTruncateTooltip>
+              Request a report above to get started.
+            </Text>
+          </Stack>
+        </Card>
       )}
     </div>
   );

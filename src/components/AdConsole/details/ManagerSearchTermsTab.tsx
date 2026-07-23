@@ -1,23 +1,38 @@
 'use client';
 
 import type { Campaign } from '@/engine/ad-console/types';
-import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass, isFilteredByNegative } from '@/engine/ad-console/engine';
+import { calc, formatMoney, formatWhole, formatPercent, acosClass } from '@/engine/ad-console/engine';
 import { EmptyState } from './EmptyState';
-import { Badge } from '@astryxdesign/core/Badge';
+import { Button } from '@astryxdesign/core/Button';
+import { HStack } from '@astryxdesign/core/Stack';
+import { Text } from '@astryxdesign/core/Text';
+import { useAdConsoleStore } from '@/engine/ad-console/store';
 
 interface Props {
   campaigns: Campaign[];
 }
 
 export function ManagerSearchTermsTab({ campaigns }: Props) {
-  const rows = campaigns.flatMap((c) =>
-    (c.searchTerms || [])
-      .filter((st) => !isFilteredByNegative(st.term, c.negatives))
-      .map((st) => ({ c, st }))
+  const addNegative = useAdConsoleStore((s) => s.addNegative);
+  const harvestTerm = useAdConsoleStore((s) => s.harvestTerm);
+
+  const allSearchTerms = campaigns.flatMap((c) =>
+    c.searchTerms.map((st) => ({
+      ...st,
+      campaignName: c.name,
+      campaignId: c.id,
+      metrics: st,
+    })),
   );
 
-  if (!rows.length) {
-    return <EmptyState icon="search" title="No search terms" message="Search terms appear after running a simulation. They are also filtered by negatives: check the Negatives tab." />;
+  if (!allSearchTerms.length) {
+    return (
+      <EmptyState
+        icon="search"
+        title="No search terms"
+        message="Run a simulation to generate search terms."
+      />
+    );
   }
 
   return (
@@ -25,26 +40,67 @@ export function ManagerSearchTermsTab({ campaigns }: Props) {
       <table>
         <thead>
           <tr>
-            <th>Search term</th><th>Campaign</th><th>Matched target</th>
-            <th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th><th>Rec</th>
+            <th>Campaign</th>
+            <th>Search term</th>
+            <th>Impr.</th>
+            <th>Clicks</th>
+            <th>Spend</th>
+            <th>Sales</th>
+            <th>Orders</th>
+            <th>ACOS</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map(({ c, st }) => {
-            const x = calc({ impressions: st.impressions || 0, clicks: st.clicks, spend: st.spend, sales: st.sales, orders: st.orders });
+          {allSearchTerms.map((st) => {
+            const x = calc(st.metrics);
             return (
               <tr key={st.id}>
-                <td><strong>{st.term}</strong></td>
-                <td>{c.name}</td><td>{st.targetValue}</td>
-                <td className="mono">{formatWhole(st.impressions || 0)}</td>
-                <td className="mono">{formatWhole(st.clicks)}</td>
-                <td className="money">{formatBid(x.cpc)}</td>
-                <td className="money">{formatMoney(st.spend)}</td>
-                <td className="money">{formatMoney(st.sales)}</td>
-                <td className="mono">{formatWhole(st.orders)}</td>
-                <td className={`mono ${acosClass(x.acos)}`}>{st.sales ? formatPercent(x.acos) : 'No sales'}</td>
-                <td className="mono">{formatRoas(x.roas)}</td>
-                <td><Badge variant={st.recommendation === "Negate" ? "error" : st.recommendation === "Add as exact keyword" ? "success" : "neutral"} label={st.recommendation} /></td>
+                <td style={{ maxWidth: 180 }}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    label={st.campaignName}
+                    onClick={() => {
+                      /* navigation handled by store */
+                    }}
+                    style={{ maxWidth: 160 }}
+                  />
+                </td>
+                <td style={{ maxWidth: 240 }}>
+                  <Text
+                    type="body"
+                    weight="medium"
+                    maxLines={1}
+                    hasTruncateTooltip
+                  >
+                    {st.term}
+                  </Text>
+                </td>
+                <td className="mono">{formatWhole(st.metrics.impressions)}</td>
+                <td className="mono">{formatWhole(st.metrics.clicks)}</td>
+                <td className="money">{formatMoney(st.metrics.spend)}</td>
+                <td className="money">{formatMoney(st.metrics.sales)}</td>
+                <td className="mono">{formatWhole(st.metrics.orders)}</td>
+                <td className={`mono ${acosClass(x.acos)}`}>
+                  {st.metrics.sales ? formatPercent(x.acos) : '-'}
+                </td>
+                <td>
+                  <HStack gap={1} wrap="wrap">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      label="Harvest"
+                      onClick={() => harvestTerm(st.campaignId, st.term)}
+                    />
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      label="Negate"
+                      onClick={() => addNegative(st.campaignId, st.term, 'Negative exact')}
+                    />
+                  </HStack>
+                </td>
               </tr>
             );
           })}
