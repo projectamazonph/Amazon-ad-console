@@ -1,45 +1,91 @@
 'use client';
 
 import { useAdConsoleStore } from '@/engine/ad-console/store';
-import { PRODUCTS, BRANDS } from '@/engine/ad-console/core/scenarios';
+import { Card } from '@astryxdesign/core/Card';
+import { Stack } from '@astryxdesign/core/Stack';
+import { Text } from '@astryxdesign/core/Text';
 
 interface Step6ReviewLaunchProps {
   isActive: boolean;
   isComplete: boolean;
 }
 
+interface RowProps {
+  label: string;
+  value: React.ReactNode;
+}
+
+function ReviewRow({ label, value }: RowProps) {
+  return (
+    <div className="review-row">
+      <Text type="supporting" size="sm" color="secondary" maxLines={1}>
+        {label}
+      </Text>
+      <Text type="body" weight="medium" maxLines={2} hasTruncateTooltip>
+        {value}
+      </Text>
+    </div>
+  );
+}
+
 export function Step6ReviewLaunch({ isActive, isComplete }: Step6ReviewLaunchProps) {
   const draft = useAdConsoleStore((s) => s.draft);
-  const launchCampaign = useAdConsoleStore((s) => s.launchCampaign);
-  const resetDraft = useAdConsoleStore((s) => s.resetDraft);
-  const setWizardStep = useAdConsoleStore((s) => s.setWizardStep);
-
   const d = draft;
 
   return (
-    <div className="wizard-step" style={{ display: isActive || isComplete ? 'block' : 'none' }}>
+    <div
+      className="wizard-step"
+      style={{ display: isActive || isComplete ? 'block' : 'none' }}
+    >
       <h2>Review & launch</h2>
-      <p className="muted" style={{ marginBottom: 14 }}>Review your campaign settings before launch.</p>
-      <div className="card pad">
-        <div className="review-box">
-          <div className="review-row"><span>Type</span><strong>{d.type}</strong></div>
-          <div className="review-row"><span>Name</span><strong>{d.name || '(not set)'}</strong></div>
-          <div className="review-row"><span>Portfolio</span><strong>{d.portfolio || '(not set)'}</strong></div>
-          <div className="review-row"><span>Budget</span><strong>${d.dailyBudget}/day</strong></div>
-          <div className="review-row"><span>Default bid</span><strong>${d.defaultBid}</strong></div>
-          <div className="review-row"><span>Targeting</span><strong>{d.targetingMode}</strong></div>
-          <div className="review-row"><span>Bid strategy</span><strong>{d.bidStrategy}</strong></div>
-          <div className="review-row"><span>Format</span><strong>{d.adFormat}</strong></div>
-          {d.campaignGoal && <div className="review-row"><span>Campaign goal</span><strong>{d.campaignGoal}</strong></div>}
-          <div className="review-row"><span>Status</span><strong>{d.status}</strong></div>
-          <div className="review-row"><span>Products</span><strong>{d.products.length} selected</strong></div>
-          {d.exactKeywords && <div className="review-row"><span>Exact keywords</span><strong>{d.exactKeywords.split('\n').filter(Boolean).length} entered</strong></div>}
-          {d.phraseKeywords && <div className="review-row"><span>Phrase keywords</span><strong>{d.phraseKeywords.split('\n').filter(Boolean).length} entered</strong></div>}
-          {d.broadKeywords && <div className="review-row"><span>Broad keywords</span><strong>{d.broadKeywords.split('\n').filter(Boolean).length} entered</strong></div>}
-          {d.audienceLookback && <div className="review-row"><span>Lookback</span><strong>{d.audienceLookback} days</strong></div>}
-        </div>
-        {!d.name.trim() && <div className="coach-tip" style={{ marginTop: 10 }}>Campaign name is required before launch.</div>}
-      </div>
+      <p className="muted" style={{ marginBottom: 14 }}>
+        Review your campaign settings before launch.
+      </p>
+      <Card padding={5} variant="default">
+        <Stack gap={4}>
+          <div className="review-box">
+            <ReviewRow label="Type" value={d.type} />
+            <ReviewRow label="Name" value={d.name || '(not set)'} />
+            <ReviewRow label="Portfolio" value={d.portfolio || '(not set)'} />
+            <ReviewRow label="Budget" value={`$${d.dailyBudget}/day`} />
+            <ReviewRow label="Default bid" value={`$${d.defaultBid}`} />
+            <ReviewRow label="Targeting" value={d.targetingMode} />
+            <ReviewRow label="Bid strategy" value={d.bidStrategy} />
+            <ReviewRow label="Format" value={d.adFormat} />
+            {d.campaignGoal && (
+              <ReviewRow label="Campaign goal" value={d.campaignGoal} />
+            )}
+            <ReviewRow label="Status" value={d.status} />
+            <ReviewRow label="Products" value={`${d.products.length} selected`} />
+            {d.exactKeywords && (
+              <ReviewRow
+                label="Exact keywords"
+                value={`${d.exactKeywords.split('\n').filter(Boolean).length} entered`}
+              />
+            )}
+            {d.phraseKeywords && (
+              <ReviewRow
+                label="Phrase keywords"
+                value={`${d.phraseKeywords.split('\n').filter(Boolean).length} entered`}
+              />
+            )}
+            {d.broadKeywords && (
+              <ReviewRow
+                label="Broad keywords"
+                value={`${d.broadKeywords.split('\n').filter(Boolean).length} entered`}
+              />
+            )}
+            {d.audienceLookback && (
+              <ReviewRow label="Lookback" value={`${d.audienceLookback} days`} />
+            )}
+          </div>
+          {!d.name.trim() && (
+            <div className="coach-tip" style={{ marginTop: 10 }}>
+              Campaign name is required before launch.
+            </div>
+          )}
+        </Stack>
+      </Card>
     </div>
   );
 }

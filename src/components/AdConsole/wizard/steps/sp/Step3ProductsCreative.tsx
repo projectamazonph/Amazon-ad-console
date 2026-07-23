@@ -2,15 +2,59 @@
 
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { PRODUCTS } from '@/engine/ad-console/core/scenarios';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Stack, HStack } from '@astryxdesign/core/Stack';
+import { Text } from '@astryxdesign/core/Text';
 
 interface Step3ProductsCreativeProps {
   isActive: boolean;
   isComplete: boolean;
 }
 
+function ProductCard({
+  product,
+  isSelected,
+  onSelect,
+  onRemove,
+  action,
+}: {
+  product?: (typeof PRODUCTS)[number];
+  asin: string;
+  isSelected: boolean;
+  onSelect?: () => void;
+  onRemove?: () => void;
+  action: 'Add' | 'Remove';
+}) {
+  return (
+    <Card padding={3} variant="default" style={{ flex: 1, minWidth: 200 }}>
+      <HStack gap={2} vAlign="center" style={{ minWidth: 0 }}>
+        <Text type="body" size="lg">
+          {product?.image || '📦'}
+        </Text>
+        <div style={{ minWidth: 0, flex: 1, overflow: 'hidden' }}>
+          <Text type="body" weight="medium" maxLines={1} hasTruncateTooltip>
+            {product?.title || asin}
+          </Text>
+          {product && (
+            <Text type="supporting" size="sm" maxLines={1}>
+              ${product.price} · {product.category}
+            </Text>
+          )}
+        </div>
+        <Button
+          variant={action === 'Add' ? 'primary' : 'destructive'}
+          size="sm"
+          label={action}
+          onClick={action === 'Add' ? onSelect : onRemove}
+        />
+      </HStack>
+    </Card>
+  );
+}
+
 export function Step3ProductsCreativeSP({ isActive, isComplete }: Step3ProductsCreativeProps) {
   const draft = useAdConsoleStore((s) => s.draft);
-  const updateDraft = useAdConsoleStore((s) => s.updateDraft);
   const selectProductAction = useAdConsoleStore((s) => s.selectProduct);
   const removeProductAction = useAdConsoleStore((s) => s.removeProduct);
 
@@ -18,50 +62,69 @@ export function Step3ProductsCreativeSP({ isActive, isComplete }: Step3ProductsC
   const availableProducts = PRODUCTS.filter((p) => !selectedProducts.includes(p.asin));
 
   return (
-    <div className="wizard-step" style={{ display: isActive || isComplete ? 'block' : 'none' }}>
+    <div
+      className="wizard-step"
+      style={{ display: isActive || isComplete ? 'block' : 'none' }}
+    >
       <h2>Products & creative</h2>
-      <p className="muted" style={{ marginBottom: 14 }}>Select products to advertise.</p>
+      <p className="muted" style={{ marginBottom: 14 }}>
+        Select products to advertise.
+      </p>
 
-      <div className="card pad" style={{ marginBottom: 16 }}>
-        <div className="card-title"><h3>Selected products ({selectedProducts.length})</h3></div>
-        {selectedProducts.length === 0 ? (
-          <p className="muted">No products selected</p>
-        ) : (
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {selectedProducts.map((asin) => {
-              const p = PRODUCTS.find((x) => x.asin === asin);
-              return (
-                <div key={asin} className="card pad" style={{ flex: 1, minWidth: 200, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 24 }}>{p?.image || '📦'}</span>
-                  <div>
-                    <strong>{p?.title || asin}</strong>
-                    <div className="muted" style={{ fontSize: 12 }}>${p?.price}</div>
-                  </div>
-                  <button className="btn small danger" style={{ marginLeft: 'auto' }} onClick={() => removeProductAction(asin)}>Remove</button>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+      <Stack gap={4}>
+        <Card padding={5} variant="default">
+          <Stack gap={3}>
+            <Text type="large" weight="semibold" maxLines={1} hasTruncateTooltip as="h3">
+              Selected products ({selectedProducts.length})
+            </Text>
+            {selectedProducts.length === 0 ? (
+              <Text type="supporting" color="secondary" maxLines={1}>
+                No products selected
+              </Text>
+            ) : (
+              <Stack gap={2}>
+                {selectedProducts.map((asin) => {
+                  const p = PRODUCTS.find((x) => x.asin === asin);
+                  return (
+                    <ProductCard
+                      key={asin}
+                      asin={asin}
+                      product={p}
+                      isSelected
+                      onRemove={() => removeProductAction(asin)}
+                      action="Remove"
+                    />
+                  );
+                })}
+              </Stack>
+            )}
+          </Stack>
+        </Card>
 
-      <div className="card pad" style={{ marginBottom: 16 }}>
-        <div className="card-title"><h3>Add products</h3></div>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {availableProducts.map((p) => (
-            <div key={p.asin} className="card pad" style={{ flex: 1, minWidth: 200, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 24 }}>{p.image}</span>
-              <div>
-                <strong>{p.title}</strong>
-                <div className="muted" style={{ fontSize: 12 }}>${p.price} | {p.category}</div>
-              </div>
-              <button className="btn small primary" style={{ marginLeft: 'auto' }} onClick={() => selectProductAction(p.asin)}>Add</button>
-            </div>
-          ))}
+        <Card padding={5} variant="default">
+          <Stack gap={3}>
+            <Text type="large" weight="semibold" maxLines={1} hasTruncateTooltip as="h3">
+              Add products
+            </Text>
+            <Stack gap={2}>
+              {availableProducts.map((p) => (
+                <ProductCard
+                  key={p.asin}
+                  asin={p.asin}
+                  product={p}
+                  isSelected={false}
+                  onSelect={() => selectProductAction(p.asin)}
+                  action="Add"
+                />
+              ))}
+            </Stack>
+          </Stack>
+        </Card>
+
+        <div className="coach-tip">
+          Sponsored Products campaigns use the product detail page as the ad creative.
         </div>
-      </div>
-
-      <div className="coach-tip">Sponsored Products campaigns use the product detail page as the ad creative.</div>
+      </Stack>
     </div>
   );
 }
