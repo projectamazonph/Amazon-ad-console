@@ -43,7 +43,7 @@ export function OverviewTab({ campaign: c }: Props) {
               Editable training controls
             </Text>
           </div>
-          <HStack gap={3} wrap>
+          <HStack gap={3} wrap="wrap">
             <div className="field" style={{ minWidth: 0 }}>
               <label htmlFor="ot-budget">Daily budget</label>
               <input
@@ -139,7 +139,6 @@ export function OverviewTab({ campaign: c }: Props) {
                       type="body"
                       maxLines={1}
                       hasTruncateTooltip
-                      title={fullLabel}
                     >
                       {fullLabel}
                     </Text>
@@ -165,7 +164,6 @@ export function OverviewTab({ campaign: c }: Props) {
                     weight="medium"
                     maxLines={1}
                     hasTruncateTooltip
-                    title={c.creative.brandName}
                   >
                     {c.creative.brandName || 'N/A'}
                   </Text>
@@ -179,7 +177,6 @@ export function OverviewTab({ campaign: c }: Props) {
                     weight="medium"
                     maxLines={2}
                     hasTruncateTooltip
-                    title={c.creative.headline}
                   >
                     {c.creative.headline || 'N/A'}
                   </Text>
@@ -223,7 +220,6 @@ export function OverviewTab({ campaign: c }: Props) {
                         weight="medium"
                         maxLines={1}
                         hasTruncateTooltip
-                        title={c.creative.video}
                         style={{ minWidth: 0, flex: 1 }}
                       >
                         Video: {c.creative.video}
@@ -239,7 +235,6 @@ export function OverviewTab({ campaign: c }: Props) {
                     weight="medium"
                     maxLines={1}
                     hasTruncateTooltip
-                    title={c.creative.logo}
                   >
                     {c.creative.logo}
                   </Text>
@@ -253,7 +248,6 @@ export function OverviewTab({ campaign: c }: Props) {
                     weight="medium"
                     maxLines={1}
                     hasTruncateTooltip
-                    title={c.creative.destination}
                   >
                     {c.creative.destination}
                   </Text>
@@ -301,7 +295,6 @@ export function OverviewTab({ campaign: c }: Props) {
                           weight="medium"
                           maxLines={1}
                           hasTruncateTooltip
-                          title={t.value}
                         >
                           {t.value}
                         </Text>

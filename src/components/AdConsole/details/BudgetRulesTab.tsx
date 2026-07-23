@@ -45,7 +45,7 @@ export function BudgetRulesTab({ campaign }: Props) {
               Schedule or performance-based
             </Text>
           </div>
-          <HStack gap={3} wrap>
+          <HStack gap={3} wrap="wrap">
             <div style={{ flex: 1, minWidth: 200 }}>
               <TextInput
                 label="Rule name"

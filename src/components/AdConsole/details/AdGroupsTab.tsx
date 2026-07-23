@@ -59,7 +59,7 @@ export function AdGroupsTab({ campaign: c }: Props) {
             <Text type="supporting" size="sm" maxLines={1}>
               {agTargets.length} targets
             </Text>
-            <HStack gap={3} wrap>
+            <HStack gap={3} wrap="wrap">
               <div className="field" style={{ minWidth: 0 }}>
                 <label htmlFor={`ag-status-${focused.id}`}>Status</label>
                 <select
@@ -140,20 +140,19 @@ export function AdGroupsTab({ campaign: c }: Props) {
                           weight="medium"
                           maxLines={1}
                           hasTruncateTooltip
-                          title={t.value}
                         >
                           {t.value}
                         </Text>
                       </td>
                       <td>
                         <Badge
-                          label={t.matchType === 'Negative' ? 'Neg' : t.type}
+                          label={t.match === 'Negative' ? 'Neg' : t.type}
                           variant="neutral"
                         />
                       </td>
                       <td>
                         <Text type="supporting" color="secondary" maxLines={1}>
-                          {t.matchType}
+                          {t.match}
                         </Text>
                       </td>
                       <td>

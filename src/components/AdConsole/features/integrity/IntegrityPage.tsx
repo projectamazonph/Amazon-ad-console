@@ -34,7 +34,7 @@ export function IntegrityPage() {
         >
           Integrity center
         </Text>
-        <HStack gap={2} wrap>
+        <HStack gap={2} wrap="wrap">
           <Button
             variant="primary"
             label="Run integrity check"

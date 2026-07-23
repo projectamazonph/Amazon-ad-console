@@ -83,7 +83,6 @@ export function SearchTermsTab({ campaign }: Props) {
                     weight="medium"
                     maxLines={1}
                     hasTruncateTooltip
-                    title={st.term}
                   >
                     {st.term}
                   </Text>
@@ -116,7 +115,7 @@ export function SearchTermsTab({ campaign }: Props) {
                   />
                 </td>
                 <td>
-                  <HStack gap={1} wrap>
+                  <HStack gap={1} wrap="wrap">
                     <Button
                       variant="secondary"
                       size="sm"

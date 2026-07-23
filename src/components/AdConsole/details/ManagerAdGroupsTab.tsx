@@ -63,7 +63,6 @@ export function ManagerAdGroupsTab({ campaigns, onSelectCampaign }: Props) {
                     weight="medium"
                     maxLines={1}
                     hasTruncateTooltip
-                    title={ag.name}
                   >
                     {ag.name}
                   </Text>

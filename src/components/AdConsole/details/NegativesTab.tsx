@@ -30,7 +30,7 @@ export function NegativesTab({ campaign }: Props) {
   return (
     <div>
       <Stack gap={3} style={{ marginBottom: 16 }}>
-        <HStack gap={2} wrap>
+        <HStack gap={2} wrap="wrap">
           <div style={{ flex: 2, minWidth: 200 }}>
             <TextInput
               label="Add negative"

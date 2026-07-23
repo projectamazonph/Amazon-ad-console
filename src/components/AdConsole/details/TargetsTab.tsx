@@ -72,7 +72,7 @@ export function TargetsTab({ campaign: c }: Props) {
               rows={2}
               width="100%"
             />
-            <HStack gap={2} wrap>
+            <HStack gap={2} wrap="wrap">
               <div className="field" style={{ flex: 1, minWidth: 100 }}>
                 <label htmlFor="kw-match">Match type</label>
                 <select
@@ -171,7 +171,6 @@ export function TargetsTab({ campaign: c }: Props) {
                       weight="medium"
                       maxLines={1}
                       hasTruncateTooltip
-                      title={t.value}
                     >
                       {t.value}
                     </Text>
@@ -212,7 +211,7 @@ export function TargetsTab({ campaign: c }: Props) {
                   </td>
                   <td className="mono">{formatRoas(tx.roas)}</td>
                   <td style={{ whiteSpace: 'nowrap' }}>
-                    <HStack gap={1} wrap>
+                    <HStack gap={1} wrap="wrap">
                       <Button
                         variant="secondary"
                         size="sm"

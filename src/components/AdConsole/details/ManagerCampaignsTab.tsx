@@ -129,7 +129,7 @@ export function ManagerCampaignsTab({
                 <td className={`mono ${acosClass(x.acos)}`}>{formatPercent(x.acos)}</td>
                 <td className="mono">{formatRoas(x.roas)}</td>
                 <td>
-                  <HStack gap={1} wrap>
+                  <HStack gap={1} wrap="wrap">
                     <Button
                       variant="secondary"
                       size="sm"

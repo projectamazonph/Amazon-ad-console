@@ -21,6 +21,7 @@ export function ManagerSearchTermsTab({ campaigns }: Props) {
       ...st,
       campaignName: c.name,
       campaignId: c.id,
+      metrics: st,
     })),
   );
 
@@ -72,7 +73,6 @@ export function ManagerSearchTermsTab({ campaigns }: Props) {
                     weight="medium"
                     maxLines={1}
                     hasTruncateTooltip
-                    title={st.term}
                   >
                     {st.term}
                   </Text>
@@ -86,7 +86,7 @@ export function ManagerSearchTermsTab({ campaigns }: Props) {
                   {st.metrics.sales ? formatPercent(x.acos) : '-'}
                 </td>
                 <td>
-                  <HStack gap={1} wrap>
+                  <HStack gap={1} wrap="wrap">
                     <Button
                       variant="secondary"
                       size="sm"

@@ -39,7 +39,7 @@ export function ReportsPage() {
         >
           Reports
         </Text>
-        <HStack gap={2} wrap>
+        <HStack gap={2} wrap="wrap">
           <Button
             variant="secondary"
             label="Campaign report"
@@ -70,7 +70,7 @@ export function ReportsPage() {
               </Text>
             </HStack>
             {requests.slice(0, 10).map((r) => (
-              <HStack key={r.id} gap={2} vAlign="center" wrap>
+              <HStack key={r.id} gap={2} vAlign="center" wrap="wrap">
                 <Badge
                   variant={r.status === 'completed' ? 'success' : 'warning'}
                   label={r.status}

@@ -169,7 +169,7 @@ export function CreateCampaignWizard() {
         <Stack gap={4}>
           {renderStep(wizardStep)}
 
-          <HStack justify="between" vAlign="center" wrap>
+          <HStack justify="between" vAlign="center" wrap="wrap">
             <Button
               variant="secondary"
               size="sm"
@@ -177,7 +177,7 @@ export function CreateCampaignWizard() {
               isDisabled={wizardStep === 1}
               onClick={() => setWizardStep(wizardStep - 1)}
             />
-            <HStack gap={2} wrap>
+            <HStack gap={2} wrap="wrap">
               <Button
                 variant="ghost"
                 size="sm"

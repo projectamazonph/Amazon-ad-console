@@ -57,7 +57,7 @@ export function CampaignManager() {
       </div>
 
       <div className="toolbar">
-        <HStack gap={2} wrap style={{ flex: 1 }}>
+        <HStack gap={2} wrap="wrap" style={{ flex: 1 }}>
           <div style={{ flex: 1, minWidth: 220, maxWidth: 320 }}>
             <TextInput
               label="Search"

@@ -109,7 +109,7 @@ export function PortfolioOverview() {
                 New portfolio group
               </Text>
             </HStack>
-            <HStack gap={2} vAlign="end" wrap>
+            <HStack gap={2} vAlign="end" wrap="wrap">
               <div className="field" style={{ flex: 1, minWidth: 0 }}>
                 <label htmlFor="po-new-name">Portfolio name</label>
                 <input

@@ -12,7 +12,7 @@ interface Props {
 
 export function ManagerTargetsTab({ campaigns }: Props) {
   const allTargets = campaigns.flatMap((c) =>
-    c.targets.map((t) => ({ ...t, campaignName: c.name })),
+    c.targets.map((t) => ({ ...t, metrics: t, campaignName: c.name })),
   );
 
   if (!allTargets.length) {
@@ -49,7 +49,11 @@ export function ManagerTargetsTab({ campaigns }: Props) {
             return (
               <tr key={t.id}>
                 <td style={{ maxWidth: 200 }}>
-                  <Text type="body" maxLines={1} hasTruncateTooltip title={t.campaignName}>
+                  <Text
+                    type="body"
+                    maxLines={1}
+                    hasTruncateTooltip
+                  >
                     {t.campaignName}
                   </Text>
                 </td>
@@ -59,7 +63,6 @@ export function ManagerTargetsTab({ campaigns }: Props) {
                     weight="medium"
                     maxLines={1}
                     hasTruncateTooltip
-                    title={t.value}
                   >
                     {t.value}
                   </Text>
