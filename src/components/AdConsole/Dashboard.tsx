@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@astryxdesign/core/Button';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { getKpiTiles } from './nav/consoleNav';
 import { calc, formatMoney, formatWhole, formatPercent, acosClass } from '@/engine/ad-console/engine';
@@ -34,9 +35,7 @@ export function Dashboard() {
             Performance across all enabled campaigns · Coffee Accessories US
           </p>
         </div>
-        <button className="btn primary" onClick={() => setView('create')}>
-          Create campaign
-        </button>
+        <Button label="Create campaign" variant="primary" onClick={() => setView('create')} />
       </div>
 
       <div className="kpi-grid">
@@ -173,7 +172,7 @@ function renderCampaignTable(
         </div>
         <h3>No campaigns yet</h3>
         <p>Your advertising journey starts here. Create your first campaign to see performance data.</p>
-        <button className="btn primary" onClick={() => setView?.('create')}>Create campaign</button>
+        <Button label="Create campaign" variant="primary" onClick={() => setView?.('create')} />
       </div>
     );
   }

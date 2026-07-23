@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@astryxdesign/core/Button';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass, isFilteredByNegative } from '@/engine/ad-console/engine';
@@ -25,7 +26,7 @@ export function SearchTermsTab({ campaign }: Props) {
         title="No search terms"
         message={hasNegatives ? 'All search terms are filtered by negatives. Check the Negatives tab to review.' : 'Run a simulation to generate search terms from your keyword targets.'}
       >
-        {!hasNegatives && <button className="btn primary" onClick={() => runSimulation()}>Run 7-day simulation</button>}
+        {!hasNegatives && <Button label="Run 7-day simulation" variant="primary" onClick={() => runSimulation()} />}
       </EmptyState>
     );
   }
@@ -51,9 +52,9 @@ export function SearchTermsTab({ campaign }: Props) {
                 <td className="mono">{formatRoas(sx.roas)}</td>
                 <td><span className={`pill ${st.recommendation === 'Negate' ? 'bad' : st.recommendation === 'Add as exact keyword' ? 'green' : ''}`}>{st.recommendation}</span></td>
                 <td>
-                  <button className="btn small" onClick={() => harvestTerm(c.id, st.term)}>Harvest exact</button>{' '}
-                  <button className="btn small danger" onClick={() => addNegative(c.id, st.term, 'Negative exact')}>Negate exact</button>{' '}
-                  <button className="btn small danger" onClick={() => addNegative(c.id, st.term, 'Negative phrase')}>Negate phrase</button>
+                  <Button label="Harvest exact" size="sm" onClick={() => harvestTerm(c.id, st.term)} />{' '}
+                  <Button label="Negate exact" variant="destructive" size="sm" onClick={() => addNegative(c.id, st.term, 'Negative exact')} />{' '}
+                  <Button label="Negate phrase" variant="destructive" size="sm" onClick={() => addNegative(c.id, st.term, 'Negative phrase')} />
                 </td>
               </tr>
             );

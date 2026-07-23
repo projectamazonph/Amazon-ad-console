@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@astryxdesign/core/Button';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { PRODUCTS } from '@/engine/ad-console/core/scenarios';
 
@@ -37,7 +38,7 @@ export function Step3ProductsCreativeSP({ isActive, isComplete }: Step3ProductsC
                     <strong>{p?.title || asin}</strong>
                     <div className="muted" style={{ fontSize: 12 }}>${p?.price}</div>
                   </div>
-                  <button className="btn small danger" style={{ marginLeft: 'auto' }} onClick={() => removeProductAction(asin)}>Remove</button>
+                  <Button label="Remove" variant="destructive" size="sm" style={{ marginLeft: 'auto' }} onClick={() => removeProductAction(asin)} />
                 </div>
               );
             })}
@@ -55,7 +56,7 @@ export function Step3ProductsCreativeSP({ isActive, isComplete }: Step3ProductsC
                 <strong>{p.title}</strong>
                 <div className="muted" style={{ fontSize: 12 }}>${p.price} | {p.category}</div>
               </div>
-              <button className="btn small primary" style={{ marginLeft: 'auto' }} onClick={() => selectProductAction(p.asin)}>Add</button>
+              <Button label="Add" variant="primary" size="sm" style={{ marginLeft: 'auto' }} onClick={() => selectProductAction(p.asin)} />
             </div>
           ))}
         </div>

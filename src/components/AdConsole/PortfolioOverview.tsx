@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { Button } from '@astryxdesign/core/Button';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatRoas, acosClass } from '@/engine/ad-console/engine';
 
@@ -79,12 +80,12 @@ export function PortfolioOverview() {
               <label htmlFor="po-new-name">Portfolio name</label>
               <input id="po-new-name" className="input full" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Holiday Campaigns" />
             </div>
-            <button className="btn primary" onClick={() => {
+            <Button label="Create" variant="primary" onClick={() => {
               if (newName.trim()) {
                 createPortfolio(newName.trim());
                 setNewName('');
               }
-            }}>Create</button>
+            }} />
           </div>
         </div>
       )}
@@ -129,9 +130,9 @@ export function PortfolioOverview() {
                         if (v && v !== pf.name) renamePortfolio(pf.name, v);
                       }} />
                     <span className="muted">{pf.campaigns.length} campaign{pf.campaigns.length !== 1 ? 's' : ''}</span>
-                    <button className="btn small danger" onClick={() => {
+                    <Button label="Delete" variant="destructive" size="sm" onClick={() => {
                       if (confirm(`Remove portfolio "${pf.name}"? Campaigns will be unassigned.`)) deletePortfolio(pf.name);
-                    }}>Delete</button>
+                    }} />
                   </div>
                 ) : (
                   <>

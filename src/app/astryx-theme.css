@@ -151,3 +151,123 @@
   --shadow-inset-warning: inset 0 0 0 2px var(--warning-soft);
   --shadow-inset-error: inset 0 0 0 2px var(--danger-soft);
 }
+
+/* ============================================================================
+ * Button variant styles — preserve Amazon platform look
+ * ----------------------------------------------------------------------------
+ * Astryx ships with 4 stock variants (primary, secondary, ghost, destructive)
+ * whose base styles are emitted as StyleX classes in `@layer astryx-base`.
+ * Because that layer is lower-priority than unlayered styles, this block
+ * (which is unlayered) wins the cascade and gives each variant the exact
+ * Amazon look from the old .btn CSS.
+ *
+ * Custom variants declared in src/types/astryx-augment.d.ts (info, warning)
+ * are not styled by Astryx at all, so we define them here from scratch.
+ *
+ * Heights also need overriding — Astryx defaults to 28/32/36 (sm/md/lg) but
+ * our Amazon platform uses 32 (sm) / 36 (md) for in-page actions, so we
+ * tighten the default to 36 and pull the small up to 32.
+ * ============================================================================ */
+
+/* Amazon secondary (was .btn — neutral, white surface, dark text) */
+.astryx-button[data-variant="secondary"] {
+  background: var(--surface-1);
+  color: var(--ink-900);
+  border: 1px solid var(--border);
+  font-weight: 500;
+}
+.astryx-button[data-variant="secondary"]:hover:not([aria-disabled="true"]) {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-xs);
+}
+
+/* Amazon primary (was .btn.primary — Amazon orange, dark text) */
+.astryx-button[data-variant="primary"] {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+.astryx-button[data-variant="primary"]:hover:not([aria-disabled="true"]) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  box-shadow: var(--shadow-sm);
+}
+.astryx-button[data-variant="primary"]:active:not([aria-disabled="true"]) {
+  background: var(--accent-active);
+}
+
+/* Amazon destructive (was .btn.danger — red OUTLINE, not filled like stock) */
+.astryx-button[data-variant="destructive"] {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  font-weight: 500;
+}
+.astryx-button[data-variant="destructive"]:hover:not([aria-disabled="true"]) {
+  background: var(--danger-soft);
+  border-color: var(--danger);
+}
+
+/* Amazon info (was .btn.blue — teal fill, white text) — custom variant */
+.astryx-button[data-variant="info"] {
+  background: var(--info);
+  color: #ffffff;
+  border: 1px solid var(--info);
+  font-weight: 500;
+}
+.astryx-button[data-variant="info"]:hover:not([aria-disabled="true"]) {
+  background: #005f73;
+  border-color: #005f73;
+}
+
+/* Amazon warning (reserved for parity — was never used in JSX, but
+   defined so the variant works if a future component uses it) */
+.astryx-button[data-variant="warning"] {
+  background: var(--warning);
+  color: #ffffff;
+  border: 1px solid var(--warning);
+  font-weight: 500;
+}
+.astryx-button[data-variant="warning"]:hover:not([aria-disabled="true"]) {
+  background: color-mix(in srgb, var(--warning) 80%, black);
+  border-color: color-mix(in srgb, var(--warning) 80%, black);
+}
+
+/* Amazon ghost — outline only, no fill (no JSX usage, reserved for parity) */
+.astryx-button[data-variant="ghost"] {
+  background: transparent;
+  color: var(--ink-700);
+  border: 1px solid transparent;
+  font-weight: 500;
+}
+.astryx-button[data-variant="ghost"]:hover:not([aria-disabled="true"]) {
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+
+/* Size overrides — Astryx defaults to 28/32/36 (sm/md/lg). Our Amazon
+   buttons used 36/32, so we map our default→md (36px) and .small→sm
+   (32px). Astryx's lg (also 36px) is unused in our code. */
+.astryx-button[data-size="md"] {
+  min-height: 36px;
+  padding-block: 6px;
+  padding-inline: 14px;
+  font-size: var(--text-sm);
+}
+.astryx-button[data-size="sm"] {
+  min-height: 32px;
+  padding-block: 4px;
+  padding-inline: 10px;
+  font-size: var(--text-xs);
+}
+
+/* Shared disabled state — opacity 0.5 + not-allowed cursor (matches the
+   old .btn:disabled rule). Astryx sets [aria-disabled] when isDisabled is
+   true (NOT the native disabled attribute, so clicks can still be tested). */
+.astryx-button[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}

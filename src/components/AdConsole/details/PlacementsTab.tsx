@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@astryxdesign/core/Button';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 
@@ -28,13 +29,13 @@ export function PlacementsTab({ campaign }: Props) {
           <input id="pt-rest" className="input full" type="number" min="0" max="900" value={rest} onChange={(e) => setRest(e.target.value)} />
         </div>
       </div>
-      <button className="btn primary" style={{ marginTop: 12 }} onClick={() => {
+      <Button label="Save placements" variant="primary" style={{ marginTop: 12 }} onClick={() => {
         useAdConsoleStore.getState().savePlacements(campaign.id, {
           top: Number(top),
           product: Number(prod),
           rest: Number(rest),
         });
-      }}>Save placements</button>
+      }} />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@astryxdesign/core/Button';
 import type { Campaign } from '@/engine/ad-console/types';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
 import { EmptyState } from './EmptyState';
@@ -17,7 +18,7 @@ export function ManagerCampaignsTab({ campaigns, onSelect, onToggleStatus, onDup
   if (!campaigns.length) {
     return (
       <EmptyState icon="chart" title="No campaigns yet" message="Create your first campaign to start training.">
-        <button className="btn primary" onClick={onCreate}>Create campaign</button>
+        <Button label="Create campaign" variant="primary" onClick={onCreate} />
       </EmptyState>
     );
   }
@@ -58,14 +59,12 @@ export function ManagerCampaignsTab({ campaigns, onSelect, onToggleStatus, onDup
                 <td className={`mono ${acosClass(x.acos)}`}>{formatPercent(x.acos)}</td>
                 <td className="mono">{formatRoas(x.roas)}</td>
                 <td>
-                  <button className="btn small" onClick={() => onSelect(c.id)}>Open</button>{' '}
-                  <button className="btn small" onClick={() => onToggleStatus(c.id)}>
-                    {c.status === 'Enabled' ? 'Pause' : 'Enable'}
-                  </button>{' '}
-                  <button className="btn small" onClick={() => onDuplicate(c.id)}>Dup</button>{' '}
-                  <button className="btn small danger" onClick={() => {
+                  <Button label="Open" size="sm" onClick={() => onSelect(c.id)} />{' '}
+                  <Button label={c.status === 'Enabled' ? 'Pause' : 'Enable'} size="sm" onClick={() => onToggleStatus(c.id)} />{' '}
+                  <Button label="Dup" size="sm" onClick={() => onDuplicate(c.id)} />{' '}
+                  <Button label="Archive" variant="destructive" size="sm" onClick={() => {
                     if (confirm(`Archive "${c.name}"?`)) onArchive(c.id);
-                  }}>Archive</button>
+                  }} />
                 </td>
               </tr>
             );

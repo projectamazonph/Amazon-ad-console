@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@astryxdesign/core/Button';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
@@ -28,7 +29,7 @@ export function TargetsTab({ campaign: c }: Props) {
   if (!c.targets.length && !showAddKeywordForm) {
     return (
       <EmptyState icon="target" title="No targets" message="Add keywords, products, or audience targets to start targeting shoppers.">
-        <button className="btn primary" onClick={() => toggleAddKeywordForm()}>+ Add keyword</button>
+        <Button label="+ Add keyword" variant="primary" onClick={() => toggleAddKeywordForm()} />
       </EmptyState>
     );
   }
@@ -37,7 +38,7 @@ export function TargetsTab({ campaign: c }: Props) {
     <div>
       {!showAddKeywordForm && (
         <div className="tab-toolbar center">
-          <button className="btn primary" onClick={() => toggleAddKeywordForm()}>+ Add keyword</button>
+          <Button label="+ Add keyword" variant="primary" onClick={() => toggleAddKeywordForm()} />
         </div>
       )}
 
@@ -66,13 +67,13 @@ export function TargetsTab({ campaign: c }: Props) {
             </div>
           </div>
           <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
-            <button className="btn primary" onClick={() => {
+            <Button label="Add keyword" variant="primary" onClick={() => {
               if (!newKeywordValue.trim()) return;
               addKeyword(c.id, newKeywordValue.trim(), newKeywordMatch, newKeywordBid, newKeywordAdGroup);
               setNewKeywordValue('');
               setNewKeywordBid(0.75);
-            }}>Add keyword</button>
-            <button className="btn" onClick={() => toggleAddKeywordForm()}>Cancel</button>
+            }} />
+            <Button label="Cancel" onClick={() => toggleAddKeywordForm()} />
           </div>
         </div>
       )}
@@ -103,19 +104,21 @@ export function TargetsTab({ campaign: c }: Props) {
                   <td className={`mono ${acosClass(tx.acos)}`}>{t.sales ? formatPercent(tx.acos) : 'No sales'}</td>
                   <td className="mono">{formatRoas(tx.roas)}</td>
                   <td style={{ whiteSpace: 'nowrap' }}>
-                    <button className="btn small" onClick={() => adjustTargetBid(c.id, t.id, 0.9)}>-10%</button>{' '}
-                    <button className="btn small" onClick={() => adjustTargetBid(c.id, t.id, 1.1)}>+10%</button>{' '}
-                    <button className="btn small" onClick={() => {
+                    <Button label="-10%" size="sm" onClick={() => adjustTargetBid(c.id, t.id, 0.9)} />{' '}
+                    <Button label="+10%" size="sm" onClick={() => adjustTargetBid(c.id, t.id, 1.1)} />{' '}
+                    <Button label="Set" size="sm" onClick={() => {
                       const bid = Number(bidEdits[t.id]);
                       if (bid && bid > 0) setTargetBid(c.id, t.id, bid);
-                    }}>Set</button>{' '}
-                    <button className={`btn small ${t.status === 'Paused' ? 'primary' : ''}`}
-                      onClick={() => toggleStatusTarget(c.id, t.id)}>
-                      {t.status === 'Paused' ? 'Enable' : 'Pause'}
-                    </button>{' '}
-                    <button className="btn small danger" onClick={() => {
+                    }} />{' '}
+                    <Button
+                      label={t.status === 'Paused' ? 'Enable' : 'Pause'}
+                      variant={t.status === 'Paused' ? 'primary' : 'secondary'}
+                      size="sm"
+                      onClick={() => toggleStatusTarget(c.id, t.id)}
+                    />{' '}
+                    <Button label="Remove" variant="destructive" size="sm" onClick={() => {
                       if (confirm(`Remove "${t.value}"?`)) removeTarget(c.id, t.id);
-                    }}>Remove</button>
+                    }} />
                   </td>
                 </tr>
               );

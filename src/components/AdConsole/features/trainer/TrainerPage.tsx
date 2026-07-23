@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@astryxdesign/core/Button';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 
 export function TrainerPage() {
@@ -21,7 +22,7 @@ export function TrainerPage() {
   return (
     <div>
       <div className="page-title">
-        <button className="btn small" onClick={() => setView('campaigns')} aria-label="Back to campaigns">← Back to campaigns</button>
+        <Button label="← Back to campaigns" size="sm" onClick={() => setView('campaigns')} tooltip="Back to campaigns" />
         <h1 style={{ marginTop: 'var(--space-2)' }}>Trainer dashboard</h1>
       </div>
 
@@ -89,7 +90,7 @@ export function TrainerPage() {
             <div className="trainer-note-input-row">
               <label htmlFor="tp-note" className="visually-hidden">Trainer note</label>
               <input id="tp-note" className="input trainer-note-input" value={noteText} onChange={(e) => setNoteText(e.target.value)} placeholder="Add note..." />
-              <button className="btn primary" onClick={() => { if (noteText.trim()) { addNote(noteText.trim()); setNoteText(''); } }}>Add</button>
+              <Button label="Add" variant="primary" onClick={() => { if (noteText.trim()) { addNote(noteText.trim()); setNoteText(''); } }} />
             </div>
             {notes.length === 0 ? (
               <p className="muted">No notes yet.</p>
@@ -98,7 +99,7 @@ export function TrainerPage() {
                 <div key={n.id} className="trainer-note-item">
                   <span className="trainer-note-text">{n.text}</span>
                   <span className="trainer-note-date">{new Date(n.timestamp).toLocaleDateString()}</span>
-                  <button className="btn small danger" onClick={() => deleteNote(n.id)}>×</button>
+                  <Button label="×" variant="destructive" size="sm" isIconOnly onClick={() => deleteNote(n.id)} />
                 </div>
               ))
             )}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@astryxdesign/core/Button';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -77,13 +78,14 @@ export default function LoginPage() {
               />
             </div>
 
-            <button
+            <Button
               type="submit"
-              disabled={loading}
-              className="btn primary auth-submit"
-            >
-              {loading ? 'Signing in…' : 'Sign in'}
-            </button>
+              label={loading ? 'Signing in…' : 'Sign in'}
+              variant="primary"
+              isDisabled={loading}
+              width="100%"
+              style={{ marginTop: 'var(--space-2)' }}
+            />
           </form>
 
           <p className="auth-footer">

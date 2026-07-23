@@ -1070,86 +1070,13 @@ tr:hover td {
 .warn { color: var(--warning); }
 .bad { color: var(--danger); }
 
-/* ── Buttons ────────────────────────────────────────────────────── */
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  background: var(--surface-1);
-  color: var(--ink-900);
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  letter-spacing: -0.005em;
-  white-space: nowrap;
-  transition: color, background-color, border-color, box-shadow, transform, opacity var(--duration-fast) var(--ease-out);
-  cursor: pointer;
-  min-height: 36px;
-}
-
-.btn:hover {
-  background: var(--surface-2);
-  border-color: var(--border-strong);
-  box-shadow: var(--shadow-xs);
-}
-
-.btn:not(:disabled):active {
-  transform: translateY(1px);
-  box-shadow: none;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn.primary {
-  background: var(--accent);
-  color: var(--accent-ink);
-  border-color: var(--accent);
-  font-weight: 600;
-}
-
-.btn.primary:hover {
-  background: var(--accent-hover);
-  border-color: var(--accent-hover);
-  box-shadow: var(--shadow-sm);
-}
-
-.btn.primary:not(:disabled):active {
-  background: var(--accent-active);
-}
-
-.btn.danger {
-  color: var(--danger);
-  border-color: var(--danger);
-}
-
-.btn.danger:hover {
-  background: var(--danger-soft);
-}
-
-.btn.small {
-  padding: var(--space-1) var(--space-3);
-  font-size: var(--text-xs);
-  min-height: 32px;
-}
-
-.btn.blue {
-  background: var(--info);
-  color: white;
-  border-color: var(--info);
-}
-
-.btn.blue:hover {
-  background: #005f73;
-  border-color: #005f73;
-}
+/* ── Buttons ────────────────────────────────────────────────────── *
+ * .btn, .btn.primary, .btn.danger, .btn.blue, .btn.small — all moved
+ * to src/app/astryx-theme.css as the .astryx-button[data-variant="…"]
+ * overrides. The buttons now use <Button> from @astryxdesign/core, and
+ * the bridge CSS in astryx-theme.css preserves the Amazon platform look
+ * (orange primary, red destructive outline, teal info fill, etc.).
+ */
 
 /* ── Forms ──────────────────────────────────────────────────────── */
 
@@ -1371,7 +1298,7 @@ textarea.input {
   margin: 0 auto var(--space-4);
 }
 
-.empty .btn { margin-top: var(--space-2); }
+.empty .astryx-button { margin-top: var(--space-2); }
 
 /* ── Coach Tip ──────────────────────────────────────────────────── */
 
@@ -1933,7 +1860,7 @@ textarea.input {
   }
 
   .toolbar select,
-  .toolbar .btn {
+  .toolbar .astryx-button {
     flex: 1;
     min-width: 0;
     font-size: var(--text-xs);
@@ -1991,12 +1918,12 @@ textarea.input {
     padding: var(--space-1) var(--space-2);
   }
 
-  .btn {
+  .astryx-button {
     min-height: 48px;
     font-size: var(--text-sm);
   }
 
-  .btn.small {
+  .astryx-button[data-size="sm"] {
     min-height: 40px;
     padding: var(--space-2) var(--space-3);
   }
@@ -2017,7 +1944,7 @@ textarea.input {
     min-height: 100px;
   }
 
-  .wizard .btn {
+  .wizard .astryx-button {
     min-height: 48px;
   }
 

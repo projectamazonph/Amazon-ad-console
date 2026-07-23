@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@astryxdesign/core/Button';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { Sidebar } from './layout/Sidebar';
 import { Topbar } from './layout/Topbar';
@@ -30,7 +31,7 @@ export function AdConsole() {
       
       <h3>Campaign not found</h3>
       <p>The campaign you selected may have been archived or deleted.</p>
-      <button className="btn primary" onClick={() => setView('campaigns')}>Back to campaigns</button>
+      <Button label="Back to campaigns" variant="primary" onClick={() => setView('campaigns')} />
     </div>
   );
       case 'create': return <CreateCampaignWizard />;
