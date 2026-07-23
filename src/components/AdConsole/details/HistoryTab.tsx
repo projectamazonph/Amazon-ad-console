@@ -1,3 +1,4 @@
+import { Card } from '@astryxdesign/core/Card';
 import type { Campaign } from '@/engine/ad-console/types';
 import { EmptyState } from './EmptyState';
 
@@ -14,7 +15,7 @@ export function HistoryTab({ campaign }: Props) {
     );
   }
   return (
-    <div className="card pad">
+    <Card variant="default" padding={6}>
       <div className="section-head">
         <h2>Change history</h2>
         <span className="meta">{campaign.history.length} events</span>
@@ -24,6 +25,6 @@ export function HistoryTab({ campaign }: Props) {
           <div className="timeline-item" key={i}>{h}</div>
         ))}
       </div>
-    </div>
+    </Card>
   );
 }

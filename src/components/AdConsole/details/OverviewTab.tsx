@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
@@ -19,7 +20,7 @@ export function OverviewTab({ campaign: c }: Props) {
 
   return (
     <div className="split">
-      <div className="card pad">
+      <Card variant="default" padding={6}>
         <div className="section-head"><h2>Campaign settings</h2><span className="meta">Editable training controls</span></div>
         <div className="form-grid">
           <div className="field">
@@ -56,8 +57,8 @@ export function OverviewTab({ campaign: c }: Props) {
               defaultBid: Number(defaultBidInput),
             });
           }} />
-      </div>
-      <div className="card pad">
+      </Card>
+      <Card variant="default" padding={6}>
         <div className="section-head"><h2>Products</h2><span className="meta">{c.type}</span></div>
         {c.products.map((asin) => {
           const p = PRODUCTS.find(x => x.asin === asin);
@@ -94,8 +95,8 @@ export function OverviewTab({ campaign: c }: Props) {
             {c.creative?.destination && <div className="review-row" style={{ marginTop: 4 }}><span>Destination</span><strong>{c.creative.destination}</strong></div>}
           </div>
         )}
-      </div>
-      <div className="card pad" style={{ gridColumn: '1 / -1' }}>
+      </Card>
+      <Card variant="default" padding={6} style={{ gridColumn: '1 / -1' }}>
         <div className="section-head"><h2>Top targets by profit signal</h2><span className="meta">Use to train bid optimization</span></div>
         <div className="table-wrap">
           <table>
@@ -121,7 +122,7 @@ export function OverviewTab({ campaign: c }: Props) {
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

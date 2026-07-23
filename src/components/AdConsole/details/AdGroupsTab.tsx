@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, acosClass } from '@/engine/ad-console/engine';
@@ -34,7 +35,7 @@ export function AdGroupsTab({ campaign: c }: Props) {
     return (
       <div>
         <Button label="← All ad groups" size="sm" style={{ marginBottom: 10 }} onClick={() => setSelectedAdGroupId(null)} />
-        <div className="card pad" style={{ marginBottom: 12 }}>
+        <Card variant="default" padding={6} style={{ marginBottom: 12 }}>
           <div className="section-head">
             <h2>{focused.name}</h2>
             <span className="meta">{agTargets.length} targets</span>
@@ -56,7 +57,7 @@ export function AdGroupsTab({ campaign: c }: Props) {
           </div>
           <Button label="Save default bid" variant="primary" style={{ marginTop: 8 }}
             onClick={() => setAdGroupDefaultBid(c.id, focused.id, Number(adGroupBidEdits[focused.id] ?? focused.defaultBid))} />
-        </div>
+        </Card>
         {!agTargets.length ? (
           <EmptyState icon="target" title={`No targets in "${focused.name}" yet`} message="Add keywords or product targets to this ad group from the Targeting tab." />
         ) : (

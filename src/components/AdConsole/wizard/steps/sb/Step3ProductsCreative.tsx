@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { PRODUCTS, BRANDS } from '@/engine/ad-console/core/scenarios';
 
@@ -31,7 +32,7 @@ export function Step3ProductsCreativeSB({ isActive, isComplete }: Step3ProductsC
 
       {/* Product Selection (not for Store spotlight) */}
       {!(draft.adFormat === 'Store spotlight') && (
-        <div className="card pad" style={{ marginBottom: 14 }}>
+        <Card variant="default" padding={6} style={{ marginBottom: 14 }}>
           <div className="card-title"><h3>Product catalog</h3><span>{draft.products.length} selected</span></div>
           <div className="table-wrap">
             <table>
@@ -61,12 +62,12 @@ export function Step3ProductsCreativeSB({ isActive, isComplete }: Step3ProductsC
             <strong>⚠️ Select at least one product</strong>
             <p style={{ fontSize: 'var(--text-xs)', marginTop: 2 }}>Campaigns require at least one product to advertise.</p>
           </div>}
-        </div>
+        </Card>
       )}
 
       {/* Creative Configuration */}
       {draft.adFormat === 'Store spotlight' && (
-        <div className="card pad" style={{ marginBottom: 14 }}>
+        <Card variant="default" padding={6} style={{ marginBottom: 14 }}>
           <div className="card-title"><h3>Store spotlight</h3><span>Store URL</span></div>
           <div className="field full">
             <label htmlFor="sb3-store-url">Store URL</label>
@@ -77,11 +78,11 @@ export function Step3ProductsCreativeSB({ isActive, isComplete }: Step3ProductsC
               Store spotlight promotes your entire Amazon Store, not individual products.
             </p>
           </div>
-        </div>
+        </Card>
       )}
 
       {draft.adFormat === 'Product collection' && (
-        <div className="card pad" style={{ marginBottom: 14 }}>
+        <Card variant="default" padding={6} style={{ marginBottom: 14 }}>
           <div className="card-title"><h3>Creative</h3></div>
           <div className="form-grid">
             <div className="field">
@@ -113,11 +114,11 @@ export function Step3ProductsCreativeSB({ isActive, isComplete }: Step3ProductsC
               <input id="sb3-pc-image" className="input full" value={image} onChange={(e) => { setImage(e.target.value); updateDraft('creative', { ...draft.creative, image: e.target.value }); }} placeholder="Auto generated or custom" />
             </div>
           </div>
-        </div>
+        </Card>
       )}
 
       {draft.adFormat === 'Video' && (
-        <div className="card pad" style={{ marginBottom: 14 }}>
+        <Card variant="default" padding={6} style={{ marginBottom: 14 }}>
           <div className="card-title"><h3>Video creative</h3></div>
           <div className="form-grid">
             <div className="field">
@@ -149,7 +150,7 @@ export function Step3ProductsCreativeSB({ isActive, isComplete }: Step3ProductsC
               <input id="sb3-vid-video" className="input full" value={video} onChange={(e) => { setVideo(e.target.value); updateDraft('creative', { ...draft.creative, video: e.target.value }); }} placeholder="https://..." />
             </div>
           </div>
-        </div>
+        </Card>
       )}
     </div>
   );

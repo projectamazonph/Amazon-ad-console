@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 
 export function TrainerPage() {
@@ -27,31 +28,31 @@ export function TrainerPage() {
       </div>
 
       <div className="grid-4" style={{ marginBottom: 'var(--space-4)' }}>
-        <div className="metric-card">
+        <Card variant="default" className="metric-card">
           <div className="label">Certification score</div>
           <div className="value" style={{ color: score >= 80 ? 'var(--success)' : score >= 50 ? 'var(--warning)' : 'var(--danger)' }}>{score}%</div>
           <div className="delta">{certChecklist.filter((c) => c.checked).length}/{certChecklist.length} items</div>
-        </div>
-        <div className="metric-card">
+        </Card>
+        <Card variant="default" className="metric-card">
           <div className="label">Action log</div>
           <div className="value">{actionLog.length}</div>
           <div className="delta">Recorded actions</div>
-        </div>
-        <div className="metric-card">
+        </Card>
+        <Card variant="default" className="metric-card">
           <div className="label">Trainer notes</div>
           <div className="value">{notes.length}</div>
           <div className="delta">Saved notes</div>
-        </div>
-        <div className="metric-card">
+        </Card>
+        <Card variant="default" className="metric-card">
           <div className="label">Drills completed</div>
           <div className="value">{drillResults.length}</div>
           <div className="delta">Guided navigation</div>
-        </div>
+        </Card>
       </div>
 
       <div className="split">
         <div>
-          <div className="card pad" style={{ marginBottom: 'var(--space-4)' }}>
+          <Card variant="default" padding={6} style={{ marginBottom: 'var(--space-4)' }}>
             <div className="card-title"><h2>Certification checklist</h2><span>{score}%</span></div>
             {certChecklist.map((item) => (
               <label key={item.id} className="trainer-cert-item">
@@ -64,9 +65,9 @@ export function TrainerPage() {
                 <span>{item.label}</span>
               </label>
             ))}
-          </div>
+          </Card>
 
-          <div className="card pad">
+          <Card variant="default" padding={6}>
             <div className="card-title"><h2>Action log</h2><span>{actionLog.length} entries</span></div>
             {actionLog.length === 0 ? (
               <p className="muted">No actions recorded yet.</p>
@@ -81,11 +82,11 @@ export function TrainerPage() {
                 ))}
               </div>
             )}
-          </div>
+          </Card>
         </div>
 
         <div>
-          <div className="card pad" style={{ marginBottom: 'var(--space-4)' }}>
+          <Card variant="default" padding={6} style={{ marginBottom: 'var(--space-4)' }}>
             <div className="card-title"><h2>Trainer notes</h2></div>
             <div className="trainer-note-input-row">
               <label htmlFor="tp-note" className="visually-hidden">Trainer note</label>
@@ -103,10 +104,10 @@ export function TrainerPage() {
                 </div>
               ))
             )}
-          </div>
+          </Card>
 
           {drillResults.length > 0 && (
-            <div className="card pad">
+            <Card variant="default" padding={6}>
               <div className="card-title"><h2>Drill results</h2></div>
               <div className="table-wrap">
                 <table>
@@ -122,7 +123,7 @@ export function TrainerPage() {
                   </tbody>
                 </table>
               </div>
-            </div>
+            </Card>
           )}
         </div>
       </div>

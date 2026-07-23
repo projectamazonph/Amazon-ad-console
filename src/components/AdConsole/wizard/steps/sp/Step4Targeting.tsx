@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 
 interface Step4TargetingSPProps {
@@ -33,7 +34,7 @@ export function Step4TargetingSP({ isActive, isComplete }: Step4TargetingSPProps
       </div>
 
       {draft.targetingMode === 'Manual keyword' && (
-        <div className="card pad" style={{ marginBottom: 16 }}>
+        <Card variant="default" padding={6} style={{ marginBottom: 16 }}>
           <div className="card-title"><h3>Keyword targeting</h3></div>
           <div className="field full" style={{ marginBottom: 12 }}>
             <label>Exact match (one per line)</label>
@@ -47,11 +48,11 @@ export function Step4TargetingSP({ isActive, isComplete }: Step4TargetingSPProps
             <label>Broad match (one per line)</label>
             <textarea className="input full" rows={4} value={broadKeywords} onChange={(e) => { setBroadKeywords(e.target.value); updateDraft('broadKeywords', e.target.value); }} placeholder="cheap coffee filter&#10;coffee filter deals" />
           </div>
-        </div>
+        </Card>
       )}
 
       {draft.targetingMode === 'Manual product' && (
-        <div className="card pad" style={{ marginBottom: 16 }}>
+        <Card variant="default" padding={6} style={{ marginBottom: 16 }}>
           <div className="card-title"><h3>Product targeting</h3></div>
           <div className="field full" style={{ marginBottom: 12 }}>
             <label>ASIN targets (one per line)</label>
@@ -61,7 +62,7 @@ export function Step4TargetingSP({ isActive, isComplete }: Step4TargetingSPProps
             <label>Category targets (one per line)</label>
             <textarea className="input full" rows={3} value={categoryTargets} onChange={(e) => { setCategoryTargets(e.target.value); updateDraft('categoryTargets', e.target.value); }} placeholder="Coffee & Espresso Accessories&#10;Drinkware" />
           </div>
-        </div>
+        </Card>
       )}
 
       <div className="field" style={{ marginBottom: 16 }}>

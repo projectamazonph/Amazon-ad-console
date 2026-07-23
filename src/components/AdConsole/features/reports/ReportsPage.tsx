@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent } from '@/engine/ad-console/core/engine';
 
@@ -28,7 +29,7 @@ export function ReportsPage() {
       </div>
 
       {requests.length > 0 && (
-        <div className="card pad" style={{ marginBottom: 'var(--space-4)' }}>
+        <Card variant="default" padding={6} style={{ marginBottom: 'var(--space-4)' }}>
           <div className="card-title"><h2>Report queue</h2><span>{requests.length} requests</span></div>
           {requests.slice(0, 10).map((r) => (
             <div key={r.id} className="report-queue-item">
@@ -40,11 +41,11 @@ export function ReportsPage() {
               )}
             </div>
           ))}
-        </div>
+        </Card>
       )}
 
       {selected && (
-        <div className="card pad">
+        <Card variant="default" padding={6}>
           <div className="card-title">
             <h2>{selected.type} report</h2>
             <Button label="Export CSV" size="sm" onClick={() => {
@@ -81,7 +82,7 @@ export function ReportsPage() {
               </table>
             </div>
           )}
-        </div>
+        </Card>
       )}
 
       {!requests.length && (

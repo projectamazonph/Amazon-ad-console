@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
 import { useCampaignManager } from './hooks/useCampaignManager';
 import { MetricCard } from './metrics/MetricCard';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
@@ -25,13 +26,13 @@ export function CampaignManager() {
     <div>
       {simulating && (
         <div className="sim-overlay">
-          <div className="card">
+          <Card variant="default" className="sim-overlay-card">
             <div className="loading-dots">
               <div className="dot" /><div className="dot" /><div className="dot" />
             </div>
             <h3>Running simulation…</h3>
             <p>Generating performance data for enabled campaigns.</p>
-          </div>
+          </Card>
         </div>
       )}
 

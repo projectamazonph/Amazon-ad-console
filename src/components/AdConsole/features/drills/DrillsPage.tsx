@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { getDrill, getAllDrills, calculateScore } from '@/engine/ad-console/features/drills/engine';
 
@@ -27,15 +28,15 @@ export function DrillsPage() {
           <Button label="Stop drill" onClick={() => stopDrill()} />
         </div>
         {session.completed ? (
-          <div className="card pad drill-complete-card">
+          <Card variant="default" padding={6} className="drill-complete-card">
             <h2>🎉 Drill complete!</h2>
             <p className="drill-complete-score">Score: {score}%</p>
             <p className="muted">Mistakes: {session.mistakes} · Skips: {session.skips}</p>
             <Button label="Back to drills" variant="primary" style={{ marginTop: 'var(--space-4)' }} onClick={() => setView('drills')} />
-          </div>
+          </Card>
         ) : (
           <div className="split">
-            <div className="card pad">
+            <Card variant="default" padding={6}>
               <h3>Step {session.currentStep + 1} of {activeDrill.steps.length}</h3>
               <p className="drill-step-instruction">{step?.instruction}</p>
               {step?.hint && <div className="coach-tip">{step.hint}</div>}
@@ -49,14 +50,14 @@ export function DrillsPage() {
                   <div className="drill-progress-fill" style={{ width: `${((session.currentStep) / activeDrill.steps.length) * 100}%` }} />
                 </div>
               </div>
-            </div>
+            </Card>
             <div>
-              <div className="card pad" style={{ marginBottom: 'var(--space-4)' }}>
+              <Card variant="default" padding={6} style={{ marginBottom: 'var(--space-4)' }}>
                 <div className="card-title"><h3>Score</h3></div>
                 <p className="drill-score-value">{calculateScore(session, activeDrill.steps.length)}%</p>
                 <p className="muted">Mistakes: {session.mistakes} · Skips: {session.skips}</p>
-              </div>
-              <div className="card pad">
+              </Card>
+              <Card variant="default" padding={6}>
                 <div className="card-title"><h3>Navigation</h3></div>
                 {activeDrill.steps.map((s, i) => (
                   <div key={i} className="drill-nav-item">
@@ -66,7 +67,7 @@ export function DrillsPage() {
                     <span className={`drill-nav-label ${i === session.currentStep ? 'current' : 'pending'}`}>{s.instruction}</span>
                   </div>
                 ))}
-              </div>
+              </Card>
             </div>
           </div>
         )}
@@ -87,7 +88,7 @@ export function DrillsPage() {
 
       <div className="drill-grid">
         {drills.map((drill) => (
-          <div key={drill.id} className="card pad">
+          <Card key={drill.id} variant="default" padding={6}>
             <div className="drill-card-tags">
               <span className={`pill ${drill.adType === 'SP' ? 'active' : drill.adType === 'SB' ? 'orange' : 'purple'}`}>{drill.adType}</span>
               <span className={`pill ${drill.difficulty === 'beginner' ? 'green' : 'orange'}`}>{drill.difficulty}</span>
@@ -97,12 +98,12 @@ export function DrillsPage() {
             <p className="drill-card-desc">{drill.description}</p>
             <p className="drill-card-steps">{drill.steps.length} steps</p>
             <Button label="Start drill" variant="primary" onClick={() => startDrill(drill.id)} />
-          </div>
+          </Card>
         ))}
       </div>
 
       {results.length > 0 && (
-        <div className="card pad" style={{ marginTop: 'var(--space-5)' }}>
+        <Card variant="default" padding={6} style={{ marginTop: 'var(--space-5)' }}>
           <div className="card-title"><h2>Past drill results</h2><span>{results.length} completed</span></div>
           <div className="table-wrap">
             <table>
@@ -120,7 +121,7 @@ export function DrillsPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </Card>
       )}
     </div>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { PRODUCTS } from '@/engine/ad-console/core/scenarios';
 
@@ -23,7 +24,7 @@ export function Step3ProductsCreativeSP({ isActive, isComplete }: Step3ProductsC
       <h2>Products & creative</h2>
       <p className="muted" style={{ marginBottom: 14 }}>Select products to advertise.</p>
 
-      <div className="card pad" style={{ marginBottom: 16 }}>
+      <Card variant="default" padding={6} style={{ marginBottom: 16 }}>
         <div className="card-title"><h3>Selected products ({selectedProducts.length})</h3></div>
         {selectedProducts.length === 0 ? (
           <p className="muted">No products selected</p>
@@ -32,35 +33,35 @@ export function Step3ProductsCreativeSP({ isActive, isComplete }: Step3ProductsC
             {selectedProducts.map((asin) => {
               const p = PRODUCTS.find((x) => x.asin === asin);
               return (
-                <div key={asin} className="card pad" style={{ flex: 1, minWidth: 200, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Card key={asin} variant="default" padding={6} style={{ flex: 1, minWidth: 200, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontSize: 24 }}>{p?.image || '📦'}</span>
                   <div>
                     <strong>{p?.title || asin}</strong>
                     <div className="muted" style={{ fontSize: 12 }}>${p?.price}</div>
                   </div>
                   <Button label="Remove" variant="destructive" size="sm" style={{ marginLeft: 'auto' }} onClick={() => removeProductAction(asin)} />
-                </div>
+                </Card>
               );
             })}
           </div>
         )}
-      </div>
+      </Card>
 
-      <div className="card pad" style={{ marginBottom: 16 }}>
+      <Card variant="default" padding={6} style={{ marginBottom: 16 }}>
         <div className="card-title"><h3>Add products</h3></div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {availableProducts.map((p) => (
-            <div key={p.asin} className="card pad" style={{ flex: 1, minWidth: 200, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Card key={p.asin} variant="default" padding={6} style={{ flex: 1, minWidth: 200, display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 24 }}>{p.image}</span>
               <div>
                 <strong>{p.title}</strong>
                 <div className="muted" style={{ fontSize: 12 }}>${p.price} | {p.category}</div>
               </div>
               <Button label="Add" variant="primary" size="sm" style={{ marginLeft: 'auto' }} onClick={() => selectProductAction(p.asin)} />
-            </div>
+            </Card>
           ))}
         </div>
-      </div>
+      </Card>
 
       <div className="coach-tip">Sponsored Products campaigns use the product detail page as the ad creative.</div>
     </div>

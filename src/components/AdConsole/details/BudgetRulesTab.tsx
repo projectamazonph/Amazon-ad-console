@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { EmptyState } from './EmptyState';
@@ -24,7 +25,7 @@ export function BudgetRulesTab({ campaign }: Props) {
 
   return (
     <div>
-      <div className="card pad" style={{ marginBottom: 14 }}>
+      <Card variant="default" padding={6} style={{ marginBottom: 14 }}>
         <div className="section-head"><h2>Add budget rule</h2><span className="meta">Schedule or performance-based</span></div>
         <div className="form-grid">
           <div className="field">
@@ -52,7 +53,7 @@ export function BudgetRulesTab({ campaign }: Props) {
             setNewName(''); setNewCondition(''); setNewIncrease('1.5');
           }
         }} />
-      </div>
+      </Card>
       {c.budgetRules.length === 0 ? (
         <EmptyState icon="rule" title="No budget rules" message="Schedule-based or performance-based rules let you automate budget adjustments. Create one using the form above." />
       ) : (
