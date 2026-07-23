@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { Card } from '@astryxdesign/core/Card';
+import { NumberInput } from '@astryxdesign/core/NumberInput';
+import { Selector } from '@astryxdesign/core/Selector';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
@@ -15,46 +17,49 @@ interface Props {
 export function OverviewTab({ campaign: c }: Props) {
   const toggleStatus = useAdConsoleStore((s) => s.toggleCampaignStatus);
   const removeCampaignProduct = useAdConsoleStore((s) => s.removeCampaignProduct);
-  const [budgetInput, setBudgetInput] = useState(String(c.dailyBudget));
-  const [defaultBidInput, setDefaultBidInput] = useState(String(c.defaultBid));
+  const [budgetInput, setBudgetInput] = useState(c.dailyBudget);
+  const [defaultBidInput, setDefaultBidInput] = useState(c.defaultBid);
 
   return (
     <div className="split">
       <Card variant="default" padding={6}>
         <div className="section-head"><h2>Campaign settings</h2><span className="meta">Editable training controls</span></div>
         <div className="form-grid">
-          <div className="field">
-            <label htmlFor="ot-budget">Daily budget</label>
-            <input id="ot-budget" className="input full" type="number" min="1" value={budgetInput}
-              onChange={(e) => setBudgetInput(e.target.value)} />
-          </div>
-          <div className="field">
-            <label htmlFor="ot-bid">Default bid</label>
-            <input id="ot-bid" className="input full" type="number" min="0.02" step="0.01" value={defaultBidInput}
-              onChange={(e) => setDefaultBidInput(e.target.value)} />
-          </div>
-          <div className="field">
-            <label htmlFor="ot-strategy">Bid strategy</label>
-            <select id="ot-strategy" className="select full" value={c.bidStrategy}
-              onChange={(e) => useAdConsoleStore.getState().updateCampaignSettings(c.id, { bidStrategy: e.target.value as any })}>
-              {['Dynamic bids - down only', 'Dynamic bids - up and down', 'Fixed bids', 'Cost per click', 'Cost per thousand impressions'].map((x) => (
-                <option key={x}>{x}</option>
-              ))}
-            </select>
-          </div>
-          <div className="field">
-            <label htmlFor="ot-status">Status</label>
-            <select id="ot-status" className="select full" value={c.status}
-              onChange={(e) => toggleStatus(c.id)}>
-              {['Enabled', 'Paused', 'Archived'].map((x) => <option key={x}>{x}</option>)}
-            </select>
-          </div>
+          <NumberInput
+            id="ot-budget"
+            label="Daily budget"
+            min={1}
+            value={budgetInput}
+            onChange={(v) => setBudgetInput(Number(v))}
+          />
+          <NumberInput
+            id="ot-bid"
+            label="Default bid"
+            min={0.02}
+            step={0.01}
+            value={defaultBidInput}
+            onChange={(v) => setDefaultBidInput(Number(v))}
+          />
+          <Selector
+            id="ot-strategy"
+            label="Bid strategy"
+            value={c.bidStrategy}
+            onChange={(v) => useAdConsoleStore.getState().updateCampaignSettings(c.id, { bidStrategy: v as any })}
+            options={['Dynamic bids - down only', 'Dynamic bids - up and down', 'Fixed bids', 'Cost per click', 'Cost per thousand impressions'].map((x) => ({ value: x, label: x }))}
+          />
+          <Selector
+            id="ot-status"
+            label="Status"
+            value={c.status}
+            onChange={() => toggleStatus(c.id)}
+            options={['Enabled', 'Paused', 'Archived'].map((x) => ({ value: x, label: x }))}
+          />
         </div>
         <Button label="Save settings" variant="primary" style={{ marginTop: 12 }}
           onClick={() => {
             useAdConsoleStore.getState().updateCampaignSettings(c.id, {
-              dailyBudget: Number(budgetInput),
-              defaultBid: Number(defaultBidInput),
+              dailyBudget: budgetInput,
+              defaultBid: defaultBidInput,
             });
           }} />
       </Card>

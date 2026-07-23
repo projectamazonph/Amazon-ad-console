@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { Card } from '@astryxdesign/core/Card';
+import { NumberInput } from '@astryxdesign/core/NumberInput';
+import { Selector } from '@astryxdesign/core/Selector';
+import { TextInput } from '@astryxdesign/core/TextInput';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, acosClass } from '@/engine/ad-console/engine';
@@ -21,7 +24,7 @@ export function AdGroupsTab({ campaign: c }: Props) {
 
   const [selectedAdGroupId, setSelectedAdGroupId] = useState<string | null>(null);
   const [adGroupNameEdits, setAdGroupNameEdits] = useState<Record<string, string>>({});
-  const [adGroupBidEdits, setAdGroupBidEdits] = useState<Record<string, string>>({});
+  const [adGroupBidEdits, setAdGroupBidEdits] = useState<Record<string, number>>({});
   const [newAdGroupName, setNewAdGroupName] = useState('');
 
   if (!c.adGroups.length) {
@@ -41,19 +44,21 @@ export function AdGroupsTab({ campaign: c }: Props) {
             <span className="meta">{agTargets.length} targets</span>
           </div>
           <div className="form-grid" style={{ maxWidth: 460 }}>
-            <div className="field">
-              <label htmlFor={`ag-status-${focused.id}`}>Status</label>
-              <select id={`ag-status-${focused.id}`} className="select full" value={focused.status}
-                onChange={(e) => setAdGroupStatus(c.id, focused.id, e.target.value as any)}>
-                {['Enabled', 'Paused', 'Archived'].map((x) => <option key={x}>{x}</option>)}
-              </select>
-            </div>
-            <div className="field">
-              <label htmlFor={`ag-bid-${focused.id}`}>Default bid</label>
-              <input id={`ag-bid-${focused.id}`} className="input full" type="number" min="0.02" step="0.01"
-                value={adGroupBidEdits[focused.id] ?? String(focused.defaultBid)}
-                onChange={(e) => setAdGroupBidEdits((p) => ({ ...p, [focused.id]: e.target.value }))} />
-            </div>
+            <Selector
+              id={`ag-status-${focused.id}`}
+              label="Status"
+              value={focused.status}
+              onChange={(v) => setAdGroupStatus(c.id, focused.id, v as any)}
+              options={['Enabled', 'Paused', 'Archived'].map((x) => ({ value: x, label: x }))}
+            />
+            <NumberInput
+              id={`ag-bid-${focused.id}`}
+              label="Default bid"
+              min={0.02}
+              step={0.01}
+              value={adGroupBidEdits[focused.id] ?? focused.defaultBid}
+              onChange={(v) => setAdGroupBidEdits((p) => ({ ...p, [focused.id]: v }))}
+            />
           </div>
           <Button label="Save default bid" variant="primary" style={{ marginTop: 8 }}
             onClick={() => setAdGroupDefaultBid(c.id, focused.id, Number(adGroupBidEdits[focused.id] ?? focused.defaultBid))} />
@@ -92,10 +97,14 @@ export function AdGroupsTab({ campaign: c }: Props) {
   return (
     <div>
       <div className="tab-toolbar">
-        <div className="field" style={{ flex: 1, minWidth: 180 }}>
-          <label htmlFor="ag-new-name">New ad group name</label>
-          <input id="ag-new-name" className="input full" value={newAdGroupName}
-            onChange={(e) => setNewAdGroupName(e.target.value)} placeholder="e.g. Branded keywords" />
+        <div style={{ flex: 1, minWidth: 180 }}>
+          <TextInput
+            id="ag-new-name"
+            label="New ad group name"
+            value={newAdGroupName}
+            onChange={(v) => setNewAdGroupName(v)}
+            placeholder="e.g. Branded keywords"
+          />
         </div>
         <Button label="+ Add ad group" variant="primary" onClick={() => { if (newAdGroupName.trim()) { addAdGroup(c.id, newAdGroupName); setNewAdGroupName(''); } }} />
       </div>
@@ -110,18 +119,25 @@ export function AdGroupsTab({ campaign: c }: Props) {
               return (
                 <tr key={ag.id}>
                   <td>
-                    <label htmlFor={`ag-row-name-${ag.id}`} className="visually-hidden">Ad group name</label>
-                    <input id={`ag-row-name-${ag.id}`} className="input" style={{ width: 180, fontWeight: 600 }}
+                    <TextInput
+                      id={`ag-row-name-${ag.id}`}
+                      label="Ad group name"
+                      isLabelHidden
                       value={adGroupNameEdits[ag.id] ?? ag.name}
-                      onChange={(e) => setAdGroupNameEdits((p) => ({ ...p, [ag.id]: e.target.value }))}
-                      onBlur={(e) => { if (e.target.value.trim()) renameAdGroup(c.id, ag.id, e.target.value); }} />
+                      onChange={(v) => setAdGroupNameEdits((p) => ({ ...p, [ag.id]: v }))}
+                      onBlur={() => { const v = adGroupNameEdits[ag.id] ?? ag.name; if (v.trim()) renameAdGroup(c.id, ag.id, v); }}
+                      style={{ width: 180, fontWeight: 600 }}
+                    />
                   </td>
                   <td>
-                    <label htmlFor={`ag-row-status-${ag.id}`} className="visually-hidden">Ad group status</label>
-                    <select id={`ag-row-status-${ag.id}`} className="select" value={ag.status}
-                      onChange={(e) => setAdGroupStatus(c.id, ag.id, e.target.value as any)}>
-                      {['Enabled', 'Paused', 'Archived'].map((x) => <option key={x}>{x}</option>)}
-                    </select>
+                    <Selector
+                      id={`ag-row-status-${ag.id}`}
+                      label="Ad group status"
+                      isLabelHidden
+                      value={ag.status}
+                      onChange={(v) => setAdGroupStatus(c.id, ag.id, v as any)}
+                      options={['Enabled', 'Paused', 'Archived'].map((x) => ({ value: x, label: x }))}
+                    />
                   </td>
                   <td className="money">{formatBid(ag.defaultBid)}</td>
                   <td className="mono">{formatWhole(m.impressions)}</td>

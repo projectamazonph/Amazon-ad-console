@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { Selector } from '@astryxdesign/core/Selector';
+import { TextInput } from '@astryxdesign/core/TextInput';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { EmptyState } from './EmptyState';
@@ -17,18 +19,23 @@ export function NegativesTab({ campaign }: Props) {
   return (
     <div>
       <div className="tab-toolbar">
-        <div className="field" style={{ flex: 2, minWidth: 200 }}>
-          <label htmlFor="neg-term">Add negative</label>
-          <input id="neg-term" className="input full" value={negTerm} onChange={(e) => setNegTerm(e.target.value)} placeholder="Enter term to negate" />
+        <div style={{ flex: 2, minWidth: 200 }}>
+          <TextInput
+            id="neg-term"
+            label="Add negative"
+            value={negTerm}
+            onChange={(v) => setNegTerm(v)}
+            placeholder="Enter term to negate"
+          />
         </div>
-        <div className="field" style={{ flex: 1, minWidth: 150 }}>
-          <label htmlFor="neg-type">Type</label>
-          <select id="neg-type" className="select full" value={negType} onChange={(e) => setNegType(e.target.value as 'Negative exact' | 'Negative phrase' | 'Negative ASIN' | 'Negative category')}>
-            <option>Negative exact</option>
-            <option>Negative phrase</option>
-            <option>Negative ASIN</option>
-            <option>Negative category</option>
-          </select>
+        <div style={{ flex: 1, minWidth: 150 }}>
+          <Selector
+            id="neg-type"
+            label="Type"
+            value={negType}
+            onChange={(v) => setNegType(v as 'Negative exact' | 'Negative phrase' | 'Negative ASIN' | 'Negative category')}
+            options={['Negative exact', 'Negative phrase', 'Negative ASIN', 'Negative category'].map((x) => ({ value: x, label: x }))}
+          />
         </div>
         <Button label="Add" variant="primary" onClick={() => {
           if (negTerm.trim()) {

@@ -3,38 +3,51 @@
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { Card } from '@astryxdesign/core/Card';
+import { NumberInput } from '@astryxdesign/core/NumberInput';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 
 interface Props { campaign: Campaign }
 
 export function PlacementsTab({ campaign }: Props) {
-  const [top, setTop] = useState(String(campaign.placements.top));
-  const [prod, setProd] = useState(String(campaign.placements.product));
-  const [rest, setRest] = useState(String(campaign.placements.rest));
+  const [top, setTop] = useState(campaign.placements.top);
+  const [prod, setProd] = useState(campaign.placements.product);
+  const [rest, setRest] = useState(campaign.placements.rest);
 
   return (
     <Card variant="default" padding={6}>
       <div className="section-head"><h2>Placement adjustments</h2><span className="meta">Percentage modifiers</span></div>
       <div className="form-grid" style={{ maxWidth: 400 }}>
-        <div className="field">
-          <label htmlFor="pt-top">Top of Search (%)</label>
-          <input id="pt-top" className="input full" type="number" min="0" max="900" value={top} onChange={(e) => setTop(e.target.value)} />
-        </div>
-        <div className="field">
-          <label htmlFor="pt-product">Product pages (%)</label>
-          <input id="pt-product" className="input full" type="number" min="0" max="900" value={prod} onChange={(e) => setProd(e.target.value)} />
-        </div>
-        <div className="field">
-          <label htmlFor="pt-rest">Rest of Search (%)</label>
-          <input id="pt-rest" className="input full" type="number" min="0" max="900" value={rest} onChange={(e) => setRest(e.target.value)} />
-        </div>
+        <NumberInput
+          id="pt-top"
+          label="Top of Search (%)"
+          min={0}
+          max={900}
+          value={top}
+          onChange={(v) => setTop(v)}
+        />
+        <NumberInput
+          id="pt-product"
+          label="Product pages (%)"
+          min={0}
+          max={900}
+          value={prod}
+          onChange={(v) => setProd(v)}
+        />
+        <NumberInput
+          id="pt-rest"
+          label="Rest of Search (%)"
+          min={0}
+          max={900}
+          value={rest}
+          onChange={(v) => setRest(v)}
+        />
       </div>
       <Button label="Save placements" variant="primary" style={{ marginTop: 12 }} onClick={() => {
         useAdConsoleStore.getState().savePlacements(campaign.id, {
-          top: Number(top),
-          product: Number(prod),
-          rest: Number(rest),
+          top,
+          product: prod,
+          rest,
         });
       }} />
     </Card>
