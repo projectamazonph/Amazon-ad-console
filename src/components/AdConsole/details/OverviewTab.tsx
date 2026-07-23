@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@astryxdesign/core/Button';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
@@ -48,13 +49,13 @@ export function OverviewTab({ campaign: c }: Props) {
             </select>
           </div>
         </div>
-        <button className="btn primary" style={{ marginTop: 12 }}
+        <Button label="Save settings" variant="primary" style={{ marginTop: 12 }}
           onClick={() => {
             useAdConsoleStore.getState().updateCampaignSettings(c.id, {
               dailyBudget: Number(budgetInput),
               defaultBid: Number(defaultBidInput),
             });
-          }}>Save settings</button>
+          }} />
       </div>
       <div className="card pad">
         <div className="section-head"><h2>Products</h2><span className="meta">{c.type}</span></div>
@@ -63,7 +64,7 @@ export function OverviewTab({ campaign: c }: Props) {
           return (
             <div key={asin} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
               <span className="pill" style={{ margin: 0 }}>{p ? `${p.image} ${p.title} (${p.asin})` : asin}</span>
-              <button className="btn small danger" onClick={() => removeCampaignProduct(c.id, asin)} style={{ padding: '2px 6px', fontSize: 11 }}>&times;</button>
+              <Button label="×" variant="destructive" size="sm" isIconOnly onClick={() => removeCampaignProduct(c.id, asin)} style={{ padding: '2px 6px', fontSize: 11 }} />
             </div>
           );
         })}
@@ -76,11 +77,11 @@ export function OverviewTab({ campaign: c }: Props) {
             {c.creativeStatus === 'Rejected' && (
               <div className="coach-tip" style={{ marginTop: 8 }}>
                 Creative rejected: {c.creativeIssue}
-                <button className="btn small primary" style={{ marginLeft: 8 }}
+                <Button label="Resubmit creative" variant="primary" size="sm" style={{ marginLeft: 8 }}
                   onClick={() => useAdConsoleStore.getState().updateCampaignSettings(c.id, {
                     creativeStatus: 'Pending',
                     creativeIssue: '',
-                  } as any)}>Resubmit creative</button>
+                  } as any)} />
               </div>
             )}
             {((c.type === 'SB' || c.type === 'SD') && ((c.type === 'SB' && c.adFormat === 'Video') || (c.type === 'SD' && c.adFormat === 'Video creative'))) && c.creative?.video && (

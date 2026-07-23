@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@astryxdesign/core/Button';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { OverviewTab } from './details/OverviewTab';
@@ -63,13 +64,11 @@ export function CampaignDetail({ campaign }: Props) {
             </p>
           </div>
           <div className="detail-actions">
-            <button className="btn" onClick={() => { selectCampaign(null); setView('campaigns'); }}>← Back</button>
-            <button className="btn blue" onClick={() => runSimulation()}>Run 7-day sim</button>
-            <button className={`btn ${c.status === 'Enabled' ? 'orange' : ''}`} onClick={() => toggleStatus(c.id)}>
-              {c.status === 'Enabled' ? 'Pause' : 'Enable'}
-            </button>
-            <button className="btn" onClick={() => duplicateCampaign(c.id)}>Duplicate</button>
-            <button className="btn danger" onClick={() => { if (confirm(`Archive "${c.name}"?`)) archiveCampaign(c.id); }}>Archive</button>
+            <Button label="← Back" onClick={() => { selectCampaign(null); setView('campaigns'); }} />
+            <Button label="Run 7-day sim" variant="info" onClick={() => runSimulation()} />
+            <Button label={c.status === 'Enabled' ? 'Pause' : 'Enable'} onClick={() => toggleStatus(c.id)} />
+            <Button label="Duplicate" onClick={() => duplicateCampaign(c.id)} />
+            <Button label="Archive" variant="destructive" onClick={() => { if (confirm(`Archive "${c.name}"?`)) archiveCampaign(c.id); }} />
           </div>
         </div>
       </div>

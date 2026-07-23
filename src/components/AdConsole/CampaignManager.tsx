@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@astryxdesign/core/Button';
 import { useCampaignManager } from './hooks/useCampaignManager';
 import { MetricCard } from './metrics/MetricCard';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
@@ -39,7 +40,7 @@ export function CampaignManager() {
           <h1>Campaign manager</h1>
           <p>Practice the core ads console flow: filter, inspect, optimize, create, and report.</p>
         </div>
-        <button className="btn primary" onClick={() => setView('create')}>Create campaign</button>
+        <Button label="Create campaign" variant="primary" onClick={() => setView('create')} />
       </div>
 
       <div className="toolbar">
@@ -64,14 +65,14 @@ export function CampaignManager() {
         <select id="cm-filter-portfolio" className="select" value={filter.portfolio} onChange={(e) => setFilter({ portfolio: e.target.value })}>
           {portfolioOptions.map((x) => <option key={x}>{x}</option>)}
         </select>
-        <button className="btn" onClick={() => setFilter({ type: 'All', status: 'All', portfolio: 'All', search: '' })}>Reset</button>
-        <button className="btn blue" onClick={async () => {
+        <Button label="Reset" onClick={() => setFilter({ type: 'All', status: 'All', portfolio: 'All', search: '' })} />
+        <Button label="Run 7-day sim" variant="info" onClick={async () => {
               setSimulating(true);
               await new Promise(r => setTimeout(r, 50));
               runSimulation();
               await new Promise(r => setTimeout(r, 600));
               setSimulating(false);
-            }}>Run 7-day sim</button>
+            }} />
       </div>
 
       <div className="grid-4" style={{ marginBottom: 'var(--space-5)' }}>

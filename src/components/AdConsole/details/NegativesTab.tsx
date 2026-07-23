@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@astryxdesign/core/Button';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { EmptyState } from './EmptyState';
@@ -29,12 +30,12 @@ export function NegativesTab({ campaign }: Props) {
             <option>Negative category</option>
           </select>
         </div>
-        <button className="btn primary" onClick={() => {
+        <Button label="Add" variant="primary" onClick={() => {
           if (negTerm.trim()) {
             addNegative(c.id, negTerm.trim(), negType);
             setNegTerm('');
           }
-        }}>Add</button>
+        }} />
       </div>
       {c.negatives.length > 0 ? (
         <div className="table-wrap">

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@astryxdesign/core/Button';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, acosClass } from '@/engine/ad-console/engine';
@@ -32,9 +33,7 @@ export function AdGroupsTab({ campaign: c }: Props) {
     const agTargets = c.targets.filter((t) => t.adGroupId === focused.id);
     return (
       <div>
-        <button className="btn small" style={{ marginBottom: 10 }} onClick={() => setSelectedAdGroupId(null)}>
-          ← All ad groups
-        </button>
+        <Button label="← All ad groups" size="sm" style={{ marginBottom: 10 }} onClick={() => setSelectedAdGroupId(null)} />
         <div className="card pad" style={{ marginBottom: 12 }}>
           <div className="section-head">
             <h2>{focused.name}</h2>
@@ -55,10 +54,8 @@ export function AdGroupsTab({ campaign: c }: Props) {
                 onChange={(e) => setAdGroupBidEdits((p) => ({ ...p, [focused.id]: e.target.value }))} />
             </div>
           </div>
-          <button className="btn primary" style={{ marginTop: 8 }}
-            onClick={() => setAdGroupDefaultBid(c.id, focused.id, Number(adGroupBidEdits[focused.id] ?? focused.defaultBid))}>
-            Save default bid
-          </button>
+          <Button label="Save default bid" variant="primary" style={{ marginTop: 8 }}
+            onClick={() => setAdGroupDefaultBid(c.id, focused.id, Number(adGroupBidEdits[focused.id] ?? focused.defaultBid))} />
         </div>
         {!agTargets.length ? (
           <EmptyState icon="target" title={`No targets in "${focused.name}" yet`} message="Add keywords or product targets to this ad group from the Targeting tab." />
@@ -99,9 +96,7 @@ export function AdGroupsTab({ campaign: c }: Props) {
           <input id="ag-new-name" className="input full" value={newAdGroupName}
             onChange={(e) => setNewAdGroupName(e.target.value)} placeholder="e.g. Branded keywords" />
         </div>
-        <button className="btn primary" onClick={() => { if (newAdGroupName.trim()) { addAdGroup(c.id, newAdGroupName); setNewAdGroupName(''); } }}>
-          + Add ad group
-        </button>
+        <Button label="+ Add ad group" variant="primary" onClick={() => { if (newAdGroupName.trim()) { addAdGroup(c.id, newAdGroupName); setNewAdGroupName(''); } }} />
       </div>
       <div className="table-wrap">
         <table>
@@ -140,10 +135,8 @@ export function AdGroupsTab({ campaign: c }: Props) {
                   </td>
                   <td>
                     {c.adGroups.length > 1 && (
-                      <button className="btn small danger"
-                        onClick={() => { if (confirm(`Remove ad group "${ag.name}" and its targets?`)) removeAdGroup(c.id, ag.id); }}>
-                        Remove
-                      </button>
+                      <Button label="Remove" variant="destructive" size="sm"
+                        onClick={() => { if (confirm(`Remove ad group "${ag.name}" and its targets?`)) removeAdGroup(c.id, ag.id); }} />
                     )}
                   </td>
                 </tr>

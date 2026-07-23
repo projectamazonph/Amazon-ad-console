@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@astryxdesign/core/Button';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { getDrill, getAllDrills, calculateScore } from '@/engine/ad-console/features/drills/engine';
 
@@ -23,16 +24,14 @@ export function DrillsPage() {
       <div>
         <div className="page-title">
           <h1>{activeDrill.title}</h1>
-          <button className="btn" onClick={() => stopDrill()}>Stop drill</button>
+          <Button label="Stop drill" onClick={() => stopDrill()} />
         </div>
         {session.completed ? (
           <div className="card pad drill-complete-card">
             <h2>🎉 Drill complete!</h2>
             <p className="drill-complete-score">Score: {score}%</p>
             <p className="muted">Mistakes: {session.mistakes} · Skips: {session.skips}</p>
-            <button className="btn primary" style={{ marginTop: 'var(--space-4)' }} onClick={() => setView('drills')}>
-              Back to drills
-            </button>
+            <Button label="Back to drills" variant="primary" style={{ marginTop: 'var(--space-4)' }} onClick={() => setView('drills')} />
           </div>
         ) : (
           <div className="split">
@@ -41,8 +40,8 @@ export function DrillsPage() {
               <p className="drill-step-instruction">{step?.instruction}</p>
               {step?.hint && <div className="coach-tip">{step.hint}</div>}
               <div className="drill-step-actions">
-                <button className="btn" onClick={skipDrillStep}>Skip step</button>
-                <button className="btn danger" onClick={() => stopDrill()}>Stop drill</button>
+                <Button label="Skip step" onClick={skipDrillStep} />
+                <Button label="Stop drill" variant="destructive" onClick={() => stopDrill()} />
               </div>
               <div style={{ marginTop: 'var(--space-4)' }}>
                 <p className="muted drill-progress-label">Progress:</p>
@@ -97,7 +96,7 @@ export function DrillsPage() {
             <h3 className="drill-card-title">{drill.title}</h3>
             <p className="drill-card-desc">{drill.description}</p>
             <p className="drill-card-steps">{drill.steps.length} steps</p>
-            <button className="btn primary" onClick={() => startDrill(drill.id)}>Start drill</button>
+            <Button label="Start drill" variant="primary" onClick={() => startDrill(drill.id)} />
           </div>
         ))}
       </div>

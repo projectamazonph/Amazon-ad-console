@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@astryxdesign/core/Button';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent } from '@/engine/ad-console/core/engine';
 
@@ -17,12 +18,12 @@ export function ReportsPage() {
   return (
     <div>
       <div className="page-title">
-        <button className="btn small" onClick={() => setView('campaigns')} aria-label="Back to campaigns">← Back to campaigns</button>
+        <Button label="← Back to campaigns" size="sm" onClick={() => setView('campaigns')} tooltip="Back to campaigns" />
         <h1 style={{ marginTop: 'var(--space-2)' }}>Reports</h1>
         <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-          <button className="btn" onClick={() => requestReport('campaign')}>Campaign report</button>
-          <button className="btn" onClick={() => requestReport('target')}>Target report</button>
-          <button className="btn" onClick={() => requestReport('searchTerm')}>Search term report</button>
+          <Button label="Campaign report" onClick={() => requestReport('campaign')} />
+          <Button label="Target report" onClick={() => requestReport('target')} />
+          <Button label="Search term report" onClick={() => requestReport('searchTerm')} />
         </div>
       </div>
 
@@ -35,7 +36,7 @@ export function ReportsPage() {
               <span className="report-queue-type">{r.type} report</span>
               <span className="report-queue-time">{new Date(r.requestedAt).toLocaleTimeString()}</span>
               {r.status === 'completed' && (
-                <button className="btn small" onClick={() => selectReport(r.id)}>View</button>
+                <Button label="View" size="sm" onClick={() => selectReport(r.id)} />
               )}
             </div>
           ))}
@@ -46,7 +47,7 @@ export function ReportsPage() {
         <div className="card pad">
           <div className="card-title">
             <h2>{selected.type} report</h2>
-            <button className="btn small" onClick={() => {
+            <Button label="Export CSV" size="sm" onClick={() => {
               const csv = exportCsv(selected.id);
               if (csv) {
                 const blob = new Blob([csv], { type: 'text/csv' });
@@ -54,7 +55,7 @@ export function ReportsPage() {
                 const a = document.createElement('a');
                 a.href = url; a.download = `${selected.type}-report.csv`; a.click();
               }
-            }}>Export CSV</button>
+            }} />
           </div>
           {selected.rows.length > 0 && (
             <div className="table-wrap">

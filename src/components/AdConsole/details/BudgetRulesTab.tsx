@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@astryxdesign/core/Button';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { EmptyState } from './EmptyState';
@@ -45,12 +46,12 @@ export function BudgetRulesTab({ campaign }: Props) {
             <input id="br-condition" className="input full" value={newCondition} onChange={(e) => setNewCondition(e.target.value)} placeholder={newType === 'Schedule' ? 'Saturday through Sunday' : 'ACoS below 25%'} />
           </div>
         </div>
-        <button className="btn primary" style={{ marginTop: 10 }} onClick={() => {
+        <Button label="Add rule" variant="primary" style={{ marginTop: 10 }} onClick={() => {
           if (newName.trim() && newCondition.trim() && Number(newIncrease) > 0) {
             addBudgetRule(c.id, newName.trim(), newType, Number(newIncrease), newCondition.trim());
             setNewName(''); setNewCondition(''); setNewIncrease('1.5');
           }
-        }}>Add rule</button>
+        }} />
       </div>
       {c.budgetRules.length === 0 ? (
         <EmptyState icon="rule" title="No budget rules" message="Schedule-based or performance-based rules let you automate budget adjustments. Create one using the form above." />
@@ -90,9 +91,9 @@ export function BudgetRulesTab({ campaign }: Props) {
                       onBlur={(e) => { if (e.target.value.trim() && e.target.value !== r.condition) updateBudgetRule(c.id, r.id, { condition: e.target.value.trim() }); }} />
                   </td>
                   <td>
-                    <button className="btn small danger" onClick={() => {
+                    <Button label="Remove" variant="destructive" size="sm" onClick={() => {
                       if (confirm(`Remove budget rule "${r.name}"?`)) removeBudgetRule(c.id, r.id);
-                    }}>Remove</button>
+                    }} />
                   </td>
                 </tr>
               ))}

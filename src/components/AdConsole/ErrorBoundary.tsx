@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Button } from '@astryxdesign/core/Button';
 
 interface Props {
   children: React.ReactNode;
@@ -29,15 +30,14 @@ export class ErrorBoundary extends React.Component<Props, State> {
             <span className="icon">⚠️</span>
             <h3>Something went wrong</h3>
             <p>{this.state.error?.message || 'An unexpected error occurred.'}</p>
-            <button
-              className="btn primary"
+            <Button
+              label="Reload app"
+              variant="primary"
               onClick={() => {
                 this.setState({ hasError: false, error: null });
                 window.location.reload();
               }}
-            >
-              Reload app
-            </button>
+            />
           </div>
         </div>
       );

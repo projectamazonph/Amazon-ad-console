@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@astryxdesign/core/Button';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import type { CampaignType, CampaignDraft } from '@/engine/ad-console/types';
 import { PRODUCTS, BRANDS } from '@/engine/ad-console/core/scenarios';
@@ -90,7 +91,7 @@ export function CreateCampaignWizard() {
     <div>
       <div className="page-title">
         <h1>Create campaign</h1>
-        <button className="btn" onClick={() => setView('campaigns')}>Back to campaigns</button>
+        <Button label="Back to campaigns" onClick={() => setView('campaigns')} />
       </div>
 
       <div className="wizard">
@@ -107,16 +108,16 @@ export function CreateCampaignWizard() {
           {renderStep(wizardStep)}
 
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginTop: 18 }}>
-            <button className="btn" disabled={wizardStep === 1} onClick={() => setWizardStep(wizardStep - 1)}>Back</button>
+            <Button label="Back" isDisabled={wizardStep === 1} onClick={() => setWizardStep(wizardStep - 1)} />
             <div className="pill-row">
-              <button className="btn" onClick={() => { resetDraft(); }}>Reset draft</button>
+              <Button label="Reset draft" onClick={() => { resetDraft(); }} />
               {wizardStep < 6 ? (
-                <button className="btn primary" onClick={() => setWizardStep(wizardStep + 1)}>Next</button>
+                <Button label="Next" variant="primary" onClick={() => setWizardStep(wizardStep + 1)} />
               ) : (
-                <button className="btn primary" onClick={() => {
+                <Button label="Launch campaign" variant="primary" onClick={() => {
                   if (!d.name.trim()) return;
                   launchCampaign();
-                }}>Launch campaign</button>
+                }} />
               )}
             </div>
           </div>

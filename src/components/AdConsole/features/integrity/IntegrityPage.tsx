@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@astryxdesign/core/Button';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 
 export function IntegrityPage() {
@@ -12,11 +13,11 @@ export function IntegrityPage() {
   return (
     <div>
       <div className="page-title">
-        <button className="btn small" onClick={() => setView('campaigns')} aria-label="Back to campaigns">← Back to campaigns</button>
+        <Button label="← Back to campaigns" size="sm" onClick={() => setView('campaigns')} tooltip="Back to campaigns" />
         <h1 style={{ marginTop: 'var(--space-2)' }}>Integrity center</h1>
         <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-          <button className="btn primary" onClick={() => runIntegrity(campaigns)}>Run integrity check</button>
-          {report && <button className="btn" onClick={clear}>Clear results</button>}
+          <Button label="Run integrity check" variant="primary" onClick={() => runIntegrity(campaigns)} />
+          {report && <Button label="Clear results" onClick={clear} />}
         </div>
       </div>
 

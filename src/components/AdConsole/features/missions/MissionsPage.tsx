@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@astryxdesign/core/Button';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { getMission } from '@/engine/ad-console/features/missions/engine';
 
@@ -20,14 +21,14 @@ export function MissionsPage() {
       <div>
         <div className="page-title">
           <h1>{activeMission.title}</h1>
-          <button className="btn" onClick={() => stopMission()}>Stop mission</button>
+          <Button label="Stop mission" onClick={() => stopMission()} />
         </div>
         {session.completed ? (
           <div className="card pad mission-complete-card">
             <h2>🏆 Mission complete!</h2>
             <p className="mission-complete-score">Score: {session.score}/100</p>
             <p className="muted">Hints used: {session.hintsUsed}</p>
-            <button className="btn primary" style={{ marginTop: 'var(--space-4)' }} onClick={() => stopMission()}>Back to missions</button>
+            <Button label="Back to missions" variant="primary" style={{ marginTop: 'var(--space-4)' }} onClick={() => stopMission()} />
           </div>
         ) : (
           <div className="card pad">
@@ -35,8 +36,8 @@ export function MissionsPage() {
             <p className="mission-step-instruction">{step?.instruction}</p>
             <div className="coach-tip mission-hint">💡 {step?.hint}</div>
             <div className="mission-step-actions">
-              <button className="btn primary" onClick={completeStep}>✓ Complete step</button>
-              <button className="btn" onClick={useHint}>💡 Use hint (-10 pts)</button>
+              <Button label="✓ Complete step" variant="primary" onClick={completeStep} />
+              <Button label="💡 Use hint (-10 pts)" onClick={useHint} />
             </div>
             <p className="mission-score-label">Score: {session.score}/100 · Hints: {session.hintsUsed}</p>
           </div>
@@ -48,7 +49,7 @@ export function MissionsPage() {
   return (
     <div>
       <div className="page-title">
-        <button className="btn small" onClick={() => setView('campaigns')} aria-label="Back to campaigns">← Back to campaigns</button>
+        <Button label="← Back to campaigns" size="sm" onClick={() => setView('campaigns')} tooltip="Back to campaigns" />
         <h1 style={{ marginTop: 'var(--space-2)' }}>Training missions</h1>
       </div>
       <div className="drill-grid">
@@ -61,7 +62,7 @@ export function MissionsPage() {
             <h3 className="mission-card-title">{m.title}</h3>
             <p className="mission-card-desc">{m.description}</p>
             <p className="mission-card-steps">{m.steps.length} steps</p>
-            <button className="btn primary" style={{ marginTop: 'var(--space-2)' }} onClick={() => startMission(m.id)}>Start mission</button>
+            <Button label="Start mission" variant="primary" style={{ marginTop: 'var(--space-2)' }} onClick={() => startMission(m.id)} />
           </div>
         ))}
       </div>

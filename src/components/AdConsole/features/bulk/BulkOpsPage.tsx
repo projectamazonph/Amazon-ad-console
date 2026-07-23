@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@astryxdesign/core/Button';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 
 export function BulkOpsPage() {
@@ -16,12 +17,12 @@ export function BulkOpsPage() {
   return (
     <div>
       <div className="page-title">
-        <button className="btn small" onClick={() => setView('campaigns')} aria-label="Back to campaigns">← Back to campaigns</button>
+        <Button label="← Back to campaigns" size="sm" onClick={() => setView('campaigns')} tooltip="Back to campaigns" />
         <h1 style={{ marginTop: 'var(--space-2)' }}>Bulk operations</h1>
-        <button className="btn" onClick={() => {
+        <Button label="Load template" onClick={() => {
           const template = getTemplate();
           setInput(template);
-        }}>Load template</button>
+        }} />
       </div>
 
       <div className="split">
@@ -35,8 +36,8 @@ export function BulkOpsPage() {
               placeholder="entity,operation,id,name,field,value"
             />
             <div style={{ display: 'flex', gap: 'var(--space-2)', marginTop: 'var(--space-2)' }}>
-              <button className="btn primary" onClick={parseAndValidate}>Preview & validate</button>
-              <button className="btn" onClick={clear}>Clear</button>
+              <Button label="Preview & validate" variant="primary" onClick={parseAndValidate} />
+              <Button label="Clear" onClick={clear} />
             </div>
           </div>
         </div>
