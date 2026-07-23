@@ -15,6 +15,7 @@ export function BulkOpsPage() {
   const parseAndValidate = useAdConsoleStore((s) => s.parseAndValidate);
   const clear = useAdConsoleStore((s) => s.clearBulk);
   const getTemplate = useAdConsoleStore((s) => s.getTemplate);
+  const setView = useAdConsoleStore((s) => s.setView);
 
   const handleExecute = () => {
     const campaigns = useAdConsoleStore.getState().state.campaigns;
@@ -30,7 +31,8 @@ export function BulkOpsPage() {
   return (
     <div>
       <div className="page-title">
-        <h1>Bulk operations</h1>
+        <button className="btn small" onClick={() => setView('campaigns')} aria-label="Back to campaigns">← Back to campaigns</button>
+        <h1 style={{ marginTop: 'var(--space-2)' }}>Bulk operations</h1>
         <button className="btn" onClick={() => {
           const template = getTemplate();
           setInput(template);

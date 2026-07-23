@@ -18,8 +18,9 @@ export function Step5BiddingSD({ isActive, isComplete }: Step5BiddingSDProps) {
 
       <div className="form-grid">
         <div className="field">
-          <label>Default bid</label>
+          <label htmlFor="sd5-bid">Default bid</label>
           <input
+            id="sd5-bid"
             className="input full"
             type="number"
             min="0.02"

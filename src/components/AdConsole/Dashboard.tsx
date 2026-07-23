@@ -4,6 +4,10 @@ import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { getKpiTiles } from './nav/consoleNav';
 import { calc, formatMoney, formatWhole, formatPercent, acosClass } from '@/engine/ad-console/engine';
 import type { Campaign, DerivedMetrics, ConsoleView, Metrics } from '@/engine/ad-console/types';
+import { Badge } from '@astryxdesign/core/Badge';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Stack } from '@astryxdesign/core/Stack';
 
 export function Dashboard() {
   const state = useAdConsoleStore((s) => s.state);
@@ -34,9 +38,7 @@ export function Dashboard() {
             Performance across all enabled campaigns · Coffee Accessories US
           </p>
         </div>
-        <button className="btn primary" onClick={() => setView('create')}>
-          Create campaign
-        </button>
+        <Button variant="primary" label="Create campaign" onClick={() => setView('create')} />
       </div>
 
       <div className="kpi-grid">
@@ -63,15 +65,15 @@ export function Dashboard() {
       </div>
 
       <div className="split">
-        <div className="card pad">
+        <Card padding={6}>
           <div className="section-head">
             <h2>Campaigns</h2>
             <span className="meta">{enabledCount} enabled · {state.campaigns.length} total</span>
           </div>
           {renderCampaignTable(state.campaigns.slice(0, 8), selectCampaign, calc, setView)}
-        </div>
+        </Card>
         <div>
-          <div className="card pad" style={{ marginBottom: 'var(--space-4)' }}>
+          <Card padding={6} style={{ marginBottom: 'var(--space-4)' }}>
             <div className="section-head">
               <h2>Operator alerts</h2>
               <span className="meta">{acosHealthy ? 'On track' : 'Action needed'}</span>
@@ -90,22 +92,22 @@ export function Dashboard() {
                 SD Views Remarketing has strong ROAS. Good campaign for budget rule practice.
               </div>
             </div>
-          </div>
-          <div className="card pad">
+          </Card>
+          <Card padding={6}>
             <div className="section-head">
               <h2>Training coverage</h2>
               <span className="meta">Core modules</span>
             </div>
-            <div className="pill-row">
-              <span className="pill active">Sponsored Products</span>
-              <span className="pill active">Sponsored Brands</span>
-              <span className="pill active">Sponsored Display</span>
-              <span className="pill orange">Search term harvesting</span>
-              <span className="pill orange">Negatives</span>
-              <span className="pill orange">Budget rules</span>
-              <span className="pill green">Placement controls</span>
-            </div>
-          </div>
+            <Stack gap={2} wrap="wrap">
+              <Badge variant="blue" label="Sponsored Products" />
+              <Badge variant="blue" label="Sponsored Brands" />
+              <Badge variant="blue" label="Sponsored Display" />
+              <Badge variant="warning" label="Search term harvesting" />
+              <Badge variant="warning" label="Negatives" />
+              <Badge variant="warning" label="Budget rules" />
+              <Badge variant="success" label="Placement controls" />
+            </Stack>
+          </Card>
         </div>
       </div>
     </div>
@@ -173,7 +175,7 @@ function renderCampaignTable(
         </div>
         <h3>No campaigns yet</h3>
         <p>Your advertising journey starts here. Create your first campaign to see performance data.</p>
-        <button className="btn primary" onClick={() => setView?.('create')}>Create campaign</button>
+        <Button variant="primary" label="Create campaign" onClick={() => setView?.('create')} />
       </div>
     );
   }
@@ -210,18 +212,10 @@ function renderCampaignTable(
                   <div className="muted">{c.portfolio}</div>
                 </td>
                 <td>
-                  <span
-                    className={`pill ${c.type === 'SP' ? 'active' : c.type === 'SB' ? 'orange' : 'purple'}`}
-                  >
-                    {c.type}
-                  </span>
+                  <Badge variant={c.type === 'SP' ? 'blue' : c.type === 'SB' ? 'orange' : 'purple'} label={c.type} />
                 </td>
                 <td>
-                  <span
-                    className={`pill ${c.status === 'Enabled' ? 'green' : c.status === 'Paused' ? 'orange' : 'bad'}`}
-                  >
-                    {c.status}
-                  </span>
+                  <Badge variant={c.status === 'Enabled' ? 'success' : c.status === 'Paused' ? 'warning' : 'error'} label={c.status} />
                 </td>
                 <td className="money">{fmtMoney(c.dailyBudget)}</td>
                 <td>

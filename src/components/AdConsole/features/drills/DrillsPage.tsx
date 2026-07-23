@@ -2,6 +2,7 @@
 
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { getDrill, getAllDrills, calculateScore } from '@/engine/ad-console/features/drills/engine';
+import { Badge } from '@astryxdesign/core/Badge';
 
 export function DrillsPage() {
   const session = useAdConsoleStore((s) => s.drillSession);
@@ -90,9 +91,9 @@ export function DrillsPage() {
         {drills.map((drill) => (
           <div key={drill.id} className="card pad">
             <div className="drill-card-tags">
-              <span className={`pill ${drill.adType === 'SP' ? 'active' : drill.adType === 'SB' ? 'orange' : 'purple'}`}>{drill.adType}</span>
-              <span className={`pill ${drill.difficulty === 'beginner' ? 'green' : 'orange'}`}>{drill.difficulty}</span>
-              <span className="pill">{drill.estimatedMinutes} min</span>
+              <Badge variant={drill.adType === "SP" ? "blue" : drill.adType === "SB" ? "orange" : "purple"} label={drill.adType} />
+              <Badge variant={drill.difficulty === "beginner" ? "success" : "warning"} label={drill.difficulty} />
+              <Badge variant="neutral" label={`${drill.estimatedMinutes} min`} />
             </div>
             <h3 className="drill-card-title">{drill.title}</h3>
             <p className="drill-card-desc">{drill.description}</p>

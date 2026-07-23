@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
+import { Badge } from '@astryxdesign/core/Badge';
 
 export function TrainerPage() {
   const notes = useAdConsoleStore((s) => s.notes);
@@ -12,6 +13,7 @@ export function TrainerPage() {
   const toggleCertItem = useAdConsoleStore((s) => s.toggleCertItem);
   const certScore = useAdConsoleStore((s) => s.certScore);
   const drillResults = useAdConsoleStore((s) => s.drillResults);
+  const setView = useAdConsoleStore((s) => s.setView);
 
   const [noteText, setNoteText] = useState('');
 
@@ -19,7 +21,10 @@ export function TrainerPage() {
 
   return (
     <div>
-      <div className="page-title"><h1>Trainer dashboard</h1></div>
+      <div className="page-title">
+        <button className="btn small" onClick={() => setView('campaigns')} aria-label="Back to campaigns">← Back to campaigns</button>
+        <h1 style={{ marginTop: 'var(--space-2)' }}>Trainer dashboard</h1>
+      </div>
 
       <div className="grid-4" style={{ marginBottom: 'var(--space-4)' }}>
         <div className="metric-card">
@@ -50,7 +55,12 @@ export function TrainerPage() {
             <div className="card-title"><h2>Certification checklist</h2><span>{score}%</span></div>
             {certChecklist.map((item) => (
               <label key={item.id} className="trainer-cert-item">
-                <input type="checkbox" checked={item.checked} onChange={() => toggleCertItem(item.id)} />
+                <input
+                  type="checkbox"
+                  checked={item.checked}
+                  onChange={() => toggleCertItem(item.id)}
+                  aria-label={item.label}
+                />
                 <span>{item.label}</span>
               </label>
             ))}
@@ -64,7 +74,7 @@ export function TrainerPage() {
               <div className="trainer-log-scroll">
                 {actionLog.slice(0, 50).map((a, i) => (
                   <div key={i} className="trainer-log-item">
-                    <span className={`pill ${a.tone === 'good' ? 'green' : a.tone === 'bad' ? 'bad' : 'orange'}`} style={{ fontSize: 10 }}>{a.tone}</span>
+                    <Badge variant={a.tone === "good" ? "success" : a.tone === "bad" ? "error" : "warning"} label={a.tone} />
                     <span style={{ flex: 1 }}>{a.message}</span>
                     <span className="muted" style={{ fontSize: 10 }}>{new Date(a.timestamp).toLocaleTimeString()}</span>
                   </div>
@@ -78,7 +88,8 @@ export function TrainerPage() {
           <div className="card pad" style={{ marginBottom: 'var(--space-4)' }}>
             <div className="card-title"><h2>Trainer notes</h2></div>
             <div className="trainer-note-input-row">
-              <input className="input trainer-note-input" value={noteText} onChange={(e) => setNoteText(e.target.value)} placeholder="Add note..." />
+              <label htmlFor="tp-note" className="visually-hidden">Trainer note</label>
+              <input id="tp-note" className="input trainer-note-input" value={noteText} onChange={(e) => setNoteText(e.target.value)} placeholder="Add note..." />
               <button className="btn primary" onClick={() => { if (noteText.trim()) { addNote(noteText.trim()); setNoteText(''); } }}>Add</button>
             </div>
             {notes.length === 0 ? (

@@ -3,6 +3,7 @@
 import type { Campaign } from '@/engine/ad-console/types';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
 import { EmptyState } from './EmptyState';
+import { Badge } from '@astryxdesign/core/Badge';
 
 interface Props {
   campaigns: Campaign[];
@@ -31,7 +32,7 @@ export function ManagerTargetsTab({ campaigns }: Props) {
                 <td><strong>{t.value}</strong></td>
                 <td>{c.name}</td>
                 <td>{t.type}</td><td>{t.match}</td>
-                <td><span className={`pill ${t.status === 'Enabled' ? 'green' : 'orange'}`}>{t.status}</span></td>
+                <td><Badge variant={t.status === "Enabled" ? "success" : "warning"} label={t.status} /></td>
                 <td className="money">{t.bid.toFixed(2)}</td>
                 <td className="mono">{formatWhole(t.impressions)}</td>
                 <td className="mono">{formatWhole(t.clicks)}</td>

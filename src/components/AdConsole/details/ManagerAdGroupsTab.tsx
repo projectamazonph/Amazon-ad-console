@@ -3,6 +3,7 @@
 import type { Campaign } from '@/engine/ad-console/types';
 import { EmptyState } from './EmptyState';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
+import { Badge } from '@astryxdesign/core/Badge';
 
 interface Props {
   campaigns: Campaign[];
@@ -32,8 +33,8 @@ export function ManagerAdGroupsTab({ campaigns, onSelectCampaign }: Props) {
               <tr key={ag.id}>
                 <td><strong>{ag.name}</strong></td>
                 <td><button className="row-link" onClick={() => onSelectCampaign(c.id)} style={{ border: 'none', background: 'none', color: 'var(--blue)', cursor: 'pointer' }}>{c.name}</button></td>
-                <td><span className={`pill ${c.type === 'SP' ? 'active' : c.type === 'SB' ? 'orange' : 'purple'}`}>{c.type}</span></td>
-                <td><span className={`pill ${ag.status === 'Enabled' ? 'green' : 'orange'}`}>{ag.status}</span></td>
+                <td><Badge variant={c.type === "SP" ? "blue" : c.type === "SB" ? "orange" : "purple"} label={c.type} /></td>
+                <td><Badge variant={ag.status === "Enabled" ? "success" : "warning"} label={ag.status} /></td>
                 <td className="money">{ag.defaultBid.toFixed(2)}</td>
                 <td className="mono">{formatWhole(m.impressions)}</td>
                 <td className="mono">{formatWhole(m.clicks)}</td>

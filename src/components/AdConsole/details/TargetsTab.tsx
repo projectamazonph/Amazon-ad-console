@@ -5,6 +5,7 @@ import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
 import { EmptyState } from './EmptyState';
+import { Badge } from '@astryxdesign/core/Badge';
 
 interface Props {
   campaign: Campaign;
@@ -42,25 +43,25 @@ export function TargetsTab({ campaign: c }: Props) {
       )}
 
       {showAddKeywordForm && (
-        <div className="card pad" style={{ marginBottom: 10, background: '#f8fafc' }}>
+        <div className="card pad" style={{ marginBottom: 10, background: 'var(--surface-2)' }}>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'end' }}>
             <div className="field" style={{ flex: 2, minWidth: 150 }}>
-              <label>Keyword</label>
-              <input className="input full" value={newKeywordValue} onChange={(e) => setNewKeywordValue(e.target.value)} placeholder="Enter keyword" />
+              <label htmlFor="kw-value">Keyword</label>
+              <input id="kw-value" className="input full" value={newKeywordValue} onChange={(e) => setNewKeywordValue(e.target.value)} placeholder="Enter keyword" />
             </div>
             <div className="field" style={{ flex: 1, minWidth: 100 }}>
-              <label>Match type</label>
-              <select className="select full" value={newKeywordMatch} onChange={(e) => setNewKeywordMatch(e.target.value as 'Exact' | 'Phrase' | 'Broad')}>
+              <label htmlFor="kw-match">Match type</label>
+              <select id="kw-match" className="select full" value={newKeywordMatch} onChange={(e) => setNewKeywordMatch(e.target.value as 'Exact' | 'Phrase' | 'Broad')}>
                 <option>Exact</option><option>Phrase</option><option>Broad</option>
               </select>
             </div>
             <div className="field" style={{ flex: 1, minWidth: 80 }}>
-              <label>Bid</label>
-              <input className="input full" type="number" min="0.02" step="0.01" value={newKeywordBid} onChange={(e) => setNewKeywordBid(Number(e.target.value))} />
+              <label htmlFor="kw-bid">Bid</label>
+              <input id="kw-bid" className="input full" type="number" min="0.02" step="0.01" value={newKeywordBid} onChange={(e) => setNewKeywordBid(Number(e.target.value))} />
             </div>
             <div className="field" style={{ flex: 1, minWidth: 140 }}>
-              <label>Ad group</label>
-              <select className="select full" value={newKeywordAdGroup} onChange={(e) => setNewKeywordAdGroup(e.target.value)}>
+              <label htmlFor="kw-adgroup">Ad group</label>
+              <select id="kw-adgroup" className="select full" value={newKeywordAdGroup} onChange={(e) => setNewKeywordAdGroup(e.target.value)}>
                 {c.adGroups.map((ag) => <option key={ag.id} value={ag.id}>{ag.name}</option>)}
               </select>
             </div>
@@ -87,9 +88,10 @@ export function TargetsTab({ campaign: c }: Props) {
                 <tr key={t.id}>
                   <td><strong>{t.value}</strong></td>
                   <td>{t.type}</td><td>{t.match}</td>
-                  <td><span className={`pill ${t.status === 'Enabled' ? 'green' : 'orange'}`}>{t.status}</span></td>
+                  <td><Badge variant={t.status === "Enabled" ? "success" : "warning"} label={t.status} /></td>
                   <td>
-                    <input className="input" style={{ width: 72, padding: '4px 6px', fontSize: 12 }}
+                    <label htmlFor={`t-bid-${t.id}`} className="visually-hidden">Bid for {t.value}</label>
+                    <input id={`t-bid-${t.id}`} className="input" style={{ width: 72, padding: '4px 6px', fontSize: 12 }}
                       type="number" min="0.02" step="0.01" value={bidEdits[t.id] ?? t.bid}
                       onChange={(e) => setBidEdits({ ...bidEdits, [t.id]: e.target.value })} />
                   </td>

@@ -1,8 +1,8 @@
 /**
  * Core slice — central state, filters, view, simulation.
  */
-import type { AdConsoleState, Campaign, CampaignStatus, FilterState } from '../types';
-import { simulateDays, normalizeCampaign, portfolioNames, generateId, updateCampaignSettings, savePlacements, toggleCampaignStatus, archiveCampaign, duplicateCampaign } from '../engine';
+import type { AdConsoleState, Campaign, CampaignDraft, CampaignStatus, FilterState } from '../types';
+import { simulateDays, normalizeCampaign, portfolioNames, generateId, updateCampaignSettings, savePlacements, toggleCampaignStatus, archiveCampaign, duplicateCampaign, parseKeywords } from '../engine';
 import { defaultCampaigns } from '../scenarios';
 import { mobileMenuReducer, type MobileMenuState } from '../engine';
 import { makeDraft } from './draft';
@@ -72,23 +72,38 @@ export const createCoreSlice = (set: SetFn, get: GetFn): CoreSlice => ({
     const id = 'C-' + d.type + '-' + Date.now().toString(36);
     const agId = 'AG-' + id;
     const portfolioName = d.portfolio || 'Training Portfolio';
-    const buildKeywords = (text: string, match: string) =>
-      text.split('\n').filter((k: string) => k.trim()).map((k: string) => ({
+    // Build a target row for any kind of line-based draft input. Empty
+    // lines and blank-only inputs are skipped; the parser also caps keyword
+    // length at 200 chars and throws on oversized lines, so we don't have
+    // to re-validate here.
+    const buildTargets = (raw: string, type: 'Keyword' | 'ASIN' | 'Category' | 'Audience - views remarketing', match?: any) =>
+      parseKeywords(raw).map((value: string) => ({
         id: generateId('T'), campaignId: id, adGroupId: agId,
-        type: 'Keyword' as const, value: k.trim(), match: match as any,
+        type, value, ...(match ? { match } : {}),
         bid: d.defaultBid, status: 'Enabled' as CampaignStatus,
         impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0,
       }));
     const targets: any[] = [
-      ...buildKeywords(d.exactKeywords, 'Exact'),
-      ...buildKeywords(d.phraseKeywords, 'Phrase'),
-      ...buildKeywords(d.broadKeywords, 'Broad'),
+      ...buildTargets(d.exactKeywords, 'Keyword', 'Exact'),
+      ...buildTargets(d.phraseKeywords, 'Keyword', 'Phrase'),
+      ...buildTargets(d.broadKeywords, 'Keyword', 'Broad'),
+      ...buildTargets(d.asinTargets, 'ASIN'),
+      ...buildTargets(d.categoryTargets, 'Category'),
+      ...buildTargets(d.audienceTargets, 'Audience - views remarketing'),
     ];
+    // Normalize the empty end-date string to null. The wizard's date input
+    // emits "" when the user clears the field, but Campaign.endDate is
+    // string | null, so we coerce here.
+    const endDate: string | null = d.endDate && d.endDate.trim() ? d.endDate : null;
     const campaign = normalizeCampaign({
       id, type: d.type, name: d.name, portfolio: portfolioName,
       status: d.status, dailyBudget: d.dailyBudget, defaultBid: d.defaultBid,
+      startDate: d.startDate, endDate,
+      adFormat: d.adFormat,
       bidStrategy: d.bidStrategy, targetingMode: d.targetingMode, campaignGoal: d.campaignGoal,
-      products: d.products, metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+      placements: d.placements,
+      products: d.products, creative: d.type === 'SP' ? null : d.creative,
+      metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
       adGroups: [{ id: agId, campaignId: id, name: d.type + ' training ad group', status: d.status, defaultBid: d.defaultBid, metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 } }],
       targets, searchTerms: [], negatives: [], budgetRules: [], history: ['Campaign launched in simulator'],
     });

@@ -2,6 +2,7 @@
 
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent } from '@/engine/ad-console/core/engine';
+import { Badge } from '@astryxdesign/core/Badge';
 
 export function ReportsPage() {
   const requests = useAdConsoleStore((s) => s.reportQueue);
@@ -10,13 +11,15 @@ export function ReportsPage() {
   const requestReport = useAdConsoleStore((s) => s.requestReport);
   const selectReport = useAdConsoleStore((s) => s.selectReport);
   const exportCsv = useAdConsoleStore((s) => s.exportReportCsv);
+  const setView = useAdConsoleStore((s) => s.setView);
 
   const selected = selectedReportId ? reports.find((r) => r.id === selectedReportId) : null;
 
   return (
     <div>
       <div className="page-title">
-        <h1>Reports</h1>
+        <button className="btn small" onClick={() => setView('campaigns')} aria-label="Back to campaigns">← Back to campaigns</button>
+        <h1 style={{ marginTop: 'var(--space-2)' }}>Reports</h1>
         <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
           <button className="btn" onClick={() => requestReport('campaign')}>Campaign report</button>
           <button className="btn" onClick={() => requestReport('target')}>Target report</button>
@@ -29,7 +32,7 @@ export function ReportsPage() {
           <div className="card-title"><h2>Report queue</h2><span>{requests.length} requests</span></div>
           {requests.slice(0, 10).map((r) => (
             <div key={r.id} className="report-queue-item">
-              <span className={`pill ${r.status === 'completed' ? 'green' : 'orange'}`}>{r.status}</span>
+              <Badge variant={r.status === "completed" ? "success" : "warning"} label={r.status} />
               <span className="report-queue-type">{r.type} report</span>
               <span className="report-queue-time">{new Date(r.requestedAt).toLocaleTimeString()}</span>
               {r.status === 'completed' && (
