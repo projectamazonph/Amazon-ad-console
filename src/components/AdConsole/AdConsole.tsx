@@ -15,6 +15,7 @@ import { ReportsPage } from './features/reports/ReportsPage';
 import { BulkOpsPage } from './features/bulk/BulkOpsPage';
 import { TrainerPage } from './features/trainer/TrainerPage';
 import { IntegrityPage } from './features/integrity/IntegrityPage';
+import { AppShell } from '@astryxdesign/core/AppShell';
 
 export function AdConsole() {
   const view = useAdConsoleStore((s) => s.view);
@@ -46,17 +47,15 @@ export function AdConsole() {
   };
 
   return (
-    <div className="app-layout">
-      <a className="skip-link" href="#main-content">Skip to main content</a>
-      <Topbar />
-      <div className="app-body">
-        <Sidebar />
-        <main id="main-content" className="app-main" tabIndex={-1}>
-          <ErrorBoundary>
-            <div className="app-content">{renderView()}</div>
-          </ErrorBoundary>
-        </main>
-      </div>
-    </div>
+    <AppShell
+      topNav={<Topbar />}
+      sideNav={<Sidebar />}
+      variant="wash"
+      height="fill"
+    >
+      <ErrorBoundary>
+        <div className="app-content">{renderView()}</div>
+      </ErrorBoundary>
+    </AppShell>
   );
 }
