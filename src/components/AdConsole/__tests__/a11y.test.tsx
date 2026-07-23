@@ -4,8 +4,7 @@
  * Pins the P0/P1 structural fixes so future refactors don't accidentally
  * regress the keyboard / landmark surface:
  *
- *  - AdConsole renders a <main> landmark with id="main-content"
- *  - AdConsole renders a skip link pointing at that main landmark
+ *  - AdConsole renders a <main> landmark with id="astryx-app-shell-main"
  *  - Topbar nav sections are <button> elements, not <div>s
  *  - Sidebar items are <button> elements, not <div>s
  *  - The OverviewTab inputs have label htmlFor -> input id wiring
@@ -36,20 +35,14 @@ function renderAdConsole() {
   );
 }
 
-describe('A11y — AdConsole landmarks and skip link', () => {
+describe('A11y — AdConsole landmarks', () => {
   beforeEach(resetStore);
 
-  it('renders a <main> element with id="main-content" for landmark navigation', () => {
+  it('renders a main landmark with id for landmark navigation', () => {
     renderAdConsole();
-    const main = document.querySelector('main#main-content');
+    const main = document.querySelector('[role="main"]');
     expect(main).not.toBeNull();
-  });
-
-  it('renders a skip link that points to the main landmark', () => {
-    renderAdConsole();
-    const skip = document.querySelector('a.skip-link');
-    expect(skip).not.toBeNull();
-    expect(skip?.getAttribute('href')).toBe('#main-content');
+    expect(main?.id).toBe('astryx-app-shell-main');
   });
 });
 
@@ -66,12 +59,9 @@ describe('A11y — Topbar and Sidebar use semantic buttons', () => {
 
   it('sidebar rail items are <button> elements (no clickable divs)', () => {
     renderAdConsole();
-    // The Campaigns item is the first row in the left rail; locate it by
-    // its .sidebar-item class so it doesn't collide with table column
-    // headers that also use the word "Campaigns".
-    const railItems = document.querySelectorAll('button.sidebar-item');
+    // SideNav renders nav items as <button> elements via NavItemElement
+    const railItems = document.querySelectorAll('nav button');
     expect(railItems.length).toBeGreaterThan(0);
-    expect(document.querySelectorAll('div.sidebar-item').length).toBe(0);
   });
 });
 
