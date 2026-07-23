@@ -93,7 +93,7 @@ export function DrillsPage() {
             <div className="drill-card-tags">
               <Badge variant={drill.adType === "SP" ? "blue" : drill.adType === "SB" ? "orange" : "purple"} label={drill.adType} />
               <Badge variant={drill.difficulty === "beginner" ? "success" : "warning"} label={drill.difficulty} />
-              <span className="pill">{drill.estimatedMinutes} min</span>
+              <Badge variant="neutral" label={`${drill.estimatedMinutes} min`} />
             </div>
             <h3 className="drill-card-title">{drill.title}</h3>
             <p className="drill-card-desc">{drill.description}</p>
