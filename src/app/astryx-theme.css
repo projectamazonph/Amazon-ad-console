@@ -1,0 +1,153 @@
+/* ============================================================================
+ * Astryx ↔ Amazon Platform Theme Bridge
+ * ----------------------------------------------------------------------------
+ * Maps Astryx design tokens (--color-*, --font-family-*, --spacing-*,
+ * --radius-*, --shadow-*) onto the Amazon platform palette defined in
+ * globals.css (--surface-*, --ink-*, --accent, --success, --danger,
+ * --warning, --info, --font-display, --font-mono, --space-*, --radius-*,
+ * --shadow-*).
+ *
+ * Why this file exists
+ *   The first Astryx migration (PRs #32-#36) regressed the visual theme
+ *   in 3 places because Astryx components rendered with their own default
+ *   neutral palette, conflicting with the Amazon colors. The `Theme`
+ *   provider in `src/app/providers.tsx` sets `data-astryx-theme="neutral"`
+ *   on its children wrapper, so the bridge targets that wrapper.
+ *
+ * Contract pinned by src/app/__tests__/astryx-theme.test.ts:
+ *   - 13 color tokens are mapped to Amazon ink / surface / semantic
+ *     variables.
+ *   - Type, spacing, radius, and shadow tokens are mapped to the Amazon
+ *     font, 4px-base spacing, 6-16px radius, and elevation scales.
+ *   - The canonical Amazon token values in globals.css are NOT redefined
+ *     here — the bridge only references them via var(--…), so visual
+ *     identity is preserved.
+ * ============================================================================ */
+
+[data-astryx-theme] {
+  /* ------------------------------------------------------------------------
+   * Color — surfaces
+   * Amazon retail: page bg #eaeded, cards #ffffff, hover wells #f7f8f8.
+   * ---------------------------------------------------------------------- */
+  --color-background-surface: var(--surface-1);
+  --color-background-body: var(--surface-0);
+  --color-background-card: var(--surface-1);
+  --color-background-popover: var(--surface-1);
+  --color-background-muted: var(--surface-2);
+  --color-background-inverted: var(--surface-3);
+  --color-background-error-inverted: var(--danger);
+
+  /* ------------------------------------------------------------------------
+   * Color — text
+   * Amazon text ramp: primary #0f1111, secondary #5f6b7a, disabled #8a93a0.
+   * ---------------------------------------------------------------------- */
+  --color-text-primary: var(--ink-900);
+  --color-text-secondary: var(--ink-500);
+  --color-text-disabled: var(--ink-400);
+  --color-text-accent: var(--accent-active);
+
+  --color-on-dark: var(--ink-inverse);
+  --color-on-light: var(--ink-900);
+  --color-on-accent: var(--accent-ink);
+  --color-on-success: var(--ink-inverse);
+  --color-on-error: var(--ink-inverse);
+  --color-on-warning: var(--accent-ink);
+
+  /* ------------------------------------------------------------------------
+   * Color — accent / brand
+   * Amazon orange #ff9900 is the only brand accent.
+   * ---------------------------------------------------------------------- */
+  --color-accent: var(--accent);
+  --color-accent-muted: var(--accent-soft);
+
+  /* ------------------------------------------------------------------------
+   * Color — icons (mirror text ramp)
+   * ---------------------------------------------------------------------- */
+  --color-icon-accent: var(--accent);
+  --color-icon-primary: var(--ink-900);
+  --color-icon-secondary: var(--ink-500);
+  --color-icon-disabled: var(--ink-400);
+
+  /* ------------------------------------------------------------------------
+   * Color — semantic
+   * Amazon palette: success teal #067d62, error red #cc0c39, warning #b12704,
+   * info teal #007185.
+   * ---------------------------------------------------------------------- */
+  --color-success: var(--success);
+  --color-success-muted: var(--success-soft);
+  --color-error: var(--danger);
+  --color-error-muted: var(--danger-soft);
+  --color-warning: var(--warning);
+  --color-warning-muted: var(--warning-soft);
+  --color-info: var(--info);
+  --color-info-muted: var(--info-soft);
+
+  /* ------------------------------------------------------------------------
+   * Color — borders + hairlines
+   * Amazon retail: default border #d5d9d9, strong #8d9096, focus #007185.
+   * ---------------------------------------------------------------------- */
+  --color-border: var(--border);
+  --color-border-emphasized: var(--border-strong);
+  --color-skeleton: var(--ink-200);
+  --color-track: var(--border);
+  --color-shadow: var(--shadow-sm);
+
+  /* ------------------------------------------------------------------------
+   * Color — neutral / overlay tints
+   * Use Amazon ink-900 tinted overlays so dialog scrims match the
+   * top-nav navy, not a generic black.
+   * ---------------------------------------------------------------------- */
+  --color-neutral: color-mix(in srgb, var(--ink-900) 6%, transparent);
+  --color-overlay: color-mix(in srgb, var(--ink-900) 50%, transparent);
+  --color-overlay-hover: color-mix(in srgb, var(--ink-900) 4%, transparent);
+  --color-overlay-pressed: color-mix(in srgb, var(--ink-900) 10%, transparent);
+
+  /* ------------------------------------------------------------------------
+   * Typography — bind Astryx font slots to our Geist stack
+   * ---------------------------------------------------------------------- */
+  --font-family-body: var(--font-body);
+  --font-family-heading: var(--font-display);
+  --font-family-code: var(--font-mono);
+
+  /* ------------------------------------------------------------------------
+   * Spacing — bridge Astryx's 0-12 token set to our 4px-base scale
+   * ---------------------------------------------------------------------- */
+  --spacing-0: 0;
+  --spacing-0-5: 2px;
+  --spacing-1: var(--space-1);
+  --spacing-1-5: 6px;
+  --spacing-2: var(--space-2);
+  --spacing-3: var(--space-3);
+  --spacing-4: var(--space-4);
+  --spacing-5: var(--space-5);
+  --spacing-6: var(--space-6);
+  --spacing-7: 28px;
+  --spacing-8: var(--space-8);
+  --spacing-9: 36px;
+  --spacing-10: var(--space-10);
+  --spacing-11: 44px;
+  --spacing-12: var(--space-12);
+
+  /* ------------------------------------------------------------------------
+   * Radius — bridge Astryx's 5-step scale to our 6-16px Amazon scale
+   * ---------------------------------------------------------------------- */
+  --radius-none: 0;
+  --radius-inner: var(--radius-sm);
+  --radius-element: var(--radius-md);
+  --radius-container: var(--radius-lg);
+  --radius-page: var(--radius-xl);
+
+  /* ------------------------------------------------------------------------
+   * Shadow — bridge to our elevation scale
+   * ---------------------------------------------------------------------- */
+  --shadow-low: var(--shadow-sm);
+  --shadow-med: var(--shadow-md);
+  --shadow-high: var(--shadow-lg);
+
+  /* Inset interaction shadows (Astryx focus rings) — use Amazon focus teal */
+  --shadow-inset-hover: inset 0 0 0 2px var(--accent-soft);
+  --shadow-inset-selected: inset 0 0 0 2px var(--accent);
+  --shadow-inset-success: inset 0 0 0 2px var(--success-soft);
+  --shadow-inset-warning: inset 0 0 0 2px var(--warning-soft);
+  --shadow-inset-error: inset 0 0 0 2px var(--danger-soft);
+}
