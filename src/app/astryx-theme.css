@@ -317,8 +317,7 @@
   font-size: var(--text-sm);
 }
 
-@media (max-width: 900px) {
-  .astryx-table-scroll-wrapper {
-    border-radius: var(--radius-md);
-  }
-}
+/* Note: the mobile `@media (max-width: 768px)` rule in globals.css already
+   overrides `.astryx-table-scroll-wrapper { border-radius: var(--radius-md); }`
+   (replacing the old `.table-wrap` selector). We don't repeat it here to keep
+   a single source of truth. */

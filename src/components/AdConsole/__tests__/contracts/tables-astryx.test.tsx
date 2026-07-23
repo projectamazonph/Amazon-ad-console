@@ -34,14 +34,16 @@ function renderAdConsole() {
 }
 
 describe('Table contract — Astryx <Table> children mode', () => {
-  it('renders an Astryx <table> (.astryx-table) inside .astryx-table-scroll-wrapper', () => {
+  it('every .astryx-table lives inside a .astryx-table-scroll-wrapper', () => {
     renderAdConsole();
     const wrappers = document.querySelectorAll('.astryx-table-scroll-wrapper');
     expect(wrappers.length).toBeGreaterThan(0);
     const tables = document.querySelectorAll('.astryx-table');
     expect(tables.length).toBeGreaterThan(0);
-    // Wrapper contains the table
-    expect(wrappers[0].querySelector('.astryx-table')).toBeTruthy();
+    // Every table must be wrapped — not just the first one.
+    for (const table of tables) {
+      expect(table.closest('.astryx-table-scroll-wrapper')).toBeTruthy();
+    }
   });
 
   it('no leftover .table-wrap class in the rendered DOM', () => {
