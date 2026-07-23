@@ -1,0 +1,279 @@
+# Instincts generated from https://github.com/projectamazonph/Amazon-ad-console
+# Generated: 2026-07-23T19:41:53.667Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: Amazon-ad-console-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: feat
+
+## Evidence
+
+- 1 commits analyzed
+- Detected conventional commit pattern
+- Examples: feat(phase-1): Astryx ↔ Amazon theme bridge
+
+---
+id: Amazon-ad-console-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Commit Length
+
+## Action
+
+Keep commit messages concise (~43 characters)
+
+## Evidence
+
+- Average commit message length: 43 chars
+- Based on 1 commits
+
+---
+id: Amazon-ad-console-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Naming Files
+
+## Action
+
+Use kebab-case naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: kebab-case
+
+---
+id: Amazon-ad-console-import-relative
+trigger: "when importing modules"
+confidence: 0.75
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Import Relative
+
+## Action
+
+Use relative imports for project files
+
+## Evidence
+
+- Import analysis shows relative import pattern
+- Example: import { x } from '../lib/x'
+
+---
+id: Amazon-ad-console-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: amazon-ad-console-instinct-file-naming
+trigger: "When creating a new file"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct File Naming
+
+## Action
+
+Name the file using kebab-case
+
+## Evidence
+
+- Pattern in namingConventions.files
+
+---
+id: amazon-ad-console-instinct-function-naming
+trigger: "When defining a new function"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Function Naming
+
+## Action
+
+Name the function using camelCase
+
+## Evidence
+
+- Pattern in namingConventions.functions
+
+---
+id: amazon-ad-console-instinct-class-naming
+trigger: "When defining a new class"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Class Naming
+
+## Action
+
+Name the class using PascalCase
+
+## Evidence
+
+- Pattern in namingConventions.classes
+
+---
+id: amazon-ad-console-instinct-constant-naming
+trigger: "When defining a constant"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Constant Naming
+
+## Action
+
+Name the constant using SCREAMING_SNAKE_CASE
+
+## Evidence
+
+- Pattern in namingConventions.constants
+
+---
+id: amazon-ad-console-instinct-import-style
+trigger: "When importing modules"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Import Style
+
+## Action
+
+Use relative import paths
+
+## Evidence
+
+- Pattern in importStyle
+
+---
+id: amazon-ad-console-instinct-export-style
+trigger: "When exporting modules or functions"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Export Style
+
+## Action
+
+Use named exports
+
+## Evidence
+
+- Pattern in exportStyle
+
+---
+id: amazon-ad-console-instinct-commit-format
+trigger: "When writing a commit message"
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Commit Format
+
+## Action
+
+Use the 'feat' prefix followed by scope and description, following conventional commits
+
+## Evidence
+
+- Seen in commit: 'feat(phase-1): Astryx ↔ Amazon theme bridge'
+- Pattern in commits.prefixes
+
+---
+id: amazon-ad-console-instinct-test-location
+trigger: "When adding new tests"
+confidence: 0.7
+domain: testing
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Test Location
+
+## Action
+
+Place test files in both source and test-specific folders as appropriate (mixed location)
+
+## Evidence
+
+- Pattern in architecture.folderStructure.testLocation
+
+---
+id: amazon-ad-console-instinct-typescript
+trigger: "When writing code"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Typescript
+
+## Action
+
+Use TypeScript as the programming language
+
+## Evidence
+
+- Pattern in codeStyle.language
+
