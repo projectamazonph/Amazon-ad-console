@@ -30,3 +30,19 @@
 - Constraints: `loop-constraints.md`
 - Budget: `loop-budget.md`
 - Run log: `loop-run-log.md`
+
+## Worktree Isolation
+
+- Use `git worktree add ../amazon-ad-console-fix-<topic> <branch>` for unattended experiments
+- Never work on main directly — always branch from a worktree
+- Clean up worktrees after merge: `git worktree remove <path>`
+- Each worktree gets its own `node_modules` — run `npm install` after creating
+
+## Skills
+
+Installed in `skills/` directory:
+- `loop-triage` — triages CI, issues, and recent changes
+- `loop-verifier` — validates fixes before merging
+- `loop-budget` — enforces token/spawn limits at runtime
+- `loop-constraints` — reads and enforces safety constraints
+- `minimal-fix` — produces smallest possible fix for scoped issues
