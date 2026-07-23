@@ -51,6 +51,11 @@ function globalsDecl(name: string): string | undefined {
   return m?.[1]?.trim();
 }
 
+function readCss(): string {
+  // Phase 3 Card overrides live in the bridge CSS (unlayered → wins cascade).
+  return bridge;
+}
+
 describe('Phase 1 — astryx-theme bridge exists', () => {
   it('the bridge file is at src/app/astryx-theme.css', () => {
     expect(fs.existsSync(BRIDGE_CSS), `expected bridge at ${BRIDGE_CSS}`).toBe(true);
@@ -130,6 +135,19 @@ describe('Phase 1 — astryx-theme bridge maps colors to Amazon tokens', () => {
 
   it('--color-warning → var(--warning)', () => {
     expect(bridgeDecl('color-warning')).toBe('var(--warning)');
+  });
+});
+
+describe('Phase 3 — astryx-theme bridge adds Card radius override', () => {
+  it('.astryx-card gets Amazon border-radius (12px = --radius-lg)', () => {
+    const css = readCss();
+    // Card base StyleX class uses 8px; we bump to 12px to match the old .card.
+    expect(css).toMatch(/\.astryx-card\s*\{[^}]*border-radius:\s*var\(--radius-lg\)[^}]*\}/);
+  });
+
+  it('.astryx-card[data-variant="muted"] uses Amazon --surface-2 background', () => {
+    const css = readCss();
+    expect(css).toMatch(/\.astryx-card\[data-variant="muted"\]\s*\{[^}]*background:\s*var\(--surface-2\)[^}]*\}/);
   });
 });
 

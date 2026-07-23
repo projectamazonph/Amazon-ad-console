@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 
 export function BulkOpsPage() {
@@ -27,7 +28,7 @@ export function BulkOpsPage() {
 
       <div className="split">
         <div>
-          <div className="card pad" style={{ marginBottom: 'var(--space-4)' }}>
+          <Card variant="default" padding={6} style={{ marginBottom: 'var(--space-4)' }}>
             <div className="card-title"><h2>CSV input</h2><span>entity,operation,...</span></div>
             <textarea
               className="input full bulk-textarea"
@@ -39,23 +40,23 @@ export function BulkOpsPage() {
               <Button label="Preview & validate" variant="primary" onClick={parseAndValidate} />
               <Button label="Clear" onClick={clear} />
             </div>
-          </div>
+          </Card>
         </div>
 
         <div>
           {errors.length > 0 && (
-            <div className="card pad" style={{ marginBottom: 'var(--space-4)', borderColor: 'var(--danger)' }}>
+            <Card variant="default" padding={6} style={{ marginBottom: 'var(--space-4)', borderColor: 'var(--danger)' }}>
               <div className="card-title"><h2 style={{ color: 'var(--danger)' }}>Validation errors</h2></div>
               {errors.map((e, i) => (
                 <div key={i} className="bulk-preview-text" style={{ padding: '4px 0', color: 'var(--danger)' }}>
                   Row {e.row}: {e.message}
                 </div>
               ))}
-            </div>
+            </Card>
           )}
 
           {preview.length > 0 && (
-            <div className="card pad">
+            <Card variant="default" padding={6}>
               <div className="card-title">
                 <h2>Preview</h2>
                 <span className="bulk-status">{preview.length} rows · {valid ? '✅ Valid' : '❌ Has errors'}</span>
@@ -74,7 +75,7 @@ export function BulkOpsPage() {
                   </tbody>
                 </table>
               </div>
-            </div>
+            </Card>
           )}
 
           {!preview.length && !errors.length && (

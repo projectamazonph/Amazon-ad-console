@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatRoas, acosClass } from '@/engine/ad-console/engine';
 
@@ -73,7 +74,7 @@ export function PortfolioOverview() {
       </div>
 
       {manageMode && (
-        <div className="card pad" style={{ marginBottom: 14 }}>
+        <Card variant="default" padding={6} style={{ marginBottom: 14 }}>
           <div className="card-title"><h2>Create portfolio</h2><span>New portfolio group</span></div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'end' }}>
             <div className="field" style={{ flex: 1 }}>
@@ -87,28 +88,28 @@ export function PortfolioOverview() {
               }
             }} />
           </div>
-        </div>
+        </Card>
       )}
 
       <div className="grid-4" style={{ marginBottom: 14 }}>
-        <div className="metric-card">
+        <Card variant="default" className="metric-card">
           <div className="label">Total portfolios</div>
           <div className="value">{portfolios.length}</div>
-        </div>
-        <div className="metric-card">
+        </Card>
+        <Card variant="default" className="metric-card">
           <div className="label">Total spend (all)</div>
           <div className="value">{formatMoney(totalMetrics.spend)}</div>
-        </div>
-        <div className="metric-card">
+        </Card>
+        <Card variant="default" className="metric-card">
           <div className="label">Total sales (all)</div>
           <div className="value">{formatMoney(totalMetrics.sales)}</div>
           <div className="delta good">{formatWhole(totalMetrics.orders)} orders</div>
-        </div>
-        <div className="metric-card">
+        </Card>
+        <Card variant="default" className="metric-card">
           <div className="label">Blended ACOS</div>
           <div className="value">{formatPercent(totalDerived.acos)}</div>
           <div className={`delta ${totalDerived.acos <= 30 ? 'good' : 'bad'}`}>ROAS {formatRoas(totalDerived.roas)}</div>
-        </div>
+        </Card>
       </div>
 
       {portfolios.length === 0 ? (

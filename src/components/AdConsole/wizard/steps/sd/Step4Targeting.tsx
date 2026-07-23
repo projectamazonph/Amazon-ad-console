@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import type { CampaignGoal } from '@/engine/ad-console/types';
 
@@ -22,7 +23,7 @@ export function Step4TargetingSD({ isActive, isComplete }: Step4TargetingSDProps
       <h2>Targeting</h2>
       <p className="muted" style={{ marginBottom: 14 }}>Choose targeting method and add targets.</p>
 
-      <div className="card pad" style={{ marginBottom: 16 }}>
+      <Card variant="default" padding={6} style={{ marginBottom: 16 }}>
         <div className="card-title"><h3>Campaign goal</h3></div>
         <div className="field full">
           <select className="select full" value={draft.campaignGoal || 'Conversions'} onChange={(e) => updateDraft('campaignGoal', e.target.value as CampaignGoal)}>
@@ -34,7 +35,7 @@ export function Step4TargetingSD({ isActive, isComplete }: Step4TargetingSDProps
             Goal affects simulation quality bonus: Conversions +5%, Consideration +2%, Awareness +0%.
           </p>
         </div>
-      </div>
+      </Card>
 
       <div className="field" style={{ marginBottom: 16 }}>
         <label>Targeting mode</label>
@@ -47,17 +48,17 @@ export function Step4TargetingSD({ isActive, isComplete }: Step4TargetingSDProps
       </div>
 
       {draft.targetingMode === 'Contextual' && (
-        <div className="card pad" style={{ marginBottom: 16 }}>
+        <Card variant="default" padding={6} style={{ marginBottom: 16 }}>
           <div className="card-title"><h3>Contextual targeting</h3></div>
           <div className="field full" style={{ marginBottom: 12 }}>
             <label>Category targets (one per line)</label>
             <textarea className="input full" rows={3} value={contextualCategories} onChange={(e) => { setContextualCategories(e.target.value); updateDraft('categoryTargets', e.target.value); }} placeholder="Coffee & Espresso Accessories&#10;Drinkware" />
           </div>
-        </div>
+        </Card>
       )}
 
       {draft.targetingMode.includes('Audiences') && (
-        <div className="card pad" style={{ marginBottom: 16 }}>
+        <Card variant="default" padding={6} style={{ marginBottom: 16 }}>
           <div className="card-title"><h3>Audience targeting</h3></div>
           <div className="field" style={{ marginBottom: 12 }}>
             <label>Lookback window (days)</label>
@@ -73,17 +74,17 @@ export function Step4TargetingSD({ isActive, isComplete }: Step4TargetingSDProps
             <label>Audience targets (one per line)</label>
             <textarea className="input full" rows={3} value={audienceTargets} onChange={(e) => { setAudienceTargets(e.target.value); updateDraft('audienceTargets', e.target.value); }} placeholder="Viewed advertised products 30 days&#10;Purchased from brand 60 days" />
           </div>
-        </div>
+        </Card>
       )}
 
       {draft.targetingMode === 'Categories' && (
-        <div className="card pad" style={{ marginBottom: 16 }}>
+        <Card variant="default" padding={6} style={{ marginBottom: 16 }}>
           <div className="card-title"><h3>Category targeting</h3></div>
           <div className="field full" style={{ marginBottom: 12 }}>
             <label>Categories (one per line)</label>
             <textarea className="input full" rows={3} value={contextualCategories} onChange={(e) => { setContextualCategories(e.target.value); updateDraft('categoryTargets', e.target.value); }} placeholder="Coffee & Espresso Accessories&#10;Drinkware" />
           </div>
-        </div>
+        </Card>
       )}
 
       <div className="field" style={{ marginBottom: 16 }}>

@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { getMission } from '@/engine/ad-console/features/missions/engine';
 
@@ -24,14 +25,14 @@ export function MissionsPage() {
           <Button label="Stop mission" onClick={() => stopMission()} />
         </div>
         {session.completed ? (
-          <div className="card pad mission-complete-card">
+          <Card variant="default" padding={6} className="mission-complete-card">
             <h2>🏆 Mission complete!</h2>
             <p className="mission-complete-score">Score: {session.score}/100</p>
             <p className="muted">Hints used: {session.hintsUsed}</p>
             <Button label="Back to missions" variant="primary" style={{ marginTop: 'var(--space-4)' }} onClick={() => stopMission()} />
-          </div>
+          </Card>
         ) : (
-          <div className="card pad">
+          <Card variant="default" padding={6}>
             <h3>Step {session.currentStep + 1} of {activeMission.steps.length}</h3>
             <p className="mission-step-instruction">{step?.instruction}</p>
             <div className="coach-tip mission-hint">💡 {step?.hint}</div>
@@ -40,7 +41,7 @@ export function MissionsPage() {
               <Button label="💡 Use hint (-10 pts)" onClick={useHint} />
             </div>
             <p className="mission-score-label">Score: {session.score}/100 · Hints: {session.hintsUsed}</p>
-          </div>
+          </Card>
         )}
       </div>
     );
@@ -54,7 +55,7 @@ export function MissionsPage() {
       </div>
       <div className="drill-grid">
         {missions.map((m) => (
-          <div key={m.id} className="card pad">
+          <Card key={m.id} variant="default" padding={6}>
             <div className="mission-card-tags">
               <span className={`pill ${m.adType === 'SP' ? 'active' : m.adType === 'SB' ? 'orange' : 'purple'}`}>{m.adType}</span>
               <span className={`pill ${m.difficulty === 'beginner' ? 'green' : 'orange'}`}>{m.difficulty}</span>
@@ -63,7 +64,7 @@ export function MissionsPage() {
             <p className="mission-card-desc">{m.description}</p>
             <p className="mission-card-steps">{m.steps.length} steps</p>
             <Button label="Start mission" variant="primary" style={{ marginTop: 'var(--space-2)' }} onClick={() => startMission(m.id)} />
-          </div>
+          </Card>
         ))}
       </div>
     </div>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 
@@ -13,7 +14,7 @@ export function PlacementsTab({ campaign }: Props) {
   const [rest, setRest] = useState(String(campaign.placements.rest));
 
   return (
-    <div className="card pad">
+    <Card variant="default" padding={6}>
       <div className="section-head"><h2>Placement adjustments</h2><span className="meta">Percentage modifiers</span></div>
       <div className="form-grid" style={{ maxWidth: 400 }}>
         <div className="field">
@@ -36,6 +37,6 @@ export function PlacementsTab({ campaign }: Props) {
           rest: Number(rest),
         });
       }} />
-    </div>
+    </Card>
   );
 }

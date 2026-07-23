@@ -271,3 +271,24 @@
   cursor: not-allowed;
   pointer-events: none;
 }
+
+/* ============================================================================
+ * Card variant styles — preserve Amazon platform look
+ * ----------------------------------------------------------------------------
+ * Astryx Card ships with 12 stock variants (default + 11 colors) and a base
+ * `styles.card` StyleX class for the container shape. The base class uses
+ * --color-background-surface and --color-border via the theme, so the
+ * bridged tokens (--surface-1 and --border) give us the right background
+ * and border for free.
+ *
+ * These overrides are only needed to fine-tune the default border radius
+ * (Amazon uses --radius-lg = 12px) and to ensure the borderless variants
+ * (transparent, muted) collapse to match our spec. Astryx defaults to
+ * 8px radius; we bump to 12px.
+ * ============================================================================ */
+.astryx-card {
+  border-radius: var(--radius-lg);
+}
+.astryx-card[data-variant="muted"] {
+  background: var(--surface-2);
+}

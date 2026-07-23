@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { getKpiTiles } from './nav/consoleNav';
 import { calc, formatMoney, formatWhole, formatPercent, acosClass } from '@/engine/ad-console/engine';
@@ -62,15 +63,15 @@ export function Dashboard() {
       </div>
 
       <div className="split">
-        <div className="card pad">
+        <Card variant="default" padding={6}>
           <div className="section-head">
             <h2>Campaigns</h2>
             <span className="meta">{enabledCount} enabled · {state.campaigns.length} total</span>
           </div>
           {renderCampaignTable(state.campaigns.slice(0, 8), selectCampaign, calc, setView)}
-        </div>
+        </Card>
         <div>
-          <div className="card pad" style={{ marginBottom: 'var(--space-4)' }}>
+          <Card variant="default" padding={6} style={{ marginBottom: 'var(--space-4)' }}>
             <div className="section-head">
               <h2>Operator alerts</h2>
               <span className="meta">{acosHealthy ? 'On track' : 'Action needed'}</span>
@@ -89,8 +90,8 @@ export function Dashboard() {
                 SD Views Remarketing has strong ROAS. Good campaign for budget rule practice.
               </div>
             </div>
-          </div>
-          <div className="card pad">
+          </Card>
+          <Card variant="default" padding={6}>
             <div className="section-head">
               <h2>Training coverage</h2>
               <span className="meta">Core modules</span>
@@ -104,7 +105,7 @@ export function Dashboard() {
               <span className="pill orange">Budget rules</span>
               <span className="pill green">Placement controls</span>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

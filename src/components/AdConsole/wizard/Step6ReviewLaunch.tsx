@@ -1,5 +1,6 @@
 'use client';
 
+import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { PRODUCTS, BRANDS } from '@/engine/ad-console/core/scenarios';
 
@@ -20,7 +21,7 @@ export function Step6ReviewLaunch({ isActive, isComplete }: Step6ReviewLaunchPro
     <div className="wizard-step" style={{ display: isActive || isComplete ? 'block' : 'none' }}>
       <h2>Review & launch</h2>
       <p className="muted" style={{ marginBottom: 14 }}>Review your campaign settings before launch.</p>
-      <div className="card pad">
+      <Card variant="default" padding={6}>
         <div className="review-box">
           <div className="review-row"><span>Type</span><strong>{d.type}</strong></div>
           <div className="review-row"><span>Name</span><strong>{d.name || '(not set)'}</strong></div>
@@ -39,7 +40,7 @@ export function Step6ReviewLaunch({ isActive, isComplete }: Step6ReviewLaunchPro
           {d.audienceLookback && <div className="review-row"><span>Lookback</span><strong>{d.audienceLookback} days</strong></div>}
         </div>
         {!d.name.trim() && <div className="coach-tip" style={{ marginTop: 10 }}>Campaign name is required before launch.</div>}
-      </div>
+      </Card>
     </div>
   );
 }

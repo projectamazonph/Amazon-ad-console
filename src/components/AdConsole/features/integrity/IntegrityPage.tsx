@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 
 export function IntegrityPage() {
@@ -24,32 +25,32 @@ export function IntegrityPage() {
       {report ? (
         <>
           <div className="grid-4" style={{ marginBottom: 'var(--space-4)' }}>
-            <div className="metric-card">
+            <Card variant="default" className="metric-card">
               <div className="label">Integrity score</div>
               <div className="value" style={{ color: report.score >= 80 ? 'var(--success)' : report.score >= 50 ? 'var(--warning)' : 'var(--danger)' }}>{report.score}%</div>
               <div className="delta">{report.passed ? '✅ Passed' : '❌ Needs attention'}</div>
-            </div>
-            <div className="metric-card">
+            </Card>
+            <Card variant="default" className="metric-card">
               <div className="label">Errors</div>
               <div className="value" style={{ color: 'var(--danger)' }}>{report.issues.filter((i) => i.severity === 'error').length}</div>
-            </div>
-            <div className="metric-card">
+            </Card>
+            <Card variant="default" className="metric-card">
               <div className="label">Warnings</div>
               <div className="value" style={{ color: 'var(--warning)' }}>{report.issues.filter((i) => i.severity === 'warn').length}</div>
-            </div>
-            <div className="metric-card">
+            </Card>
+            <Card variant="default" className="metric-card">
               <div className="label">Last run</div>
               <div className="value" style={{ fontSize: 'var(--text-base)' }}>{report.lastRun ? new Date(report.lastRun).toLocaleTimeString() : '-'}</div>
-            </div>
+            </Card>
           </div>
 
           {report.issues.length === 0 ? (
-            <div className="card pad drill-complete-card">
+            <Card variant="default" padding={6} className="drill-complete-card">
               <h2>✨ No issues found</h2>
               <p className="muted">All campaigns pass integrity checks.</p>
-            </div>
+            </Card>
           ) : (
-            <div className="card pad">
+            <Card variant="default" padding={6}>
               <div className="card-title"><h2>Issues</h2><span>{report.issues.length} found</span></div>
               {report.issues.map((issue) => (
                 <div key={issue.id} className={`integrity-issue ${issue.severity}`}>
@@ -57,7 +58,7 @@ export function IntegrityPage() {
                   <span className="integrity-issue-recommendation">💡 {issue.recommendation}</span>
                 </div>
               ))}
-            </div>
+            </Card>
           )}
         </>
       ) : (

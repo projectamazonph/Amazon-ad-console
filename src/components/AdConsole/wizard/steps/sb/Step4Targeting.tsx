@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 
 interface Step4TargetingSBProps {
@@ -37,7 +38,7 @@ export function Step4TargetingSB({ isActive, isComplete }: Step4TargetingSBProps
       </div>
 
       {draft.targetingMode === 'Keyword' && (
-        <div className="card pad" style={{ marginBottom: 16 }}>
+        <Card variant="default" padding={6} style={{ marginBottom: 16 }}>
           <div className="card-title"><h3>Keyword targeting</h3></div>
           <div className="field full" style={{ marginBottom: 12 }}>
             <label>Exact match (one per line)</label>
@@ -51,31 +52,31 @@ export function Step4TargetingSB({ isActive, isComplete }: Step4TargetingSBProps
             <label>Broad match (one per line)</label>
             <textarea className="input full" rows={4} value={broadKeywords} onChange={(e) => { setBroadKeywords(e.target.value); updateDraft('broadKeywords', e.target.value); }} placeholder="cheap coffee filter&#10;coffee filter deals" />
           </div>
-        </div>
+        </Card>
       )}
 
       {draft.targetingMode === 'Product' && (
-        <div className="card pad" style={{ marginBottom: 16 }}>
+        <Card variant="default" padding={6} style={{ marginBottom: 16 }}>
           <div className="card-title"><h3>Product targeting</h3></div>
           <div className="field full" style={{ marginBottom: 12 }}>
             <label>ASIN targets (one per line)</label>
             <textarea className="input full" rows={3} value={asinTargets} onChange={(e) => { setAsinTargets(e.target.value); updateDraft('asinTargets', e.target.value); }} placeholder="B0ABC123&#10;B0DEF456" />
           </div>
-        </div>
+        </Card>
       )}
 
       {draft.targetingMode === 'Category' && (
-        <div className="card pad" style={{ marginBottom: 16 }}>
+        <Card variant="default" padding={6} style={{ marginBottom: 16 }}>
           <div className="card-title"><h3>Category targeting</h3></div>
           <div className="field full" style={{ marginBottom: 12 }}>
             <label>Category targets (one per line)</label>
             <textarea className="input full" rows={3} value={categoryTargets} onChange={(e) => { setCategoryTargets(e.target.value); updateDraft('categoryTargets', e.target.value); }} placeholder="Coffee & Espresso Accessories&#10;Drinkware" />
           </div>
-        </div>
+        </Card>
       )}
 
       {draft.targetingMode.includes('Audiences') && (
-        <div className="card pad" style={{ marginBottom: 16 }}>
+        <Card variant="default" padding={6} style={{ marginBottom: 16 }}>
           <div className="card-title"><h3>Audience targeting</h3></div>
           <div className="field" style={{ marginBottom: 12 }}>
             <label>Lookback window (days)</label>
@@ -91,7 +92,7 @@ export function Step4TargetingSB({ isActive, isComplete }: Step4TargetingSBProps
             <label>Audience targets (one per line)</label>
             <textarea className="input full" rows={3} value={audienceTargets} onChange={(e) => { setAudienceTargets(e.target.value); updateDraft('audienceTargets', e.target.value); }} placeholder="Viewed advertised products 30 days&#10;Purchased from brand 60 days" />
           </div>
-        </div>
+        </Card>
       )}
 
       <div className="field" style={{ marginBottom: 16 }}>

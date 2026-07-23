@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
@@ -43,7 +44,7 @@ export function TargetsTab({ campaign: c }: Props) {
       )}
 
       {showAddKeywordForm && (
-        <div className="card pad" style={{ marginBottom: 10, background: 'var(--surface-2)' }}>
+        <Card variant="default" padding={6} style={{ marginBottom: 10, background: 'var(--surface-2)' }}>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'end' }}>
             <div className="field" style={{ flex: 2, minWidth: 150 }}>
               <label htmlFor="kw-value">Keyword</label>
@@ -75,7 +76,7 @@ export function TargetsTab({ campaign: c }: Props) {
             }} />
             <Button label="Cancel" onClick={() => toggleAddKeywordForm()} />
           </div>
-        </div>
+        </Card>
       )}
 
       <div className="table-wrap">
