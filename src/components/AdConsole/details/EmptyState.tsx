@@ -1,6 +1,9 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { Card } from '@astryxdesign/core/Card';
+import { Stack } from '@astryxdesign/core/Stack';
+import { Text } from '@astryxdesign/core/Text';
 
 type IconName = 'target' | 'block' | 'group' | 'search' | 'history' | 'rule' | 'chart';
 
@@ -65,14 +68,47 @@ interface EmptyStateProps {
 export function EmptyState({ icon = 'chart', title, message, children }: EmptyStateProps) {
   return (
     <div className="empty">
-      <div className="empty-icon" aria-hidden="true">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-          {ICONS[icon]}
-        </svg>
-      </div>
-      <h3>{title}</h3>
-      {message && <p>{message}</p>}
-      {children}
+      <Card padding={6} variant="muted">
+        <Stack gap={3} align="center">
+          <div className="empty-icon" aria-hidden="true">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              {ICONS[icon]}
+            </svg>
+          </div>
+          <Stack gap={1} align="center" style={{ maxWidth: '100%', textAlign: 'center' }}>
+            <Text
+              type="large"
+              weight="medium"
+              maxLines={2}
+              hasTruncateTooltip
+              style={{ width: '100%' }}
+            >
+              {title}
+            </Text>
+            {message && (
+              <Text
+                type="body"
+                color="secondary"
+                maxLines={3}
+                hasTruncateTooltip
+                style={{ width: '100%' }}
+              >
+                {message}
+              </Text>
+            )}
+          </Stack>
+          {children}
+        </Stack>
+      </Card>
     </div>
   );
 }
