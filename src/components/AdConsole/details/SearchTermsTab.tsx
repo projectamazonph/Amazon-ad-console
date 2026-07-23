@@ -5,8 +5,13 @@ import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass, isFilteredByNegative } from '@/engine/ad-console/engine';
 import { EmptyState } from './EmptyState';
 import { Badge } from '@astryxdesign/core/Badge';
+import { Button } from '@astryxdesign/core/Button';
+import { HStack } from '@astryxdesign/core/Stack';
+import { Text } from '@astryxdesign/core/Text';
 
-interface Props { campaign: Campaign }
+interface Props {
+  campaign: Campaign;
+}
 
 export function SearchTermsTab({ campaign }: Props) {
   const addNegative = useAdConsoleStore((s) => s.addNegative);
@@ -15,7 +20,7 @@ export function SearchTermsTab({ campaign }: Props) {
 
   const c = campaign;
   const visibleSearchTerms = c.searchTerms.filter(
-    (st) => !isFilteredByNegative(st.term, c.negatives)
+    (st) => !isFilteredByNegative(st.term, c.negatives),
   );
 
   if (!visibleSearchTerms.length) {
@@ -24,9 +29,19 @@ export function SearchTermsTab({ campaign }: Props) {
       <EmptyState
         icon="search"
         title="No search terms"
-        message={hasNegatives ? 'All search terms are filtered by negatives. Check the Negatives tab to review.' : 'Run a simulation to generate search terms from your keyword targets.'}
+        message={
+          hasNegatives
+            ? 'All search terms are filtered by negatives. Check the Negatives tab to review.'
+            : 'Run a simulation to generate search terms from your keyword targets.'
+        }
       >
-        {!hasNegatives && <button className="btn primary" onClick={() => runSimulation()}>Run 7-day simulation</button>}
+        {!hasNegatives && (
+          <Button
+            variant="primary"
+            label="Run 7-day simulation"
+            onClick={() => runSimulation()}
+          />
+        )}
       </EmptyState>
     );
   }
@@ -34,27 +49,93 @@ export function SearchTermsTab({ campaign }: Props) {
   return (
     <div className="table-wrap">
       <table>
-        <thead><tr><th>Search term</th><th>Matched target</th><th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th><th>Rec</th><th>Actions</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Search term</th>
+            <th>Matched target</th>
+            <th>Impr.</th>
+            <th>Clicks</th>
+            <th>CPC</th>
+            <th>Spend</th>
+            <th>Sales</th>
+            <th>Orders</th>
+            <th>ACOS</th>
+            <th>ROAS</th>
+            <th>Rec</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
         <tbody>
           {visibleSearchTerms.map((st) => {
             const impressions = st.impressions ?? 0;
-            const sx = calc({ impressions, clicks: st.clicks, spend: st.spend, sales: st.sales, orders: st.orders });
+            const sx = calc({
+              impressions,
+              clicks: st.clicks,
+              spend: st.spend,
+              sales: st.sales,
+              orders: st.orders,
+            });
             return (
               <tr key={st.id}>
-                <td><strong>{st.term}</strong></td><td>{st.targetValue}</td>
+                <td style={{ maxWidth: 240 }}>
+                  <Text
+                    type="body"
+                    weight="medium"
+                    maxLines={1}
+                    hasTruncateTooltip
+                    title={st.term}
+                  >
+                    {st.term}
+                  </Text>
+                </td>
+                <td>
+                  <Text type="body" maxLines={1} hasTruncateTooltip title={st.targetValue}>
+                    {st.targetValue}
+                  </Text>
+                </td>
                 <td className="mono">{formatWhole(impressions)}</td>
                 <td className="mono">{formatWhole(st.clicks)}</td>
                 <td className="money">{formatBid(sx.cpc)}</td>
                 <td className="money">{formatMoney(st.spend)}</td>
                 <td className="money">{formatMoney(st.sales)}</td>
                 <td className="mono">{formatWhole(st.orders)}</td>
-                <td className={`mono ${st.sales ? acosClass(sx.acos) : 'bad'}`}>{st.sales ? formatPercent(sx.acos) : 'No sales'}</td>
+                <td className={`mono ${st.sales ? acosClass(sx.acos) : 'bad'}`}>
+                  {st.sales ? formatPercent(sx.acos) : 'No sales'}
+                </td>
                 <td className="mono">{formatRoas(sx.roas)}</td>
-                <td><Badge variant={st.recommendation === "Negate" ? "error" : st.recommendation === "Add as exact keyword" ? "success" : "neutral"} label={st.recommendation} /></td>
                 <td>
-                  <button className="btn small" onClick={() => harvestTerm(c.id, st.term)}>Harvest exact</button>{' '}
-                  <button className="btn small danger" onClick={() => addNegative(c.id, st.term, 'Negative exact')}>Negate exact</button>{' '}
-                  <button className="btn small danger" onClick={() => addNegative(c.id, st.term, 'Negative phrase')}>Negate phrase</button>
+                  <Badge
+                    variant={
+                      st.recommendation === 'Negate'
+                        ? 'error'
+                        : st.recommendation === 'Add as exact keyword'
+                          ? 'success'
+                          : 'neutral'
+                    }
+                    label={st.recommendation}
+                  />
+                </td>
+                <td>
+                  <HStack gap={1} wrap>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      label="Harvest exact"
+                      onClick={() => harvestTerm(c.id, st.term)}
+                    />
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      label="Negate exact"
+                      onClick={() => addNegative(c.id, st.term, 'Negative exact')}
+                    />
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      label="Negate phrase"
+                      onClick={() => addNegative(c.id, st.term, 'Negative phrase')}
+                    />
+                  </HStack>
                 </td>
               </tr>
             );
