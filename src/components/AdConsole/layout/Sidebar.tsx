@@ -2,6 +2,9 @@
 
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { getLeftRail, isSidebarItemActive, resolveSidebarClick, sidebarSectionForView, type RailSection } from '../nav/consoleNav';
+import { SideNav } from '@astryxdesign/core/SideNav';
+import { SideNavSection } from '@astryxdesign/core/SideNav';
+import { SideNavItem } from '@astryxdesign/core/SideNav';
 
 const GROUP_TITLES: Record<string, string> = {
   campaigns: 'Campaign Manager',
@@ -18,62 +21,45 @@ export function Sidebar() {
   const runSimulation = useAdConsoleStore((s) => s.runSimulation);
   const resetAll = useAdConsoleStore((s) => s.resetAll);
 
-  // The left rail reflects the active global-nav section. Pulled into
-  // `sidebarSectionForView` so the topbar and sidebar stay in sync (H-03).
   const section: RailSection = sidebarSectionForView(view);
   const items = getLeftRail(section);
 
-  // Group items by their area for Amazon-style sectioned rail.
   const groups: Record<string, typeof items> = {};
   for (const item of items) {
     (groups[item.group] ??= []).push(item);
   }
 
   return (
-    <nav className="app-sidebar" aria-label="Console sections">
+    <SideNav>
       {Object.entries(groups).map(([group, groupItems]) => (
-        <div key={group}>
-          <div className="sidebar-group-title">{GROUP_TITLES[group]}</div>
+        <SideNavSection key={group} title={GROUP_TITLES[group]}>
           {groupItems.map((item) => (
-            <button
+            <SideNavItem
               key={item.label}
-              type="button"
-              className={`sidebar-item ${
-                isSidebarItemActive(item, view, selectedTab) ? 'active' : ''
-              }`}
-              aria-current={isSidebarItemActive(item, view, selectedTab) ? 'page' : undefined}
+              label={item.label}
+              isSelected={isSidebarItemActive(item, view, selectedTab)}
               onClick={() => {
                 const action = resolveSidebarClick(item, view);
                 if (action.type === 'setTab') setTab(action.tab!);
                 else if (action.type === 'setTabAndView') { setTab(action.tab!); setView(action.view!); }
                 else setView(action.view!);
               }}
-            >
-              {item.label}
-            </button>
+            />
           ))}
-        </div>
+        </SideNavSection>
       ))}
-
-      <div className="sidebar-spacer" />
-      <button
-        type="button"
-        className="sidebar-item"
-        style={{ color: 'var(--ink-700)' }}
-        onClick={() => runSimulation()}
-      >
-        Run 7-day sim
-      </button>
-      <button
-        type="button"
-        className="sidebar-item"
-        style={{ color: 'var(--ink-700)' }}
-        onClick={() => {
-          if (confirm('Reset all data?')) resetAll();
-        }}
-      >
-        Reset sandbox
-      </button>
-    </nav>
+      <SideNavSection title="Actions">
+        <SideNavItem
+          label="Run 7-day sim"
+          onClick={() => runSimulation()}
+        />
+        <SideNavItem
+          label="Reset sandbox"
+          onClick={() => {
+            if (confirm('Reset all data?')) resetAll();
+          }}
+        />
+      </SideNavSection>
+    </SideNav>
   );
 }
