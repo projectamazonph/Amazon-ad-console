@@ -24,12 +24,17 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
-// Mock ResizeObserver
-globalThis.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
+// Astryx truncation creates ResizeObserver instances. Keep the test double
+// constructible so components can mount in jsdom.
+class ResizeObserverMock {
+  constructor(_callback: ResizeObserverCallback) {}
+
+  observe = vi.fn();
+  unobserve = vi.fn();
+  disconnect = vi.fn();
+}
+
+globalThis.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
 
 // Setup cleanup after each test
 afterEach(() => {

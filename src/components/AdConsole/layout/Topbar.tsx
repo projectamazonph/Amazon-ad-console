@@ -43,7 +43,7 @@ export function Topbar() {
       </div>
 
       {GLOBAL_NAV.map((section) => {
-        const isActive = activeSection === section.view;
+        const isActive = activeSection === activeTopbarSection(section.view);
         return (
           <button
             key={section.view}

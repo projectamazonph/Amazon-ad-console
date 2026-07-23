@@ -124,9 +124,11 @@ export function ReportsPage() {
                 <table>
                   <thead>
                     <tr>
-                      {Object.keys(selected.rows[0]).map((h) => (
-                        <th key={h}>{h}</th>
-                      ))}
+                      <th>Impressions</th>
+                      <th>Clicks</th>
+                      <th>Spend</th>
+                      <th>Sales</th>
+                      <th>ACOS</th>
                     </tr>
                   </thead>
                   <tbody>

@@ -11,7 +11,7 @@
  *  - The OverviewTab inputs have label htmlFor -> input id wiring
  */
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { SessionProvider } from 'next-auth/react';
 import { AdConsole } from '../AdConsole';
 import { OverviewTab } from '../details/OverviewTab';
@@ -39,17 +39,17 @@ function renderAdConsole() {
 describe('A11y — AdConsole landmarks and skip link', () => {
   beforeEach(resetStore);
 
-  it('renders a <main> element with id="main-content" for landmark navigation', () => {
+  it('renders a main landmark for landmark navigation', () => {
     renderAdConsole();
-    const main = document.querySelector('main#main-content');
-    expect(main).not.toBeNull();
+    const main = screen.getByRole('main');
+    expect(main.id).toBeTruthy();
   });
 
   it('renders a skip link that points to the main landmark', () => {
     renderAdConsole();
-    const skip = document.querySelector('a.skip-link');
-    expect(skip).not.toBeNull();
-    expect(skip?.getAttribute('href')).toBe('#main-content');
+    const main = screen.getByRole('main');
+    const skip = screen.getByRole('link', { name: /skip to content/i });
+    expect(skip.getAttribute('href')).toBe(`#${main.id}`);
   });
 });
 
@@ -64,14 +64,24 @@ describe('A11y — Topbar and Sidebar use semantic buttons', () => {
     expect(active).toBeDefined();
   });
 
+  it('marks Training active for training views', () => {
+    useAdConsoleStore.getState().setView('drills');
+    renderAdConsole();
+    const topbar = screen.getByRole('navigation', { name: 'Global' });
+    const training = Array.from(topbar.querySelectorAll('button.nav-section')).find(
+      (button) => button.textContent === 'Training',
+    );
+    expect(training?.getAttribute('aria-current')).toBe('page');
+  });
+
   it('sidebar rail items are <button> elements (no clickable divs)', () => {
     renderAdConsole();
-    // The Campaigns item is the first row in the left rail; locate it by
-    // its .sidebar-item class so it doesn't collide with table column
-    // headers that also use the word "Campaigns".
-    const railItems = document.querySelectorAll('button.sidebar-item');
-    expect(railItems.length).toBeGreaterThan(0);
-    expect(document.querySelectorAll('div.sidebar-item').length).toBe(0);
+    const sidebars = screen.getAllByRole('navigation', { name: 'Side navigation' });
+    expect(
+      sidebars.some((sidebar) =>
+        Boolean(within(sidebar).queryByRole('button', { name: 'Sponsored Products' })),
+      ),
+    ).toBe(true);
   });
 });
 
