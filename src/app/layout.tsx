@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { SessionProvider } from '@/components/SessionProvider';
+import { Providers } from './providers';
 import './globals.css';
 
 const geist = Geist({
@@ -29,9 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${geist.variable} ${geistMono.variable}`}>
       <body>
-        <SessionProvider>
-          {children}
-        </SessionProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
