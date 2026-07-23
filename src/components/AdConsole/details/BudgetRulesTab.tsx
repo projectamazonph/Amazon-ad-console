@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { Table } from '@astryxdesign/core/Table';
 import { Card } from '@astryxdesign/core/Card';
 import { NumberInput } from '@astryxdesign/core/NumberInput';
 import { Selector } from '@astryxdesign/core/Selector';
@@ -71,8 +72,7 @@ export function BudgetRulesTab({ campaign }: Props) {
       {c.budgetRules.length === 0 ? (
         <EmptyState icon="rule" title="No budget rules" message="Schedule-based or performance-based rules let you automate budget adjustments. Create one using the form above." />
       ) : (
-        <div className="table-wrap">
-          <table>
+        <Table>
             <thead><tr><th>Name</th><th>Type</th><th>Increase</th><th>Condition</th><th>Actions</th></tr></thead>
             <tbody>
               {c.budgetRules.map((r) => (
@@ -130,8 +130,7 @@ export function BudgetRulesTab({ campaign }: Props) {
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+          </Table>
       )}
     </div>
   );

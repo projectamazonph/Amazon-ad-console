@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@astryxdesign/core/Button';
+import { Table } from '@astryxdesign/core/Table';
 import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { getKpiTiles } from './nav/consoleNav';
@@ -179,8 +180,7 @@ function renderCampaignTable(
   }
 
   return (
-    <div className="table-wrap">
-      <table>
+    <Table>
         <thead>
           <tr>
             <th>Campaign</th>
@@ -236,7 +236,6 @@ function renderCampaignTable(
             );
           })}
         </tbody>
-      </table>
-    </div>
+      </Table>
   );
 }

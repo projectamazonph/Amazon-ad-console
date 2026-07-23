@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@astryxdesign/core/Button';
+import { Table } from '@astryxdesign/core/Table';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass, isFilteredByNegative } from '@/engine/ad-console/engine';
@@ -32,8 +33,7 @@ export function SearchTermsTab({ campaign }: Props) {
   }
 
   return (
-    <div className="table-wrap">
-      <table>
+    <Table>
         <thead><tr><th>Search term</th><th>Matched target</th><th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th><th>Rec</th><th>Actions</th></tr></thead>
         <tbody>
           {visibleSearchTerms.map((st) => {
@@ -60,7 +60,6 @@ export function SearchTermsTab({ campaign }: Props) {
             );
           })}
         </tbody>
-      </table>
-    </div>
+      </Table>
   );
 }

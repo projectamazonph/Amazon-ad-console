@@ -1,5 +1,6 @@
 'use client';
 
+import { Table } from '@astryxdesign/core/Table';
 import type { Campaign } from '@/engine/ad-console/types';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
 import { EmptyState } from './EmptyState';
@@ -15,8 +16,7 @@ export function ManagerTargetsTab({ campaigns }: Props) {
   }
 
   return (
-    <div className="table-wrap">
-      <table>
+    <Table>
         <thead>
           <tr>
             <th>Target</th><th>Campaign</th><th>Type</th><th>Match</th><th>Status</th>
@@ -45,7 +45,6 @@ export function ManagerTargetsTab({ campaigns }: Props) {
             );
           })}
         </tbody>
-      </table>
-    </div>
+      </Table>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@astryxdesign/core/Button';
+import { Table } from '@astryxdesign/core/Table';
 import type { Campaign } from '@/engine/ad-console/types';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
 import { EmptyState } from './EmptyState';
@@ -24,8 +25,7 @@ export function ManagerCampaignsTab({ campaigns, onSelect, onToggleStatus, onDup
   }
 
   return (
-    <div className="table-wrap">
-      <table>
+    <Table>
         <thead>
           <tr>
             <th>Campaign</th><th>Type</th><th>Creative</th><th>Status</th><th>Budget</th><th>Targeting</th>
@@ -70,7 +70,6 @@ export function ManagerCampaignsTab({ campaigns, onSelect, onToggleStatus, onDup
             );
           })}
         </tbody>
-      </table>
-    </div>
+      </Table>
   );
 }

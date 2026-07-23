@@ -1006,12 +1006,9 @@ code, pre {
 
 /* ── Tables ─────────────────────────────────────────────────────── */
 
-.table-wrap { 
-  overflow-x: auto; 
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-light);
-  background: var(--surface-1);
-}
+/* (legacy .table-wrap rule removed in Phase 5 — the Astryx <Table> scroll
+   wrapper now provides the overflow + border + radius + background; see
+   src/app/astryx-theme.css .astryx-table-scroll-wrapper block.) */
 
 table {
   width: 100%;
@@ -1948,7 +1945,7 @@ textarea.input {
     min-height: 48px;
   }
 
-  .table-wrap {
+  .astryx-table-scroll-wrapper {
     border-radius: var(--radius-md);
   }
 

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { Table } from '@astryxdesign/core/Table';
 import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatRoas, acosClass } from '@/engine/ad-console/engine';
@@ -148,8 +149,7 @@ export function PortfolioOverview() {
                 <div><span className={`mono ${acosClass(x.acos)}`} style={{ fontWeight: 600 }}>{formatPercent(x.acos)}</span><div className="muted">ACOS</div></div>
                 <div><span style={{ fontWeight: 600 }}>{formatRoas(x.roas)}</span><div className="muted">ROAS</div></div>
               </div>
-              <div className="table-wrap">
-                <table>
+              <Table>
                   <thead>
                     <tr>
                       <th>Campaign</th><th>Type</th><th>Status</th><th>Budget</th><th>Spend</th><th>Sales</th><th>ACOS</th>
@@ -190,8 +190,7 @@ export function PortfolioOverview() {
                       );
                     })}
                   </tbody>
-                </table>
-              </div>
+                </Table>
             </div>
           );
         })

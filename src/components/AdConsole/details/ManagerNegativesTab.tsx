@@ -1,5 +1,6 @@
 'use client';
 
+import { Table } from '@astryxdesign/core/Table';
 import type { Campaign } from '@/engine/ad-console/types';
 import { EmptyState } from './EmptyState';
 
@@ -14,8 +15,7 @@ export function ManagerNegativesTab({ campaigns }: Props) {
   }
 
   return (
-    <div className="table-wrap">
-      <table>
+    <Table>
         <thead><tr><th>Negative</th><th>Campaign</th><th>Type</th></tr></thead>
         <tbody>
           {rows.map(({ c, n }, i) => (
@@ -24,7 +24,6 @@ export function ManagerNegativesTab({ campaigns }: Props) {
             </tr>
           ))}
         </tbody>
-      </table>
-    </div>
+      </Table>
   );
 }

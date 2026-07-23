@@ -1,5 +1,6 @@
 'use client';
 
+import { Table } from '@astryxdesign/core/Table';
 import type { Campaign } from '@/engine/ad-console/types';
 import { EmptyState } from './EmptyState';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
@@ -16,8 +17,7 @@ export function ManagerAdGroupsTab({ campaigns, onSelectCampaign }: Props) {
   }
 
   return (
-    <div className="table-wrap">
-      <table>
+    <Table>
         <thead>
           <tr>
             <th>Ad group</th><th>Campaign</th><th>Type</th><th>Status</th>
@@ -48,7 +48,6 @@ export function ManagerAdGroupsTab({ campaigns, onSelectCampaign }: Props) {
             );
           })}
         </tbody>
-      </table>
-    </div>
+      </Table>
   );
 }

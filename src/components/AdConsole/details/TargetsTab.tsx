@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { Table } from '@astryxdesign/core/Table';
 import { Card } from '@astryxdesign/core/Card';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
@@ -79,8 +80,7 @@ export function TargetsTab({ campaign: c }: Props) {
         </Card>
       )}
 
-      <div className="table-wrap">
-        <table>
+      <Table>
           <thead><tr><th>Target</th><th>Type</th><th>Match</th><th>Status</th><th>Bid</th><th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th><th>Actions</th></tr></thead>
           <tbody>
             {c.targets.map((t) => {
@@ -125,8 +125,7 @@ export function TargetsTab({ campaign: c }: Props) {
               );
             })}
           </tbody>
-        </table>
-      </div>
+        </Table>
     </div>
   );
 }

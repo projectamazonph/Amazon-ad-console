@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@astryxdesign/core/Button';
+import { Table } from '@astryxdesign/core/Table';
 import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 
@@ -61,8 +62,7 @@ export function BulkOpsPage() {
                 <h2>Preview</h2>
                 <span className="bulk-status">{preview.length} rows · {valid ? '✅ Valid' : '❌ Has errors'}</span>
               </div>
-              <div className="table-wrap">
-                <table>
+              <Table>
                   <thead>
                     <tr>{Object.keys(preview[0]).map((h) => <th key={h}>{h}</th>)}</tr>
                   </thead>
@@ -73,8 +73,7 @@ export function BulkOpsPage() {
                       </tr>
                     ))}
                   </tbody>
-                </table>
-              </div>
+                </Table>
             </Card>
           )}
 

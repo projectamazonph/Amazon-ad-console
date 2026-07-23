@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { Table } from '@astryxdesign/core/Table';
 import { Card } from '@astryxdesign/core/Card';
 import { NumberInput } from '@astryxdesign/core/NumberInput';
 import { Selector } from '@astryxdesign/core/Selector';
@@ -103,8 +104,7 @@ export function OverviewTab({ campaign: c }: Props) {
       </Card>
       <Card variant="default" padding={6} style={{ gridColumn: '1 / -1' }}>
         <div className="section-head"><h2>Top targets by profit signal</h2><span className="meta">Use to train bid optimization</span></div>
-        <div className="table-wrap">
-          <table>
+        <Table>
             <thead><tr><th>Target</th><th>Bid</th><th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th></tr></thead>
             <tbody>
               {c.targets.slice(0, 4).map((t) => {
@@ -125,8 +125,7 @@ export function OverviewTab({ campaign: c }: Props) {
                 );
               })}
             </tbody>
-          </table>
-        </div>
+          </Table>
       </Card>
     </div>
   );

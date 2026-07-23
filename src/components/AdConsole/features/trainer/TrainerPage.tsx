@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { Table } from '@astryxdesign/core/Table';
 import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 
@@ -109,8 +110,7 @@ export function TrainerPage() {
           {drillResults.length > 0 && (
             <Card variant="default" padding={6}>
               <div className="card-title"><h2>Drill results</h2></div>
-              <div className="table-wrap">
-                <table>
+              <Table>
                   <thead><tr><th>Score</th><th>Mistakes</th><th>Skips</th></tr></thead>
                   <tbody>
                     {drillResults.map((r, i) => (
@@ -121,8 +121,7 @@ export function TrainerPage() {
                       </tr>
                     ))}
                   </tbody>
-                </table>
-              </div>
+                </Table>
             </Card>
           )}
         </div>

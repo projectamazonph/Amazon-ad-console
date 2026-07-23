@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Card } from '@astryxdesign/core/Card';
+import { Table } from '@astryxdesign/core/Table';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { PRODUCTS, BRANDS } from '@/engine/ad-console/core/scenarios';
 
@@ -34,8 +35,7 @@ export function Step3ProductsCreativeSB({ isActive, isComplete }: Step3ProductsC
       {!(draft.adFormat === 'Store spotlight') && (
         <Card variant="default" padding={6} style={{ marginBottom: 14 }}>
           <div className="card-title"><h3>Product catalog</h3><span>{draft.products.length} selected</span></div>
-          <div className="table-wrap">
-            <table>
+          <Table>
               <thead>
                 <tr><th></th><th>ASIN</th><th>Product</th><th>Price</th><th>Category</th><th>Rating</th><th>Status</th></tr>
               </thead>
@@ -56,8 +56,7 @@ export function Step3ProductsCreativeSB({ isActive, isComplete }: Step3ProductsC
                   );
                 })}
               </tbody>
-            </table>
-          </div>
+            </Table>
           {draft.products.length === 0 && <div className="error-state" style={{ margin: '8px 0', padding: 12, textAlign: 'left' }}>
             <strong>⚠️ Select at least one product</strong>
             <p style={{ fontSize: 'var(--text-xs)', marginTop: 2 }}>Campaigns require at least one product to advertise.</p>

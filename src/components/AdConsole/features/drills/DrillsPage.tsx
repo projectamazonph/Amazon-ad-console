@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@astryxdesign/core/Button';
+import { Table } from '@astryxdesign/core/Table';
 import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { getDrill, getAllDrills, calculateScore } from '@/engine/ad-console/features/drills/engine';
@@ -105,8 +106,7 @@ export function DrillsPage() {
       {results.length > 0 && (
         <Card variant="default" padding={6} style={{ marginTop: 'var(--space-5)' }}>
           <div className="card-title"><h2>Past drill results</h2><span>{results.length} completed</span></div>
-          <div className="table-wrap">
-            <table>
+          <Table>
               <thead><tr><th>Drill</th><th>Score</th><th>Mistakes</th><th>Skips</th><th>Date</th></tr></thead>
               <tbody>
                 {results.map((r, i) => (
@@ -119,8 +119,7 @@ export function DrillsPage() {
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+            </Table>
         </Card>
       )}
     </div>
