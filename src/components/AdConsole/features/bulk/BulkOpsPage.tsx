@@ -20,12 +20,17 @@ export function BulkOpsPage() {
   return (
     <div>
       <div className="page-title">
-        <Button label="← Back to campaigns" size="sm" onClick={() => setView('campaigns')} tooltip="Back to campaigns" />
-        <h1 style={{ marginTop: 'var(--space-2)' }}>Bulk operations</h1>
-        <Button label="Load template" onClick={() => {
-          const template = getTemplate();
-          setInput(template);
-        }} />
+        <div>
+          <h1>Bulk operations</h1>
+          <p>Upload CSV files to make bulk changes to campaigns.</p>
+        </div>
+        <div className="page-actions">
+          <Button label="← Back to campaigns" size="sm" onClick={() => setView('campaigns')} tooltip="Back to campaigns" />
+          <Button label="Load template" onClick={() => {
+            const template = getTemplate();
+            setInput(template);
+          }} />
+        </div>
       </div>
 
       <div className="split">

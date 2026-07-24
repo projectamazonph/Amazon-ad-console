@@ -50,8 +50,11 @@ export function MissionsPage() {
   return (
     <div>
       <div className="page-title">
+        <div>
+          <h1>Training missions</h1>
+          <p>Real-world scenario training with guided step completion.</p>
+        </div>
         <Button label="← Back to campaigns" size="sm" onClick={() => setView('campaigns')} tooltip="Back to campaigns" />
-        <h1 style={{ marginTop: 'var(--space-2)' }}>Training missions</h1>
       </div>
       <div className="drill-grid">
         {missions.map((m) => (
