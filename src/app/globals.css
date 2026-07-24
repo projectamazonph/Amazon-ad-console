@@ -240,7 +240,7 @@ code, pre {
   border: 0;
 }
 
-/* ── Layout — Project Amazon PH: global nav on top, content below ── */
+/* -- Layout — Project Amazon PH: global nav on top, content below -- */
 
 .app-layout {
   display: flex;
@@ -530,7 +530,7 @@ code, pre {
   margin: 0 auto;
 }
 
-/* ── Sidebar ────────────────────────────────────────────────────── */
+/* -- Sidebar ------------------------------------------------------ */
 
 .sidebar-group-title {
   font-size: var(--text-2xs);
@@ -582,7 +582,7 @@ code, pre {
 
 .sidebar-spacer { flex: 1; }
 
-/* ── Page Title ─────────────────────────────────────────────────── */
+/* -- Page Title --------------------------------------------------- */
 
 .page-title {
   display: flex;
@@ -605,7 +605,7 @@ code, pre {
   margin-top: var(--space-1);
 }
 
-/* ── Toolbar ────────────────────────────────────────────────────── */
+/* -- Toolbar ------------------------------------------------------ */
 
 .toolbar {
   display: flex;
@@ -683,10 +683,8 @@ code, pre {
 .reports-queue-card {
   margin-bottom: var(--space-4);
 }
-  margin-bottom: var(--space-5);
-}
 
-/* ── Tabs ───────────────────────────────────────────────────────── */
+/* -- Tabs --------------------------------------------------------- */
 
 .tabs {
   display: flex;
@@ -725,7 +723,7 @@ code, pre {
   font-weight: 600;
 }
 
-/* ── Cards ──────────────────────────────────────────────────────── */
+/* -- Cards -------------------------------------------------------- */
 
 .card {
   background: var(--surface-1);
@@ -762,7 +760,7 @@ code, pre {
   font-weight: 500;
 }
 
-/* ── KPI Tiles ──────────────────────────────────────────────────── */
+/* -- KPI Tiles ---------------------------------------------------- */
 
 .kpi-grid {
   display: grid;
@@ -857,7 +855,7 @@ code, pre {
 .kpi-trend.bad { background: var(--danger-soft); color: var(--danger); }
 .kpi-trend.flat { background: var(--surface-2); color: var(--ink-400); }
 
-/* ── Section Header (shared rhythm across pages) ────────────────── */
+/* -- Section Header (shared rhythm across pages) ------------------ */
 
 .section-head {
   display: flex;
@@ -884,7 +882,7 @@ code, pre {
   white-space: nowrap;
 }
 
-/* ── Tab Toolbar (inline action/form bar above a tab's table) ───── */
+/* -- Tab Toolbar (inline action/form bar above a tab's table) ----- */
 
 .tab-toolbar {
   display: flex;
@@ -897,7 +895,7 @@ code, pre {
 .tab-toolbar.center { align-items: center; }
 .tab-toolbar .field { margin-bottom: 0; }
 
-/* ── Timeline (change history) ──────────────────────────────────── */
+/* -- Timeline (change history) ------------------------------------ */
 
 .timeline {
   position: relative;
@@ -937,7 +935,7 @@ code, pre {
   border: 2px solid var(--accent);
 }
 
-/* ── Metric Cards ─────────────────────────────────────────────── */
+/* -- Metric Cards ----------------------------------------------- */
 
 .metric-card {
   position: relative;
@@ -998,7 +996,7 @@ code, pre {
 .metric-card .delta.good { color: var(--success); }
 .metric-card .delta.bad { color: var(--danger); }
 
-/* ── Insight Cards ────────────────────────────────────────────── */
+/* -- Insight Cards ---------------------------------------------- */
 
 .insight-list {
   display: flex;
@@ -1037,7 +1035,7 @@ code, pre {
   color: var(--ink-700);
 }
 
-/* ── Grids ──────────────────────────────────────────────────────── */
+/* -- Grids -------------------------------------------------------- */
 
 .grid-4 {
   display: grid;
@@ -1063,7 +1061,7 @@ code, pre {
   gap: var(--space-5);
 }
 
-/* ── Tables ─────────────────────────────────────────────────────── */
+/* -- Tables ------------------------------------------------------- */
 
 /* (legacy .table-wrap rule removed in Phase 5 — the Astryx <Table> scroll
    wrapper now provides the overflow + border + radius + background; see
@@ -1126,7 +1124,7 @@ tr:hover td {
 .warn { color: var(--warning); }
 .bad { color: var(--danger); }
 
-/* ── Buttons ────────────────────────────────────────────────────── *
+/* -- Buttons ------------------------------------------------------ *
  * .btn, .btn.primary, .btn.danger, .btn.blue, .btn.small — all moved
  * to src/app/astryx-theme.css as the .astryx-button[data-variant="…"]
  * overrides. The buttons now use <Button> from @astryxdesign/core, and
@@ -1134,7 +1132,7 @@ tr:hover td {
  * (orange primary, red destructive outline, teal info fill, etc.).
  */
 
-/* ── Forms ──────────────────────────────────────────────────────── */
+/* -- Forms -------------------------------------------------------- */
 
 .form-grid {
   display: grid;
@@ -1200,7 +1198,7 @@ textarea.input {
   resize: vertical;
 }
 
-/* ── Pills ──────────────────────────────────────────────────────── */
+/* -- Pills -------------------------------------------------------- */
 
 .pill {
   display: inline-flex;
@@ -1246,7 +1244,7 @@ textarea.input {
   flex-wrap: wrap;
 }
 
-/* ── Breadcrumb ─────────────────────────────────────────────────── */
+/* -- Breadcrumb --------------------------------------------------- */
 
 .breadcrumb {
   display: flex;
@@ -1271,7 +1269,7 @@ textarea.input {
   text-decoration: underline;
 }
 
-/* ── Detail Header ──────────────────────────────────────────────── */
+/* -- Detail Header ------------------------------------------------ */
 
 .detail-header {
   margin-bottom: var(--space-6);
@@ -1315,7 +1313,7 @@ textarea.input {
   flex-wrap: wrap;
 }
 
-/* ── Empty State ────────────────────────────────────────────────── */
+/* -- Empty State -------------------------------------------------- */
 
 .empty {
   text-align: center;
@@ -1356,7 +1354,7 @@ textarea.input {
 
 .empty .astryx-button { margin-top: var(--space-2); }
 
-/* ── Coach Tip ──────────────────────────────────────────────────── */
+/* -- Coach Tip ---------------------------------------------------- */
 
 .coach-tip {
   background: var(--warning-soft);
@@ -1367,7 +1365,7 @@ textarea.input {
   color: var(--ink-700);
 }
 
-/* ── Error State ────────────────────────────────────────────────── */
+/* -- Error State -------------------------------------------------- */
 
 .error-state {
   background: var(--danger-soft);
@@ -1378,7 +1376,7 @@ textarea.input {
   color: var(--ink-700);
 }
 
-/* ── Review Box ─────────────────────────────────────────────────── */
+/* -- Review Box --------------------------------------------------- */
 
 .review-box {
   display: flex;
@@ -1408,7 +1406,7 @@ textarea.input {
   font-weight: 500;
 }
 
-/* ── Wizard ─────────────────────────────────────────────────────── */
+/* -- Wizard ------------------------------------------------------- */
 
 .wizard {
   display: grid;
@@ -1539,7 +1537,7 @@ textarea.input {
   margin-top: var(--space-3);
 }
 
-/* ── Simulation Overlay ─────────────────────────────────────────── */
+/* -- Simulation Overlay ------------------------------------------- */
 
 .sim-overlay {
   position: fixed;
@@ -1581,7 +1579,7 @@ textarea.input {
   40% { transform: scale(1); }
 }
 
-/* ── Row Link ───────────────────────────────────────────────────── */
+/* -- Row Link ----------------------------------------------------- */
 
 .row-link {
   color: var(--info);
@@ -1595,7 +1593,7 @@ textarea.input {
   text-decoration: underline;
 }
 
-/* ── Tag ────────────────────────────────────────────────────────── */
+/* -- Tag ---------------------------------------------------------- */
 
 .tag {
   display: inline-flex;
@@ -1607,7 +1605,7 @@ textarea.input {
   font-size: var(--text-sm);
 }
 
-/* ── Footer ─────────────────────────────────────────────────────── */
+/* -- Footer ------------------------------------------------------- */
 
 .footer-links {
   display: flex;
@@ -1626,7 +1624,7 @@ textarea.input {
   color: var(--accent);
 }
 
-/* ── Mobile Hamburger ──────────────────────────────────────────── */
+/* -- Mobile Hamburger -------------------------------------------- */
 
 .mobile-hamburger {
   display: none;
@@ -1680,7 +1678,7 @@ textarea.input {
   /* Mobile drawer nav takes over on tablet/mobile. */
 }
 
-/* ── Mobile Drawer ─────────────────────────────────────────────── */
+/* -- Mobile Drawer ----------------------------------------------- */
 
 .mobile-backdrop {
   position: fixed;
@@ -1798,7 +1796,7 @@ textarea.input {
   min-height: 40px;
 }
 
-/* ── Responsive — Mobile First ──────────────────────────────────── */
+/* -- Responsive — Mobile First ------------------------------------ */
 
 @media (max-width: 768px) {
   .kpi-grid {
@@ -1823,7 +1821,7 @@ textarea.input {
   }
 }
 
-/* ── Enhanced Mobile Responsive ────────────────────────────────── */
+/* -- Enhanced Mobile Responsive ---------------------------------- */
 
 @media (max-width: 768px) {
   .app-navbar {
@@ -2059,7 +2057,7 @@ textarea.input {
   }
 }
 
-/* ── Safe Area — iPhone notch support ───────────────────────────── */
+/* -- Safe Area — iPhone notch support ----------------------------- */
 
 @supports (padding-top: env(safe-area-inset-top)) {
   .app-navbar {
@@ -2075,7 +2073,7 @@ textarea.input {
 }
 
 
-/* ── Metric Card Responsive ───────────────────────────────────── */
+/* -- Metric Card Responsive ------------------------------------- */
 
 @media (max-width: 768px) {
   .metric-card {
@@ -2092,7 +2090,7 @@ textarea.input {
   }
 }
 
-/* ── Drill & Mission Components ───────────────────────────────── */
+/* -- Drill & Mission Components --------------------------------- */
 
 .drill-grid {
   display: grid;
@@ -2214,7 +2212,7 @@ textarea.input {
   font-weight: 700;
 }
 
-/* ── Mission Components ───────────────────────────────────────── */
+/* -- Mission Components ----------------------------------------- */
 
 .mission-complete-card {
   text-align: center;
@@ -2271,7 +2269,7 @@ textarea.input {
   color: var(--ink-400);
 }
 
-/* ── Trainer Dashboard ────────────────────────────────────────── */
+/* -- Trainer Dashboard ------------------------------------------ */
 
 .trainer-cert-item {
   display: flex;
@@ -2322,7 +2320,7 @@ textarea.input {
   flex: 1;
 }
 
-/* ── Integrity Issues ─────────────────────────────────────────── */
+/* -- Integrity Issues ------------------------------------------- */
 
 .integrity-issue {
   padding: var(--space-3);
@@ -2358,7 +2356,7 @@ textarea.input {
   color: var(--ink-500);
 }
 
-/* ── Bulk Operations ──────────────────────────────────────────── */
+/* -- Bulk Operations -------------------------------------------- */
 
 .bulk-textarea {
   min-height: 200px;
@@ -2377,7 +2375,7 @@ textarea.input {
   font-size: var(--text-sm);
 }
 
-/* ── Report Components ────────────────────────────────────────── */
+/* -- Report Components ------------------------------------------ */
 
 .report-queue-item {
   display: flex;
@@ -2395,7 +2393,7 @@ textarea.input {
   color: var(--ink-400);
 }
 
-/* ── Landing & Auth pages — dark marketing surface ─────────────── */
+/* -- Landing & Auth pages — dark marketing surface --------------- */
 
 .landing {
   min-height: 100vh;
@@ -2605,7 +2603,7 @@ textarea.input {
   gap: var(--space-6);
 }
 
-/* ── Landing Page Enhancements ─────────────────────────────────────── */
+/* -- Landing Page Enhancements --------------------------------------- */
 
 .landing-hero-grid {
   display: grid;
