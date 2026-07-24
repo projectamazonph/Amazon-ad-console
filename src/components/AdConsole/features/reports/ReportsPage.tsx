@@ -3,6 +3,7 @@
 import { Button } from '@astryxdesign/core/Button';
 import { Table } from '@astryxdesign/core/Table';
 import { Card } from '@astryxdesign/core/Card';
+import { CheckCircle, XCircle } from '@phosphor-icons/react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent } from '@/engine/ad-console/core/engine';
 
@@ -47,7 +48,12 @@ export function ReportsPage() {
           <div className="card-title"><h2>Report queue</h2><span>{requests.length} requests</span></div>
           {requests.slice(0, 10).map((r) => (
             <div key={r.id} className="report-queue-item">
-              <span className={`pill ${r.status === 'completed' ? 'green' : 'orange'}`}>{r.status}</span>
+              <span className={`pill ${r.status === 'completed' ? 'green' : 'orange'}`}>
+                {r.status === 'completed' ? (
+                  <CheckCircle size={12} weight="fill" style={{ marginRight: 4 }} />
+                ) : null}
+                {r.status}
+              </span>
               <span className="report-queue-type">{r.type} report</span>
               <span className="report-queue-time">{new Date(r.requestedAt).toLocaleTimeString()}</span>
               {r.status === 'completed' && (

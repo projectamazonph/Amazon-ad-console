@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
+import { Check } from '@phosphor-icons/react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import type { CampaignType, CampaignDraft } from '@/engine/ad-console/types';
 import { PRODUCTS, BRANDS } from '@/engine/ad-console/core/scenarios';
@@ -21,7 +22,14 @@ import { Step4TargetingSD } from './steps/sd/Step4Targeting';
 import { Step5BiddingSD } from './steps/sd/Step5Bidding';
 import { Step6ReviewLaunch } from './Step6ReviewLaunch';
 
-const STEPS = ['Ad type', 'Basics', 'Products & creative', 'Targeting', 'Bidding', 'Review'];
+const WIZARD_STEPS = [
+  { label: 'Ad type' },
+  { label: 'Basics' },
+  { label: 'Products' },
+  { label: 'Targeting' },
+  { label: 'Bidding' },
+  { label: 'Review' },
+];
 
 export function CreateCampaignWizard() {
   const draft = useAdConsoleStore((s) => s.draft);
@@ -53,16 +61,13 @@ export function CreateCampaignWizard() {
   const [image, setImage] = useState(d.creative.image || '');
   const [video, setVideo] = useState(d.creative.video || '');
 
-  // Local state is initialized from draft and kept in sync via the store's
-  // updateDraft action on each step's Next handler.
-
   const isComplete = (step: number) => wizardStep > step;
   const isActive = (step: number) => wizardStep === step;
 
   // Get the correct step components based on campaign type
   const renderStep = (stepNum: number) => {
     const campaignType = d.type || 'SP';
-    
+
     switch (stepNum) {
       case 1:
         return <Step1AdType isActive={isActive(1)} isComplete={isComplete(1)} />;
@@ -90,34 +95,64 @@ export function CreateCampaignWizard() {
   return (
     <div>
       <div className="page-title">
-        <h1>Create campaign</h1>
+        <div>
+          <h1>Create campaign</h1>
+          <p>Build a new advertising campaign step by step.</p>
+        </div>
         <Button label="Back to campaigns" onClick={() => setView('campaigns')} />
       </div>
 
+      {/* Horizontal stepper */}
       <div className="wizard">
-        <div className="steps">
-          {STEPS.map((label, i) => (
-            <div key={i} className={`step ${isActive(i + 1) ? 'active' : isComplete(i + 1) ? 'done' : ''}`}>
-              <span className="step-num">{isComplete(i + 1) ? '✓' : i + 1}</span>
-              <div>{label}</div>
-            </div>
-          ))}
+        <div className="wizard-stepper" role="list">
+          {WIZARD_STEPS.map((step, i) => {
+            const stepNum = i + 1;
+            const done = isComplete(stepNum);
+            const active = isActive(stepNum);
+            return (
+              <div key={stepNum} className="wizard-step-item" role="listitem">
+                {i > 0 && (
+                  <div className={`wizard-step-connector ${done ? 'done' : ''}`} />
+                )}
+                <div
+                  className={`wizard-step-badge ${done ? 'done' : active ? 'active' : ''}`}
+                  aria-label={`Step ${stepNum}: ${step.label}${done ? ' (complete)' : active ? ' (current)' : ''}`}
+                >
+                  {done ? <Check size={14} weight="bold" /> : stepNum}
+                </div>
+                <span className="wizard-step-label">{step.label}</span>
+              </div>
+            );
+          })}
         </div>
 
+        {/* Step content panel */}
         <div className="wizard-panel">
           {renderStep(wizardStep)}
 
           <div className="wizard-nav">
-            <Button label="Back" isDisabled={wizardStep === 1} onClick={() => setWizardStep(wizardStep - 1)} />
+            <Button
+              label="Back"
+              isDisabled={wizardStep === 1}
+              onClick={() => setWizardStep(wizardStep - 1)}
+            />
             <div className="pill-row">
-              <Button label="Reset draft" onClick={() => { resetDraft(); }} />
+              <Button label="Reset draft" onClick={resetDraft} />
               {wizardStep < 6 ? (
-                <Button label="Next" variant="primary" onClick={() => setWizardStep(wizardStep + 1)} />
+                <Button
+                  label="Next step"
+                  variant="primary"
+                  onClick={() => setWizardStep(wizardStep + 1)}
+                />
               ) : (
-                <Button label="Launch campaign" variant="primary" onClick={() => {
-                  if (!d.name.trim()) return;
-                  launchCampaign();
-                }} />
+                <Button
+                  label="Launch campaign"
+                  variant="primary"
+                  onClick={() => {
+                    if (!d.name.trim()) return;
+                    launchCampaign();
+                  }}
+                />
               )}
             </div>
           </div>

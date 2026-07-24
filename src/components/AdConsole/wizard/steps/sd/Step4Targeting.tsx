@@ -20,8 +20,10 @@ export function Step4TargetingSD({ isActive, isComplete }: Step4TargetingSDProps
 
   return (
     <div className="wizard-step" style={{ display: isActive || isComplete ? 'block' : 'none' }}>
-      <h2>Targeting</h2>
-      <p className="muted" style={{ marginBottom: 14 }}>Choose targeting method and add targets.</p>
+      <div className="wizard-step-header">
+        <h2>Targeting</h2>
+        <p>Choose targeting method and add targets.</p>
+      </div>
 
       <Card variant="default" padding={6} style={{ marginBottom: 16 }}>
         <div className="card-title"><h3>Campaign goal</h3></div>

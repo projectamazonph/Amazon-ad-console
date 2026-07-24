@@ -3,6 +3,7 @@
 import { Button } from '@astryxdesign/core/Button';
 import { Table } from '@astryxdesign/core/Table';
 import { Card } from '@astryxdesign/core/Card';
+import { ChartBar } from '@phosphor-icons/react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { getKpiTiles } from './nav/consoleNav';
 import { calc, formatMoney, formatWhole, formatPercent, acosClass } from '@/engine/ad-console/engine';
@@ -165,12 +166,7 @@ function renderCampaignTable(
     return (
       <div className="empty">
         <div className="empty-icon" aria-hidden="true">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 3v18h18" />
-            <rect x="7" y="12" width="3" height="5" rx="0.5" />
-            <rect x="12" y="8" width="3" height="9" rx="0.5" />
-            <rect x="17" y="5" width="3" height="12" rx="0.5" />
-          </svg>
+          <ChartBar size={28} weight="duotone" />
         </div>
         <h3>No campaigns yet</h3>
         <p>Your advertising journey starts here. Create your first campaign to see performance data.</p>

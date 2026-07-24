@@ -21,8 +21,10 @@ export function Step4TargetingSP({ isActive, isComplete }: Step4TargetingSPProps
 
   return (
     <div className="wizard-step" style={{ display: isActive || isComplete ? 'block' : 'none' }}>
-      <h2>Targeting</h2>
-      <p className="muted" style={{ marginBottom: 14 }}>Choose targeting method and add targets.</p>
+      <div className="wizard-step-header">
+        <h2>Targeting</h2>
+        <p>Choose targeting method and add targets.</p>
+      </div>
 
       <div className="field" style={{ marginBottom: 16 }}>
         <label>Targeting mode</label>

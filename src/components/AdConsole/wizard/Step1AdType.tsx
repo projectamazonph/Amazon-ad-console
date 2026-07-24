@@ -20,8 +20,10 @@ export function Step1AdType({ isActive, isComplete }: Step1AdTypeProps) {
 
   return (
     <div className="wizard-step" style={{ display: isActive || isComplete ? 'block' : 'none' }}>
-      <h2>Choose campaign type</h2>
-      <p className="muted" style={{ marginBottom: 14 }}>The simulator includes the three core ad types.</p>
+      <div className="wizard-step-header">
+        <h2>Choose campaign type</h2>
+        <p>The simulator includes the three core ad types.</p>
+      </div>
       <div className="choice-grid">
         {choices.map((choice) => (
           <div
