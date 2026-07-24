@@ -2540,6 +2540,191 @@ textarea.input {
   gap: var(--space-6);
 }
 
+/* ── Landing Page Enhancements ─────────────────────────────────────── */
+
+.landing-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-12);
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .landing-hero-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-10);
+  }
+  .landing-hero-visual {
+    order: -1;
+  }
+}
+
+.landing-hero-visual {
+  position: relative;
+}
+
+.landing-hero-card {
+  background: rgba(19, 25, 33, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.4);
+}
+
+.landing-hero-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.landing-hero-img-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+/* Trusted by */
+.landing-trusted {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: var(--space-10) 0;
+}
+
+.landing-trusted-label {
+  font-size: var(--text-xs);
+  color: var(--ink-500);
+  text-align: center;
+  margin-bottom: var(--space-6);
+  letter-spacing: 0.04em;
+}
+
+.landing-trusted-logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-10);
+  flex-wrap: wrap;
+}
+
+.landing-trusted-logo {
+  height: 28px;
+  width: auto;
+  opacity: 0.45;
+  filter: brightness(0) invert(1);
+  transition: opacity 200ms ease;
+}
+
+.landing-trusted-logo:hover {
+  opacity: 0.8;
+}
+
+/* Bento grid */
+.landing-bento {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+}
+
+@media (max-width: 900px) {
+  .landing-bento {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .landing-bento {
+    grid-template-columns: 1fr;
+  }
+}
+
+.landing-feature-card {
+  background: rgba(19, 25, 33, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  transition: border-color 200ms ease, background 200ms ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.landing-feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--feat-accent, var(--accent));
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.landing-feature-card:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(19, 25, 33, 0.7);
+}
+
+.landing-feature-card:hover::before {
+  opacity: 1;
+}
+
+.landing-feature-icon {
+  margin-bottom: var(--space-4);
+  display: flex;
+}
+
+/* Steps */
+.landing-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-8);
+}
+
+@media (max-width: 768px) {
+  .landing-steps {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+}
+
+.landing-step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.landing-step-num {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 153, 0, 0.15);
+  color: var(--accent);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 153, 0, 0.2);
+}
+
+/* CTA variants */
+.landing-cta--lg {
+  padding: var(--space-3) var(--space-8);
+  font-size: var(--text-base);
+}
+
+.landing-lede--center {
+  text-align: center;
+  margin: 0 auto var(--space-6);
+}
+
+.landing-cta--center {
+  justify-content: center;
+}
+
 /* Auth pages reuse the landing dark surface, with a focused card */
 
 .auth-page {
