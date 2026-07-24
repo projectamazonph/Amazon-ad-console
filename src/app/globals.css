@@ -644,6 +644,48 @@ code, pre {
   padding-left: calc(var(--space-3) + 15px + var(--space-2));
 }
 
+.toolbar .search.search-with-clear input {
+  padding-right: 2.5rem;
+}
+
+.search-clear {
+  position: absolute;
+  right: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink-400);
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0.2rem;
+  border-radius: var(--radius-sm);
+  transition: color 150ms;
+}
+.search-clear:hover {
+  color: var(--ink-700);
+}
+
+.cm-metrics-grid {
+  margin-bottom: var(--space-5);
+}
+
+.reports-title {
+  margin-top: var(--space-2);
+}
+
+.reports-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.reports-queue-card {
+  margin-bottom: var(--space-4);
+}
+  margin-bottom: var(--space-5);
+}
+
 /* ── Tabs ───────────────────────────────────────────────────────── */
 
 .tabs {

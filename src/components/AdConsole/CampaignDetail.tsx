@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@astryxdesign/core/Button';
+import { useImperativeAlertDialog } from '@astryxdesign/core/AlertDialog';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { OverviewTab } from './details/OverviewTab';
@@ -30,6 +31,8 @@ export function CampaignDetail({ campaign }: Props) {
   const selectedTab = state.selectedTab;
   const hasPlacements = c.type !== 'SD';
 
+  const archiveAlert = useImperativeAlertDialog();
+
   const tabs = [
     { id: 'overview', label: 'Overview' },
     { id: 'adgroups', label: 'Ad groups' },
@@ -43,6 +46,7 @@ export function CampaignDetail({ campaign }: Props) {
 
   return (
     <div>
+      {archiveAlert.element}
       <div className="breadcrumb">
         <button onClick={() => setView('campaigns')}>Campaign manager</button> / <span>{c.name}</span>
       </div>
@@ -67,7 +71,13 @@ export function CampaignDetail({ campaign }: Props) {
             <Button label="Run 7-day sim" variant="info" onClick={() => runSimulation()} />
             <Button label={c.status === 'Enabled' ? 'Pause' : 'Enable'} onClick={() => toggleStatus(c.id)} />
             <Button label="Duplicate" onClick={() => duplicateCampaign(c.id)} />
-            <Button label="Archive" variant="destructive" onClick={() => { if (confirm(`Archive "${c.name}"?`)) archiveCampaign(c.id); }} />
+            <Button label="Archive" variant="destructive" onClick={() => archiveAlert.show({
+              title: `Archive "${c.name}"?`,
+              description: 'The campaign will be moved to Archived status.',
+              actionLabel: 'Archive',
+              actionVariant: 'destructive',
+              onAction: () => { archiveCampaign(c.id); },
+            })} />
           </div>
         </div>
       </div>

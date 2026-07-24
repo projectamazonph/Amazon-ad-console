@@ -22,6 +22,14 @@ export function CampaignManager() {
 
   const [simulating, setSimulating] = useState(false);
 
+  const handleSimulate = async () => {
+    setSimulating(true);
+    await new Promise((r) => setTimeout(r, 50));
+    runSimulation();
+    await new Promise((r) => setTimeout(r, 600));
+    setSimulating(false);
+  };
+
   return (
     <div>
       {simulating && (
@@ -77,16 +85,10 @@ export function CampaignManager() {
           {portfolioOptions.map((x) => <option key={x}>{x}</option>)}
         </select>
         <Button label="Clear filters" onClick={() => setFilter({ type: 'All', status: 'All', portfolio: 'All', search: '' })} />
-        <Button label="Run 7-day sim" variant="info" onClick={async () => {
-              setSimulating(true);
-              await new Promise(r => setTimeout(r, 50));
-              runSimulation();
-              await new Promise(r => setTimeout(r, 600));
-              setSimulating(false);
-            }} />
+        <Button label="Run 7-day sim" variant="info" onClick={handleSimulate} />
       </div>
 
-      <div className="grid-4" style={{ marginBottom: 'var(--space-5)' }}>
+      <div className="grid-4 cm-metrics-grid">
         {(() => {
           const m = filteredCampaigns.reduce(
             (acc, c) => {
