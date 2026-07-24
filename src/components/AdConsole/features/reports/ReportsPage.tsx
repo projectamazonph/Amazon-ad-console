@@ -34,9 +34,11 @@ export function ReportsPage() {
   return (
     <div>
       <div className="page-title">
-        <Button label="← Back to campaigns" size="sm" onClick={() => setView('campaigns')} tooltip="Back to campaigns" />
-        <h1 className="reports-title">Reports</h1>
-        <div className="reports-actions">
+        <div>
+          <h1>Reports</h1>
+          <p>Generate and download performance reports for your campaigns.</p>
+        </div>
+        <div className="page-actions">
           <Button label="Campaign report" onClick={() => requestReport('campaign')} />
           <Button label="Target report" onClick={() => requestReport('target')} />
           <Button label="Search term report" onClick={() => requestReport('searchTerm')} />
@@ -50,7 +52,7 @@ export function ReportsPage() {
             <div key={r.id} className="report-queue-item">
               <span className={`pill ${r.status === 'completed' ? 'green' : 'orange'}`}>
                 {r.status === 'completed' ? (
-                  <CheckCircle size={12} weight="fill" style={{ marginRight: 4 }} />
+                  <CheckCircle size={12} weight="fill" style={{ marginRight: 'var(--space-1)' }} />
                 ) : null}
                 {r.status}
               </span>

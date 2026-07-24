@@ -24,8 +24,11 @@ export function TrainerPage() {
   return (
     <div>
       <div className="page-title">
+        <div>
+          <h1>Trainer dashboard</h1>
+          <p>Track your certification progress and review training coverage.</p>
+        </div>
         <Button label="← Back to campaigns" size="sm" onClick={() => setView('campaigns')} tooltip="Back to campaigns" />
-        <h1 style={{ marginTop: 'var(--space-2)' }}>Trainer dashboard</h1>
       </div>
 
       <div className="grid-4" style={{ marginBottom: 'var(--space-4)' }}>
