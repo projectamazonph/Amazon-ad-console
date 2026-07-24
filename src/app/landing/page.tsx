@@ -44,7 +44,7 @@ export default function LandingPage() {
           <nav className="landing-nav-links" aria-label="Account">
             <Link href="/auth/login" className="landing-link">Sign in</Link>
             <Link href="/auth/register" className="landing-link">Sign up</Link>
-            <Link href="/" className="landing-cta">Open simulator</Link>
+            <Link href="/dashboard" className="landing-cta">Open simulator</Link>
           </nav>
         </div>
       </header>
@@ -72,7 +72,7 @@ export default function LandingPage() {
             transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             className="landing-cta-row"
           >
-            <Link href="/" className="landing-cta landing-cta--primary">Open simulator</Link>
+            <Link href="/dashboard" className="landing-cta landing-cta--primary">Open simulator</Link>
             <a
               href="https://github.com/projectamazonph/Amazon-ad-console"
               target="_blank"
@@ -144,7 +144,7 @@ export default function LandingPage() {
         <div className="landing-container landing-container--center">
           <h2 className="landing-h2">Ready to train your team?</h2>
           <p className="landing-lede">No API access required. No live account risk.</p>
-          <Link href="/" className="landing-cta landing-cta--primary">Open simulator</Link>
+          <Link href="/dashboard" className="landing-cta landing-cta--primary">Open simulator</Link>
         </div>
       </section>
 
