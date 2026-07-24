@@ -105,7 +105,7 @@ export function MobileNav() {
         style={{ touchAction: isTouch ? 'pan-y' : undefined } as React.CSSProperties}
       >
         <div className="mobile-drawer-header">
-          <span className="mobile-drawer-title">Amazon Ads Console</span>
+          <span className="mobile-drawer-title">Project Amazon PH</span>
           <button className="mobile-drawer-close" onClick={closeMobileMenu} aria-label="Close menu">
             ✕
           </button>

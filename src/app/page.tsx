@@ -110,8 +110,8 @@ export default function Home() {
           <div className="flex items-center gap-4 md:gap-6 h-14">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-1 flex-shrink-0 group">
-              <span className="text-[#F3A847] text-2xl font-bold italic transition-transform group-hover:scale-110">a</span>
-              <span className="text-white text-xl font-bold tracking-tight">dConsole</span>
+              <span className="text-[#F3A847] text-2xl font-bold">PH</span>
+              <span className="text-white text-xl font-bold tracking-tight">Project Amazon</span>
             </Link>
 
             {/* Search bar */}
@@ -152,22 +152,6 @@ export default function Home() {
           </div>
         </div>
       </header>
-
-      {/* Category Nav */}
-      <div className="bg-[#232F3E] border-t border-[#3A4553]">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center gap-4 md:gap-6 h-10 text-sm text-white overflow-x-auto">
-            <Link href="#" className="hover:text-[#F3A847] whitespace-nowrap flex-shrink-0 transition-colors">Deals</Link>
-            <Link href="#" className="hover:text-[#F3A847] whitespace-nowrap flex-shrink-0 transition-colors">Campaigns</Link>
-            <Link href="#" className="hover:text-[#F3A847] whitespace-nowrap flex-shrink-0 transition-colors">Reports</Link>
-            <Link href="#" className="hover:text-[#F3A847] whitespace-nowrap flex-shrink-0 transition-colors">Bulk Ops</Link>
-            <Link href="#" className="hover:text-[#F3A847] whitespace-nowrap flex-shrink-0 transition-colors">Drills</Link>
-            <Link href="#" className="hover:text-[#F3A847] whitespace-nowrap flex-shrink-0 transition-colors">Trainer</Link>
-            <Link href="#" className="hover:text-[#F3A847] whitespace-nowrap flex-shrink-0 transition-colors">Missions</Link>
-            <span className="text-[#F3A847] whitespace-nowrap flex-shrink-0 font-medium">Free. No API</span>
-          </div>
-        </div>
-      </div>
 
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-[#E3E6E6] to-white">
@@ -372,9 +356,9 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <span className="text-[#F3A847] text-xl font-bold italic">a</span>
-              <span className="text-white font-bold text-lg">dConsole</span>
-              <span className="text-gray-400 text-sm">Training Simulator</span>
+              <span className="text-[#F3A847] text-xl font-bold">PH</span>
+              <span className="text-white font-bold text-lg">Project Amazon</span>
+              <span className="text-gray-400 text-sm">Ad Console Simulator</span>
             </div>
             <div className="flex items-center gap-6 text-sm">
               <a href="https://github.com/projectamazonph/Amazon-ad-console" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">GitHub</a>

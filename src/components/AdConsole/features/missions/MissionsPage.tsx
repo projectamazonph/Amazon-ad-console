@@ -26,7 +26,7 @@ export function MissionsPage() {
         </div>
         {session.completed ? (
           <Card variant="default" padding={6} className="mission-complete-card">
-            <h2>🏆 Mission complete!</h2>
+            <h2>Mission complete!</h2>
             <p className="mission-complete-score">Score: {session.score}/100</p>
             <p className="muted">Hints used: {session.hintsUsed}</p>
             <Button label="Back to missions" variant="primary" style={{ marginTop: 'var(--space-4)' }} onClick={() => stopMission()} />
@@ -35,10 +35,10 @@ export function MissionsPage() {
           <Card variant="default" padding={6}>
             <h3>Step {session.currentStep + 1} of {activeMission.steps.length}</h3>
             <p className="mission-step-instruction">{step?.instruction}</p>
-            <div className="coach-tip mission-hint">💡 {step?.hint}</div>
+            <div className="coach-tip mission-hint">{step?.hint}</div>
             <div className="mission-step-actions">
               <Button label="✓ Complete step" variant="primary" onClick={completeStep} />
-              <Button label="💡 Use hint (-10 pts)" onClick={useHint} />
+              <Button label="Use hint (-10 pts)" onClick={useHint} />
             </div>
             <p className="mission-score-label">Score: {session.score}/100 · Hints: {session.hintsUsed}</p>
           </Card>

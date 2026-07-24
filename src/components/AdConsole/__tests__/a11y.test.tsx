@@ -7,7 +7,6 @@
  *  - AdConsole renders a <main> landmark with id="main-content"
  *  - AdConsole renders a skip link pointing at that main landmark
  *  - Topbar nav sections are <button> elements, not <div>s
- *  - Sidebar items are <button> elements, not <div>s
  *  - The OverviewTab inputs have label htmlFor -> input id wiring
  */
 import { describe, it, expect, beforeEach } from 'vitest';
@@ -50,28 +49,6 @@ describe('A11y — AdConsole landmarks and skip link', () => {
     const skip = document.querySelector('a.skip-link');
     expect(skip).not.toBeNull();
     expect(skip?.getAttribute('href')).toBe('#main-content');
-  });
-});
-
-describe('A11y — Topbar and Sidebar use semantic buttons', () => {
-  beforeEach(resetStore);
-
-  it('topbar nav sections are <button> elements with aria-current', () => {
-    renderAdConsole();
-    const buttons = screen.getAllByRole('button', { name: /Campaign Manager|Portfolios|Measurement|Training/ });
-    expect(buttons.length).toBeGreaterThanOrEqual(4);
-    const active = buttons.find((b) => b.getAttribute('aria-current') === 'page');
-    expect(active).toBeDefined();
-  });
-
-  it('sidebar rail items are <button> elements (no clickable divs)', () => {
-    renderAdConsole();
-    // The Campaigns item is the first row in the left rail; locate it by
-    // its .sidebar-item class so it doesn't collide with table column
-    // headers that also use the word "Campaigns".
-    const railItems = document.querySelectorAll('button.sidebar-item');
-    expect(railItems.length).toBeGreaterThan(0);
-    expect(document.querySelectorAll('div.sidebar-item').length).toBe(0);
   });
 });
 

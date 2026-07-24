@@ -45,7 +45,7 @@ export function CampaignManager() {
       </div>
 
       <div className="toolbar">
-        <div className="search">
+        <div className="search search-with-clear">
           <label htmlFor="cm-search" className="visually-hidden">Search campaigns</label>
           <input
             id="cm-search"
@@ -53,6 +53,16 @@ export function CampaignManager() {
             value={filter.search}
             onChange={(e) => setFilter({ search: e.target.value })}
           />
+          {filter.search && (
+            <button
+              type="button"
+              className="search-clear"
+              onClick={() => setFilter({ search: '' })}
+              aria-label="Clear search"
+            >
+              ×
+            </button>
+          )}
         </div>
         <label htmlFor="cm-filter-type" className="visually-hidden">Campaign type</label>
         <select id="cm-filter-type" className="select" value={filter.type} onChange={(e) => setFilter({ type: e.target.value as FilterState['type'] })}>
@@ -66,7 +76,7 @@ export function CampaignManager() {
         <select id="cm-filter-portfolio" className="select" value={filter.portfolio} onChange={(e) => setFilter({ portfolio: e.target.value })}>
           {portfolioOptions.map((x) => <option key={x}>{x}</option>)}
         </select>
-        <Button label="Reset" onClick={() => setFilter({ type: 'All', status: 'All', portfolio: 'All', search: '' })} />
+        <Button label="Clear filters" onClick={() => setFilter({ type: 'All', status: 'All', portfolio: 'All', search: '' })} />
         <Button label="Run 7-day sim" variant="info" onClick={async () => {
               setSimulating(true);
               await new Promise(r => setTimeout(r, 50));

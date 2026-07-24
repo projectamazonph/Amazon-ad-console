@@ -64,7 +64,6 @@ export function CampaignDetail({ campaign }: Props) {
             </p>
           </div>
           <div className="detail-actions">
-            <Button label="← Back" onClick={() => { selectCampaign(null); setView('campaigns'); }} />
             <Button label="Run 7-day sim" variant="info" onClick={() => runSimulation()} />
             <Button label={c.status === 'Enabled' ? 'Pause' : 'Enable'} onClick={() => toggleStatus(c.id)} />
             <Button label="Duplicate" onClick={() => duplicateCampaign(c.id)} />

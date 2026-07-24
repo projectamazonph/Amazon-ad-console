@@ -53,8 +53,8 @@ export function CreateCampaignWizard() {
   const [image, setImage] = useState(d.creative.image || '');
   const [video, setVideo] = useState(d.creative.video || '');
 
-  // Sync local state to draft when draft changes
-  // (In a real app, use useEffect for this)
+  // Local state is initialized from draft and kept in sync via the store's
+  // updateDraft action on each step's Next handler.
 
   const isComplete = (step: number) => wizardStep > step;
   const isActive = (step: number) => wizardStep === step;
@@ -107,7 +107,7 @@ export function CreateCampaignWizard() {
         <div className="wizard-panel">
           {renderStep(wizardStep)}
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginTop: 18 }}>
+          <div className="wizard-nav">
             <Button label="Back" isDisabled={wizardStep === 1} onClick={() => setWizardStep(wizardStep - 1)} />
             <div className="pill-row">
               <Button label="Reset draft" onClick={() => { resetDraft(); }} />

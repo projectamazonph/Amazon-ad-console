@@ -30,7 +30,7 @@ export function DrillsPage() {
         </div>
         {session.completed ? (
           <Card variant="default" padding={6} className="drill-complete-card">
-            <h2>🎉 Drill complete!</h2>
+            <h2>Drill complete!</h2>
             <p className="drill-complete-score">Score: {score}%</p>
             <p className="muted">Mistakes: {session.mistakes} · Skips: {session.skips}</p>
             <Button label="Back to drills" variant="primary" style={{ marginTop: 'var(--space-4)' }} onClick={() => setView('drills')} />
