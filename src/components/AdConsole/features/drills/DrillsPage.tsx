@@ -26,7 +26,10 @@ export function DrillsPage() {
     return (
       <div>
         <div className="page-title">
-          <h1>{activeDrill.title}</h1>
+          <div>
+            <h1>{activeDrill.title}</h1>
+            <p>Follow the instructions to complete this drill.</p>
+          </div>
           <Button label="Stop drill" onClick={() => stopDrill()} />
         </div>
         {session.completed ? (

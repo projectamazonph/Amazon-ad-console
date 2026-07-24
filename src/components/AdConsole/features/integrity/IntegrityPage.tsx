@@ -15,9 +15,12 @@ export function IntegrityPage() {
   return (
     <div>
       <div className="page-title">
-        <Button label="← Back to campaigns" size="sm" onClick={() => setView('campaigns')} tooltip="Back to campaigns" />
-        <h1 style={{ marginTop: 'var(--space-2)' }}>Integrity center</h1>
-        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+        <div>
+          <h1>Integrity center</h1>
+          <p>Scan campaigns for common configuration issues and get recommendations.</p>
+        </div>
+        <div className="page-actions">
+          <Button label="← Back to campaigns" size="sm" onClick={() => setView('campaigns')} tooltip="Back to campaigns" />
           <Button label="Run integrity check" variant="primary" onClick={() => runIntegrity(campaigns)} />
           {report && <Button label="Clear results" onClick={clear} />}
         </div>
