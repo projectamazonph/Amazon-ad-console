@@ -525,6 +525,7 @@ code, pre {
   padding: var(--space-6);
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   max-width: 1480px;
   width: 100%;
   margin: 0 auto;
@@ -739,7 +740,7 @@ code, pre {
 
 .card {
   background: var(--surface-1);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xs);
   transition: border-color var(--duration-fast) var(--ease-out),
@@ -1178,7 +1179,7 @@ tr:hover td {
 .input,
 .select {
   padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
   background: var(--surface-1);
@@ -1515,10 +1516,25 @@ textarea.input {
 
 @media (max-width: 768px) {
   .wizard-step-label {
-    display: none;
+    display: block;
+    font-size: 10px;
+    max-width: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .wizard-step-connector {
     margin-bottom: 0;
+  }
+  .wizard-step-badge {
+    width: 28px;
+    height: 28px;
+    font-size: var(--text-xs);
+  }
+}
+
+@media (max-width: 480px) {
+  .wizard-step-label {
+    display: none;
   }
 }
 
@@ -1539,6 +1555,22 @@ textarea.input {
   margin-top: var(--space-6);
   padding-top: var(--space-5);
   border-top: 1px solid var(--border-light);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+  .wizard-nav {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .wizard-nav .pill-row {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .wizard-nav .pill-row .astryx-button {
+    flex: 1;
+    min-width: 0;
+  }
 }
 
 .wizard-step {
@@ -2209,8 +2241,14 @@ textarea.input {
 
 .drill-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--space-4);
+}
+
+@media (max-width: 600px) {
+  .drill-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .drill-card-tags {
