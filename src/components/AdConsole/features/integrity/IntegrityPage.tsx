@@ -46,7 +46,7 @@ export function IntegrityPage() {
 
           {report.issues.length === 0 ? (
             <Card variant="default" padding={6} className="drill-complete-card">
-              <h2>✨ No issues found</h2>
+              <h2>No issues found</h2>
               <p className="muted">All campaigns pass integrity checks.</p>
             </Card>
           ) : (
@@ -55,7 +55,7 @@ export function IntegrityPage() {
               {report.issues.map((issue) => (
                 <div key={issue.id} className={`integrity-issue ${issue.severity}`}>
                   <strong className="integrity-issue-message">{issue.message}</strong>
-                  <span className="integrity-issue-recommendation">💡 {issue.recommendation}</span>
+                  <span className="integrity-issue-recommendation">{issue.recommendation}</span>
                 </div>
               ))}
             </Card>

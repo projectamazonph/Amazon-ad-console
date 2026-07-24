@@ -17,12 +17,25 @@ export function ReportsPage() {
 
   const selected = selectedReportId ? reports.find((r) => r.id === selectedReportId) : null;
 
+  const handleExportCsv = (reportId: string, type: string) => {
+    const csv = exportCsv(reportId);
+    if (csv) {
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${type}-report.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  };
+
   return (
     <div>
       <div className="page-title">
         <Button label="← Back to campaigns" size="sm" onClick={() => setView('campaigns')} tooltip="Back to campaigns" />
-        <h1 style={{ marginTop: 'var(--space-2)' }}>Reports</h1>
-        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+        <h1 className="reports-title">Reports</h1>
+        <div className="reports-actions">
           <Button label="Campaign report" onClick={() => requestReport('campaign')} />
           <Button label="Target report" onClick={() => requestReport('target')} />
           <Button label="Search term report" onClick={() => requestReport('searchTerm')} />
@@ -30,7 +43,7 @@ export function ReportsPage() {
       </div>
 
       {requests.length > 0 && (
-        <Card variant="default" padding={6} style={{ marginBottom: 'var(--space-4)' }}>
+        <Card variant="default" padding={6} className="reports-queue-card">
           <div className="card-title"><h2>Report queue</h2><span>{requests.length} requests</span></div>
           {requests.slice(0, 10).map((r) => (
             <div key={r.id} className="report-queue-item">
@@ -49,15 +62,7 @@ export function ReportsPage() {
         <Card variant="default" padding={6}>
           <div className="card-title">
             <h2>{selected.type} report</h2>
-            <Button label="Export CSV" size="sm" onClick={() => {
-              const csv = exportCsv(selected.id);
-              if (csv) {
-                const blob = new Blob([csv], { type: 'text/csv' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url; a.download = `${selected.type}-report.csv`; a.click();
-              }
-            }} />
+            <Button label="Export CSV" size="sm" onClick={() => handleExportCsv(selected.id, selected.type)} />
           </div>
           {selected.rows.length > 0 && (
             <Table>

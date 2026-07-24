@@ -66,12 +66,11 @@ describe('Topbar contract — rendering and structure', () => {
     expect(divSections.length).toBe(0);
   });
 
-  it('brand text "Amazon Ads Console" renders in .nav-brand', () => {
+  it('brand text "Project Amazon PH" renders in .nav-brand', () => {
     renderAdConsole();
     const brand = document.querySelector('.nav-brand');
     expect(brand).not.toBeNull();
-    expect(brand?.textContent).toContain('Amazon');
-    expect(brand?.textContent).toContain('Console');
+    expect(brand?.textContent).toContain('Project Amazon PH');
   });
 
   it('SyncButton and UserMenu are mounted in the topbar', () => {

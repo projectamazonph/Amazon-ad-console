@@ -1,90 +1,95 @@
 'use client';
 
-import { motion, useReducedMotion } from 'motion/react';
+import { motion, useReducedMotion, useInView } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
-import {
-  ListChecks,
-  ChartLine,
-  MagnifyingGlass,
-  CurrencyDollar,
-  Files,
-  Lock,
-  ArrowRight,
-} from '@phosphor-icons/react';
+import { useEffect, useRef, useState } from 'react';
 
 const FEATURES = [
   {
     title: 'Campaign Creation Wizard',
-    description: 'Step-by-step guided setup for SP, SB, and SD campaigns matching the real Amazon Ads Console interface.',
-    stat: '6 Steps',
-    icon: <ListChecks size={24} weight="duotone" />,
+    description: 'Build SP, SB, and SD campaigns step by step ΓÇö the same interface you\'ll use in production.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+      </svg>
+    ),
   },
   {
-    title: 'Realistic Simulation',
-    description: 'Generate 7 days of performance data with realistic ROAS, ACOS, CPC, and conversion patterns.',
-    stat: '7 Days',
-    icon: <ChartLine size={24} weight="duotone" />,
+    title: '7-Day Performance Simulation',
+    description: 'Watch realistic metrics build ΓÇö ROAS, ACOS, CPC, impressions ΓÇö exactly like a live campaign.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+    ),
   },
   {
     title: 'Search Term Mining',
-    description: 'Analyze search terms by match type. Harvest winners and negate losers to optimize performance.',
-    stat: 'Auto-Mined',
-    icon: <MagnifyingGlass size={24} weight="duotone" />,
+    description: 'Identify which search terms convert. Harvest winners, negate losers ΓÇö the optimization loop that actually moves ACOS.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+    ),
   },
   {
-    title: 'Budget and Bidding',
-    description: 'Practice dynamic bid strategies, placement adjustments, and budget rules without risk.',
-    stat: 'Unlimited',
-    icon: <CurrencyDollar size={24} weight="duotone" />,
+    title: 'Guided Drills',
+    description: 'Click-by-click coaching walks you through the console. Track mistakes, earn scores, level up.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+      </svg>
+    ),
   },
   {
-    title: 'Full Reporting Suite',
-    description: 'Overview, search terms, placements, targets, and negatives - all tabs from the real console.',
-    stat: 'All Tabs',
-    icon: <Files size={24} weight="duotone" />,
+    title: 'Scenario Missions',
+    description: 'Real-world challenges from beginner ACOS reduction to advanced auto-targeting. Get scored, get better.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+    ),
   },
   {
-    title: 'Zero API Required',
-    description: 'Fully client-side. Train unlimited virtual assistants without Amazon credentials.',
-    stat: '100% Free',
-    icon: <Lock size={24} weight="duotone" />,
+    title: 'Bulk CSV Operations',
+    description: 'Paste your Amazon bulk export. Validate it, preview the changes, apply it ΓÇö no more spreadsheet errors.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+      </svg>
+    ),
   },
 ];
 
 const STEPS = [
   {
-    num: '1',
-    title: 'Create your campaign',
-    description: 'Walk through the 6-step wizard. Choose campaign type, set targeting, bidding, and creative.',
+    num: '01',
+    title: 'Build your first campaign',
+    description: 'Choose SP, SB, or SD. Walk through targeting, bidding, and creative settings ΓÇö exactly like the real console.',
   },
   {
-    num: '2',
-    title: 'Run a simulation',
-    description: 'Generate realistic 7-day performance data. Watch metrics build up like a real campaign.',
+    num: '02',
+    title: 'Run a 7-day simulation',
+    description: 'Generate realistic performance data. Watch impressions, clicks, and sales build up day by day.',
   },
   {
-    num: '3',
-    title: 'Optimize and iterate',
-    description: 'Mine search terms, adjust bids, add negatives. Practice the full optimization loop.',
+    num: '03',
+    title: 'Optimize and repeat',
+    description: 'Mine search terms, adjust bids, add negatives. Each loop makes you sharper than the last.',
   },
 ];
 
-function RevealCard({
-  children,
-  className = '',
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}) {
+function FadeIn({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, amount: 0.1 });
   const reduce = useReducedMotion();
+
   return (
     <motion.div
+      ref={ref}
       initial={reduce ? false : { opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
       transition={{ duration: 0.55, delay, ease: [0.16, 1, 0.3, 1] }}
       className={className}
     >
@@ -93,298 +98,233 @@ function RevealCard({
   );
 }
 
-export default function Home() {
+export default function LandingPage() {
   const reduce = useReducedMotion();
 
   return (
-    <div className="min-h-screen bg-[#E3E6E6] text-[#0F1111] antialiased">
-      {/* Top Banner */}
-      <div className="bg-[#232F3E] text-white text-center py-2 px-4 text-sm">
-        <span className="font-medium">Amazon Ads Console Training Simulator</span>
-        <span className="text-[#F3A847] ml-2">Practice makes perfect</span>
-      </div>
-
-      {/* Header */}
-      <header className="bg-[#232F3E] sticky top-0 z-50 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center gap-4 md:gap-6 h-14">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-1 flex-shrink-0 group">
-              <span className="text-[#F3A847] text-2xl font-bold italic transition-transform group-hover:scale-110">a</span>
-              <span className="text-white text-xl font-bold tracking-tight">dConsole</span>
-            </Link>
-
-            {/* Search bar */}
-            <div className="hidden md:flex flex-1 max-w-2xl">
-              <div className="flex w-full">
-                <select className="bg-[#E3E6E6] text-[#0F1111] text-sm px-3 py-2 rounded-l-md border border-[#D5D9D9] border-r-0 focus:outline-none focus:ring-2 focus:ring-[#F3A847] cursor-pointer">
-                  <option>All</option>
-                  <option>Campaigns</option>
-                  <option>Features</option>
-                </select>
-                <input
-                  type="text"
-                  placeholder="Search features..."
-                  className="flex-1 px-3 py-2 text-sm border border-[#D5D9D9] focus:outline-none focus:ring-2 focus:ring-[#F3A847]"
-                />
-                <button className="px-4 py-2 bg-[#F3A847] hover:bg-[#E7760E] rounded-r-md border border-[#D5D9D9] border-l-0 transition-colors">
-                  <svg className="w-4 h-4 text-[#0F1111]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            {/* Nav */}
-            <nav className="flex items-center gap-3 md:gap-5 ml-auto">
-              <Link href="/auth/login" className="text-white text-sm hover:text-[#F3A847] transition-colors hidden sm:block">Sign in</Link>
-              <Link href="/auth/register" className="text-white text-sm hover:text-[#F3A847] transition-colors hidden sm:block">Register</Link>
-              <Link
-                href="/dashboard"
-                className="flex items-center gap-2 px-4 py-2 bg-[#F3A847] hover:bg-[#E7760E] text-[#0F1111] text-sm font-bold rounded-md transition-all hover:scale-105 active:scale-95 shadow-md"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+    <div className="landing-page">
+      {/* Navigation */}
+      <nav className="landing-nav">
+        <div className="container">
+          <div className="landing-nav-inner">
+            <Link href="/" className="landing-brand">
+              <div className="landing-brand-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                 </svg>
-                Dashboard
-              </Link>
-            </nav>
+              </div>
+              <span>AMPH</span>
+              <span className="landing-pill">Training</span>
+            </Link>
+            <div className="landing-nav-links">
+              <Link href="#features" className="landing-nav-link">Features</Link>
+              <Link href="#how-it-works" className="landing-nav-link">How It Works</Link>
+              <Link href="https://github.com/projectamazonph/Amazon-ad-console" target="_blank" rel="noopener noreferrer" className="landing-nav-link">GitHub</Link>
+              <Link href="/auth/login" className="landing-nav-link landing-nav-link--ghost">Sign In</Link>
+              <Link href="/dashboard" className="landing-cta-primary">Open Simulator</Link>
+            </div>
           </div>
         </div>
-      </header>
-
-      {/* Category Nav */}
-      <div className="bg-[#232F3E] border-t border-[#3A4553]">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center gap-4 md:gap-6 h-10 text-sm text-white overflow-x-auto">
-            <Link href="#" className="hover:text-[#F3A847] whitespace-nowrap flex-shrink-0 transition-colors">Deals</Link>
-            <Link href="#" className="hover:text-[#F3A847] whitespace-nowrap flex-shrink-0 transition-colors">Campaigns</Link>
-            <Link href="#" className="hover:text-[#F3A847] whitespace-nowrap flex-shrink-0 transition-colors">Reports</Link>
-            <Link href="#" className="hover:text-[#F3A847] whitespace-nowrap flex-shrink-0 transition-colors">Bulk Ops</Link>
-            <Link href="#" className="hover:text-[#F3A847] whitespace-nowrap flex-shrink-0 transition-colors">Drills</Link>
-            <Link href="#" className="hover:text-[#F3A847] whitespace-nowrap flex-shrink-0 transition-colors">Trainer</Link>
-            <Link href="#" className="hover:text-[#F3A847] whitespace-nowrap flex-shrink-0 transition-colors">Missions</Link>
-            <span className="text-[#F3A847] whitespace-nowrap flex-shrink-0 font-medium">Free. No API</span>
-          </div>
-        </div>
-      </div>
+      </nav>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-[#E3E6E6] to-white">
-        <div className="max-w-7xl mx-auto px-4 py-12 md:py-16">
-          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
-            {/* Left: Copy */}
-            <div className="flex-1">
-              <motion.div
-                initial={reduce ? false : { opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <span className="inline-flex items-center gap-2 bg-[#F3A847]/10 text-[#E7760E] text-xs font-bold px-3 py-1 rounded-full mb-4">
-                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                  Training Simulator
-                </span>
-              </motion.div>
+      <section className="landing-hero">
+        <div className="landing-hero-bg">
+          <Image src="/hero_bg.webp" alt="" fill priority className="object-cover" />
+        </div>
+        <div className="landing-hero-overlay" />
 
-              <motion.h1
-                initial={reduce ? false : { opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight leading-tight mb-4"
-              >
-                Master Amazon Ads
-                <span className="block text-[#E7760E]">without spending a penny</span>
-              </motion.h1>
+        <div className="container landing-hero-content">
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="landing-hero-label"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4">
+              <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <span>No Amazon account needed</span>
+          </motion.div>
 
-              <motion.p
-                initial={reduce ? false : { opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                className="text-[#565959] text-lg mb-8 leading-relaxed max-w-xl"
-              >
-                A pixel-perfect replica of the Amazon Ads Console. Create campaigns,
-                run simulations, and practice optimization - all without a live account.
-              </motion.p>
+          <motion.h1
+            initial={reduce ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+            className="landing-hero-title"
+          >
+            Learn Amazon PPC<br />
+            <span className="text-accent">without spending a cent</span>
+          </motion.h1>
 
-              <motion.div
-                initial={reduce ? false : { opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="flex flex-wrap items-center gap-3"
-              >
-                <Link
-                  href="/dashboard"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#F3A847] hover:bg-[#E7760E] text-white font-bold rounded-md text-sm transition-all hover:scale-105 active:scale-95 shadow-lg"
-                >
-                  Start Training Free
-                  <ArrowRight size={16} weight="bold" />
-                </Link>
-                <a
-                  href="https://github.com/projectamazonph/Amazon-ad-console"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 border-2 border-[#D5D9D9] bg-white hover:bg-gray-50 text-[#0F1111] font-medium rounded-md text-sm transition-all hover:border-[#F3A847]"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                  </svg>
-                  View on GitHub
-                </a>
-              </motion.div>
-            </div>
+          <motion.p
+            initial={reduce ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+            className="landing-hero-subtitle"
+          >
+            The only training simulator that feels exactly like the real Amazon Ads Console.
+            Build campaigns. Run simulations. Practice optimization. Zero risk, zero ad spend.
+          </motion.p>
 
-            {/* Right: Real Dashboard Preview */}
-            <motion.div
-              initial={reduce ? false : { opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="flex-1 w-full"
-            >
-              <div className="bg-white rounded-xl border-2 border-[#D5D9D9] shadow-2xl overflow-hidden">
-                {/* Browser Chrome */}
-                <div className="bg-gray-100 border-b border-[#D5D9D9] px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex gap-1.5">
-                      <div className="w-3 h-3 rounded-full bg-red-400" />
-                      <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                      <div className="w-3 h-3 rounded-full bg-green-400" />
-                    </div>
-                    <div className="flex-1 bg-white border border-[#D5D9D9] rounded-md px-3 py-1 text-xs text-[#565959] flex items-center gap-2">
-                      <svg className="w-3 h-3 text-[#007185]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                      adconsole.app/dashboard
-                    </div>
-                  </div>
-                </div>
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.24, ease: [0.16, 1, 0.3, 1] }}
+            className="landing-hero-cta"
+          >
+            <Link href="/dashboard" className="landing-cta-primary landing-cta-primary--lg">
+              Start Training Free
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </Link>
+            <Link href="#how-it-works" className="landing-cta-ghost landing-cta-ghost--lg">
+              See how it works
+            </Link>
+          </motion.div>
 
-                {/* Real dashboard screenshot */}
-                <div className="relative w-full aspect-[16/9]">
-                  <Image
-                    src="/dashboard-preview.png"
-                    alt="Amazon Ads Console dashboard preview"
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                </div>
-              </div>
-            </motion.div>
+          <motion.p
+            initial={reduce ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.32, ease: [0.16, 1, 0.3, 1] }}
+            className="landing-hero-note"
+          >
+            Runs entirely in your browser. No API. No credentials. Your data stays local.
+          </motion.p>
+        </div>
+      </section>
+
+      {/* Problem ΓåÆ Solution */}
+      <section className="landing-problem">
+        <div className="container">
+          <div className="landing-problem-grid">
+            <FadeIn className="landing-problem-col">
+              <div className="landing-problem-label">The old way</div>
+              <ul className="landing-problem-list">
+                <li>Practice on live campaigns ΓÇö real money, real risk</li>
+                <li>Learn by trial and expensive error</li>
+                <li>No safe space to experiment with new strategies</li>
+                <li>No guided coaching when you get stuck</li>
+              </ul>
+            </FadeIn>
+            <FadeIn className="landing-problem-col landing-problem-col--accent" delay={0.1}>
+              <div className="landing-problem-label">AMPH way</div>
+              <ul className="landing-problem-list">
+                <li>Build campaigns in a pixel-perfect replica</li>
+                <li>Simulate 7 days of realistic performance</li>
+                <li>Make every mistake in training, not in production</li>
+                <li>Drills and missions with coaching built in</li>
+              </ul>
+            </FadeIn>
           </div>
         </div>
       </section>
 
-      {/* Category Ribbon */}
-      <section className="bg-white border-y border-[#D5D9D9] py-3">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center gap-6 text-sm overflow-x-auto">
-            <span className="text-[#565959] font-medium flex-shrink-0">Campaign types:</span>
-            <div className="flex items-center gap-4 flex-shrink-0">
-              <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-[#F3A847]" />
-                <span className="text-[#007185] hover:text-[#E7760E] cursor-pointer transition-colors">Sponsored Products</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-[#0073BB]" />
-                <span className="text-[#007185] hover:text-[#E7760E] cursor-pointer transition-colors">Sponsored Brands</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-[#00A8E1]" />
-                <span className="text-[#007185] hover:text-[#E7760E] cursor-pointer transition-colors">Sponsored Display</span>
-              </div>
-            </div>
-            <span className="text-[#565959] flex-shrink-0">and more</span>
-          </div>
-        </div>
-      </section>
+      {/* Features Section */}
+      <section className="landing-features" id="features">
+        <div className="container">
+          <FadeIn className="landing-section-header">
+            <h2>Everything you need to go from zero to certified</h2>
+            <p>Every tool from the real console. Practice until it&apos;s second nature.</p>
+          </FadeIn>
 
-      {/* Features Grid */}
-      <section className="bg-[#E3E6E6] py-12 md:py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <RevealCard className="mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-[#0F1111] mb-2">What&apos;s inside the simulator</h2>
-            <p className="text-[#565959]">Everything from the real Amazon Ads Console. Minus the API.</p>
-          </RevealCard>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="landing-features-grid">
             {FEATURES.map((feature, i) => (
-              <RevealCard key={feature.title} delay={i * 0.06} className="group bg-white border-2 border-[#D5D9D9] rounded-xl p-6 hover:border-[#F3A847] hover:shadow-lg transition-all duration-300 cursor-pointer">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 bg-gray-50 group-hover:bg-[#F3A847]/10 border border-[#D5D9D9] group-hover:border-[#F3A847]/30 rounded-xl flex items-center justify-center text-[#565959] group-hover:text-[#F3A847] transition-all">
-                    {feature.icon}
-                  </div>
-                  <span className="text-xs font-bold text-[#007185] bg-gray-100 px-2 py-1 rounded">{feature.stat}</span>
-                </div>
-                <h3 className="text-base font-bold text-[#0F1111] mb-2 group-hover:text-[#E7760E] transition-colors">{feature.title}</h3>
-                <p className="text-sm text-[#565959] leading-relaxed mb-4">{feature.description}</p>
-                <div className="flex items-center gap-1 text-xs font-medium text-[#007185] group-hover:text-[#E7760E] transition-colors">
-                  Learn more
-                  <svg className="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </RevealCard>
+              <FadeIn key={feature.title} delay={i * 0.06} className="landing-feature-card">
+                <div className="landing-feature-icon">{feature.icon}</div>
+                <h3>{feature.title}</h3>
+                <p>{feature.description}</p>
+              </FadeIn>
             ))}
           </div>
         </div>
       </section>
 
       {/* How It Works */}
-      <section className="bg-white border-y border-[#D5D9D9] py-12 md:py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <RevealCard className="mb-10">
-            <h2 className="text-2xl md:text-3xl font-bold text-[#0F1111]">How it works</h2>
-          </RevealCard>
+      <section className="landing-how" id="how-it-works">
+        <div className="container">
+          <FadeIn className="landing-section-header">
+            <h2>Three steps to confident campaign management</h2>
+            <p>No prior experience needed. Start from scratch, build real skills.</p>
+          </FadeIn>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="landing-steps">
+            <div className="landing-steps-line" />
             {STEPS.map((step, i) => (
-              <RevealCard key={step.num} delay={i * 0.1} className="relative bg-gray-50 border border-[#D5D9D9] rounded-xl p-6 hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 bg-[#F3A847] text-white font-bold text-xl rounded-full flex items-center justify-center mb-4 shadow-lg shadow-[#F3A847]/30">{step.num}</div>
-                <h3 className="text-base font-bold text-[#0F1111] mb-2">{step.title}</h3>
-                <p className="text-sm text-[#565959] leading-relaxed">{step.description}</p>
-              </RevealCard>
+              <FadeIn key={step.num} delay={i * 0.12} className="landing-step">
+                <div className="landing-step-number">{step.num}</div>
+                <h3>{step.title}</h3>
+                <p>{step.description}</p>
+              </FadeIn>
             ))}
           </div>
         </div>
       </section>
 
+      {/* Dashboard Preview */}
+      <section className="landing-preview">
+        <div className="container">
+          <FadeIn className="landing-section-header">
+            <h2>The exact interface you&apos;ll use in production</h2>
+            <p>No simplified training wheels ΓÇö this is the real console experience.</p>
+          </FadeIn>
+
+          <FadeIn className="landing-preview-wrapper">
+            <div className="landing-preview-header">
+              <div className="landing-preview-dots">
+                <div /><div /><div />
+              </div>
+              <span className="landing-preview-url">adconsole.app/dashboard</span>
+            </div>
+            <div className="landing-preview-content">
+              <Image
+                src="/dashboard-preview.webp"
+                alt="Amazon Ads Console Simulator Dashboard"
+                fill
+                className="object-cover"
+                loading="lazy"
+              />
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
       {/* CTA Band */}
-      <section className="bg-[#232F3E] py-12 md:py-16">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <RevealCard>
-            <h2 className="text-2xl md:text-4xl font-bold text-white mb-4">Ready to train your team?</h2>
-            <p className="text-gray-300 mb-8 text-base md:text-lg">No Amazon account required. No API. No risk. Just pure learning.</p>
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-[#F3A847] hover:bg-[#E7760E] text-white font-bold rounded-lg text-base transition-all hover:scale-105 active:scale-95 shadow-xl"
-            >
+      <section className="landing-cta-band">
+        <div className="container">
+          <FadeIn className="landing-cta-content">
+            <h2>Stop learning by losing money.</h2>
+            <p>Build your first campaign in the next 5 minutes.</p>
+            <Link href="/dashboard" className="landing-cta-primary landing-cta-primary--lg landing-cta-primary--centered">
               Open the Simulator
-              <ArrowRight size={18} weight="bold" />
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
             </Link>
-          </RevealCard>
+            <p className="landing-cta-note">Free. No account required. Runs in your browser.</p>
+          </FadeIn>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#232F3E] border-t border-[#3A4553]">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-[#F3A847] text-xl font-bold italic">a</span>
-              <span className="text-white font-bold text-lg">dConsole</span>
-              <span className="text-gray-400 text-sm">Training Simulator</span>
+      <footer className="landing-footer">
+        <div className="container">
+          <div className="landing-footer-inner">
+            <div className="landing-footer-brand">
+              <div className="landing-brand-icon landing-brand-icon--sm">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                </svg>
+              </div>
+              <span>AMPH Training Simulator</span>
             </div>
-            <div className="flex items-center gap-6 text-sm">
-              <a href="https://github.com/projectamazonph/Amazon-ad-console" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">GitHub</a>
-              <span className="text-gray-500">|</span>
-              <span className="text-gray-500 text-xs">Not affiliated with Amazon.com</span>
+            <div className="landing-footer-links">
+              <a href="https://github.com/projectamazonph/Amazon-ad-console" target="_blank" rel="noopener noreferrer" className="landing-footer-link">GitHub</a>
+              <a href="https://github.com/projectamazonph/Amazon-ad-console#features" target="_blank" rel="noopener noreferrer" className="landing-footer-link">Features</a>
             </div>
           </div>
-        </div>
-        <div className="bg-[#131921] py-3 text-center">
-          <p className="text-xs text-gray-500">This is a training simulator. Not affiliated with Amazon or Amazon Advertising.</p>
+          <p className="landing-footer-disclaimer">Not affiliated with Amazon. For training purposes only.</p>
         </div>
       </footer>
     </div>

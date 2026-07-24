@@ -34,7 +34,7 @@ export function Dashboard() {
         <div>
           <h1>Advertising dashboard</h1>
           <p>
-            Performance across all enabled campaigns · Coffee Accessories US
+            Performance across all enabled campaigns · {state.campaigns[0]?.portfolio ?? 'Default'} US
           </p>
         </div>
         <Button label="Create campaign" variant="primary" onClick={() => setView('create')} />

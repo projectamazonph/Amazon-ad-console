@@ -6,6 +6,12 @@ const isProd = process.env.NODE_ENV === 'production';
 const nextConfig: NextConfig = {
   reactStrictMode: true,
 
+  async redirects() {
+    return [
+      { source: '/landing', destination: '/', permanent: false },
+    ];
+  },
+
   // Standalone output — required by the production Dockerfile, which copies
   // .next/standalone/ into the runtime stage. Without this flag Next 16
   // never emits the standalone directory and the COPY step fails.

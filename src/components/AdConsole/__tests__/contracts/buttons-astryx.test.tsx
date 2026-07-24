@@ -67,13 +67,13 @@ describe('Astryx Button contract — presence and data-variant wiring', () => {
     expect(simBtn!.getAttribute('data-variant')).toBe('info');
   });
 
-  it('"Reset" toolbar button has data-variant="secondary"', () => {
+  it('"Clear filters" toolbar button has data-variant="secondary"', () => {
     useAdConsoleStore.getState().setView('campaigns');
     renderAdConsole();
     const resetBtn = Array.from(document.querySelectorAll('button.astryx-button')).find(
-      (b) => b.textContent?.trim() === 'Reset',
+      (b) => b.textContent?.trim() === 'Clear filters',
     );
-    expect(resetBtn, '"Reset" button must exist').toBeDefined();
+    expect(resetBtn, '"Clear filters" button must exist').toBeDefined();
     expect(resetBtn!.getAttribute('data-variant')).toBe('secondary');
   });
 
@@ -117,10 +117,10 @@ describe('Astryx Button contract — click handlers still fire', () => {
     useAdConsoleStore.getState().setView('campaigns');
     renderAdConsole();
     const resetBtn = Array.from(document.querySelectorAll('button.astryx-button')).find(
-      (b) => b.textContent?.trim() === 'Reset',
+      (b) => b.textContent?.trim() === 'Clear filters',
     );
     expect(resetBtn).toBeDefined();
-    // Reset clears filters — pre-state: some filter set; post-state: filters cleared
+    // Clear filters resets all filter state
     const before = useAdConsoleStore.getState().state.filter;
     fireEvent.click(resetBtn!);
     const after = useAdConsoleStore.getState().state.filter;
