@@ -75,9 +75,9 @@ export function PortfolioOverview() {
       </div>
 
       {manageMode && (
-        <Card variant="default" padding={6} style={{ marginBottom: 14 }}>
+        <Card variant="default" padding={6} style={{ marginBottom: 'var(--space-4)' }}>
           <div className="card-title"><h2>Create portfolio</h2><span>New portfolio group</span></div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'end' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'end' }}>
             <div className="field" style={{ flex: 1 }}>
               <label htmlFor="po-new-name">Portfolio name</label>
               <input id="po-new-name" className="input full" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Holiday Campaigns" />
@@ -92,7 +92,7 @@ export function PortfolioOverview() {
         </Card>
       )}
 
-      <div className="grid-4" style={{ marginBottom: 14 }}>
+      <div className="grid-4" style={{ marginBottom: 'var(--space-4)' }}>
         <Card variant="default" className="metric-card">
           <div className="label">Total portfolios</div>
           <div className="value">{portfolios.length}</div>
@@ -119,7 +119,7 @@ export function PortfolioOverview() {
         portfolios.map((pf) => {
           const x = calc(pf.metrics);
           return (
-            <div key={pf.name} className="card pad" style={{ marginBottom: 14 }}>
+            <Card key={pf.name} variant="default" padding={6} style={{ marginBottom: 'var(--space-4)' }}>
               <div className="card-title">
                 {manageMode ? (
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center', flex: 1 }}>
@@ -191,7 +191,7 @@ export function PortfolioOverview() {
                     })}
                   </tbody>
                 </Table>
-            </div>
+            </Card>
           );
         })
       )}
