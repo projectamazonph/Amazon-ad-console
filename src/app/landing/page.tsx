@@ -1,284 +1,330 @@
 'use client';
 
-import { motion, useReducedMotion } from 'motion/react';
+import { motion, useReducedMotion, useInView } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
-import {
-  ChartLine,
-  MagnifyingGlass,
-  CurrencyDollar,
-  Crosshair,
-  Users,
-  ShieldCheck,
-  ArrowRight,
-} from '@phosphor-icons/react';
+import { useEffect, useRef, useState } from 'react';
 
 const FEATURES = [
   {
-    title: 'SP, SB, SD campaigns',
-    description: 'Full creation wizard matching the real Amazon Ads Console. Sponsored Products, Brands, and Display.',
-    icon: <Crosshair size={28} weight="duotone" />,
-    accent: '#F3A847',
+    title: 'Campaign Creation Wizard',
+    description: 'Build SP, SB, and SD campaigns step by step — the same interface you\'ll use in production.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+      </svg>
+    ),
   },
   {
-    title: 'Realistic simulation',
-    description: '7-day performance data with ROAS, ACOS, CPC, and search term generation per match type.',
-    icon: <ChartLine size={28} weight="duotone" />,
-    accent: '#5dd3a8',
+    title: '7-Day Performance Simulation',
+    description: 'Watch realistic metrics build — ROAS, ACOS, CPC, impressions — exactly like a live campaign.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+    ),
   },
   {
-    title: 'Targeting training',
-    description: 'Automatic, manual keyword, and product targeting. Exact, phrase, and broad match types.',
-    icon: <Crosshair size={28} weight="duotone" />,
-    accent: '#60a5fa',
+    title: 'Search Term Mining',
+    description: 'Identify which search terms convert. Harvest winners, negate losers — the optimization loop that actually moves ACOS.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+    ),
   },
   {
-    title: 'Budget and bidding',
-    description: 'Dynamic bid strategies, placement adjustments, and budget rules.',
-    icon: <CurrencyDollar size={28} weight="duotone" />,
-    accent: '#F3A847',
+    title: 'Guided Drills',
+    description: 'Click-by-click coaching walks you through the console. Track mistakes, earn scores, level up.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+      </svg>
+    ),
   },
   {
-    title: 'Search term mining',
-    description: 'Generate and analyze search terms. Identify winners to harvest and losers to negate.',
-    icon: <MagnifyingGlass size={28} weight="duotone" />,
-    accent: '#5dd3a8',
+    title: 'Scenario Missions',
+    description: 'Real-world challenges from beginner ACOS reduction to advanced auto-targeting. Get scored, get better.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+    ),
   },
   {
-    title: 'No API required',
-    description: 'Pure client-side simulator. No Amazon API access needed. Train unlimited VAs.',
-    icon: <ShieldCheck size={28} weight="duotone" />,
-    accent: '#60a5fa',
+    title: 'Bulk CSV Operations',
+    description: 'Paste your Amazon bulk export. Validate it, preview the changes, apply it — no more spreadsheet errors.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
+        <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+      </svg>
+    ),
   },
 ];
 
-const TRUSTED_LOGOS = [
-  { name: 'Shopify', slug: 'shopify' },
-  { name: 'Salesforce', slug: 'salesforce' },
-  { name: 'HubSpot', slug: 'hubspot' },
-  { name: 'Adobe', slug: 'adobe' },
-  { name: 'ServiceNow', slug: 'servicenow' },
-  { name: 'Shopify', slug: 'shopify' },
+const STEPS = [
+  {
+    num: '01',
+    title: 'Build your first campaign',
+    description: 'Choose SP, SB, or SD. Walk through targeting, bidding, and creative settings — exactly like the real console.',
+  },
+  {
+    num: '02',
+    title: 'Run a 7-day simulation',
+    description: 'Generate realistic performance data. Watch impressions, clicks, and sales build up day by day.',
+  },
+  {
+    num: '03',
+    title: 'Optimize and repeat',
+    description: 'Mine search terms, adjust bids, add negatives. Each loop makes you sharper than the last.',
+  },
 ];
+
+function FadeIn({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, amount: 0.1 });
+  const reduce = useReducedMotion();
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={reduce ? false : { opacity: 0, y: 24 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+      transition={{ duration: 0.55, delay, ease: [0.16, 1, 0.3, 1] }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 export default function LandingPage() {
   const reduce = useReducedMotion();
 
   return (
-    <div className="landing">
-      {/* Sticky Nav */}
-      <header className="landing-nav">
-        <div className="landing-nav-inner">
-          <Link href="/" className="landing-brand">
-            AdConsole
-            <span className="landing-pill">Training</span>
-          </Link>
-          <nav className="landing-nav-links" aria-label="Account">
-            <Link href="/auth/login" className="landing-link">Sign in</Link>
-            <Link href="/auth/register" className="landing-link">Sign up</Link>
-            <Link href="/dashboard" className="landing-cta landing-cta--primary">Open simulator</Link>
-          </nav>
+    <div className="landing-page">
+      {/* Navigation */}
+      <nav className="landing-nav">
+        <div className="container">
+          <div className="landing-nav-inner">
+            <Link href="/" className="landing-brand">
+              <div className="landing-brand-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                </svg>
+              </div>
+              <span>AMPH</span>
+              <span className="landing-pill">Training</span>
+            </Link>
+            <div className="landing-nav-links">
+              <Link href="#features" className="landing-nav-link">Features</Link>
+              <Link href="#how-it-works" className="landing-nav-link">How It Works</Link>
+              <Link href="https://github.com/projectamazonph/Amazon-ad-console" target="_blank" rel="noopener noreferrer" className="landing-nav-link">GitHub</Link>
+              <Link href="/auth/login" className="landing-nav-link landing-nav-link--ghost">Sign In</Link>
+              <Link href="/dashboard" className="landing-cta-primary">Open Simulator</Link>
+            </div>
+          </div>
         </div>
-      </header>
+      </nav>
 
-      {/* Hero */}
+      {/* Hero Section */}
       <section className="landing-hero">
-        <div className="landing-container">
-          <div className="landing-hero-grid">
-            {/* Copy */}
-            <motion.div
-              initial={reduce ? false : { opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-              className="landing-hero-copy"
-            >
-              <h1 className="landing-h1">
-                Train your team on the real Amazon Ads Console
-              </h1>
-              <p className="landing-lede">
-                A replica of Amazon&apos;s advertising platform. Create campaigns, optimize bids,
-                and mine search terms without touching a live account.
-              </p>
-              <div className="landing-cta-row">
-                <Link href="/dashboard" className="landing-cta landing-cta--primary landing-cta--lg">
-                  Open simulator
-                  <ArrowRight size={16} weight="bold" />
-                </Link>
-                <a
-                  href="https://github.com/projectamazonph/Amazon-ad-console"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="landing-cta landing-cta--ghost landing-cta--lg"
-                >
-                  View source
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                  </svg>
-                </a>
-              </div>
-            </motion.div>
-
-            {/* Hero Visual */}
-            <motion.div
-              initial={reduce ? false : { opacity: 0, x: 32 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-              className="landing-hero-visual"
-            >
-              <div className="landing-hero-card">
-                <div className="landing-hero-card-header">
-                  <div className="flex gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-400/80" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/80" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-400/80" />
-                  </div>
-                  <span className="text-[10px] text-white/40 font-mono">adconsole.app/dashboard</span>
-                </div>
-                <div className="landing-hero-img-wrap">
-                  <Image
-                    src="/dashboard-preview.png"
-                    alt="Amazon Ads Console simulator dashboard"
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                </div>
-              </div>
-            </motion.div>
-          </div>
+        <div className="landing-hero-bg">
+          <Image src="/hero_bg.webp" alt="" fill priority className="object-cover" />
         </div>
-      </section>
+        <div className="landing-hero-overlay" />
 
-      {/* Trusted by */}
-      <section className="landing-trusted">
-        <div className="landing-container">
-          <p className="landing-trusted-label">Trusted by training teams at</p>
-          <div className="landing-trusted-logos">
-            {TRUSTED_LOGOS.map((logo, i) => (
-              <img
-                key={`${logo.slug}-${i}`}
-                src={`https://cdn.simpleicons.org/${logo.slug}/white/40`}
-                alt={logo.name}
-                className="landing-trusted-logo"
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="landing-section">
-        <div className="landing-container">
+        <div className="container landing-hero-content">
           <motion.div
             initial={reduce ? false : { opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="landing-hero-label"
           >
-            <h2 className="landing-h2">What you get</h2>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4">
+              <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <span>No Amazon account needed</span>
           </motion.div>
-          <div className="landing-bento">
-            {FEATURES.map((feature, i) => (
-              <motion.article
-                key={feature.title}
-                initial={reduce ? false : { opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.5, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
-                className="landing-feature-card"
-                style={{ '--feat-accent': feature.accent } as React.CSSProperties}
-              >
-                <div className="landing-feature-icon" style={{ color: feature.accent }}>
-                  {feature.icon}
-                </div>
-                <h3 className="landing-h3">{feature.title}</h3>
-                <p className="landing-card-body">{feature.description}</p>
-              </motion.article>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* How it works */}
-      <section className="landing-section">
-        <div className="landing-container">
+          <motion.h1
+            initial={reduce ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+            className="landing-hero-title"
+          >
+            Learn Amazon PPC<br />
+            <span className="text-accent">without spending a cent</span>
+          </motion.h1>
+
+          <motion.p
+            initial={reduce ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
+            className="landing-hero-subtitle"
+          >
+            The only training simulator that feels exactly like the real Amazon Ads Console.
+            Build campaigns. Run simulations. Practice optimization. Zero risk, zero ad spend.
+          </motion.p>
+
           <motion.div
             initial={reduce ? false : { opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.24, ease: [0.16, 1, 0.3, 1] }}
+            className="landing-hero-cta"
           >
-            <h2 className="landing-h2">How it works</h2>
-          </motion.div>
-          <div className="landing-steps">
-            {[
-              {
-                num: '1',
-                title: 'Create a campaign',
-                description: 'Walk through the 6-step wizard. Choose SP, SB, or SD. Set targeting, bidding, and creative.',
-              },
-              {
-                num: '2',
-                title: 'Run simulations',
-                description: 'Generate 7 days of realistic performance data. Watch impressions, clicks, and sales accumulate.',
-              },
-              {
-                num: '3',
-                title: 'Optimize and learn',
-                description: 'Mine search terms. Harvest winners. Add negatives. Train the optimization loop.',
-              },
-            ].map((item, i) => (
-              <motion.div
-                key={item.title}
-                initial={reduce ? false : { opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.5, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="landing-step"
-              >
-                <div className="landing-step-num">{item.num}</div>
-                <h3 className="landing-h3">{item.title}</h3>
-                <p className="landing-step-body">{item.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="landing-cta-band">
-        <div className="landing-container landing-container--center">
-          <motion.div
-            initial={reduce ? false : { opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <h2 className="landing-h2">Ready to train your team?</h2>
-            <p className="landing-lede landing-lede--center">No API access required. No live account risk.</p>
-            <Link href="/dashboard" className="landing-cta landing-cta--primary landing-cta--lg landing-cta--center">
-              Open simulator
-              <ArrowRight size={16} weight="bold" />
+            <Link href="/dashboard" className="landing-cta-primary landing-cta-primary--lg">
+              Start Training Free
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </Link>
+            <Link href="#how-it-works" className="landing-cta-ghost landing-cta-ghost--lg">
+              See how it works
             </Link>
           </motion.div>
+
+          <motion.p
+            initial={reduce ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.32, ease: [0.16, 1, 0.3, 1] }}
+            className="landing-hero-note"
+          >
+            Runs entirely in your browser. No API. No credentials. Your data stays local.
+          </motion.p>
+        </div>
+      </section>
+
+      {/* Problem → Solution */}
+      <section className="landing-problem">
+        <div className="container">
+          <div className="landing-problem-grid">
+            <FadeIn className="landing-problem-col">
+              <div className="landing-problem-label">The old way</div>
+              <ul className="landing-problem-list">
+                <li>Practice on live campaigns — real money, real risk</li>
+                <li>Learn by trial and expensive error</li>
+                <li>No safe space to experiment with new strategies</li>
+                <li>No guided coaching when you get stuck</li>
+              </ul>
+            </FadeIn>
+            <FadeIn className="landing-problem-col landing-problem-col--accent" delay={0.1}>
+              <div className="landing-problem-label">AMPH way</div>
+              <ul className="landing-problem-list">
+                <li>Build campaigns in a pixel-perfect replica</li>
+                <li>Simulate 7 days of realistic performance</li>
+                <li>Make every mistake in training, not in production</li>
+                <li>Drills and missions with coaching built in</li>
+              </ul>
+            </FadeIn>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="landing-features" id="features">
+        <div className="container">
+          <FadeIn className="landing-section-header">
+            <h2>Everything you need to go from zero to certified</h2>
+            <p>Every tool from the real console. Practice until it&apos;s second nature.</p>
+          </FadeIn>
+
+          <div className="landing-features-grid">
+            {FEATURES.map((feature, i) => (
+              <FadeIn key={feature.title} delay={i * 0.06} className="landing-feature-card">
+                <div className="landing-feature-icon">{feature.icon}</div>
+                <h3>{feature.title}</h3>
+                <p>{feature.description}</p>
+              </FadeIn>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="landing-how" id="how-it-works">
+        <div className="container">
+          <FadeIn className="landing-section-header">
+            <h2>Three steps to confident campaign management</h2>
+            <p>No prior experience needed. Start from scratch, build real skills.</p>
+          </FadeIn>
+
+          <div className="landing-steps">
+            <div className="landing-steps-line" />
+            {STEPS.map((step, i) => (
+              <FadeIn key={step.num} delay={i * 0.12} className="landing-step">
+                <div className="landing-step-number">{step.num}</div>
+                <h3>{step.title}</h3>
+                <p>{step.description}</p>
+              </FadeIn>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Dashboard Preview */}
+      <section className="landing-preview">
+        <div className="container">
+          <FadeIn className="landing-section-header">
+            <h2>The exact interface you&apos;ll use in production</h2>
+            <p>No simplified training wheels — this is the real console experience.</p>
+          </FadeIn>
+
+          <FadeIn className="landing-preview-wrapper">
+            <div className="landing-preview-header">
+              <div className="landing-preview-dots">
+                <div /><div /><div />
+              </div>
+              <span className="landing-preview-url">adconsole.app/dashboard</span>
+            </div>
+            <div className="landing-preview-content">
+              <Image
+                src="/dashboard-preview.webp"
+                alt="Amazon Ads Console Simulator Dashboard"
+                fill
+                className="object-cover"
+                loading="lazy"
+              />
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* CTA Band */}
+      <section className="landing-cta-band">
+        <div className="container">
+          <FadeIn className="landing-cta-content">
+            <h2>Stop learning by losing money.</h2>
+            <p>Build your first campaign in the next 5 minutes.</p>
+            <Link href="/dashboard" className="landing-cta-primary landing-cta-primary--lg landing-cta-primary--centered">
+              Open the Simulator
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </Link>
+            <p className="landing-cta-note">Free. No account required. Runs in your browser.</p>
+          </FadeIn>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="landing-footer">
-        <div className="landing-container landing-footer-inner">
-          <span className="muted">Amazon Ad Console Training Simulator</span>
-          <div className="landing-footer-links">
-            <a
-              href="https://github.com/projectamazonph/Amazon-ad-console"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="landing-link"
-            >
-              GitHub
-            </a>
-            <span className="muted">Not affiliated with Amazon</span>
+        <div className="container">
+          <div className="landing-footer-inner">
+            <div className="landing-footer-brand">
+              <div className="landing-brand-icon landing-brand-icon--sm">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                </svg>
+              </div>
+              <span>AMPH Training Simulator</span>
+            </div>
+            <div className="landing-footer-links">
+              <a href="https://github.com/projectamazonph/Amazon-ad-console" target="_blank" rel="noopener noreferrer" className="landing-footer-link">GitHub</a>
+              <a href="https://github.com/projectamazonph/Amazon-ad-console#features" target="_blank" rel="noopener noreferrer" className="landing-footer-link">Features</a>
+            </div>
           </div>
+          <p className="landing-footer-disclaimer">Not affiliated with Amazon. For training purposes only.</p>
         </div>
       </footer>
     </div>
