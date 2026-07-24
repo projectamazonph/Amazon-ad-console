@@ -3,6 +3,7 @@
 import { Button } from '@astryxdesign/core/Button';
 import { Table } from '@astryxdesign/core/Table';
 import { Card } from '@astryxdesign/core/Card';
+import { CheckCircle, WarningCircle } from '@phosphor-icons/react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 
 export function BulkOpsPage() {
@@ -60,7 +61,11 @@ export function BulkOpsPage() {
             <Card variant="default" padding={6}>
               <div className="card-title">
                 <h2>Preview</h2>
-                <span className="bulk-status">{preview.length} rows · {valid ? '✅ Valid' : '❌ Has errors'}</span>
+                <span className="bulk-status">{preview.length} rows · {valid ? (
+                  <><CheckCircle size={14} weight="fill" style={{ color: 'var(--success)', marginRight: 4 }} />Valid</>
+                ) : (
+                  <><WarningCircle size={14} weight="fill" style={{ color: 'var(--danger)', marginRight: 4 }} />Has errors</>
+                )}</span>
               </div>
               <Table>
                   <thead>

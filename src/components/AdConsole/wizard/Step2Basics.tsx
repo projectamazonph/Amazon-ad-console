@@ -14,8 +14,10 @@ export function Step2Basics({ isActive, isComplete }: Step2BasicsProps) {
 
   return (
     <div className="wizard-step" style={{ display: isActive || isComplete ? 'block' : 'none' }}>
-      <h2>Campaign basics</h2>
-      <p className="muted" style={{ marginBottom: 14 }}>Set campaign-level controls.</p>
+      <div className="wizard-step-header">
+        <h2>Campaign basics</h2>
+        <p>Set campaign-level controls.</p>
+      </div>
       <div className="form-grid">
         <div className="field full">
           <label htmlFor="s2-name">Campaign name</label>

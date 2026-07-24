@@ -2,6 +2,7 @@
 
 import { Button } from '@astryxdesign/core/Button';
 import { Card } from '@astryxdesign/core/Card';
+import { Package } from '@phosphor-icons/react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { PRODUCTS } from '@/engine/ad-console/core/scenarios';
 
@@ -21,8 +22,10 @@ export function Step3ProductsCreativeSP({ isActive, isComplete }: Step3ProductsC
 
   return (
     <div className="wizard-step" style={{ display: isActive || isComplete ? 'block' : 'none' }}>
-      <h2>Products & creative</h2>
-      <p className="muted" style={{ marginBottom: 14 }}>Select products to advertise.</p>
+      <div className="wizard-step-header">
+        <h2>Products and creative</h2>
+        <p>Select products to advertise.</p>
+      </div>
 
       <Card variant="default" padding={6} style={{ marginBottom: 16 }}>
         <div className="card-title"><h3>Selected products ({selectedProducts.length})</h3></div>
@@ -34,7 +37,7 @@ export function Step3ProductsCreativeSP({ isActive, isComplete }: Step3ProductsC
               const p = PRODUCTS.find((x) => x.asin === asin);
               return (
                 <Card key={asin} variant="default" padding={6} style={{ flex: 1, minWidth: 200, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 24 }}>{p?.image || '📦'}</span>
+                  <span style={{ fontSize: 24 }}>{p?.image || <Package size={24} weight="duotone" />}</span>
                   <div>
                     <strong>{p?.title || asin}</strong>
                     <div className="muted" style={{ fontSize: 12 }}>${p?.price}</div>

@@ -13,8 +13,10 @@ export function Step5BiddingSB({ isActive, isComplete }: Step5BiddingSBProps) {
 
   return (
     <div className="wizard-step" style={{ display: isActive || isComplete ? 'block' : 'none' }}>
-      <h2>Bidding</h2>
-      <p className="muted" style={{ marginBottom: 14 }}>Set default bid and placement adjustments.</p>
+      <div className="wizard-step-header">
+        <h2>Bidding</h2>
+        <p>Set default bid and placement adjustments.</p>
+      </div>
 
       <div className="form-grid">
         <div className="field">

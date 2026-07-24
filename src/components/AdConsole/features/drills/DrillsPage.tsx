@@ -3,6 +3,7 @@
 import { Button } from '@astryxdesign/core/Button';
 import { Table } from '@astryxdesign/core/Table';
 import { Card } from '@astryxdesign/core/Card';
+import { Check } from '@phosphor-icons/react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { getDrill, getAllDrills, calculateScore } from '@/engine/ad-console/features/drills/engine';
 
@@ -63,7 +64,7 @@ export function DrillsPage() {
                 {activeDrill.steps.map((s, i) => (
                   <div key={i} className="drill-nav-item">
                     <span className={`drill-nav-step ${i < session.currentStep ? 'completed' : i === session.currentStep ? 'current' : 'pending'}`}>
-                      {i < session.currentStep ? '✓' : i + 1}
+                      {i < session.currentStep ? <Check size={12} weight="bold" /> : i + 1}
                     </span>
                     <span className={`drill-nav-label ${i === session.currentStep ? 'current' : 'pending'}`}>{s.instruction}</span>
                   </div>

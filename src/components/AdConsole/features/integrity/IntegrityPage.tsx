@@ -2,6 +2,7 @@
 
 import { Button } from '@astryxdesign/core/Button';
 import { Card } from '@astryxdesign/core/Card';
+import { CheckCircle, WarningCircle, XCircle } from '@phosphor-icons/react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 
 export function IntegrityPage() {
@@ -28,7 +29,11 @@ export function IntegrityPage() {
             <Card variant="default" className="metric-card">
               <div className="label">Integrity score</div>
               <div className="value" style={{ color: report.score >= 80 ? 'var(--success)' : report.score >= 50 ? 'var(--warning)' : 'var(--danger)' }}>{report.score}%</div>
-              <div className="delta">{report.passed ? '✅ Passed' : '❌ Needs attention'}</div>
+              <div className="delta">{report.passed ? (
+                <><CheckCircle size={14} weight="fill" style={{ color: 'var(--success)', marginRight: 4 }} />Passed</>
+              ) : (
+                <><WarningCircle size={14} weight="fill" style={{ color: 'var(--warning)', marginRight: 4 }} />Needs attention</>
+              )}</div>
             </Card>
             <Card variant="default" className="metric-card">
               <div className="label">Errors</div>

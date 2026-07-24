@@ -31,8 +31,10 @@ export function Step3ProductsCreativeSD({ isActive, isComplete }: Step3ProductsC
 
   return (
     <div className="wizard-step" style={{ display: isActive || isComplete ? 'block' : 'none' }}>
-      <h2>Products & creative</h2>
-      <p className="muted" style={{ marginBottom: 14 }}>Select products to advertise and configure creative.</p>
+      <div className="wizard-step-header">
+        <h2>Products and creative</h2>
+        <p>Select products to advertise and configure creative.</p>
+      </div>
 
       <Card variant="default" padding={6} style={{ marginBottom: 16 }}>
         <div className="card-title"><h3>Selected products ({selectedProducts.length})</h3></div>

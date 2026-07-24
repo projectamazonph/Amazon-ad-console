@@ -13,8 +13,10 @@ export function Step5BiddingSD({ isActive, isComplete }: Step5BiddingSDProps) {
 
   return (
     <div className="wizard-step" style={{ display: isActive || isComplete ? 'block' : 'none' }}>
-      <h2>Bidding</h2>
-      <p className="muted" style={{ marginBottom: 14 }}>Set default bid.</p>
+      <div className="wizard-step-header">
+        <h2>Bidding</h2>
+        <p>Set default bid.</p>
+      </div>
 
       <div className="form-grid">
         <div className="field">
