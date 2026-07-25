@@ -1367,7 +1367,7 @@ function kwTableHTML(rows,opts={}){
  return`<div class="card">${toolbar}${bulk}${html}</div>`;
 }
 function vKeywords(){
- const rows=state.campaigns.flatMap(c=>c.adGroups.flatMap(ag=>ag.keywords.map(k=>({k,ag,c}))));
+ const rows=state.campaigns.flatMap(c=>c.adGroups.flatMap(ag=>ag.keywords.map(k=>({k,ag,c,m:kwMetrics(k)}))));
  return pageHead('Keywords',`All targeting across ${state.campaigns.length} campaigns`,rangeSelect())+kwTableHTML(rows,{scope:'global'});
 }
 
@@ -1397,7 +1397,7 @@ function vTerms(){
 }
 
 function vAdgroups(){
- const rows=state.campaigns.flatMap(c=>c.adGroups.map(ag=>({ag,c})));
+ const rows=state.campaigns.flatMap(c=>c.adGroups.map(ag=>({ag,c,m:agMetrics(ag)})));
  return pageHead('Ad groups','Containers for products and keywords',rangeSelect())
  +`<div class="card rise">${buildTable('agsG',[{l:'Ad group'},{l:'Campaign'},{l:'Products'},{l:'Default bid',k:'bid',g:r=>r.ag.defaultBid},{l:'Status'},MCOL.sp,MCOL.sal,MCOL.acos],rows,(r,i)=>{
    const m=agMetrics(r.ag);
