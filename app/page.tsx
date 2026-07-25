@@ -1,8 +1,11 @@
-import Link from "next/link";
+import type { Metadata } from "next";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
-export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: "AdConsole",
+  description: "Amazon PPC teaching simulator",
+};
 
 async function getLegacyStats() {
   try {
@@ -11,9 +14,12 @@ async function getLegacyStats() {
     return {
       bytes: stat.size,
       kb: Math.round(stat.size / 1024),
-      modified: stat.mtime.toISOString().slice(0, 19).replace("T", " "),
+      modified: stat.mtime.toLocaleString("sv-SE"),
     };
-  } catch {
+  } catch (e) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("adconsole.html not found:", e);
+    }
     return null;
   }
 }
@@ -22,7 +28,7 @@ export default async function Home() {
   const stats = await getLegacyStats();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-white dark:from-black dark:to-zinc-950 font-sans">
+    <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-white dark:from-black dark:to-zinc-950">
       <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col items-stretch justify-center gap-10 px-6 py-16 sm:px-10">
         <header className="flex flex-col gap-3">
           <span className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300">
@@ -41,7 +47,7 @@ export default async function Home() {
         </header>
 
         <section className="grid gap-4 sm:grid-cols-2">
-          <Link
+          <a
             href="/adconsole.html"
             className="group flex flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-6 transition-all hover:border-zinc-300 hover:shadow-sm dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
           >
@@ -73,7 +79,7 @@ export default async function Home() {
                 </div>
               </dl>
             )}
-          </Link>
+          </a>
 
           <div className="flex flex-col gap-3 rounded-2xl border border-dashed border-zinc-300 bg-white/50 p-6 dark:border-zinc-800 dark:bg-zinc-950/40">
             <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
