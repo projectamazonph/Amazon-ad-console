@@ -17,4 +17,3 @@ export type { Campaign, CampaignStatus, MatchType, TargetType, NegativeType } fr
 export type { CampaignType, BidStrategy, TargetingMode, AdFormat, CampaignGoal, PortfolioType } from '../types';
 export type { BudgetRuleType, ScheduleType } from '../types';
 export type { ProductAd, Ad, SearchTerm, Negative, BudgetRule, Creative, Product } from '../types';
-export type { SearchTermGenerator } from './search-term-generator';

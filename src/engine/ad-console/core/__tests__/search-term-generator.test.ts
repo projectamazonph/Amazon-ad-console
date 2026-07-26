@@ -1,159 +1,116 @@
 import { describe, it, expect } from 'vitest';
-import {
-  ExactMatchGenerator,
-  PhraseMatchGenerator,
-  BroadMatchGenerator,
-  searchTermGenerators,
-  getSearchTermGenerator,
-  generateSearchTermsForTarget,
-} from '../engine/search-term-generator';
-import type { MatchType } from '../types';
+import { generateSearchTermsForTarget } from '../engine/search-term-generator';
 
-describe('Search Term Generators', () => {
-  // --- Exact Match Generator ---
-  describe('ExactMatchGenerator', () => {
-    const generator = new ExactMatchGenerator();
-
-    it('returns Exact match type', () => {
-      expect(generator.getMatchType()).toBe('Exact');
-    });
-
+describe('Search Term Generation', () => {
+  // --- Exact Match ---
+  describe('Exact match', () => {
     it('generates keyword + plural variant', () => {
-      const terms = generator.generate('coffee filter');
+      const terms = generateSearchTermsForTarget('coffee filter', 'Exact');
       expect(terms).toContain('coffee filter');
       expect(terms).toContain('coffee filters');
     });
 
     it('generates keyword + singular variant for plural input', () => {
-      const terms = generator.generate('coffee filters');
+      const terms = generateSearchTermsForTarget('coffee filters', 'Exact');
       expect(terms).toContain('coffee filters');
       expect(terms).toContain('coffee filter');
     });
 
     it('handles single word keywords', () => {
-      const terms = generator.generate('coffee');
+      const terms = generateSearchTermsForTarget('coffee', 'Exact');
       expect(terms).toContain('coffee');
       expect(terms).toContain('coffees');
     });
 
     it('returns unique terms only', () => {
-      const terms = generator.generate('test');
+      const terms = generateSearchTermsForTarget('test', 'Exact');
       const unique = new Set(terms);
       expect(terms.length).toBe(unique.size);
     });
 
     it('trims and lowercases input', () => {
-      const terms = generator.generate('  COFFEE FILTER  ');
+      const terms = generateSearchTermsForTarget('  COFFEE FILTER  ', 'Exact');
       expect(terms).toContain('coffee filter');
     });
   });
 
-  // --- Phrase Match Generator ---
-  describe('PhraseMatchGenerator', () => {
-    const generator = new PhraseMatchGenerator();
-
-    it('returns Phrase match type', () => {
-      expect(generator.getMatchType()).toBe('Phrase');
-    });
-
+  // --- Phrase Match ---
+  describe('Phrase match', () => {
     it('generates keyword with prefixes', () => {
-      const terms = generator.generate('coffee filter');
+      const terms = generateSearchTermsForTarget('coffee filter', 'Phrase');
       expect(terms.some(t => t.startsWith('best '))).toBe(true);
       expect(terms.some(t => t.startsWith('cheap '))).toBe(true);
       expect(terms.some(t => t.startsWith('organic '))).toBe(true);
     });
 
     it('generates keyword with suffixes', () => {
-      const terms = generator.generate('coffee filter');
+      const terms = generateSearchTermsForTarget('coffee filter', 'Phrase');
       expect(terms.some(t => t.endsWith(' for sale'))).toBe(true);
       expect(terms.some(t => t.endsWith(' online'))).toBe(true);
       expect(terms.some(t => t.endsWith(' near me'))).toBe(true);
     });
 
     it('includes the keyword itself', () => {
-      const terms = generator.generate('coffee filter');
+      const terms = generateSearchTermsForTarget('coffee filter', 'Phrase');
       expect(terms).toContain('coffee filter');
     });
 
     it('returns unique terms only', () => {
-      const terms = generator.generate('test');
+      const terms = generateSearchTermsForTarget('test', 'Phrase');
       const unique = new Set(terms);
       expect(terms.length).toBe(unique.size);
     });
 
     it('generates more terms than exact match', () => {
-      const exactTerms = new ExactMatchGenerator().generate('coffee filter');
-      const phraseTerms = generator.generate('coffee filter');
+      const exactTerms = generateSearchTermsForTarget('coffee filter', 'Exact');
+      const phraseTerms = generateSearchTermsForTarget('coffee filter', 'Phrase');
       expect(phraseTerms.length).toBeGreaterThan(exactTerms.length);
     });
   });
 
-  // --- Broad Match Generator ---
-  describe('BroadMatchGenerator', () => {
-    const generator = new BroadMatchGenerator();
-
-    it('returns Broad match type', () => {
-      expect(generator.getMatchType()).toBe('Broad');
-    });
-
+  // --- Broad Match ---
+  describe('Broad match', () => {
     it('generates keyword with prefixes', () => {
-      const terms = generator.generate('coffee filter');
+      const terms = generateSearchTermsForTarget('coffee filter', 'Broad');
       expect(terms.some(t => t.startsWith('cheap '))).toBe(true);
       expect(terms.some(t => t.startsWith('best '))).toBe(true);
       expect(terms.some(t => t.startsWith('affordable '))).toBe(true);
     });
 
     it('generates keyword with suffixes', () => {
-      const terms = generator.generate('coffee filter');
+      const terms = generateSearchTermsForTarget('coffee filter', 'Broad');
       expect(terms.some(t => t.endsWith(' accessories'))).toBe(true);
       expect(terms.some(t => t.endsWith(' deals'))).toBe(true);
       expect(terms.some(t => t.endsWith(' sale'))).toBe(true);
     });
 
     it('generates related term variations for known categories', () => {
-      const terms = generator.generate('coffee filter');
-      // Coffee-related synonyms
+      const terms = generateSearchTermsForTarget('coffee filter', 'Broad');
       expect(terms.some(t => t.includes('espresso'))).toBe(true);
       expect(terms.some(t => t.includes('brew'))).toBe(true);
-      // Filter-related synonyms
       expect(terms.some(t => t.includes('strainer') || t.includes('mesh') || t.includes('paper'))).toBe(true);
     });
 
     it('includes the keyword itself', () => {
-      const terms = generator.generate('coffee filter');
+      const terms = generateSearchTermsForTarget('coffee filter', 'Broad');
       expect(terms).toContain('coffee filter');
     });
 
     it('returns unique terms only', () => {
-      const terms = generator.generate('test');
+      const terms = generateSearchTermsForTarget('test', 'Broad');
       const unique = new Set(terms);
       expect(terms.length).toBe(unique.size);
     });
 
     it('generates more terms than phrase match', () => {
-      const phraseTerms = new PhraseMatchGenerator().generate('coffee filter');
-      const broadTerms = generator.generate('coffee filter');
+      const phraseTerms = generateSearchTermsForTarget('coffee filter', 'Phrase');
+      const broadTerms = generateSearchTermsForTarget('coffee filter', 'Broad');
       expect(broadTerms.length).toBeGreaterThan(phraseTerms.length);
     });
   });
 
-  // --- Registry ---
-  describe('searchTermGenerators registry', () => {
-    it('has all three match types', () => {
-      expect(searchTermGenerators.Exact).toBeDefined();
-      expect(searchTermGenerators.Phrase).toBeDefined();
-      expect(searchTermGenerators.Broad).toBeDefined();
-    });
-
-    it('returns correct generator for each match type', () => {
-      expect(getSearchTermGenerator('Exact')).toBeInstanceOf(ExactMatchGenerator);
-      expect(getSearchTermGenerator('Phrase')).toBeInstanceOf(PhraseMatchGenerator);
-      expect(getSearchTermGenerator('Broad')).toBeInstanceOf(BroadMatchGenerator);
-    });
-  });
-
-  // --- Negative Filtering During Generation ---
-  describe('generateSearchTermsForTarget with negatives', () => {
+  // --- Negative Filtering ---
+  describe('Negative filtering during generation', () => {
     it('filters Negative exact during generation', () => {
       const terms = generateSearchTermsForTarget(
         'coffee filter',
@@ -169,7 +126,6 @@ describe('Search Term Generators', () => {
         'Broad',
         [{ value: 'plastic', type: 'Negative phrase' }]
       );
-      // None of the generated terms should contain 'plastic'
       expect(terms.every(t => !t.includes('plastic'))).toBe(true);
     });
 
@@ -188,7 +144,6 @@ describe('Search Term Generators', () => {
         'Broad',
         [{ value: 'cheap coffee filter', type: 'Negative exact' }]
       );
-      // 'cheap coffee filter deals' should NOT be blocked by exact negative
       expect(terms.some(t => t === 'cheap coffee filter deals')).toBe(true);
     });
 
@@ -209,7 +164,7 @@ describe('Search Term Generators', () => {
 
     it('empty negatives returns all generated terms', () => {
       const terms = generateSearchTermsForTarget('coffee filter', 'Exact', []);
-      const allTerms = new ExactMatchGenerator().generate('coffee filter');
+      const allTerms = generateSearchTermsForTarget('coffee filter', 'Exact');
       expect(terms.sort()).toEqual(allTerms.sort());
     });
 

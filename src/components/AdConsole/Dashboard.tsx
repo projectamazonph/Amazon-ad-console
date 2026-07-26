@@ -6,7 +6,7 @@ import { Card } from '@astryxdesign/core/Card';
 import { ChartBar } from '@phosphor-icons/react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { getKpiTiles } from './nav/consoleNav';
-import { calc, formatMoney, formatWhole, formatPercent, acosClass } from '@/engine/ad-console/engine';
+import { calc, formatMoney, formatWhole, formatPercent, acosClass } from '@/engine/ad-console/core/engine';
 import type { Campaign, DerivedMetrics, ConsoleView, Metrics } from '@/engine/ad-console/types';
 
 export function Dashboard() {

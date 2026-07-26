@@ -15,7 +15,7 @@ export interface DraftSlice {
   removeProduct: (asin: string) => void;
 }
 
-function makeDraft(): CampaignDraft {
+export function makeDraft(): CampaignDraft {
   return {
     type: 'SP', name: '', portfolio: '', status: 'Enabled',
     dailyBudget: 25, defaultBid: 0.75,

@@ -5,7 +5,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { Card } from '@astryxdesign/core/Card';
 import { useCampaignManager } from './hooks/useCampaignManager';
 import { MetricCard } from './metrics/MetricCard';
-import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/engine';
+import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/core/engine';
 import type { FilterState } from '@/engine/ad-console/types';
 import { ManagerCampaignsTab } from './details/ManagerCampaignsTab';
 import { ManagerAdGroupsTab } from './details/ManagerAdGroupsTab';
