@@ -3,7 +3,7 @@
  * Returns search terms for a campaign, filtered by negatives (DIP).
  */
 import { useMemo } from 'react';
-import { isFilteredByNegative } from '@/engine/ad-console/engine';
+import { isFilteredByNegative } from '@/engine/ad-console/core/engine';
 import type { Campaign } from '@/engine/ad-console/types';
 
 export interface SearchTermsResult {

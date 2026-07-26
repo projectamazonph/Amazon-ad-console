@@ -1,8 +1,9 @@
 /**
- * Ad group slice — CRUD operations.
+ * Ad group slice — CRUD operations, using campaignMutator helper.
  */
 import type { CampaignStatus } from '../types';
 import { addAdGroup, renameAdGroup, setAdGroupStatus, setAdGroupDefaultBid, removeAdGroup } from '../engine';
+import { campaignMutator } from './helpers';
 
 export interface AdGroupSlice {
   addAdGroup: (campaignId: string, name: string) => void;
@@ -13,9 +14,9 @@ export interface AdGroupSlice {
 }
 
 export const createAdGroupSlice = (set: any, ..._rest: any[]): AdGroupSlice => ({
-  addAdGroup: (cid, name) => set((s: any) => ({ state: { ...s.state, campaigns: s.state.campaigns.map((c: any) => c.id === cid ? addAdGroup(c, name) : c) } })),
-  renameAdGroup: (cid, agid, name) => set((s: any) => ({ state: { ...s.state, campaigns: s.state.campaigns.map((c: any) => c.id === cid ? renameAdGroup(c, agid, name) : c) } })),
-  setAdGroupStatus: (cid, agid, status) => set((s: any) => ({ state: { ...s.state, campaigns: s.state.campaigns.map((c: any) => c.id === cid ? setAdGroupStatus(c, agid, status) : c) } })),
-  setAdGroupDefaultBid: (cid, agid, bid) => set((s: any) => ({ state: { ...s.state, campaigns: s.state.campaigns.map((c: any) => c.id === cid ? setAdGroupDefaultBid(c, agid, bid) : c) } })),
-  removeAdGroup: (cid, agid) => set((s: any) => ({ state: { ...s.state, campaigns: s.state.campaigns.map((c: any) => c.id === cid ? removeAdGroup(c, agid) : c) } })),
+  addAdGroup: campaignMutator<[string]>(set, addAdGroup),
+  renameAdGroup: campaignMutator<[string, string]>(set, renameAdGroup),
+  setAdGroupStatus: campaignMutator<[string, CampaignStatus]>(set, setAdGroupStatus),
+  setAdGroupDefaultBid: campaignMutator<[string, number]>(set, setAdGroupDefaultBid),
+  removeAdGroup: campaignMutator<[string]>(set, removeAdGroup),
 });

@@ -1,12 +1,14 @@
 /**
  * Target/keyword slice — add, remove, bid, pause.
  * Supports all target types: Keyword, ASIN, Category, Auto, Audience.
+ * Uses campaignMutator/campaignMutatorObj helpers.
  */
 import type { TargetType, MatchType, CampaignStatus } from '../types';
 import {
-  addTarget, addKeyword, addAutoTarget, addAsinTarget, addCategoryTarget,
+  addKeyword, addAutoTarget, addAsinTarget, addCategoryTarget,
   removeTarget, setTargetBid, adjustTargetBid, pauseTarget, setTargetStatus,
 } from '../engine';
+import { campaignMutator, campaignMutatorObj } from './helpers';
 
 export interface TargetSlice {
   addKeyword: (campaignId: string, keyword: string, match: MatchType, bid: number, adGroupId?: string) => void;
@@ -21,43 +23,13 @@ export interface TargetSlice {
 }
 
 export const createTargetSlice = (set: any, ..._rest: any[]): TargetSlice => ({
-  addKeyword: (cid, keyword, match, bid, adGroupId) => set((s: any) => {
-    const c = s.state.campaigns.find((x: any) => x.id === cid);
-    if (!c) return s;
-    const { campaign } = addKeyword(c, keyword, match, bid, adGroupId);
-    return { state: { ...s.state, campaigns: s.state.campaigns.map((x: any) => x.id === cid ? campaign : x) } };
-  }),
-  addAutoTarget: (cid, autoType, bid, adGroupId) => set((s: any) => {
-    const c = s.state.campaigns.find((x: any) => x.id === cid);
-    if (!c) return s;
-    const { campaign } = addAutoTarget(c, autoType, bid, adGroupId);
-    return { state: { ...s.state, campaigns: s.state.campaigns.map((x: any) => x.id === cid ? campaign : x) } };
-  }),
-  addAsinTarget: (cid, asin, bid, adGroupId) => set((s: any) => {
-    const c = s.state.campaigns.find((x: any) => x.id === cid);
-    if (!c) return s;
-    const { campaign } = addAsinTarget(c, asin, bid, adGroupId);
-    return { state: { ...s.state, campaigns: s.state.campaigns.map((x: any) => x.id === cid ? campaign : x) } };
-  }),
-  addCategoryTarget: (cid, categoryPath, bid, adGroupId) => set((s: any) => {
-    const c = s.state.campaigns.find((x: any) => x.id === cid);
-    if (!c) return s;
-    const { campaign } = addCategoryTarget(c, categoryPath, bid, adGroupId);
-    return { state: { ...s.state, campaigns: s.state.campaigns.map((x: any) => x.id === cid ? campaign : x) } };
-  }),
-  removeTarget: (cid, tid) => set((s: any) => ({
-    state: { ...s.state, campaigns: s.state.campaigns.map((c: any) => c.id === cid ? removeTarget(c, tid) : c) },
-  })),
-  setTargetBid: (cid, tid, bid) => set((s: any) => ({
-    state: { ...s.state, campaigns: s.state.campaigns.map((c: any) => c.id === cid ? setTargetBid(c, tid, bid) : c) },
-  })),
-  adjustTargetBid: (cid, tid, mult) => set((s: any) => ({
-    state: { ...s.state, campaigns: s.state.campaigns.map((c: any) => c.id === cid ? adjustTargetBid(c, tid, mult) : c) },
-  })),
-  pauseTarget: (cid, tid) => set((s: any) => ({
-    state: { ...s.state, campaigns: s.state.campaigns.map((c: any) => c.id === cid ? pauseTarget(c, tid) : c) },
-  })),
-  setTargetStatus: (cid, tid, status) => set((s: any) => ({
-    state: { ...s.state, campaigns: s.state.campaigns.map((c: any) => c.id === cid ? setTargetStatus(c, tid, status) : c) },
-  })),
+  addKeyword: campaignMutatorObj<[string, MatchType, number, string?]>(set, addKeyword),
+  addAutoTarget: campaignMutatorObj<['close match' | 'loose match' | 'substitutes' | 'complements', number, string?]>(set, addAutoTarget),
+  addAsinTarget: campaignMutatorObj<[string, number, string?]>(set, addAsinTarget),
+  addCategoryTarget: campaignMutatorObj<[string, number, string?]>(set, addCategoryTarget),
+  removeTarget: campaignMutator<[string]>(set, removeTarget),
+  setTargetBid: campaignMutator<[string, number]>(set, setTargetBid),
+  adjustTargetBid: campaignMutator<[string, number]>(set, adjustTargetBid),
+  pauseTarget: campaignMutator<[string]>(set, pauseTarget),
+  setTargetStatus: campaignMutator<[string, CampaignStatus]>(set, setTargetStatus),
 });

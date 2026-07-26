@@ -21,7 +21,6 @@ import {
   createPortfolio, renamePortfolio, deletePortfolio, assignCampaignToPortfolio,
   addBudgetRule, removeBudgetRule, updateBudgetRule,
   normalizeCampaign, portfolioNames, selectProduct, removeProduct, parseKeywords,
-  mobileMenuReducer, type MobileMenuState, type MobileMenuAction,
 } from './core/engine';
 import { defaultCampaigns } from './core/scenarios';
 import type { DrillsSlice } from './features/drills/store';
@@ -39,7 +38,7 @@ import { createMissionsSlice } from './features/missions/store';
 import type { IntegritySlice } from './features/integrity/store';
 import { createIntegritySlice } from './features/integrity/store';
 import {
-  createCoreSlice, type CoreSlice, makeDraft,
+  createCoreSlice, type CoreSlice,
 } from './core/slices/core';
 import {
   createTargetSlice, type TargetSlice,
@@ -60,6 +59,7 @@ import {
 import {
   createDraftSlice, type DraftSlice,
 } from './core/slices/draft';
+import { makeDraft } from './core/slices/draft';
 
 // ---------------------------------------------------------------------------
 // Combined store type

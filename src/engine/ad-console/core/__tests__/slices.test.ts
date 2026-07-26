@@ -88,7 +88,6 @@ describe('CoreSlice', () => {
     getStore().toggleMobileMenu();
     getStore().openMobileMenu();
     getStore().closeMobileMenu();
-    getStore().mobileMenuAnimationEnd();
   });
 
   it('resetAll restores initial state', () => {
