@@ -1,11 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { Check } from '@phosphor-icons/react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
-import type { CampaignType, CampaignDraft } from '@/engine/ad-console/types';
-import { PRODUCTS, BRANDS } from '@/engine/ad-console/core/scenarios';
 
 // Step components
 import { Step1AdType } from './Step1AdType';
@@ -39,27 +36,8 @@ export function CreateCampaignWizard() {
   const launchCampaign = useAdConsoleStore((s) => s.launchCampaign);
   const resetDraft = useAdConsoleStore((s) => s.resetDraft);
   const setView = useAdConsoleStore((s) => s.setView);
-  const selectProductAction = useAdConsoleStore((s) => s.selectProduct);
-  const removeProductAction = useAdConsoleStore((s) => s.removeProduct);
 
   const d = draft;
-
-  // Local state for forms
-  const [exactKeywords, setExactKeywords] = useState(d.exactKeywords || '');
-  const [phraseKeywords, setPhraseKeywords] = useState(d.phraseKeywords || '');
-  const [broadKeywords, setBroadKeywords] = useState(d.broadKeywords || '');
-  const [asinTargets, setAsinTargets] = useState(d.asinTargets || '');
-  const [categoryTargets, setCategoryTargets] = useState(d.categoryTargets || '');
-  const [audienceTargets, setAudienceTargets] = useState(d.audienceTargets || '');
-  const [audienceLookback, setAudienceLookback] = useState(d.audienceLookback || '30');
-
-  // SB-specific state
-  const [storeUrl, setStoreUrl] = useState(d.creative.destination || '');
-  const [brandId, setBrandId] = useState(d.creative.brandName ? BRANDS.find(b => b.name === d.creative.brandName)?.id || '' : '');
-  const [logo, setLogo] = useState(d.creative.logo || '');
-  const [headline, setHeadline] = useState(d.creative.headline || '');
-  const [image, setImage] = useState(d.creative.image || '');
-  const [video, setVideo] = useState(d.creative.video || '');
 
   const isComplete = (step: number) => wizardStep > step;
   const isActive = (step: number) => wizardStep === step;
