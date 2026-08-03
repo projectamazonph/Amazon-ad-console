@@ -1,0 +1,508 @@
+# Instincts generated from https://github.com/projectamazonph/Amazon-ad-console
+# Generated: 2026-08-03T07:49:06.139Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: Amazon-ad-console-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: fix
+
+## Evidence
+
+- 13 commits analyzed
+- Detected conventional commit pattern
+- Examples: fix: persist all feature-slice state, not just core state, fix: duplicateCampaign no longer collapses multi-ad-group targets
+
+---
+id: Amazon-ad-console-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Commit Length
+
+## Action
+
+Write moderate-length commit messages (~63 characters)
+
+## Evidence
+
+- Average commit message length: 63 chars
+- Based on 13 commits
+
+---
+id: Amazon-ad-console-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Naming Files
+
+## Action
+
+Use camelCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: camelCase
+
+---
+id: Amazon-ad-console-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: Amazon-ad-console-arch-type-based
+trigger: "when adding new code"
+confidence: 0.8
+domain: architecture
+source: repo-analysis
+source_repo: https://github.com/projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Arch Type Based
+
+## Action
+
+Place code in the appropriate type folder (components/, services/, utils/, etc.)
+
+## Evidence
+
+- Type-based module organization detected
+- Folders: app, engine, lib
+
+---
+id: Amazon-ad-console-test-framework
+trigger: "when writing tests"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Test Framework
+
+## Action
+
+Use vitest as the test framework
+
+## Evidence
+
+- Test framework detected: vitest
+- File pattern: *.test.ts
+
+---
+id: Amazon-ad-console-test-naming
+trigger: "when creating a test file"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Test Naming
+
+## Action
+
+Name test files using the pattern: *.test.ts
+
+## Evidence
+
+- File pattern: *.test.ts
+- Consistent across test files
+
+---
+id: Amazon-ad-console-test-mocking
+trigger: "when mocking dependencies in tests"
+confidence: 0.75
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Test Mocking
+
+## Action
+
+Use vi.mock for mocking
+
+## Evidence
+
+- Mocking pattern detected: vi.mock
+- Consistent across test files
+
+---
+id: Amazon-ad-console-test-types
+trigger: "when planning tests for a feature"
+confidence: 0.7
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Test Types
+
+## Action
+
+Write unit, integration tests to match project standards
+
+## Evidence
+
+- Test types detected: unit, integration
+- Coverage config: no
+
+---
+id: Amazon-ad-console-workflow-engine-bugfix-with-test
+trigger: "when doing engine bugfix with test"
+confidence: 0.7
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Workflow Engine Bugfix With Test
+
+## Action
+
+Follow the engine-bugfix-with-test workflow:
+1. Identify and fix the bug in the relevant engine or feature file (e.g., core/engine/*.ts, features/*/engine.ts, features/*/store.ts).
+2. Add or update a test in the corresponding __tests__ directory to cover the fixed behavior.
+3. Commit both the implementation and the test together.
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~4x per month
+- Files: src/engine/ad-console/core/engine/*.ts, src/engine/ad-console/features/*/engine.ts, src/engine/ad-console/features/*/store.ts
+
+---
+id: Amazon-ad-console-workflow-api-route-bugfix-with-test
+trigger: "when doing api route bugfix with test"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Workflow Api Route Bugfix With Test
+
+## Action
+
+Follow the api-route-bugfix-with-test workflow:
+1. Fix the bug in the relevant API route file (e.g., /api/*/route.ts).
+2. Add or update a test in the corresponding __tests__ directory for that route.
+3. Commit both the route and its test together.
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: src/app/api/*/route.ts, src/app/api/*/__tests__/route.test.ts
+
+---
+id: amazon-ad-console-instinct-file-naming
+trigger: "When creating a new file in the codebase"
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct File Naming
+
+## Action
+
+Name the file using camelCase
+
+## Evidence
+
+- Pattern in namingConventions.files
+- Observed in src/app, src/engine, src/lib
+
+---
+id: amazon-ad-console-instinct-function-naming
+trigger: "When defining a new function"
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Function Naming
+
+## Action
+
+Use camelCase for the function name
+
+## Evidence
+
+- Pattern in namingConventions.functions
+
+---
+id: amazon-ad-console-instinct-class-naming
+trigger: "When creating a new class"
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Class Naming
+
+## Action
+
+Use PascalCase for the class name
+
+## Evidence
+
+- Pattern in namingConventions.classes
+
+---
+id: amazon-ad-console-instinct-constant-naming
+trigger: "When declaring a constant"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Constant Naming
+
+## Action
+
+Use SCREAMING_SNAKE_CASE for the constant name
+
+## Evidence
+
+- Pattern in namingConventions.constants
+
+---
+id: amazon-ad-console-instinct-import-style
+trigger: "When importing modules"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Import Style
+
+## Action
+
+Use a mixed import style as appropriate for the context
+
+## Evidence
+
+- Pattern in importStyle: mixed
+- Seen in various src files
+
+---
+id: amazon-ad-console-instinct-export-style
+trigger: "When exporting modules or functions"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Pattern in exportStyle: named
+
+---
+id: amazon-ad-console-instinct-test-file-pattern
+trigger: "When adding a new test file"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Test File Pattern
+
+## Action
+
+Name the test file with the pattern *.test.ts
+
+## Evidence
+
+- Pattern in testing.filePattern
+- Files in __tests__ directories
+
+---
+id: amazon-ad-console-instinct-test-framework
+trigger: "When writing tests"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Test Framework
+
+## Action
+
+Use the vitest framework
+
+## Evidence
+
+- Pattern in testing.framework
+- Seen in test imports
+
+---
+id: amazon-ad-console-instinct-mocking
+trigger: "When mocking dependencies in tests"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Mocking
+
+## Action
+
+Use vi.mock for mocking
+
+## Evidence
+
+- Pattern in testing.mockingStyle
+
+---
+id: amazon-ad-console-instinct-test-type
+trigger: "When deciding on test granularity"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Test Type
+
+## Action
+
+Write both unit and integration tests as appropriate
+
+## Evidence
+
+- Pattern in testing.testTypes
+
+---
+id: amazon-ad-console-instinct-git-commit-format
+trigger: "When making a commit"
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Git Commit Format
+
+## Action
+
+Use the conventional commit format with a prefix (e.g., fix: ...)
+
+## Evidence
+
+- Pattern in commits.type: conventional
+- Examples: fix: ...
+
+---
+id: amazon-ad-console-instinct-git-commit-length
+trigger: "When writing a commit message"
+confidence: 0.7
+domain: git
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Git Commit Length
+
+## Action
+
+Keep the commit message concise, around 60 characters
+
+## Evidence
+
+- Pattern in commits.averageLength: 63
+
+---
+id: amazon-ad-console-instinct-engine-bugfix-workflow
+trigger: "When a bug is found in core engine or feature logic"
+confidence: 0.95
+domain: workflow
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Engine Bugfix Workflow
+
+## Action
+
+Fix the bug and add or update a test in the corresponding __tests__ directory; commit both together
+
+## Evidence
+
+- Workflow: engine-bugfix-with-test
+- Files: src/engine/ad-console/core/engine/*.ts, __tests__/*.test.ts
+
+---
+id: amazon-ad-console-instinct-api-route-bugfix-workflow
+trigger: "When a bug is found in an API route handler"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: projectamazonph/Amazon-ad-console
+---
+
+# Amazon Ad Console Instinct Api Route Bugfix Workflow
+
+## Action
+
+Fix the bug and add or update a test in the corresponding __tests__ directory; commit both together
+
+## Evidence
+
+- Workflow: api-route-bugfix-with-test
+- Files: src/app/api/*/route.ts, __tests__/route.test.ts
+
