@@ -157,9 +157,9 @@ export function getNegativeCandidates(
   searchTerms: SearchTerm[],
   opts: SearchTermFilterOptions = {},
 ): SearchTerm[] {
-  const { minSpend = 10, minClicks = 5, maxAcos = 50, minOrders = 0 } = opts;
+  const { minSpend = 10, minClicks = 5, maxAcos = 50, minOrders = 1 } = opts;
   return searchTerms.filter((st) => {
-    if (st.orders >= minOrders && st.sales > 0) return false;
+    if (st.orders >= minOrders) return false; // Already converting — don't blanket-negate
     if (st.clicks < minClicks) return false;
     if (st.spend < minSpend) return false;
     const acos = st.sales > 0 ? (st.spend / st.sales) * 100 : 100;

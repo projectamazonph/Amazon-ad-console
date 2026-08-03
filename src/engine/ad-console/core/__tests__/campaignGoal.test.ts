@@ -4,8 +4,29 @@ import {
   simulateDays,
   updateCampaignSettings,
   isFilteredByNegative,
+  getNegativeCandidates,
+  getHarvestCandidates,
 } from '../engine';
-import type { Campaign, Negative, Metrics } from '../types';
+import type { Campaign, Negative, Metrics, SearchTerm } from '../types';
+
+function makeSearchTerm(over: Partial<SearchTerm> = {}): SearchTerm {
+  return {
+    id: over.id ?? 'ST1',
+    campaignId: 'C1',
+    adGroupId: 'AG1',
+    term: over.term ?? 'test term',
+    targetId: 'T1',
+    targetValue: 'test',
+    targetType: 'Keyword',
+    matchType: 'Broad',
+    impressions: over.impressions ?? 1000,
+    clicks: over.clicks ?? 20,
+    spend: over.spend ?? 50,
+    sales: over.sales ?? 0,
+    orders: over.orders ?? 0,
+    ...over,
+  };
+}
 
 function makeCampaign(over: Partial<Campaign> = {}): Campaign {
   return {
@@ -128,6 +149,50 @@ describe('isFilteredByNegative', () => {
       { id: 'N2', campaignId: 'C1', adGroupId: 'AG1', type: 'Negative phrase', value: 'plastic' },
     ];
     expect(isFilteredByNegative('plastic filter', negatives)).toBe(true);
+  });
+});
+
+describe('getNegativeCandidates', () => {
+  it('flags a term with catastrophic ACOS and zero orders', () => {
+    const st = makeSearchTerm({ spend: 500, sales: 1, orders: 0, clicks: 20 });
+    expect(getNegativeCandidates([st])).toEqual([st]);
+  });
+
+  it('flags a term with spend but zero sales at all (acos treated as maximal)', () => {
+    const st = makeSearchTerm({ spend: 50, sales: 0, orders: 0, clicks: 20 });
+    expect(getNegativeCandidates([st])).toEqual([st]);
+  });
+
+  it('protects a term that has already converted (orders >= minOrders), regardless of current ACOS', () => {
+    const st = makeSearchTerm({ spend: 500, sales: 1, orders: 1, clicks: 20 });
+    expect(getNegativeCandidates([st])).toEqual([]);
+  });
+
+  it('does not flag a term within the acceptable ACOS threshold', () => {
+    const st = makeSearchTerm({ spend: 20, sales: 100, orders: 0, clicks: 20 });
+    expect(getNegativeCandidates([st])).toEqual([]);
+  });
+
+  it('does not flag a term below the minClicks/minSpend thresholds', () => {
+    const st = makeSearchTerm({ spend: 1, sales: 0, orders: 0, clicks: 1 });
+    expect(getNegativeCandidates([st])).toEqual([]);
+  });
+});
+
+describe('getHarvestCandidates', () => {
+  it('flags a term with good ACOS but no orders yet', () => {
+    const st = makeSearchTerm({ spend: 20, sales: 100, orders: 0, clicks: 20 });
+    expect(getHarvestCandidates([st])).toEqual([st]);
+  });
+
+  it('excludes a term that has already converted', () => {
+    const st = makeSearchTerm({ spend: 20, sales: 100, orders: 1, clicks: 20 });
+    expect(getHarvestCandidates([st])).toEqual([]);
+  });
+
+  it('excludes a term with poor ACOS', () => {
+    const st = makeSearchTerm({ spend: 500, sales: 100, orders: 0, clicks: 20 });
+    expect(getHarvestCandidates([st])).toEqual([]);
   });
 });
 
