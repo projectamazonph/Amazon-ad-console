@@ -37,8 +37,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
+    // Case-insensitive check so a legacy mixed-case row (from before email
+    // normalization) still counts as a duplicate — the DB's unique
+    // constraint is case-sensitive and wouldn't catch it on its own.
+    const existingUser = await prisma.user.findFirst({
+      where: { email: { equals: normalizedEmail, mode: 'insensitive' } },
     });
 
     if (existingUser) {

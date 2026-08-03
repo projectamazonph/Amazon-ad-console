@@ -9,7 +9,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const { prismaMock, bcryptMock } = vi.hoisted(() => ({
   prismaMock: {
     user: {
-      findUnique: vi.fn(),
+      findFirst: vi.fn(),
       create: vi.fn(),
     },
   },
@@ -38,7 +38,7 @@ function makeRequest(body: unknown): Request {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  prismaMock.user.findUnique.mockResolvedValue(null);
+  prismaMock.user.findFirst.mockResolvedValue(null);
   prismaMock.user.create.mockResolvedValue({ id: 'user-1' });
   bcryptMock.hash.mockResolvedValue('hashed');
 });
@@ -64,7 +64,9 @@ describe('POST /api/auth/register', () => {
 
   it('normalizes email casing/whitespace before checking for an existing user', async () => {
     await POST(makeRequest({ email: '  Foo@Example.COM  ', password: 'longenough' }));
-    expect(prismaMock.user.findUnique).toHaveBeenCalledWith({ where: { email: 'foo@example.com' } });
+    expect(prismaMock.user.findFirst).toHaveBeenCalledWith({
+      where: { email: { equals: 'foo@example.com', mode: 'insensitive' } },
+    });
   });
 
   it('stores the normalized email, not the raw input casing', async () => {
@@ -74,7 +76,7 @@ describe('POST /api/auth/register', () => {
   });
 
   it('treats a case-variant of an existing email as a duplicate', async () => {
-    prismaMock.user.findUnique.mockResolvedValueOnce({ id: 'existing-user' });
+    prismaMock.user.findFirst.mockResolvedValueOnce({ id: 'existing-user' });
     const res = await POST(makeRequest({ email: 'FOO@example.com', password: 'longenough' }));
     expect(res.status).toBe(400);
     expect(prismaMock.user.create).not.toHaveBeenCalled();
