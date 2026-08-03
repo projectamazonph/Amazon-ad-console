@@ -149,8 +149,16 @@
   color-scheme: light;
 }
 
-/* Reset */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* Reset
+ * NOTE: padding is intentionally NOT zeroed on `*`. Astryx components ship
+ * their own padding as StyleX classes inside `@layer astryx-base`/
+ * `@layer astryx-theme`; per the CSS cascade-layers spec, ANY unlayered
+ * declaration beats a layered one regardless of specificity. A blanket
+ * `* { padding: 0 }` here (unlayered) was silently zeroing out every
+ * Astryx `padding` prop (Card, etc.) sitewide. Reset padding only on the
+ * couple of native elements that actually need it. */
+*, *::before, *::after { box-sizing: border-box; margin: 0; }
+ul, ol { padding: 0; }
 
 html {
   font-family: var(--font-body);
