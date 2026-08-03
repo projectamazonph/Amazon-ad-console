@@ -6,8 +6,10 @@
 import type { Campaign, Metrics, SearchTerm } from './types';
 import { generateId, metricDefaults, isFilteredByNegative } from './engine';
 import { generateSearchTermsForTarget } from './engine/search-term-generator';
+import { assertFiniteNonNegative } from '../../../lib/validation';
 
 export function simulateDays(campaigns: Campaign[], days: number = 7): Campaign[] {
+  assertFiniteNonNegative('days', days);
   const avgPrice = 29.99;
   return campaigns.map((c) => {
     if (c.status !== 'Enabled') return c;
