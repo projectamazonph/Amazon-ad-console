@@ -86,7 +86,7 @@ export async function PUT(
   }
 
   const campaign = await prisma.campaign.update({
-    where: { id },
+    where: { id, userId: session.user.id },
     data: updateData,
   });
 
@@ -116,7 +116,7 @@ export async function DELETE(
   }
 
   await prisma.campaign.delete({
-    where: { id },
+    where: { id, userId: session.user.id },
   });
 
   return NextResponse.json({ message: 'Deleted' });
