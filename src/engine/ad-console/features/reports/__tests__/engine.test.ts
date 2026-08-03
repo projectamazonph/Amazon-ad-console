@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { createReportRequest, generateReport, reportToCsv } from '../engine';
 import type { ReportType } from '../types';
 
@@ -13,6 +13,19 @@ describe('createReportRequest', () => {
 
   it('fails fast on unknown report type', () => {
     expect(() => createReportRequest('bogus' as ReportType)).toThrow();
+  });
+
+  it('assigns unique ids even when created within the same millisecond, including across createReportRequest and generateReport', () => {
+    const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(1700000000000);
+    try {
+      const reqA = createReportRequest('campaign');
+      const reqB = createReportRequest('target');
+      const report = generateReport('campaign');
+      const ids = [reqA.id, reqB.id, report.id];
+      expect(new Set(ids).size).toBe(ids.length);
+    } finally {
+      nowSpy.mockRestore();
+    }
   });
 });
 

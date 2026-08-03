@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { runIntegrityCheck } from '../engine';
 import type { Campaign } from '../../../core/types';
 
@@ -113,5 +113,25 @@ describe('runIntegrityCheck', () => {
 
   it('fails fast when campaigns is not an array', () => {
     expect(() => runIntegrityCheck(null as unknown as Campaign[])).toThrow();
+  });
+
+  it('assigns unique issue ids even when generated within the same millisecond', () => {
+    const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(1700000000000);
+    try {
+      const report = runIntegrityCheck([
+        baseCampaign({
+          status: 'Archived',
+          targets: [
+            { id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'a', match: 'Exact', bid: 0.75, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+            { id: 'T2', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'b', match: 'Exact', bid: 0.75, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+            { id: 'T3', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'c', match: 'Exact', bid: 0.75, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+          ],
+        }),
+      ]);
+      const ids = report.issues.map((i) => i.id);
+      expect(new Set(ids).size).toBe(ids.length);
+    } finally {
+      nowSpy.mockRestore();
+    }
   });
 });

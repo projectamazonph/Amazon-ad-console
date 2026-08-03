@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   createProfile,
   switchProfile,
@@ -16,6 +16,17 @@ describe('createProfile', () => {
   });
   it('falls back to a default name when blank', () => {
     expect(createProfile('   ').name).toBe('Trainee');
+  });
+
+  it('assigns unique ids even when created within the same millisecond', () => {
+    const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(1700000000000);
+    try {
+      const a = createProfile('Ana');
+      const b = createProfile('Ben');
+      expect(a.id).not.toBe(b.id);
+    } finally {
+      nowSpy.mockRestore();
+    }
   });
 });
 

@@ -171,6 +171,21 @@ describe('simulateDays', () => {
     expect(terms.length).toBe(unique.size);
   });
 
+  it('does not re-add duplicate search terms across repeated simulateDays runs', () => {
+    const c = makeCampaign({
+      targets: [
+        { id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'coffee', match: 'Broad', bid: 1, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+      ],
+    });
+    const [firstRun] = simulateDays([c], 7);
+    const [secondRun] = simulateDays([firstRun], 7);
+    const terms = secondRun.searchTerms.map(st => st.term);
+    const unique = new Set(terms);
+    expect(terms.length).toBe(unique.size);
+    // The second run should carry forward the first run's terms, not duplicate them.
+    expect(secondRun.searchTerms.length).toBeGreaterThanOrEqual(firstRun.searchTerms.length);
+  });
+
   it('fails fast on a negative days value instead of corrupting metrics', () => {
     const c = makeCampaign();
     expect(() => simulateDays([c], -7)).toThrow();

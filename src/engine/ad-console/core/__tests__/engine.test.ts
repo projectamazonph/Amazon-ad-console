@@ -27,6 +27,7 @@ import {
   campaignById,
   totalMetrics,
   normalizeCampaign,
+  isVideoFormat,
 } from '../engine';
 import type { Campaign, CampaignType, CampaignStatus, Metrics, Target, SearchTerm, Negative } from '../types';
 
@@ -339,5 +340,30 @@ describe('campaign creation flow', () => {
     expect(campaign.targets).toHaveLength(2);
     expect(campaign.targets[0].value).toBe('coffee filter');
     expect(campaign.targets[1].value).toBe('coffee maker');
+  });
+});
+
+describe('isVideoFormat', () => {
+  it('is true for an SB campaign with adFormat "Video"', () => {
+    expect(isVideoFormat('SB', 'Video')).toBe(true);
+  });
+
+  it('is false for an SB campaign with any other adFormat', () => {
+    expect(isVideoFormat('SB', 'Product collection')).toBe(false);
+    expect(isVideoFormat('SB', undefined)).toBe(false);
+  });
+
+  it('is true for an SD campaign with adFormat "Video creative"', () => {
+    expect(isVideoFormat('SD', 'Video creative')).toBe(true);
+  });
+
+  it('is false for an SD campaign with any other adFormat', () => {
+    expect(isVideoFormat('SD', 'Video')).toBe(false);
+    expect(isVideoFormat('SD', undefined)).toBe(false);
+  });
+
+  it('is false for SP regardless of adFormat', () => {
+    expect(isVideoFormat('SP', 'Video')).toBe(false);
+    expect(isVideoFormat('SP', undefined)).toBe(false);
   });
 });
