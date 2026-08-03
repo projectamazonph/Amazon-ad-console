@@ -23,6 +23,10 @@ export const createTrainerSlice: StateCreator<TrainerSlice> = (set, get) => ({
   certificationChecklist: DEFAULT_CERTIFICATION.map((c) => ({ ...c })),
 
   addNote: (text) => {
+    // addNote throws on blank input (fail-fast engine convention) — guard
+    // here so a blank submission is a no-op instead of an uncaught error
+    // inside the set() updater.
+    if (!text.trim()) return;
     set((s) => ({ notes: [addNote(text), ...s.notes] }));
   },
 

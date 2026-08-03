@@ -34,6 +34,10 @@ export const createProfilesSlice: StateCreator<ProfilesSlice> = (set, get) => ({
   },
 
   renameProfile: (id, name) => {
+    // renameProfile throws on blank input (fail-fast engine convention) —
+    // guard here so a blank name is a no-op instead of an uncaught error
+    // inside the set() updater.
+    if (!name.trim()) return;
     set((s) => ({
       profiles: renameProfile(s.profiles, id, name),
     }));
