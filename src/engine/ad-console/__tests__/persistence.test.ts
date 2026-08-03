@@ -50,3 +50,28 @@ describe('export/import state', () => {
     expect(typeof useAdConsoleStore.getState().state.version).toBe('string');
   });
 });
+
+describe('localStorage persistence (partialize)', () => {
+  it('includes feature-slice state, not just the core `state` field', async () => {
+    const { useAdConsoleStore } = await import('../store');
+    useAdConsoleStore.getState().createProfile('Alex');
+
+    const partialize = useAdConsoleStore.persist.getOptions().partialize!;
+    const persisted = partialize(useAdConsoleStore.getState()) as Record<string, unknown>;
+
+    expect(persisted.state).toBeDefined();
+    expect(persisted.profiles).toBeDefined();
+    expect((persisted.profiles as { name: string }[]).some((p) => p.name === 'Alex')).toBe(true);
+    expect(persisted.activeProfileId).toBeDefined();
+  });
+
+  it('excludes functions from the persisted snapshot', async () => {
+    const { useAdConsoleStore } = await import('../store');
+    const partialize = useAdConsoleStore.persist.getOptions().partialize!;
+    const persisted = partialize(useAdConsoleStore.getState()) as Record<string, unknown>;
+
+    for (const value of Object.values(persisted)) {
+      expect(typeof value).not.toBe('function');
+    }
+  });
+});
