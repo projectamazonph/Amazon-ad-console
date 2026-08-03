@@ -18,21 +18,28 @@
 | `react` | ^19.0.0 | UI library |
 | `react-dom` | ^19.0.0 | React DOM renderer |
 | `zustand` | ^5.0.0 | State management |
-| `@prisma/client` | ^5.0.0 | Database ORM |
+| `@astryxdesign/core` | ^0.1.8 | UI component library (153 components) |
+| `@astryxdesign/theme-neutral` | ^0.1.8 | Astryx theme |
+| `@phosphor-icons/react` | ^2.1.10 | Icon set |
+| `@prisma/client` | ^7.8.0 | Database ORM |
+| `@prisma/adapter-neon` | ^7.8.0 | Postgres driver adapter (Neon) |
+| `@neondatabase/serverless` | ^1.1.0 | Neon serverless Postgres driver |
+| `prisma` | ^7.8.0 | Prisma CLI (also listed as a runtime dep; used by `postinstall`) |
 | `next-auth` | ^5.0.0-beta.31 | Authentication |
-| `bcryptjs` | ^2.4.3 | Password hashing |
-| `motion` | ^11.0.0 | Animation library |
+| `bcryptjs` | ^3.0.3 | Password hashing |
+| `motion` | ^12.42.2 | Animation library |
 
 ### Development
 
 | Package | Version | Purpose |
 |---------|---------|---------|
+| `@astryxdesign/cli` | ^0.1.8 | Astryx component/token discovery CLI |
 | `@types/node` | ^22.0.0 | Node.js type definitions |
 | `@types/react` | ^19.0.0 | React type definitions |
 | `@types/react-dom` | ^19.0.0 | ReactDOM type definitions |
-| `@types/bcryptjs` | ^2.4.0 | bcryptjs type definitions |
+| `@types/bcryptjs` | ^2.4.6 | bcryptjs type definitions |
 | `typescript` | ~5.8.0 | TypeScript compiler |
-| `prisma` | ^5.0.0 | Prisma CLI |
+| `dotenv` | ^17.4.2 | Loads `.env` for `prisma.config.ts` |
 | `vitest` | ^4.1.10 | Test runner |
 | `@vitest/coverage-v8` | ^4.1.10 | Code coverage |
 | `@playwright/test` | ^1.61.1 | E2E testing |
@@ -40,7 +47,7 @@
 | `@testing-library/user-event` | ^14.6.1 | User interaction simulation |
 | `jsdom` | ^29.1.1 | DOM implementation for tests |
 
-**Total runtime dependency count: 8** (next, react, react-dom, zustand, @prisma/client, next-auth, bcryptjs, motion)
+See `package.json` for the authoritative, exact version list — this table is a point-in-time summary and will drift as dependencies are bumped.
 
 ## TypeScript Configuration
 
@@ -101,9 +108,13 @@ AUTH_SECRET="your-secret-key-here"
 
 ### Database Commands
 ```bash
+# Local development
 npx prisma migrate dev --name init
 npx prisma generate
 npx prisma db push
+
+# Production deployment (CI/deploy pipelines — non-interactive, no schema drift prompts)
+npx prisma migrate deploy
 ```
 
 ## File Statistics

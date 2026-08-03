@@ -54,7 +54,7 @@ model Campaign {
 ### 1. Install Dependencies
 
 ```bash
-npm install prisma @prisma/client next-auth bcryptjs
+npm install prisma @prisma/client @prisma/adapter-neon @neondatabase/serverless next-auth bcryptjs
 npm install -D @types/bcryptjs
 ```
 
@@ -294,7 +294,7 @@ export function SyncButton() {
 ## Production Deployment
 
 ### Database
-`prisma/schema.prisma` targets Postgres (via `@prisma/adapter-neon`) in every environment, not just production — see `.env.example`:
+`prisma/schema.prisma` declares the `postgresql` datasource provider, used in every environment, not just production. The runtime connection (`DATABASE_URL` plus the `@prisma/adapter-neon` driver adapter) is wired up separately in `prisma.config.ts` / `src/lib/prisma.ts`, not in the schema itself — see `.env.example`:
 
 ```env
 DATABASE_URL="postgresql://user:password@host/dbname?sslmode=require"
@@ -330,7 +330,8 @@ AUTH_SECRET="strong-random-secret"   # generate with: openssl rand -base64 32
 - Verify AUTH_SECRET is set
 
 **Database connection errors**
-- Run `npx prisma migrate dev`
+- Local development: run `npx prisma migrate dev` to apply pending migrations
+- Production: run `npx prisma migrate deploy` instead (`migrate dev` is dev-only — it can prompt interactively and isn't safe for CI/deploy pipelines)
 - Check DATABASE_URL in .env points at a reachable Postgres instance
 
 ### Debug Mode

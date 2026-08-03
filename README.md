@@ -195,7 +195,9 @@ Amazon-ad-console/
 │   ├── INTEGRATION.md
 │   ├── TECH-SPECS.md
 │   ├── MOBILE_REDESIGN_PLAN.md
-│   └── AUTH.md                      # Multi-user authentication guide
+│   ├── AUTH.md                      # Multi-user authentication guide
+│   ├── DEPLOYMENT.md                # Vercel project setup and deploy process
+│   └── AUDIT-FOLLOWUPS.md           # Status of each audit finding, with PR links
 ├── CLAUDE.md                        # Architecture + conventions guide for Claude Code
 ├── CHANGELOG.md                     # Notable changes per release
 ├── .env.example                     # DATABASE_URL / AUTH_SECRET template
