@@ -38,7 +38,13 @@ export function Step6ReviewLaunch({ isActive, isComplete }: Step6ReviewLaunchPro
           {d.exactKeywords && <div className="review-row"><span>Exact keywords</span><strong>{d.exactKeywords.split('\n').filter(Boolean).length} entered</strong></div>}
           {d.phraseKeywords && <div className="review-row"><span>Phrase keywords</span><strong>{d.phraseKeywords.split('\n').filter(Boolean).length} entered</strong></div>}
           {d.broadKeywords && <div className="review-row"><span>Broad keywords</span><strong>{d.broadKeywords.split('\n').filter(Boolean).length} entered</strong></div>}
-          {d.audienceLookback && <div className="review-row"><span>Lookback</span><strong>{d.audienceLookback} days</strong></div>}
+          {d.asinTargets && <div className="review-row"><span>ASIN targets</span><strong>{d.asinTargets.split('\n').filter(Boolean).length} entered</strong></div>}
+          {d.categoryTargets && <div className="review-row"><span>Category targets</span><strong>{d.categoryTargets.split('\n').filter(Boolean).length} entered</strong></div>}
+          {d.targetingMode.includes('Audiences') && d.audienceTargets && <div className="review-row"><span>Audience targets</span><strong>{d.audienceTargets.split('\n').filter(Boolean).length} entered</strong></div>}
+          {d.targetingMode.includes('Audiences') && <div className="review-row"><span>Lookback</span><strong>{d.audienceLookback} days</strong></div>}
+          {d.creative.headline && <div className="review-row"><span>Headline</span><strong>{d.creative.headline}</strong></div>}
+          {d.creative.brandName && <div className="review-row"><span>Brand</span><strong>{d.creative.brandName}</strong></div>}
+          {d.creative.destination && <div className="review-row"><span>Destination</span><strong>{d.creative.destination}</strong></div>}
         </div>
         {!d.name.trim() && <div className="coach-tip" style={{ marginTop: 10 }}>Campaign name is required before launch.</div>}
       </Card>

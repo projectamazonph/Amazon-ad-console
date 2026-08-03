@@ -7,11 +7,10 @@
 import type { Campaign } from '../../core/types';
 import type { IntegrityIssue, IntegrityReport } from './types';
 import { ValidationError } from '../../../../lib/validation';
+import { generateId } from '../../core/engine/id';
 
-let _counter = 0;
 function uid(): string {
-  _counter++;
-  return 'II-' + Date.now().toString(36) + '-' + _counter;
+  return generateId('II');
 }
 
 export function runIntegrityCheck(campaigns: Campaign[]): IntegrityReport {

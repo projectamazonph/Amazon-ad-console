@@ -2,7 +2,7 @@
  * Ad group CRUD operations.
  */
 import type { Campaign, CampaignStatus, AdGroup, ProductAd, Ad } from '../types';
-import { assertNonEmpty, assertFiniteNonNegative, ValidationError } from '../../../../lib/validation';
+import { assertNonEmpty, assertValidBid, ValidationError } from '../../../../lib/validation';
 import { generateId } from './id';
 
 export function addAdGroup(c: Campaign, name: string, defaultBid?: number): Campaign {
@@ -82,15 +82,15 @@ export function setAdGroupStatus(c: Campaign, adGroupId: string, status: Campaig
 }
 
 export function setAdGroupDefaultBid(c: Campaign, adGroupId: string, defaultBid: number): Campaign {
-  assertFiniteNonNegative('default bid', defaultBid);
+  assertValidBid('default bid', defaultBid);
   const ag = c.adGroups.find((a) => a.id === adGroupId);
   if (!ag) throw new ValidationError(`Unknown ad group: ${adGroupId}`);
   return {
     ...c,
     adGroups: c.adGroups.map((a) =>
-      a.id === adGroupId ? { ...a, defaultBid: Math.max(0.02, defaultBid) } : a,
+      a.id === adGroupId ? { ...a, defaultBid } : a,
     ),
-    history: [...c.history, `Ad group "${ag.name}" default bid -> $${Math.max(0.02, defaultBid).toFixed(2)}`],
+    history: [...c.history, `Ad group "${ag.name}" default bid -> $${defaultBid.toFixed(2)}`],
   };
 }
 

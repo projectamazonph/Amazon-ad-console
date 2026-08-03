@@ -36,7 +36,7 @@ export interface CoreSlice {
 }
 
 const coreState: AdConsoleState = {
-  version: '3.6',
+  version: '3.6.0',
   campaigns: defaultCampaigns(),
   filter: { type: 'All', status: 'All', portfolio: 'All', search: '' },
   selectedCampaignId: null,
@@ -67,7 +67,7 @@ export const createCoreSlice = (set: any, get: any, ..._rest: any[]): CoreSlice 
   launchCampaign: () => set((s: any) => {
     const d = s.draft;
     if (!d.name.trim()) return s;
-    const id = 'C-' + d.type + '-' + Date.now().toString(36);
+    const id = generateId('C-' + d.type);
     const agId = 'AG-' + id;
     const portfolioName = d.portfolio || 'Training Portfolio';
     const buildTargets = (raw: string, type: 'Keyword' | 'ASIN' | 'Category' | 'Audience - views remarketing', match?: any) =>

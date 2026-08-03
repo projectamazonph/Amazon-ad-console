@@ -5,7 +5,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { Table } from '@astryxdesign/core/Table';
 import { Card } from '@astryxdesign/core/Card';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
-import { calc, formatMoney, formatWhole, formatPercent, formatRoas, acosClass } from '@/engine/ad-console/core/engine';
+import { calc, totalMetrics as sumMetrics, formatMoney, formatWhole, formatPercent, formatRoas, acosClass } from '@/engine/ad-console/core/engine';
 
 export function PortfolioOverview() {
   const state = useAdConsoleStore((s) => s.state);
@@ -30,35 +30,11 @@ export function PortfolioOverview() {
     return Array.from(map.entries()).map(([name, camps]) => ({
       name,
       campaigns: camps,
-      metrics: camps.reduce(
-        (acc, c) => {
-          acc.impressions += c.metrics.impressions;
-          acc.clicks += c.metrics.clicks;
-          acc.spend += c.metrics.spend;
-          acc.sales += c.metrics.sales;
-          acc.orders += c.metrics.orders;
-          return acc;
-        },
-        { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
-      ),
+      metrics: sumMetrics(camps),
     }));
   }, [state.campaigns]);
 
-  const totalMetrics = useMemo(
-    () =>
-      state.campaigns.reduce(
-        (acc, c) => {
-          acc.impressions += c.metrics.impressions;
-          acc.clicks += c.metrics.clicks;
-          acc.spend += c.metrics.spend;
-          acc.sales += c.metrics.sales;
-          acc.orders += c.metrics.orders;
-          return acc;
-        },
-        { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
-      ),
-    [state.campaigns],
-  );
+  const totalMetrics = useMemo(() => sumMetrics(state.campaigns), [state.campaigns]);
 
   const totalDerived = calc(totalMetrics);
 
@@ -119,36 +95,38 @@ export function PortfolioOverview() {
         portfolios.map((pf) => {
           const x = calc(pf.metrics);
           return (
-            <Card key={pf.name} variant="default" padding={6} style={{ marginBottom: 'var(--space-4)' }}>
-              <div className="card-title">
-                {manageMode ? (
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', flex: 1 }}>
-                    <label htmlFor={`po-rename-${pf.name}`} className="visually-hidden">Portfolio name</label>
-                    <input id={`po-rename-${pf.name}`} className="input" style={{ fontWeight: 600, flex: 1 }}
-                      value={renameMap[pf.name] ?? pf.name}
-                      onChange={(e) => setRenameMap((m) => ({ ...m, [pf.name]: e.target.value }))}
-                      onBlur={(e) => {
-                        const v = e.target.value.trim();
-                        if (v && v !== pf.name) renamePortfolio(pf.name, v);
+            <div key={pf.name} style={{ marginBottom: 'var(--space-4)' }}>
+              <Card variant="default" padding={6}>
+                <div className="card-title">
+                  {manageMode ? (
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', flex: 1 }}>
+                      <label htmlFor={`po-rename-${pf.name}`} className="visually-hidden">Portfolio name</label>
+                      <input id={`po-rename-${pf.name}`} className="input" style={{ fontWeight: 600, flex: 1 }}
+                        value={renameMap[pf.name] ?? pf.name}
+                        onChange={(e) => setRenameMap((m) => ({ ...m, [pf.name]: e.target.value }))}
+                        onBlur={(e) => {
+                          const v = e.target.value.trim();
+                          if (v && v !== pf.name) renamePortfolio(pf.name, v);
+                        }} />
+                      <span className="muted">{pf.campaigns.length} campaign{pf.campaigns.length !== 1 ? 's' : ''}</span>
+                      <Button label="Delete" variant="destructive" size="sm" onClick={() => {
+                        if (confirm(`Remove portfolio "${pf.name}"? Campaigns will be unassigned.`)) deletePortfolio(pf.name);
                       }} />
-                    <span className="muted">{pf.campaigns.length} campaign{pf.campaigns.length !== 1 ? 's' : ''}</span>
-                    <Button label="Delete" variant="destructive" size="sm" onClick={() => {
-                      if (confirm(`Remove portfolio "${pf.name}"? Campaigns will be unassigned.`)) deletePortfolio(pf.name);
-                    }} />
-                  </div>
-                ) : (
-                  <>
-                    <h2>{pf.name}</h2>
-                    <span>{pf.campaigns.length} campaign{pf.campaigns.length !== 1 ? 's' : ''}</span>
-                  </>
-                )}
-              </div>
-              <div className="grid-4" style={{ marginBottom: 12 }}>
-                <div><span className="muted">Spend</span><div style={{ fontWeight: 600 }}>{formatMoney(pf.metrics.spend)}</div></div>
-                <div><span className="muted">Sales</span><div style={{ fontWeight: 600 }}>{formatMoney(pf.metrics.sales)}</div></div>
-                <div><span className={`mono ${acosClass(x.acos)}`} style={{ fontWeight: 600 }}>{formatPercent(x.acos)}</span><div className="muted">ACOS</div></div>
-                <div><span style={{ fontWeight: 600 }}>{formatRoas(x.roas)}</span><div className="muted">ROAS</div></div>
-              </div>
+                    </div>
+                  ) : (
+                    <>
+                      <h2>{pf.name}</h2>
+                      <span>{pf.campaigns.length} campaign{pf.campaigns.length !== 1 ? 's' : ''}</span>
+                    </>
+                  )}
+                </div>
+                <div className="grid-4">
+                  <div><span className="muted">Spend</span><div style={{ fontWeight: 600 }}>{formatMoney(pf.metrics.spend)}</div></div>
+                  <div><span className="muted">Sales</span><div style={{ fontWeight: 600 }}>{formatMoney(pf.metrics.sales)}</div></div>
+                  <div><span className={`mono ${acosClass(x.acos)}`} style={{ fontWeight: 600 }}>{formatPercent(x.acos)}</span><div className="muted">ACOS</div></div>
+                  <div><span style={{ fontWeight: 600 }}>{formatRoas(x.roas)}</span><div className="muted">ROAS</div></div>
+                </div>
+              </Card>
               <Table>
                   <thead>
                     <tr>
@@ -162,8 +140,8 @@ export function PortfolioOverview() {
                       return (
                         <tr key={c.id}>
                           <td>
-                            <button onClick={() => selectCampaign(c.id)}
-                              style={{ border: 'none', background: 'none', color: 'var(--blue)', cursor: 'pointer', fontWeight: 500 }}>
+                            <button className="row-link" onClick={() => selectCampaign(c.id)}
+                              style={{ border: 'none', background: 'none', color: 'var(--blue)', cursor: 'pointer', fontWeight: 500, textAlign: 'left' }}>
                               {c.name}
                             </button>
                           </td>
@@ -191,7 +169,7 @@ export function PortfolioOverview() {
                     })}
                   </tbody>
                 </Table>
-            </Card>
+            </div>
           );
         })
       )}

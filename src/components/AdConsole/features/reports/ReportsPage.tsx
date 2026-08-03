@@ -6,6 +6,7 @@ import { Card } from '@astryxdesign/core/Card';
 import { CheckCircle, XCircle } from '@phosphor-icons/react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent } from '@/engine/ad-console/core/engine';
+import { EmptyState } from '../../details/EmptyState';
 
 export function ReportsPage() {
   const requests = useAdConsoleStore((s) => s.reportQueue);
@@ -67,12 +68,12 @@ export function ReportsPage() {
       )}
 
       {selected && (
-        <Card variant="default" padding={6}>
+        <div>
           <div className="card-title">
             <h2>{selected.type} report</h2>
             <Button label="Export CSV" size="sm" onClick={() => handleExportCsv(selected.id, selected.type)} />
           </div>
-          {selected.rows.length > 0 && (
+          {selected.rows.length > 0 ? (
             <Table>
                 <thead>
                   <tr>{Object.keys(selected.rows[0]).map((h) => <th key={h}>{h}</th>)}</tr>
@@ -93,8 +94,10 @@ export function ReportsPage() {
                   })}
                 </tbody>
               </Table>
+          ) : (
+            <EmptyState icon="chart" title="No data yet" message="This report type has no data yet." />
           )}
-        </Card>
+        </div>
       )}
 
       {!requests.length && (

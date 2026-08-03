@@ -18,6 +18,23 @@ export function assertFiniteNonNegative(name: string, value: number): void {
   }
 }
 
+/** Amazon Ads' real minimum bid — used by functions that set an explicit bid on existing entities. */
+export const MIN_BID = 0.02;
+
+/**
+ * Like assertFiniteNonNegative, but also enforces the platform's real bid
+ * floor. Use this for "set the bid to X" actions on an existing entity,
+ * where silently substituting a different value than what was explicitly
+ * requested would be misleading. Creation/normalization paths that fill in
+ * defaults for otherwise-incomplete data should keep clamping instead.
+ */
+export function assertValidBid(name: string, value: number): void {
+  assertFiniteNonNegative(name, value);
+  if (value < MIN_BID) {
+    throw new ValidationError(`${name} must be at least $${MIN_BID.toFixed(2)}, got ${value}`);
+  }
+}
+
 export function assertNonEmpty(name: string, value: string): void {
   if (typeof value !== 'string' || value.trim().length === 0) {
     throw new ValidationError(`${name} must be a non-empty string`);

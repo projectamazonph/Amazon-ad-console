@@ -3,12 +3,13 @@
 import { useEffect } from 'react';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { useBreakpoint } from '@/lib/useBreakpoint';
-import { getLeftRail, type NavView } from '../nav/consoleNav';
+import { getLeftRail, isSidebarItemActive, resolveSidebarClick, sidebarSectionForView } from '../nav/consoleNav';
 
 const GROUP_TITLES: Record<string, string> = {
   campaigns: 'Campaign Manager',
   portfolios: 'Portfolios',
   measurement: 'Measurement',
+  training: 'Training',
 };
 
 export function MobileNav() {
@@ -19,11 +20,13 @@ export function MobileNav() {
   const toggleMobileMenu = useAdConsoleStore((s) => s.toggleMobileMenu);
   const closeMobileMenu = useAdConsoleStore((s) => s.closeMobileMenu);
   const view = useAdConsoleStore((s) => s.view);
+  const selectedTab = useAdConsoleStore((s) => s.state.selectedTab);
   const setView = useAdConsoleStore((s) => s.setView);
+  const setTab = useAdConsoleStore((s) => s.setTab);
   const runSimulation = useAdConsoleStore((s) => s.runSimulation);
   const resetAll = useAdConsoleStore((s) => s.resetAll);
 
-  const section: NavView = view === 'portfolio' ? 'portfolio' : 'campaigns';
+  const section = sidebarSectionForView(view);
   const items = getLeftRail(section);
 
   const groups: Record<string, typeof items> = {};
@@ -79,9 +82,12 @@ export function MobileNav() {
             {groupItems.map((item) => (
               <button
                 key={item.label}
-                className={`mobile-drawer-item ${view === item.view && group === 'campaigns' ? 'active' : ''}`}
+                className={`mobile-drawer-item ${isSidebarItemActive(item, view, selectedTab) ? 'active' : ''}`}
                 onClick={() => {
-                  setView(item.view);
+                  const action = resolveSidebarClick(item, view);
+                  if (action.type === 'setTab') setTab(action.tab!);
+                  else if (action.type === 'setTabAndView') { setTab(action.tab!); setView(action.view!); }
+                  else setView(action.view!);
                   closeMobileMenu();
                 }}
               >

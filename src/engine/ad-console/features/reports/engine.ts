@@ -2,20 +2,15 @@
  * Reports — pure engine.
  */
 import type { Report, ReportRequest, ReportType } from './types';
-import { assertNonEmpty, ValidationError } from '../../../../lib/validation';
-
-let _counter = 0;
-function uid(): string {
-  _counter++;
-  return 'R-' + Date.now().toString(36) + '-' + _counter;
-}
+import { ValidationError } from '../../../../lib/validation';
+import { generateId } from '../../core/engine/id';
 
 const REPORT_TYPES: ReportType[] = ['campaign', 'adGroup', 'target', 'searchTerm', 'placement'];
 
 export function createReportRequest(type: ReportType): ReportRequest {
   if (!REPORT_TYPES.includes(type)) throw new ValidationError(`Unknown report type: ${type}`);
   return {
-    id: uid(),
+    id: generateId('R'),
     type,
     status: 'pending',
     requestedAt: new Date().toISOString(),
@@ -49,7 +44,7 @@ export function generateReport(type: ReportType): Report {
   }
 
   return {
-    id: uid(),
+    id: generateId('R'),
     type,
     rows,
     generatedAt: now,

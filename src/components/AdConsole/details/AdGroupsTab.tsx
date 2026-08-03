@@ -10,6 +10,7 @@ import { TextInput } from '@astryxdesign/core/TextInput';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, acosClass } from '@/engine/ad-console/core/engine';
+import { MIN_BID } from '@/lib/validation';
 import { EmptyState } from './EmptyState';
 
 interface Props {
@@ -62,7 +63,10 @@ export function AdGroupsTab({ campaign: c }: Props) {
             />
           </div>
           <Button label="Save default bid" variant="primary" style={{ marginTop: 8 }}
-            onClick={() => setAdGroupDefaultBid(c.id, focused.id, Number(adGroupBidEdits[focused.id] ?? focused.defaultBid))} />
+            onClick={() => {
+              const bid = Number(adGroupBidEdits[focused.id] ?? focused.defaultBid);
+              if (bid >= MIN_BID) setAdGroupDefaultBid(c.id, focused.id, bid);
+            }} />
         </Card>
         {!agTargets.length ? (
           <EmptyState icon="target" title={`No targets in "${focused.name}" yet`} message="Add keywords or product targets to this ad group from the Targeting tab." />

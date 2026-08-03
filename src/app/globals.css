@@ -60,6 +60,8 @@
   --danger-soft: #fde7ee;
   --info: #007185;             /* Amazon clickable teal (same as focus) */
   --info-soft: #e0f2f5;
+  --purple: #7c3aed;            /* SD campaign-type badge */
+  --purple-soft: #f3e8ff;
 
   /* Typography — Premium font stack */
   --font-display: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -147,8 +149,16 @@
   color-scheme: light;
 }
 
-/* Reset */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* Reset
+ * NOTE: padding is intentionally NOT zeroed on `*`. Astryx components ship
+ * their own padding as StyleX classes inside `@layer astryx-base`/
+ * `@layer astryx-theme`; per the CSS cascade-layers spec, ANY unlayered
+ * declaration beats a layered one regardless of specificity. A blanket
+ * `* { padding: 0 }` here (unlayered) was silently zeroing out every
+ * Astryx `padding` prop (Card, etc.) sitewide. Reset padding only on the
+ * couple of native elements that actually need it. */
+*, *::before, *::after { box-sizing: border-box; margin: 0; }
+ul, ol { padding: 0; }
 
 html {
   font-family: var(--font-body);
@@ -1072,7 +1082,7 @@ code, pre {
 
 .split {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   gap: var(--space-5);
 }
 
@@ -1243,8 +1253,8 @@ textarea.input {
 }
 
 .pill.purple {
-  background: #f3e8ff;
-  color: #7c3aed;
+  background: var(--purple-soft);
+  color: var(--purple);
 }
 
 .pill.green {
@@ -3136,6 +3146,7 @@ textarea.input {
 }
 
 .text-accent { color: var(--landing-accent); }
+.object-cover { object-fit: cover; }
 
 /* Navigation */
 .landing-nav {

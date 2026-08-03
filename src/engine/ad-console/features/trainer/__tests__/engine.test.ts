@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { addNote, calculateCertScore, calculateGrade } from '../engine';
 
 describe('addNote', () => {
@@ -11,6 +11,17 @@ describe('addNote', () => {
 
   it('fails fast on empty note text', () => {
     expect(() => addNote('   ')).toThrow();
+  });
+
+  it('assigns unique ids even when created within the same millisecond', () => {
+    const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(1700000000000);
+    try {
+      const a = addNote('first');
+      const b = addNote('second');
+      expect(a.id).not.toBe(b.id);
+    } finally {
+      nowSpy.mockRestore();
+    }
   });
 });
 

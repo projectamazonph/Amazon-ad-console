@@ -3,16 +3,11 @@
  */
 import type { TraineeProfile } from './types';
 import { assertNonEmpty } from '../../../../lib/validation';
-
-let _counter = 0;
-function uid(): string {
-  _counter++;
-  return 'P-' + Date.now().toString(36) + '-' + _counter;
-}
+import { generateId } from '../../core/engine/id';
 
 export function createProfile(name: string): TraineeProfile {
   return {
-    id: uid(),
+    id: generateId('P'),
     name: name.trim().slice(0, 25) || 'Trainee',
     createdAt: new Date().toISOString(),
     lastActiveAt: new Date().toISOString(),

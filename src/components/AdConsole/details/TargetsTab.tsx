@@ -7,6 +7,7 @@ import { Card } from '@astryxdesign/core/Card';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/core/engine';
+import { MIN_BID } from '@/lib/validation';
 import { EmptyState } from './EmptyState';
 
 interface Props {
@@ -45,8 +46,8 @@ export function TargetsTab({ campaign: c }: Props) {
       )}
 
       {showAddKeywordForm && (
-        <Card variant="default" padding={6} style={{ marginBottom: 10, background: 'var(--surface-2)' }}>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'end' }}>
+        <Card variant="default" padding={6} style={{ marginBottom: 'var(--space-3)', background: 'var(--surface-2)' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap', alignItems: 'end' }}>
             <div className="field" style={{ flex: 2, minWidth: 150 }}>
               <label htmlFor="kw-value">Keyword</label>
               <input id="kw-value" className="input full" value={newKeywordValue} onChange={(e) => setNewKeywordValue(e.target.value)} placeholder="Enter keyword" />
@@ -68,7 +69,7 @@ export function TargetsTab({ campaign: c }: Props) {
               </select>
             </div>
           </div>
-          <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
+          <div style={{ marginTop: 'var(--space-2)', display: 'flex', gap: 'var(--space-2)' }}>
             <Button label="Add keyword" variant="primary" onClick={() => {
               if (!newKeywordValue.trim()) return;
               addKeyword(c.id, newKeywordValue.trim(), newKeywordMatch, newKeywordBid, newKeywordAdGroup);
@@ -92,8 +93,13 @@ export function TargetsTab({ campaign: c }: Props) {
                   <td><span className={`pill ${t.status === 'Enabled' ? 'green' : 'orange'}`}>{t.status}</span></td>
                   <td>
                     <label htmlFor={`t-bid-${t.id}`} className="visually-hidden">Bid for {t.value}</label>
-                    <input id={`t-bid-${t.id}`} className="input" style={{ width: 72, padding: '4px 6px', fontSize: 12 }}
+                    <input id={`t-bid-${t.id}`} className="input" style={{
+                        width: 72, padding: '4px 6px', fontSize: 12,
+                        ...(Number(bidEdits[t.id] ?? t.bid) < MIN_BID ? { borderColor: 'var(--danger)' } : {}),
+                      }}
                       type="number" min="0.02" step="0.01" value={bidEdits[t.id] ?? t.bid}
+                      aria-invalid={Number(bidEdits[t.id] ?? t.bid) < MIN_BID || undefined}
+                      title={Number(bidEdits[t.id] ?? t.bid) < MIN_BID ? `Minimum bid is $${MIN_BID.toFixed(2)}.` : undefined}
                       onChange={(e) => setBidEdits({ ...bidEdits, [t.id]: e.target.value })} />
                   </td>
                   <td className="mono">{formatWhole(t.impressions)}</td>
@@ -109,7 +115,7 @@ export function TargetsTab({ campaign: c }: Props) {
                     <Button label="+10%" size="sm" onClick={() => adjustTargetBid(c.id, t.id, 1.1)} />{' '}
                     <Button label="Set" size="sm" onClick={() => {
                       const bid = Number(bidEdits[t.id]);
-                      if (bid && bid > 0) setTargetBid(c.id, t.id, bid);
+                      if (bid >= MIN_BID) setTargetBid(c.id, t.id, bid);
                     }} />{' '}
                     <Button
                       label={t.status === 'Paused' ? 'Enable' : 'Pause'}

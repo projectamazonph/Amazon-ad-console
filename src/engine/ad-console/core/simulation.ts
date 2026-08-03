@@ -74,31 +74,28 @@ export function simulateDays(campaigns: Campaign[], days: number = 7): Campaign[
     // Supports SP and SB campaigns (SD doesn't have search terms by design)
     const generatedST: SearchTerm[] = [];
     const shouldGenerateSearchTerms = c.type === 'SP' || c.type === 'SB';
-    
+    // Tracks every term already in the campaign or generated this pass, so
+    // duplicate checks are O(1) instead of two linear scans per candidate
+    // (c.searchTerms only grows across simulation runs, so this mattered).
+    const seenTerms = new Set(c.searchTerms.map((st) => st.term));
+
     if (shouldGenerateSearchTerms) {
       for (let si = 0; si < enabledTargets.length; si++) {
         const tgt = enabledTargets[si];
         if (tgt.type !== 'Keyword') continue;
-        
+
         // Use the new generator with negative filtering during generation
         const generatedTerms = generateSearchTermsForTarget(
           tgt.value,
           tgt.match as 'Exact' | 'Phrase' | 'Broad',
           c.negatives.map(n => ({ value: n.value, type: n.type }))
         );
-        
+
         for (let gi = 0; gi < generatedTerms.length; gi++) {
           const gt = generatedTerms[gi];
-          // Check if already exists in campaign search terms (avoid duplicates)
-          let exists = false;
-          for (let ei = 0; ei < c.searchTerms.length; ei++) {
-            if (c.searchTerms[ei].term === gt) { exists = true; break; }
-          }
-          for (let ei = 0; ei < generatedST.length; ei++) {
-            if (generatedST[ei].term === gt) { exists = true; break; }
-          }
-          if (exists) continue;
-          
+          if (seenTerms.has(gt)) continue;
+          seenTerms.add(gt);
+
           const termShare = 0.15 + Math.random() * 0.1;
           const termClicks = Math.max(1, Math.round(tgt.clicks * termShare));
           const termSpend = tgt.spend * termShare;

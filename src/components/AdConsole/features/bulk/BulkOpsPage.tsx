@@ -63,7 +63,7 @@ export function BulkOpsPage() {
           )}
 
           {preview.length > 0 && (
-            <Card variant="default" padding={6}>
+            <div>
               <div className="card-title">
                 <h2>Preview</h2>
                 <span className="bulk-status">{preview.length} rows · {valid ? (
@@ -84,7 +84,7 @@ export function BulkOpsPage() {
                     ))}
                   </tbody>
                 </Table>
-            </Card>
+            </div>
           )}
 
           {!preview.length && !errors.length && (

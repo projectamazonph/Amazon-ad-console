@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { Table } from '@astryxdesign/core/Table';
 import { Card } from '@astryxdesign/core/Card';
@@ -15,16 +16,23 @@ export function Dashboard() {
   const selectCampaign = useAdConsoleStore((s) => s.selectCampaign);
   const totalMetrics = useAdConsoleStore((s) => s.totalMetricsCalc);
 
-  const m = totalMetrics();
-  const d = calc(m);
-  const tiles = getKpiTiles({
-    impressions: m.impressions,
-    clicks: m.clicks,
-    spend: m.spend,
-    sales: m.sales,
-    orders: m.orders,
-    units: m.orders,
-  });
+  // state.campaigns keeps the same array reference for any state change
+  // that doesn't touch campaigns (filter/tab/mobile-menu toggles, etc.),
+  // so this skips recomputing the full-campaign-list aggregate on those.
+  const m = useMemo(() => totalMetrics(), [state.campaigns]); // eslint-disable-line react-hooks/exhaustive-deps
+  const d = useMemo(() => calc(m), [m]);
+  const tiles = useMemo(
+    () =>
+      getKpiTiles({
+        impressions: m.impressions,
+        clicks: m.clicks,
+        spend: m.spend,
+        sales: m.sales,
+        orders: m.orders,
+        units: m.orders,
+      }),
+    [m],
+  );
 
   const enabledCount = state.campaigns.filter((c) => c.status === 'Enabled').length;
   const acosHealthy = d.acos > 0 && d.acos <= 30;
@@ -65,13 +73,13 @@ export function Dashboard() {
       </div>
 
       <div className="split">
-        <Card variant="default" padding={6}>
+        <div>
           <div className="section-head">
             <h2>Campaigns</h2>
             <span className="meta">{enabledCount} enabled · {state.campaigns.length} total</span>
           </div>
           {renderCampaignTable(state.campaigns.slice(0, 8), selectCampaign, calc, setView)}
-        </Card>
+        </div>
         <div>
           <Card variant="default" padding={6} style={{ marginBottom: 'var(--space-4)' }}>
             <div className="section-head">
@@ -112,16 +120,6 @@ export function Dashboard() {
       </div>
     </div>
   );
-}
-
-function fmtMoney(n: number) {
-  return '$' + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-function fmtWhole(n: number) {
-  return n.toLocaleString();
-}
-function fmtPercent(n: number) {
-  return n.toFixed(2) + '%';
 }
 
 type Tone = '' | 'good' | 'bad';
@@ -219,15 +217,15 @@ function renderCampaignTable(
                     {c.status}
                   </span>
                 </td>
-                <td className="money">{fmtMoney(c.dailyBudget)}</td>
+                <td className="money">{formatMoney(c.dailyBudget)}</td>
                 <td>
                   <span className="muted">{c.targetingMode}</span>
                 </td>
-                <td className="mono">{fmtWhole(c.metrics.impressions)}</td>
-                <td className="mono">{fmtWhole(c.metrics.clicks)}</td>
-                <td className="money">{fmtMoney(c.metrics.spend)}</td>
-                <td className="money">{fmtMoney(c.metrics.sales)}</td>
-                <td className={`mono ${acosClass(x.acos)}`}>{fmtPercent(x.acos)}</td>
+                <td className="mono">{formatWhole(c.metrics.impressions)}</td>
+                <td className="mono">{formatWhole(c.metrics.clicks)}</td>
+                <td className="money">{formatMoney(c.metrics.spend)}</td>
+                <td className="money">{formatMoney(c.metrics.sales)}</td>
+                <td className={`mono ${acosClass(x.acos)}`}>{formatPercent(x.acos)}</td>
               </tr>
             );
           })}
