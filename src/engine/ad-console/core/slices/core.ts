@@ -26,7 +26,10 @@ export interface CoreSlice {
   openMobileMenu: () => void;
   closeMobileMenu: () => void;
   resetAll: () => void;
-  updateCampaignSettings: (id: string, updates: Record<string, unknown>) => void;
+  updateCampaignSettings: (
+    id: string,
+    updates: Partial<Pick<Campaign, 'dailyBudget' | 'defaultBid' | 'bidStrategy' | 'status' | 'creativeStatus' | 'creativeIssue'>>,
+  ) => void;
   savePlacements: (id: string, placements: { top: number; product: number; rest: number }) => void;
   exportState: () => string;
   importState: (json: string) => boolean;

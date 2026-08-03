@@ -164,4 +164,14 @@ describe('updateCampaignSettings - creativeStatus', () => {
     expect(result.dailyBudget).toBe(c.dailyBudget);
     expect(result.defaultBid).toBe(c.defaultBid);
   });
+
+  it('fails fast on a negative dailyBudget instead of storing it', () => {
+    const c = makeCampaign();
+    expect(() => updateCampaignSettings(c, { dailyBudget: -50 })).toThrow();
+  });
+
+  it('fails fast on a NaN defaultBid instead of storing it', () => {
+    const c = makeCampaign();
+    expect(() => updateCampaignSettings(c, { defaultBid: NaN })).toThrow();
+  });
 });

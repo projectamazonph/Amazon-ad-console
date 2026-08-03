@@ -5,7 +5,7 @@ import type {
   Campaign, CampaignType, CampaignStatus,
   Target, AdGroup, ProductAd, Ad,
 } from '../types';
-import { assertCampaignType, assertCampaignStatus } from '../../../../lib/validation';
+import { assertCampaignType, assertCampaignStatus, assertFiniteNonNegative } from '../../../../lib/validation';
 import { generateId } from './id';
 import { metricDefaults } from './metrics';
 
@@ -263,6 +263,9 @@ export function updateCampaignSettings(
   c: Campaign,
   updates: Partial<Pick<Campaign, 'dailyBudget' | 'defaultBid' | 'bidStrategy' | 'status' | 'creativeStatus' | 'creativeIssue'>>,
 ): Campaign {
+  if (updates.dailyBudget !== undefined) assertFiniteNonNegative('dailyBudget', updates.dailyBudget);
+  if (updates.defaultBid !== undefined) assertFiniteNonNegative('defaultBid', updates.defaultBid);
+
   const changes: string[] = [];
   if (updates.dailyBudget !== undefined && updates.dailyBudget !== c.dailyBudget) {
     changes.push(`budget $${c.dailyBudget.toFixed(2)} → $${updates.dailyBudget.toFixed(2)}`);
