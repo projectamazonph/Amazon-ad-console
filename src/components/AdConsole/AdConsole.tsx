@@ -4,6 +4,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 
 import { Topbar } from './layout/Topbar';
+import { Sidebar } from './layout/Sidebar';
 import { ErrorBoundary } from './ErrorBoundary';
 import { Dashboard } from './Dashboard';
 import { CampaignManager } from './CampaignManager';
@@ -50,11 +51,14 @@ export function AdConsole() {
     <div className="app-layout">
       <a className="skip-link" href="#main-content">Skip to main content</a>
       <Topbar />
-      <main id="main-content" className="app-main" tabIndex={-1}>
-        <ErrorBoundary>
-          <div className="app-content">{renderView()}</div>
-        </ErrorBoundary>
-      </main>
+      <div className="app-body">
+        <Sidebar />
+        <main id="main-content" className="app-main" tabIndex={-1}>
+          <ErrorBoundary>
+            <div className="app-content">{renderView()}</div>
+          </ErrorBoundary>
+        </main>
+      </div>
     </div>
   );
 }
