@@ -435,7 +435,7 @@ When clicking a tab-mapped item:
 ## 15. Multi-User Authentication
 
 **Auth Provider**: NextAuth v5
-**Database**: Prisma + SQLite
+**Database**: Prisma + Postgres (via `@prisma/adapter-neon`)
 **Components**: `SessionProvider.tsx`, `UserMenu.tsx`, `SyncButton.tsx`
 **Pages**: `/auth/login`, `/auth/register`, `/landing`
 

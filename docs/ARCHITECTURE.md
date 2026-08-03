@@ -112,7 +112,7 @@ User Action → Component → Store Slice → Engine Function → New State → 
 
 ### Server-Side Data Flow
 ```
-Component → API Route → Prisma Client → SQLite Database
+Component → API Route → Prisma Client (Neon adapter) → Postgres Database
      ↓
 Component ← API Response ← Prisma Query Result
 ```
@@ -123,7 +123,7 @@ Component ← API Response ← Prisma Query Result
 - **Provider**: Credentials (email/password)
 - **Session Strategy**: JWT
 - **Password Hashing**: bcryptjs
-- **Database**: SQLite via Prisma
+- **Database**: Postgres via Prisma (`@prisma/adapter-neon`)
 
 ### API Route Protection
 All `/api/*` routes check for valid session:
@@ -246,8 +246,7 @@ model Campaign {
 ### Environment Variables
 ```env
 DATABASE_URL="postgresql://..."
-NEXTAUTH_SECRET="your-secret-here"
-NEXTAUTH_URL="http://localhost:3000"
+AUTH_SECRET="your-secret-here"
 ```
 
 ### Production Considerations

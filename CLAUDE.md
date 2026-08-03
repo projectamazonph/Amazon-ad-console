@@ -121,6 +121,7 @@ These come from `AGENTS.md`, `LOOP.md`, `loop-constraints.md`, and `gate.yaml` �
 - `docs/` has deeper reference material: `ARCHITECTURE.md`, `API.md` (full engine function signatures), `SCHEMA.md`, `FEATURES.md`, `INTEGRATION.md` (porting guide), `AUTH.md`, `AUDIT-FOLLOWUPS.md`.
 - `CHANGELOG.md` (repo root) tracks notable changes per release starting at 3.6.0; bump `version` in `package.json` (and the unused-but-should-stay-in-sync `coreState.version` in `core/slices/core.ts`) together with a new entry when cutting a release.
 - `skills/`, `patterns/`, `gate.yaml`, `STATE.md`, `loop-*.md` support an autonomous triage/fix loop tool used against this repo — not part of the app runtime.
+- `.claude/`, `.agents/`, `.codex/` (added via the `ecc-tools` bot PR #56) are an auto-generated agent-tooling bundle: a repo skill, Codex config/agent roles, workflow command scaffolds, and "continuous learning instincts" derived from git-history analysis — not part of the app runtime either. Treat `.claude/skills/Amazon-ad-console/SKILL.md` as unverified: it was generated from commit-history heuristics and contains at least one claim that doesn't match this repo (it says filenames use `camelCase` with invented examples like `adEngine.ts`; the real convention is PascalCase for components (`CampaignManager.tsx`) and lowercase-per-domain-concern for engine modules (`core/engine/campaign.ts`), per the Architecture section above). This file (`CLAUDE.md`) is the authoritative guide — prefer it over the generated skill wherever they disagree.
 
 ## Porting the engine
 
