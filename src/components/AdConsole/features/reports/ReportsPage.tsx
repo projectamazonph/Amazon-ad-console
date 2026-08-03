@@ -67,12 +67,12 @@ export function ReportsPage() {
       )}
 
       {selected && (
-        <Card variant="default" padding={6}>
+        <div>
           <div className="card-title">
             <h2>{selected.type} report</h2>
             <Button label="Export CSV" size="sm" onClick={() => handleExportCsv(selected.id, selected.type)} />
           </div>
-          {selected.rows.length > 0 && (
+          {selected.rows.length > 0 ? (
             <Table>
                 <thead>
                   <tr>{Object.keys(selected.rows[0]).map((h) => <th key={h}>{h}</th>)}</tr>
@@ -93,8 +93,12 @@ export function ReportsPage() {
                   })}
                 </tbody>
               </Table>
+          ) : (
+            <Card variant="default" padding={6}>
+              <p className="muted">This report type has no data yet.</p>
+            </Card>
           )}
-        </Card>
+        </div>
       )}
 
       {!requests.length && (

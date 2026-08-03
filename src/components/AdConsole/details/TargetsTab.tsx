@@ -46,8 +46,8 @@ export function TargetsTab({ campaign: c }: Props) {
       )}
 
       {showAddKeywordForm && (
-        <Card variant="default" padding={6} style={{ marginBottom: 10, background: 'var(--surface-2)' }}>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'end' }}>
+        <Card variant="default" padding={6} style={{ marginBottom: 'var(--space-3)', background: 'var(--surface-2)' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap', alignItems: 'end' }}>
             <div className="field" style={{ flex: 2, minWidth: 150 }}>
               <label htmlFor="kw-value">Keyword</label>
               <input id="kw-value" className="input full" value={newKeywordValue} onChange={(e) => setNewKeywordValue(e.target.value)} placeholder="Enter keyword" />
@@ -69,7 +69,7 @@ export function TargetsTab({ campaign: c }: Props) {
               </select>
             </div>
           </div>
-          <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
+          <div style={{ marginTop: 'var(--space-2)', display: 'flex', gap: 'var(--space-2)' }}>
             <Button label="Add keyword" variant="primary" onClick={() => {
               if (!newKeywordValue.trim()) return;
               addKeyword(c.id, newKeywordValue.trim(), newKeywordMatch, newKeywordBid, newKeywordAdGroup);
