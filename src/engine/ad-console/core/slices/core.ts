@@ -36,7 +36,7 @@ export interface CoreSlice {
 }
 
 const coreState: AdConsoleState = {
-  version: '3.6',
+  version: '3.6.0',
   campaigns: defaultCampaigns(),
   filter: { type: 'All', status: 'All', portfolio: 'All', search: '' },
   selectedCampaignId: null,
