@@ -52,6 +52,14 @@ describe('ProfilesSlice', () => {
     expect(getStore().profiles.some((p) => p.name === 'to-delete')).toBe(false);
   });
 
+  it('deleteProfile reseeds a default profile instead of leaving an empty, dangling roster', () => {
+    const onlyProfileId = getStore().profiles[0].id;
+    getStore().deleteProfile(onlyProfileId);
+    expect(getStore().profiles).toHaveLength(1);
+    expect(getStore().activeProfileId).toBe(getStore().profiles[0].id);
+    expect(getStore().profiles.find((p) => p.id === getStore().activeProfileId)).toBeDefined();
+  });
+
   it('switchProfile switches', () => {
     getStore().createProfile('switchable');
     const id = getStore().profiles.find((p) => p.name === 'switchable')!.id;

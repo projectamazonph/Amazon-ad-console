@@ -41,10 +41,13 @@ export const createProfilesSlice: StateCreator<ProfilesSlice> = (set, get) => ({
 
   deleteProfile: (id) => {
     set((s) => {
-      const filtered = deleteProfile(s.profiles, id);
+      let filtered = deleteProfile(s.profiles, id);
+      // Never leave the roster empty — reseed the default profile so
+      // activeProfileId always resolves to a real entry in `profiles`.
+      if (filtered.length === 0) filtered = [defaultProfile()];
       return {
         profiles: filtered,
-        activeProfileId: s.activeProfileId === id ? (filtered[0]?.id || 'p-default') : s.activeProfileId,
+        activeProfileId: s.activeProfileId === id ? filtered[0].id : s.activeProfileId,
       };
     });
   },
