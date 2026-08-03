@@ -3138,6 +3138,7 @@ textarea.input {
 }
 
 .text-accent { color: var(--landing-accent); }
+.object-cover { object-fit: cover; }
 
 /* Navigation */
 .landing-nav {
