@@ -195,9 +195,26 @@ describe('target operations', () => {
     expect(adjustTargetBid(c, 'T1', 1.5).targets[0]!.bid).toBe(1.5);
   });
 
+  it('fails fast on a NaN bid instead of silently storing NaN', () => {
+    const c = makeCampaign({ targets: [{ id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'kw', match: 'Exact', bid: 0.75, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 }] });
+    expect(() => setTargetBid(c, 'T1', NaN)).toThrow();
+  });
+
+  it('fails fast on a negative bid', () => {
+    const c = makeCampaign({ targets: [{ id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'kw', match: 'Exact', bid: 0.75, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 }] });
+    expect(() => setTargetBid(c, 'T1', -5)).toThrow();
+  });
+
   it('pauses then re-enables a target', () => {
     const c = makeCampaign({ targets: [{ id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'kw', match: 'Exact', bid: 0.75, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 }] });
     expect(pauseTarget(c, 'T1').targets[0]!.status).toBe('Paused');
+  });
+
+  it('pauseTarget is a no-op for an unknown target id (no blank history entry)', () => {
+    const c = makeCampaign({ targets: [{ id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'kw', match: 'Exact', bid: 0.75, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 }] });
+    const result = pauseTarget(c, 'does-not-exist');
+    expect(result).toBe(c);
+    expect(result.history).not.toContain('');
   });
 });
 
