@@ -146,7 +146,9 @@ Amazon-ad-console/
 │   │       │   ├── missions/       # Scenario challenges
 │   │       │   └── integrity/      # Data quality checks
 │   │       ├── store.ts            # Composed root Zustand store
-│   │       └── index.ts            # Public API re-exports
+│   │       ├── index.ts            # Public API re-exports
+│   │       ├── types.ts            # Backward-compat re-export of core/types.ts
+│   │       └── scenarios.ts        # Backward-compat re-export of core/scenarios.ts
 │   ├── components/
 │   │   ├── AdConsole/              # React UI layer
 │   │   │   ├── AdConsole.tsx        # Root view router
