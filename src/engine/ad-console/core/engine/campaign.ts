@@ -307,3 +307,13 @@ export function savePlacements(
     history: [...c.history, changes.length ? `Placements updated: ${changes.join(', ')}` : 'Placements saved (no changes)'],
   };
 }
+
+/**
+ * Single source of truth for which adFormat value means "video" for a
+ * given campaign type — SB and SD each use a different string for it.
+ */
+export function isVideoFormat(type: CampaignType, adFormat: string | undefined): boolean {
+  if (type === 'SB') return adFormat === 'Video';
+  if (type === 'SD') return adFormat === 'Video creative';
+  return false;
+}

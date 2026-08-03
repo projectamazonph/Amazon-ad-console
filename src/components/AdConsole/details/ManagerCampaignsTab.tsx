@@ -8,16 +8,22 @@ import { EmptyState } from './EmptyState';
 
 interface Props {
   campaigns: Campaign[];
+  hasAnyCampaigns: boolean;
   onSelect: (id: string) => void;
   onToggleStatus: (id: string) => void;
   onDuplicate: (id: string) => void;
   onArchive: (id: string) => void;
   onCreate: () => void;
+  onClearFilters: () => void;
 }
 
-export function ManagerCampaignsTab({ campaigns, onSelect, onToggleStatus, onDuplicate, onArchive, onCreate }: Props) {
+export function ManagerCampaignsTab({ campaigns, hasAnyCampaigns, onSelect, onToggleStatus, onDuplicate, onArchive, onCreate, onClearFilters }: Props) {
   if (!campaigns.length) {
-    return (
+    return hasAnyCampaigns ? (
+      <EmptyState icon="search" title="No campaigns match your filters" message="Try a different search term or adjust the type/status/portfolio filters.">
+        <Button label="Clear filters" onClick={onClearFilters} />
+      </EmptyState>
+    ) : (
       <EmptyState icon="chart" title="No campaigns yet" message="Create your first campaign to start training.">
         <Button label="Create campaign" variant="primary" onClick={onCreate} />
       </EmptyState>

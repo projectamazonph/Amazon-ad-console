@@ -8,7 +8,7 @@ import { NumberInput } from '@astryxdesign/core/NumberInput';
 import { Selector } from '@astryxdesign/core/Selector';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
-import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/core/engine';
+import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass, isVideoFormat } from '@/engine/ad-console/core/engine';
 import { PRODUCTS } from '@/engine/ad-console/core/scenarios';
 
 interface Props {
@@ -91,8 +91,8 @@ export function OverviewTab({ campaign: c }: Props) {
                   } as any)} />
               </div>
             )}
-            {((c.type === 'SB' || c.type === 'SD') && ((c.type === 'SB' && c.adFormat === 'Video') || (c.type === 'SD' && c.adFormat === 'Video creative'))) && c.creative?.video && (
-              <div className="tag" style={{ background: 'var(--surface-2)', padding: '6px 10px', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+            {isVideoFormat(c.type, c.adFormat) && c.creative?.video && (
+              <div className="tag" style={{ marginTop: 'var(--space-1)' }}>
                 <span style={{ fontSize: 18 }}>&#9654;</span>
                 <span><strong>Video:</strong> {c.creative.video}</span>
               </div>
@@ -102,7 +102,7 @@ export function OverviewTab({ campaign: c }: Props) {
           </div>
         )}
       </Card>
-      <Card variant="default" padding={6} style={{ gridColumn: '1 / -1' }}>
+      <div style={{ gridColumn: '1 / -1' }}>
         <div className="section-head"><h2>Top targets by profit signal</h2><span className="meta">Use to train bid optimization</span></div>
         <Table>
             <thead><tr><th>Target</th><th>Bid</th><th>Impr.</th><th>Clicks</th><th>CPC</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th></tr></thead>
@@ -126,7 +126,7 @@ export function OverviewTab({ campaign: c }: Props) {
               })}
             </tbody>
           </Table>
-      </Card>
+      </div>
     </div>
   );
 }

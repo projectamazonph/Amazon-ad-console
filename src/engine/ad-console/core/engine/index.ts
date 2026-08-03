@@ -3,7 +3,7 @@
  */
 export { generateId, resetIdCounter } from './id';
 export { calc, totalMetrics, metricDefaults, formatMoney, formatWhole, formatBid, formatPercent, formatRoas, acosClass } from './metrics';
-export { normalizeCampaign, toggleCampaignStatus, archiveCampaign, duplicateCampaign, updateCampaignSettings, savePlacements } from './campaign';
+export { normalizeCampaign, toggleCampaignStatus, archiveCampaign, duplicateCampaign, updateCampaignSettings, savePlacements, isVideoFormat } from './campaign';
 export { addTarget, addKeyword, addAutoTarget, addAsinTarget, addCategoryTarget, removeTarget, setTargetBid, adjustTargetBid, pauseTarget, setTargetStatus } from './target';
 export { addAdGroup, addProductAd, addAd, renameAdGroup, setAdGroupStatus, setAdGroupDefaultBid, removeAdGroup } from './adgroup';
 export { isFilteredByNegative, addNegative, addNegativeKeyword, addNegativeAsin, addNegativeCategory, harvestTerm, getHarvestCandidates, getNegativeCandidates } from './negative';

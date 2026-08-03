@@ -79,6 +79,8 @@ describe('ManagerCampaignsTab — column alignment (H-02)', () => {
         onDuplicate={noop}
         onArchive={noop}
         onCreate={noop}
+        onClearFilters={noop}
+        hasAnyCampaigns={true}
       />,
     );
 
@@ -106,7 +108,7 @@ describe('ManagerCampaignsTab — column alignment (H-02)', () => {
     expect(cellText(13)).toBe('8.00x'); // ROAS
   });
 
-  it('shows the empty state when there are no campaigns', () => {
+  it('shows the "create your first campaign" empty state when there are no campaigns at all', () => {
     render(
       <ManagerCampaignsTab
         campaigns={[]}
@@ -115,9 +117,29 @@ describe('ManagerCampaignsTab — column alignment (H-02)', () => {
         onDuplicate={noop}
         onArchive={noop}
         onCreate={noop}
+        onClearFilters={noop}
+        hasAnyCampaigns={false}
       />,
     );
     expect(screen.getByText('No campaigns yet')).toBeDefined();
+  });
+
+  it('shows a "no matches" empty state (not "create your first campaign") when filters yield zero results', () => {
+    render(
+      <ManagerCampaignsTab
+        campaigns={[]}
+        onSelect={noop}
+        onToggleStatus={noop}
+        onDuplicate={noop}
+        onArchive={noop}
+        onCreate={noop}
+        onClearFilters={noop}
+        hasAnyCampaigns={true}
+      />,
+    );
+    expect(screen.getByText('No campaigns match your filters')).toBeDefined();
+    expect(screen.queryByText('No campaigns yet')).toBeNull();
+    expect(screen.getByText('Clear filters')).toBeDefined();
   });
 
   it('renders one row per campaign', () => {
@@ -131,6 +153,8 @@ describe('ManagerCampaignsTab — column alignment (H-02)', () => {
         onDuplicate={noop}
         onArchive={noop}
         onCreate={noop}
+        onClearFilters={noop}
+        hasAnyCampaigns={true}
       />,
     );
     const rows = container.querySelectorAll('tbody tr');

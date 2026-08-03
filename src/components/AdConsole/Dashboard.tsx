@@ -65,13 +65,13 @@ export function Dashboard() {
       </div>
 
       <div className="split">
-        <Card variant="default" padding={6}>
+        <div>
           <div className="section-head">
             <h2>Campaigns</h2>
             <span className="meta">{enabledCount} enabled · {state.campaigns.length} total</span>
           </div>
           {renderCampaignTable(state.campaigns.slice(0, 8), selectCampaign, calc, setView)}
-        </Card>
+        </div>
         <div>
           <Card variant="default" padding={6} style={{ marginBottom: 'var(--space-4)' }}>
             <div className="section-head">
@@ -112,16 +112,6 @@ export function Dashboard() {
       </div>
     </div>
   );
-}
-
-function fmtMoney(n: number) {
-  return '$' + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-function fmtWhole(n: number) {
-  return n.toLocaleString();
-}
-function fmtPercent(n: number) {
-  return n.toFixed(2) + '%';
 }
 
 type Tone = '' | 'good' | 'bad';
@@ -219,15 +209,15 @@ function renderCampaignTable(
                     {c.status}
                   </span>
                 </td>
-                <td className="money">{fmtMoney(c.dailyBudget)}</td>
+                <td className="money">{formatMoney(c.dailyBudget)}</td>
                 <td>
                   <span className="muted">{c.targetingMode}</span>
                 </td>
-                <td className="mono">{fmtWhole(c.metrics.impressions)}</td>
-                <td className="mono">{fmtWhole(c.metrics.clicks)}</td>
-                <td className="money">{fmtMoney(c.metrics.spend)}</td>
-                <td className="money">{fmtMoney(c.metrics.sales)}</td>
-                <td className={`mono ${acosClass(x.acos)}`}>{fmtPercent(x.acos)}</td>
+                <td className="mono">{formatWhole(c.metrics.impressions)}</td>
+                <td className="mono">{formatWhole(c.metrics.clicks)}</td>
+                <td className="money">{formatMoney(c.metrics.spend)}</td>
+                <td className="money">{formatMoney(c.metrics.sales)}</td>
+                <td className={`mono ${acosClass(x.acos)}`}>{formatPercent(x.acos)}</td>
               </tr>
             );
           })}

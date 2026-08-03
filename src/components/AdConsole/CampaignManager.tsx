@@ -5,7 +5,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { Card } from '@astryxdesign/core/Card';
 import { useCampaignManager } from './hooks/useCampaignManager';
 import { MetricCard } from './metrics/MetricCard';
-import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/core/engine';
+import { calc, totalMetrics, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/core/engine';
 import type { FilterState } from '@/engine/ad-console/types';
 import { ManagerCampaignsTab } from './details/ManagerCampaignsTab';
 import { ManagerAdGroupsTab } from './details/ManagerAdGroupsTab';
@@ -15,10 +15,12 @@ import { ManagerNegativesTab } from './details/ManagerNegativesTab';
 
 export function CampaignManager() {
   const {
-    filteredCampaigns, filter, selectedTab, portfolioOptions,
+    campaigns, filteredCampaigns, filter, selectedTab, portfolioOptions,
     setFilter, selectCampaign, setTab, toggleCampaignStatus,
     duplicateCampaign, archiveCampaign, runSimulation, setView,
   } = useCampaignManager();
+
+  const clearFilters = () => setFilter({ type: 'All', status: 'All', portfolio: 'All', search: '' });
 
   const [simulating, setSimulating] = useState(false);
 
@@ -84,23 +86,13 @@ export function CampaignManager() {
         <select id="cm-filter-portfolio" className="select" value={filter.portfolio} onChange={(e) => setFilter({ portfolio: e.target.value })}>
           {portfolioOptions.map((x) => <option key={x}>{x}</option>)}
         </select>
-        <Button label="Clear filters" onClick={() => setFilter({ type: 'All', status: 'All', portfolio: 'All', search: '' })} />
+        <Button label="Clear filters" onClick={clearFilters} />
         <Button label="Run 7-day sim" variant="info" onClick={handleSimulate} />
       </div>
 
       <div className="grid-4 cm-metrics-grid">
         {(() => {
-          const m = filteredCampaigns.reduce(
-            (acc, c) => {
-              acc.impressions += c.metrics.impressions;
-              acc.clicks += c.metrics.clicks;
-              acc.spend += c.metrics.spend;
-              acc.sales += c.metrics.sales;
-              acc.orders += c.metrics.orders;
-              return acc;
-            },
-            { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
-          );
+          const m = totalMetrics(filteredCampaigns);
           const x = calc(m);
           const acosTone = x.acos <= 0 ? '' : x.acos <= 30 ? 'good' : 'bad';
           return (
@@ -129,11 +121,13 @@ export function CampaignManager() {
       {selectedTab === 'campaigns' && (
         <ManagerCampaignsTab
           campaigns={filteredCampaigns}
+          hasAnyCampaigns={campaigns.length > 0}
           onSelect={selectCampaign}
           onToggleStatus={toggleCampaignStatus}
           onDuplicate={duplicateCampaign}
           onArchive={archiveCampaign}
           onCreate={() => setView('create')}
+          onClearFilters={clearFilters}
         />
       )}
       {selectedTab === 'adgroups' && <ManagerAdGroupsTab campaigns={filteredCampaigns} onSelectCampaign={selectCampaign} />}

@@ -44,8 +44,10 @@ describe('Astryx Card contract — presence and variant wiring', () => {
     const c = useAdConsoleStore.getState().state.campaigns[0]!;
     render(<OverviewTab campaign={c} />);
     const astryxCards = document.querySelectorAll('.astryx-card');
-    // OverviewTab has 3 .card.pad sections (Settings, Products, Top targets)
-    expect(astryxCards.length).toBeGreaterThanOrEqual(3);
+    // OverviewTab has 2 Card sections (Settings, Products). "Top targets"
+    // is a dense table and is deliberately NOT Card-wrapped, per the
+    // "Table edge-to-edge, never Card-wrapped" convention.
+    expect(astryxCards.length).toBeGreaterThanOrEqual(2);
   });
 
   it('Astrox cards have data-variant attribute', () => {
