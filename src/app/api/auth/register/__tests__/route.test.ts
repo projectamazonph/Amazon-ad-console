@@ -61,4 +61,22 @@ describe('POST /api/auth/register', () => {
     expect(res.status).toBe(201);
     expect(prismaMock.user.create).toHaveBeenCalledTimes(1);
   });
+
+  it('normalizes email casing/whitespace before checking for an existing user', async () => {
+    await POST(makeRequest({ email: '  Foo@Example.COM  ', password: 'longenough' }));
+    expect(prismaMock.user.findUnique).toHaveBeenCalledWith({ where: { email: 'foo@example.com' } });
+  });
+
+  it('stores the normalized email, not the raw input casing', async () => {
+    await POST(makeRequest({ email: 'Foo@Example.COM', password: 'longenough' }));
+    const [args] = prismaMock.user.create.mock.calls[0] as [{ data: { email: string } }];
+    expect(args.data.email).toBe('foo@example.com');
+  });
+
+  it('treats a case-variant of an existing email as a duplicate', async () => {
+    prismaMock.user.findUnique.mockResolvedValueOnce({ id: 'existing-user' });
+    const res = await POST(makeRequest({ email: 'FOO@example.com', password: 'longenough' }));
+    expect(res.status).toBe(400);
+    expect(prismaMock.user.create).not.toHaveBeenCalled();
+  });
 });

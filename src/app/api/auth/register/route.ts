@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
+import { normalizeEmail } from '@/lib/email';
 
 export async function POST(request: Request) {
   try {
@@ -13,7 +14,16 @@ export async function POST(request: Request) {
       );
     }
 
-    if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (typeof email !== 'string') {
+      return NextResponse.json(
+        { error: 'Enter a valid email address' },
+        { status: 400 }
+      );
+    }
+
+    const normalizedEmail = normalizeEmail(email);
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       return NextResponse.json(
         { error: 'Enter a valid email address' },
         { status: 400 }
@@ -28,7 +38,7 @@ export async function POST(request: Request) {
     }
 
     const existingUser = await prisma.user.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (existingUser) {
@@ -42,8 +52,8 @@ export async function POST(request: Request) {
 
     const user = await prisma.user.create({
       data: {
-        email,
-        name: name || email.split('@')[0],
+        email: normalizedEmail,
+        name: name || normalizedEmail.split('@')[0],
         passwordHash,
       },
     });
