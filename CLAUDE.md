@@ -41,7 +41,7 @@ Coverage thresholds (vitest.config.ts, engine/core code only): 80% statements/fu
 
 Layered, in order of dependency (top depends on bottom, never the reverse):
 
-```
+```text
 Next.js App Router (src/app) — pages, layouts, API routes
 React components (src/components/AdConsole) — presentation only
 Zustand store (src/engine/ad-console/store.ts) — composed of 8 core slices + 7 feature slices
@@ -49,17 +49,17 @@ Feature engines (src/engine/ad-console/features/<name>/{types,engine,store}.ts)
 Core engine (src/engine/ad-console/core/) — zero framework dependencies, pure functions
 ```
 
-**The core engine (`src/engine/ad-console/core/`) has zero React/Next/Zustand dependencies.** It is pure TypeScript: given state in, returns new state out, no mutation, no side effects. This is the most important invariant in the codebase — it's what makes the engine portable and unit-testable in isolation. Never import React, Next.js, or store code into anything under `core/`.
+**`core/engine/`, `core/types.ts`, and `core/simulation.ts` have zero React/Next/Zustand dependencies.** They are pure TypeScript: given state in, return new state out, no mutation, no side effects. This is the most important invariant in the codebase — it's what makes those modules portable and unit-testable in isolation. Never import React, Next.js, or store code into them. Note that `core/slices/` (below) is the one exception within `core/` — it depends on Zustand's `StateCreator` type by design, since its job is to wrap the pure engine in store slices.
 
 - `core/types.ts` — every domain interface (Campaign, AdGroup, Target, Negative, BudgetRule, Portfolio, Metrics, etc.)
 - `core/engine/` — one module per domain concern: `campaign.ts`, `target.ts`, `adgroup.ts`, `negative.ts`, `budget.ts`, `portfolio.ts`, `draft.ts`, `id.ts`, `metrics.ts`, `responsive.ts`, `search-term-generator.ts`. All re-exported through `core/engine/index.ts`.
 - `core/simulation.ts` — the 7-day performance simulator; metrics cascade target → ad group → campaign → dashboard.
-- `core/slices/` — Zustand `StateCreator` slices (core, target, adgroup, negative, budget, portfolio, draft) that wrap the pure engine functions with state.
+- `core/slices/` — Zustand-dependent `StateCreator` slices (core, target, adgroup, negative, budget, portfolio, draft) that wrap the pure engine functions with state.
 - `features/<name>/` — self-contained modules (`drills`, `profiles`, `trainer`, `bulk`, `reports`, `missions`, `integrity`), each with its own `types.ts`, `engine.ts`, `store.ts`. Adding a feature means adding a new directory here — existing files shouldn't need edits (open/closed).
 - `store.ts` — combines every slice into one `AppStore` type via intersection and creates the single Zustand store (localStorage-persisted, with optional cloud sync).
 
 Entity hierarchy the engine models:
-```
+```text
 Account → Portfolio → Campaign (SP/SB/SD) → AdGroup → Target (keyword/ASIN/category/auto/audience)
                                             → ProductAd / Ad (creative)
                                             → SearchTerm (report data linked to Target)
@@ -79,7 +79,7 @@ import { calc, simulateDays, useAdConsoleStore } from '@/engine/ad-console';
 - Persistence is dual: Zustand `persist` middleware keeps state in localStorage for offline/no-login use; `/api/sync` optionally pushes/pulls the same shape to Postgres for logged-in users. Campaign fields that are structurally nested (adGroups, targets, negatives, etc.) are stored as JSON strings in Postgres, not relational tables — see `prisma/schema.prisma`.
 
 ### Auth
-NextAuth v5 (beta), Credentials provider, JWT sessions, bcrypt password hashing. Config in `src/lib/auth.ts`. Every `/api/*` route must check `const session = await auth(); if (!session?.user?.id) return 401`.
+NextAuth v5 (beta), Credentials provider, JWT sessions, bcrypt password hashing. Config in `src/lib/auth.ts`. Every protected `/api/*` route must check `const session = await auth(); if (!session?.user?.id) return 401`. The two public exceptions are `/api/auth/register` and `/api/auth/[...nextauth]` (login/session handling itself) — those must work without an existing session.
 
 ### Database reality check
 `prisma/schema.prisma` targets **Postgres** (via `@prisma/adapter-neon`, `src/lib/prisma.ts`), not SQLite — some older docs (README, AGENTS.md) still say SQLite; trust the schema and `.env.example` over those. `DATABASE_URL` and `AUTH_SECRET` are required at runtime for registration/login/sync to work; the simulator itself runs fully client-side without them.
@@ -106,7 +106,7 @@ Engine functions fail fast: invalid input throws `ValidationError` (`src/lib/val
 
 These come from `AGENTS.md`, `LOOP.md`, and `loop-constraints.md` — they apply to automated/agentic changes here and are good defaults for any change:
 
-- **Never edit without explicit human approval**: `.env`/`.env.*`, `prisma/schema.prisma` or `prisma/migrations/`, `next.config.ts`, anything under `auth/` or files matching `*_key*`/`*_secret*`.
+- **Never edit without explicit human approval**: `.env`/`.env.*`, `prisma/schema.prisma` or `prisma/migrations/`, `next.config.ts`, `src/lib/auth.ts`, or files matching `*_key*`/`*_secret*`.
 - Always run `npm test` before proposing a change as done.
 - One fix per change — no drive-by refactors bundled into unrelated work.
 - The engine layer (`src/engine/`) is stable; treat changes there as needing test coverage. The component layer has known SOLID violations (`CreateCampaignWizard`, `CampaignManager`, `CampaignDetail`) — refactor incrementally, not all at once, and don't attempt a full rewrite unprompted.
@@ -121,7 +121,7 @@ These come from `AGENTS.md`, `LOOP.md`, and `loop-constraints.md` — they apply
 
 ## Porting the engine
 
-The entire `src/engine/ad-console/` tree is designed to be copied into other apps with zero changes (it has no Next/React/Zustand-store coupling at the `core/` level):
+The entire `src/engine/ad-console/` tree is designed to be copied into other apps with zero changes, provided the target app also runs Zustand 5 (`store.ts` and `core/slices/` depend on it — only `core/engine/`, `core/types.ts`, and `core/simulation.ts` are fully dependency-free):
 ```ts
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, simulateDays } from '@/engine/ad-console/core/engine';
