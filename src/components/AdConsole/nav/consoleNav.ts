@@ -7,6 +7,7 @@
  */
 
 import { ValidationError } from '../../../lib/validation';
+import { calc } from '../../../engine/ad-console/core/engine';
 
 export type NavView =
   | 'dashboard'
@@ -68,6 +69,17 @@ export const GLOBAL_NAV: NavSection[] = [
 ];
 
 /**
+ * The 6 training-product views. Single source of truth for "is this view
+ * part of Training" — previously repeated as an identical `view === 'x' ||
+ * ...` chain in three functions, which is exactly the kind of duplication
+ * that caused audit H-03 (a training view silently falling through to the
+ * wrong default because one of the three lists fell out of sync).
+ */
+const TRAINING_VIEWS: ReadonlySet<NavView> = new Set([
+  'drills', 'missions', 'reports', 'bulk', 'trainer', 'integrity',
+]);
+
+/**
  * Rail items for the Training section. The order matches the typical
  * trainee journey: hands-on drills first, then missions, then reporting
  * and bulk ops, then trainer dashboard, then integrity checks.
@@ -122,16 +134,7 @@ export function getLeftRail(section: NavView | RailSection): LeftRailItem[] {
   // The training rail is registered under each of the 6 training views
   // in LEFT_RAIL, so passing any of them returns the same training rail.
   if (section === 'training') return TRAINING_RAIL;
-  if (
-    section === 'drills' ||
-    section === 'missions' ||
-    section === 'reports' ||
-    section === 'bulk' ||
-    section === 'trainer' ||
-    section === 'integrity'
-  ) {
-    return TRAINING_RAIL;
-  }
+  if (TRAINING_VIEWS.has(section as NavView)) return TRAINING_RAIL;
   return LEFT_RAIL[section as NavView] ?? LEFT_RAIL.campaigns;
 }
 
@@ -147,16 +150,7 @@ export function getLeftRail(section: NavView | RailSection): LeftRailItem[] {
 export function activeTopbarSection(view: string): RailSection {
   if (view === 'portfolio') return 'portfolio';
   if (view === 'dashboard') return 'dashboard';
-  if (
-    view === 'drills' ||
-    view === 'missions' ||
-    view === 'reports' ||
-    view === 'bulk' ||
-    view === 'trainer' ||
-    view === 'integrity'
-  ) {
-    return 'training';
-  }
+  if (TRAINING_VIEWS.has(view as NavView)) return 'training';
   return 'campaigns';
 }
 
@@ -168,16 +162,7 @@ export function activeTopbarSection(view: string): RailSection {
 export function sidebarSectionForView(view: string): RailSection {
   if (view === 'portfolio') return 'portfolio';
   if (view === 'dashboard') return 'dashboard';
-  if (
-    view === 'drills' ||
-    view === 'missions' ||
-    view === 'reports' ||
-    view === 'bulk' ||
-    view === 'trainer' ||
-    view === 'integrity'
-  ) {
-    return 'training';
-  }
+  if (TRAINING_VIEWS.has(view as NavView)) return 'training';
   return 'campaigns';
 }
 
@@ -254,9 +239,7 @@ export function getKpiTiles(m: MetricsSnapshot): KpiTile[] {
   ) {
     throw new ValidationError('MetricsSnapshot requires finite numeric fields');
   }
-  const ctr = m.impressions ? (m.clicks / m.impressions) * 100 : 0;
-  const acos = m.sales ? (m.spend / m.sales) * 100 : 0;
-  const roas = m.spend ? m.sales / m.spend : 0;
+  const { ctr, acos, roas } = calc(m);
   return [
     { key: 'impressions', label: 'Impressions', value: whole(m.impressions) },
     { key: 'clicks', label: 'Clicks', value: whole(m.clicks) },
