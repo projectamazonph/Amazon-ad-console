@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 const FEATURES = [
   {
     title: 'Campaign Creation Wizard',
-    description: 'Build SP, SB, and SD campaigns step by step ΓÇö the same interface you\'ll use in production.',
+    description: 'Build SP, SB, and SD campaigns step by step — the same interface you\'ll use in production.',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="24" height="24">
         <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
@@ -17,7 +17,7 @@ const FEATURES = [
   },
   {
     title: '7-Day Performance Simulation',
-    description: 'Watch realistic metrics build ΓÇö ROAS, ACOS, CPC, impressions ΓÇö exactly like a live campaign.',
+    description: 'Watch realistic metrics build — ROAS, ACOS, CPC, impressions — exactly like a live campaign.',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="24" height="24">
         <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -26,7 +26,7 @@ const FEATURES = [
   },
   {
     title: 'Search Term Mining',
-    description: 'Identify which search terms convert. Harvest winners, negate losers ΓÇö the optimization loop that actually moves ACOS.',
+    description: 'Identify which search terms convert. Harvest winners, negate losers — the optimization loop that actually moves ACOS.',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="24" height="24">
         <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -53,7 +53,7 @@ const FEATURES = [
   },
   {
     title: 'Bulk CSV Operations',
-    description: 'Paste your Amazon bulk export. Validate it, preview the changes, apply it ΓÇö no more spreadsheet errors.',
+    description: 'Paste your Amazon bulk export. Validate it, preview the changes, apply it — no more spreadsheet errors.',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="24" height="24">
         <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
@@ -66,7 +66,7 @@ const STEPS = [
   {
     num: '01',
     title: 'Build your first campaign',
-    description: 'Choose SP, SB, or SD. Walk through targeting, bidding, and creative settings ΓÇö exactly like the real console.',
+    description: 'Choose SP, SB, or SD. Walk through targeting, bidding, and creative settings — exactly like the real console.',
   },
   {
     num: '02',
@@ -195,14 +195,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Problem ΓåÆ Solution */}
+      {/* Problem → Solution */}
       <section className="landing-problem">
         <div className="container">
           <div className="landing-problem-grid">
             <FadeIn className="landing-problem-col">
               <div className="landing-problem-label">The old way</div>
               <ul className="landing-problem-list">
-                <li>Practice on live campaigns ΓÇö real money, real risk</li>
+                <li>Practice on live campaigns — real money, real risk</li>
                 <li>Learn by trial and expensive error</li>
                 <li>No safe space to experiment with new strategies</li>
                 <li>No guided coaching when you get stuck</li>
@@ -267,7 +267,7 @@ export default function LandingPage() {
         <div className="container">
           <FadeIn className="landing-section-header">
             <h2>The exact interface you&apos;ll use in production</h2>
-            <p>No simplified training wheels ΓÇö this is the real console experience.</p>
+            <p>No simplified training wheels — this is the real console experience.</p>
           </FadeIn>
 
           <FadeIn className="landing-preview-wrapper">
