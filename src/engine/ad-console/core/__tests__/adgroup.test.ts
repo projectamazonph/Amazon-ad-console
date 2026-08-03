@@ -97,13 +97,25 @@ describe('setAdGroupStatus', () => {
 });
 
 describe('setAdGroupDefaultBid', () => {
-  it('sets the default bid (clamped to minimum)', () => {
+  it('sets the default bid', () => {
     const next = setAdGroupDefaultBid(makeCampaign(), 'AG1', 1.25);
     expect(next.adGroups[0]!.defaultBid).toBe(1.25);
   });
 
   it('fails fast on unknown ad group id', () => {
     expect(() => setAdGroupDefaultBid(makeCampaign(), 'NOPE', 1)).toThrow();
+  });
+
+  it('fails fast on a bid below the real minimum instead of silently substituting it', () => {
+    // Previously: 0 and 0.01 passed the non-negative check and were then
+    // silently rewritten to $0.02, discarding what the caller asked for.
+    expect(() => setAdGroupDefaultBid(makeCampaign(), 'AG1', 0)).toThrow();
+    expect(() => setAdGroupDefaultBid(makeCampaign(), 'AG1', 0.01)).toThrow();
+  });
+
+  it('fails fast on a negative or NaN default bid', () => {
+    expect(() => setAdGroupDefaultBid(makeCampaign(), 'AG1', -1)).toThrow();
+    expect(() => setAdGroupDefaultBid(makeCampaign(), 'AG1', NaN)).toThrow();
   });
 });
 

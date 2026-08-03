@@ -5,7 +5,7 @@
 import type {
   Campaign, CampaignStatus, MatchType, Target, TargetType
 } from '../types';
-import { assertNonEmpty, assertFiniteNonNegative, ValidationError } from '../../../../lib/validation';
+import { assertNonEmpty, assertFiniteNonNegative, assertValidBid, ValidationError } from '../../../../lib/validation';
 import { generateId } from './id';
 
 export interface AddTargetOptions {
@@ -132,12 +132,12 @@ export function removeTarget(c: Campaign, targetId: string): Campaign {
 }
 
 export function setTargetBid(c: Campaign, targetId: string, newBid: number): Campaign {
-  assertFiniteNonNegative('bid', newBid);
+  assertValidBid('bid', newBid);
   return {
     ...c,
     targets: c.targets.map((t) =>
       t.id === targetId
-        ? { ...t, bid: Math.max(0.02, newBid) }
+        ? { ...t, bid: newBid }
         : t,
     ),
     history: [
@@ -145,7 +145,7 @@ export function setTargetBid(c: Campaign, targetId: string, newBid: number): Cam
       (() => {
         const t = c.targets.find((x) => x.id === targetId);
         return t
-          ? `Bid for "${t.value}" (${t.type}) changed from $${t.bid.toFixed(2)} to $${Math.max(0.02, newBid).toFixed(2)}`
+          ? `Bid for "${t.value}" (${t.type}) changed from $${t.bid.toFixed(2)} to $${newBid.toFixed(2)}`
           : `Bid updated for target ${targetId}`;
       })(),
     ],

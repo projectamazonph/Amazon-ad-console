@@ -7,6 +7,7 @@ import { Card } from '@astryxdesign/core/Card';
 import type { Campaign } from '@/engine/ad-console/types';
 import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass } from '@/engine/ad-console/core/engine';
+import { MIN_BID } from '@/lib/validation';
 import { EmptyState } from './EmptyState';
 
 interface Props {
@@ -109,7 +110,7 @@ export function TargetsTab({ campaign: c }: Props) {
                     <Button label="+10%" size="sm" onClick={() => adjustTargetBid(c.id, t.id, 1.1)} />{' '}
                     <Button label="Set" size="sm" onClick={() => {
                       const bid = Number(bidEdits[t.id]);
-                      if (bid && bid > 0) setTargetBid(c.id, t.id, bid);
+                      if (bid >= MIN_BID) setTargetBid(c.id, t.id, bid);
                     }} />{' '}
                     <Button
                       label={t.status === 'Paused' ? 'Enable' : 'Pause'}

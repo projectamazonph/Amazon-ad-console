@@ -205,6 +205,12 @@ describe('target operations', () => {
     expect(() => setTargetBid(c, 'T1', -5)).toThrow();
   });
 
+  it('fails fast on a bid below the real minimum instead of silently substituting it', () => {
+    const c = makeCampaign({ targets: [{ id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'kw', match: 'Exact', bid: 0.75, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 }] });
+    expect(() => setTargetBid(c, 'T1', 0)).toThrow();
+    expect(() => setTargetBid(c, 'T1', 0.01)).toThrow();
+  });
+
   it('pauses then re-enables a target', () => {
     const c = makeCampaign({ targets: [{ id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'kw', match: 'Exact', bid: 0.75, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 }] });
     expect(pauseTarget(c, 'T1').targets[0]!.status).toBe('Paused');
