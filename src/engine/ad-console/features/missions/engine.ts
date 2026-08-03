@@ -67,6 +67,7 @@ export function createMissionSession(): MissionSession {
 }
 
 export function startMission(missionId: string): MissionSession {
+  if (!getMission(missionId)) return createMissionSession();
   return {
     missionId,
     currentStep: 0,
