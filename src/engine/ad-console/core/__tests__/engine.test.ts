@@ -195,6 +195,12 @@ describe('target operations', () => {
     expect(adjustTargetBid(c, 'T1', 1.5).targets[0]!.bid).toBe(1.5);
   });
 
+  it('floors a decrement at the platform minimum instead of throwing (the "-10%" button on an already-cheap bid)', () => {
+    const c = makeCampaign({ targets: [{ id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'kw', match: 'Exact', bid: 0.02, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 }] });
+    expect(() => adjustTargetBid(c, 'T1', 0.9)).not.toThrow();
+    expect(adjustTargetBid(c, 'T1', 0.9).targets[0]!.bid).toBe(0.02);
+  });
+
   it('fails fast on a NaN bid instead of silently storing NaN', () => {
     const c = makeCampaign({ targets: [{ id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'kw', match: 'Exact', bid: 0.75, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 }] });
     expect(() => setTargetBid(c, 'T1', NaN)).toThrow();
