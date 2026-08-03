@@ -3,17 +3,12 @@
  */
 import type { TrainerNote, TrainerState } from './types';
 import { assertNonEmpty } from '../../../../lib/validation';
-
-let _counter = 0;
-function uid(): string {
-  _counter++;
-  return 'TN-' + Date.now().toString(36) + '-' + _counter;
-}
+import { generateId } from '../../core/engine/id';
 
 export function addNote(text: string): TrainerNote {
   assertNonEmpty('note text', text);
   return {
-    id: uid(),
+    id: generateId('TN'),
     timestamp: new Date().toISOString(),
     text: text.trim(),
   };

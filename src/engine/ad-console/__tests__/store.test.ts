@@ -26,6 +26,29 @@ describe('Store actions', () => {
       expect(campaign?.targets.map(t => t.match)).toEqual(['Exact', 'Phrase', 'Broad']);
     });
 
+    it('assigns unique ids even when launched within the same millisecond', () => {
+      // Regression: the id used to be built from Date.now() alone with no
+      // counter, so two launches in the same tick (e.g. a double-clicked
+      // "Launch" button) produced identical campaign ids.
+      const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(1700000000000);
+      try {
+        const store = useAdConsoleStore.getState();
+        store.updateDraft('name', 'First');
+        store.launchCampaign();
+        store.updateDraft('name', 'Second');
+        store.launchCampaign();
+
+        const state = useAdConsoleStore.getState().state;
+        const first = state.campaigns.find(c => c.name === 'First');
+        const second = state.campaigns.find(c => c.name === 'Second');
+        expect(first?.id).toBeDefined();
+        expect(second?.id).toBeDefined();
+        expect(first?.id).not.toBe(second?.id);
+      } finally {
+        nowSpy.mockRestore();
+      }
+    });
+
     it('does not create campaign if name is empty', () => {
       const store = useAdConsoleStore.getState();
       store.updateDraft('name', '');
