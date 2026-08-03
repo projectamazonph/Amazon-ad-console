@@ -24,8 +24,8 @@ npx prisma generate               # regenerate client into src/generated/prisma
 
 Run a single Vitest test file or test name:
 ```bash
-npx vitest run src/engine/ad-console/core/__tests__/target.test.ts
-npx vitest run -t "harvests converting search terms"
+npx vitest run src/engine/ad-console/core/__tests__/engine.test.ts
+npx vitest run -t "adds a keyword target"
 ```
 
 Run a single Playwright spec:
@@ -35,7 +35,7 @@ npx playwright test e2e/campaign-wizard.spec.ts
 
 CI (`.github/workflows/ci.yml`) runs, in order: `type-check` → `test` → `build`. Match that locally before pushing.
 
-Coverage thresholds (vitest.config.ts, engine/core code only): 80% statements/functions/lines, 70% branches.
+Coverage thresholds (vitest.config.ts): 80% statements/functions/lines, 70% branches, over `src/**/*.{ts,tsx}` minus components, tests, `.d.ts` files, `store.ts`, and a couple of named exclusions — see the `coverage.exclude` list for specifics.
 
 ## Architecture
 
@@ -104,10 +104,10 @@ Engine functions fail fast: invalid input throws `ValidationError` (`src/lib/val
 
 ## Working conventions specific to this repo
 
-These come from `AGENTS.md`, `LOOP.md`, and `loop-constraints.md` — they apply to automated/agentic changes here and are good defaults for any change:
+These come from `AGENTS.md`, `LOOP.md`, `loop-constraints.md`, and `gate.yaml` — they apply to automated/agentic changes here and are good defaults for any change:
 
-- **Never edit without explicit human approval**: `.env`/`.env.*`, `prisma/schema.prisma` or `prisma/migrations/`, `next.config.ts`, `src/lib/auth.ts`, or files matching `*_key*`/`*_secret*`.
-- Always run `npm test` before proposing a change as done.
+- **Never edit without explicit human approval**: `.env`/`.env.*`, `prisma/schema.prisma` or `prisma/migrations/`, `next.config.ts`, `src/lib/auth.ts`, or files matching `*_key*`/`*_secret*` (the latter two patterns are enforced via `gate.yaml`'s denylist).
+- Always run `npm run test` before proposing a change as done.
 - One fix per change — no drive-by refactors bundled into unrelated work.
 - The engine layer (`src/engine/`) is stable; treat changes there as needing test coverage. The component layer has known SOLID violations (`CreateCampaignWizard`, `CampaignManager`, `CampaignDetail`) — refactor incrementally, not all at once, and don't attempt a full rewrite unprompted.
 - Don't auto-merge or push without being asked; this repo's own agent-loop tooling (`gate.yaml`, `loop-*.md`) treats `docs/**` and `*.md` as the only auto-mergeable paths and requires human review for everything else.
