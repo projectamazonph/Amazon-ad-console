@@ -140,6 +140,27 @@ describe('campaign status toggling', () => {
     expect(dup.metrics.impressions).toBe(0);
     expect(dup.name).toContain('copy');
   });
+
+  it('preserves per-ad-group target distribution when duplicating a multi-ad-group campaign', () => {
+    const c = makeCampaign({
+      adGroups: [
+        { id: 'AG1', campaignId: 'C1', name: 'AG1', status: 'Enabled', defaultBid: 0.75, metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 } },
+        { id: 'AG2', campaignId: 'C1', name: 'AG2', status: 'Enabled', defaultBid: 0.75, metrics: { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 } },
+      ],
+      targets: [
+        { id: 'T1', campaignId: 'C1', adGroupId: 'AG1', type: 'Keyword', value: 'a', match: 'Exact', bid: 1, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+        { id: 'T2', campaignId: 'C1', adGroupId: 'AG2', type: 'Keyword', value: 'b', match: 'Exact', bid: 1, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+        { id: 'T3', campaignId: 'C1', adGroupId: 'AG2', type: 'Keyword', value: 'c', match: 'Exact', bid: 1, status: 'Enabled', impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
+      ],
+    });
+    const dup = duplicateCampaign(c);
+    expect(dup.adGroups).toHaveLength(2);
+    const [newAg1, newAg2] = dup.adGroups;
+    const targetsByAg = (agId: string) => dup.targets.filter((t) => t.adGroupId === agId);
+    expect(targetsByAg(newAg1.id)).toHaveLength(1);
+    expect(targetsByAg(newAg2.id)).toHaveLength(2);
+    expect(dup.targets.map((t) => t.value).sort()).toEqual(['a', 'b', 'c']);
+  });
 });
 
 describe('target operations', () => {
