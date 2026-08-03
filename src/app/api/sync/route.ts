@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { Prisma } from '@/generated/prisma/client';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { safeJsonParse } from '@/lib/json';
 
 /**
  * Wire shape of a campaign as the browser sends it in the sync payload.
@@ -133,7 +134,8 @@ export async function GET() {
     orderBy: { createdAt: 'desc' },
   });
 
-  // Parse JSON fields
+  // Parse JSON fields — a corrupted value in one row falls back to an
+  // empty default instead of throwing and 500ing the entire list.
   const parsed = campaigns.map((c: any) => ({
     id: c.campaignId,
     type: c.type,
@@ -148,16 +150,16 @@ export async function GET() {
     adFormat: c.adFormat,
     campaignGoal: c.campaignGoal,
     bidStrategy: c.bidStrategy,
-    placements: c.placements ? JSON.parse(c.placements) : { top: 0, product: 0, rest: 0 },
-    products: c.products ? JSON.parse(c.products) : [],
-    creative: c.creative ? JSON.parse(c.creative) : null,
-    metrics: c.metrics ? JSON.parse(c.metrics) : { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 },
-    adGroups: c.adGroups ? JSON.parse(c.adGroups) : [],
-    targets: c.targets ? JSON.parse(c.targets) : [],
-    searchTerms: c.searchTerms ? JSON.parse(c.searchTerms) : [],
-    negatives: c.negatives ? JSON.parse(c.negatives) : [],
-    budgetRules: c.budgetRules ? JSON.parse(c.budgetRules) : [],
-    history: c.history ? JSON.parse(c.history) : [],
+    placements: safeJsonParse(c.placements, { top: 0, product: 0, rest: 0 }),
+    products: safeJsonParse(c.products, []),
+    creative: safeJsonParse(c.creative, null),
+    metrics: safeJsonParse(c.metrics, { impressions: 0, clicks: 0, spend: 0, sales: 0, orders: 0 }),
+    adGroups: safeJsonParse(c.adGroups, []),
+    targets: safeJsonParse(c.targets, []),
+    searchTerms: safeJsonParse(c.searchTerms, []),
+    negatives: safeJsonParse(c.negatives, []),
+    budgetRules: safeJsonParse(c.budgetRules, []),
+    history: safeJsonParse(c.history, []),
   }));
 
   return NextResponse.json(parsed);

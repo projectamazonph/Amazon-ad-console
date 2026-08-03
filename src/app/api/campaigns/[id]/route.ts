@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { safeJsonParse } from '@/lib/json';
 
 export async function GET(
   request: Request,
@@ -23,19 +24,20 @@ export async function GET(
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
-  // Parse JSON fields
+  // Parse JSON fields — a corrupted value falls back to an empty default
+  // instead of throwing and 500ing the request.
   const parsed = {
     ...campaign,
-    placements: campaign.placements ? JSON.parse(campaign.placements) : null,
-    products: campaign.products ? JSON.parse(campaign.products) : [],
-    creative: campaign.creative ? JSON.parse(campaign.creative) : null,
-    metrics: campaign.metrics ? JSON.parse(campaign.metrics) : null,
-    adGroups: campaign.adGroups ? JSON.parse(campaign.adGroups) : [],
-    targets: campaign.targets ? JSON.parse(campaign.targets) : [],
-    searchTerms: campaign.searchTerms ? JSON.parse(campaign.searchTerms) : [],
-    negatives: campaign.negatives ? JSON.parse(campaign.negatives) : [],
-    budgetRules: campaign.budgetRules ? JSON.parse(campaign.budgetRules) : [],
-    history: campaign.history ? JSON.parse(campaign.history) : [],
+    placements: safeJsonParse(campaign.placements, null),
+    products: safeJsonParse(campaign.products, []),
+    creative: safeJsonParse(campaign.creative, null),
+    metrics: safeJsonParse(campaign.metrics, null),
+    adGroups: safeJsonParse(campaign.adGroups, []),
+    targets: safeJsonParse(campaign.targets, []),
+    searchTerms: safeJsonParse(campaign.searchTerms, []),
+    negatives: safeJsonParse(campaign.negatives, []),
+    budgetRules: safeJsonParse(campaign.budgetRules, []),
+    history: safeJsonParse(campaign.history, []),
   };
 
   return NextResponse.json(parsed);
