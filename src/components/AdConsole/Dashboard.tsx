@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { Button } from '@astryxdesign/core/Button';
 import { Table } from '@astryxdesign/core/Table';
 import { Card } from '@astryxdesign/core/Card';
@@ -15,16 +16,23 @@ export function Dashboard() {
   const selectCampaign = useAdConsoleStore((s) => s.selectCampaign);
   const totalMetrics = useAdConsoleStore((s) => s.totalMetricsCalc);
 
-  const m = totalMetrics();
-  const d = calc(m);
-  const tiles = getKpiTiles({
-    impressions: m.impressions,
-    clicks: m.clicks,
-    spend: m.spend,
-    sales: m.sales,
-    orders: m.orders,
-    units: m.orders,
-  });
+  // state.campaigns keeps the same array reference for any state change
+  // that doesn't touch campaigns (filter/tab/mobile-menu toggles, etc.),
+  // so this skips recomputing the full-campaign-list aggregate on those.
+  const m = useMemo(() => totalMetrics(), [state.campaigns]); // eslint-disable-line react-hooks/exhaustive-deps
+  const d = useMemo(() => calc(m), [m]);
+  const tiles = useMemo(
+    () =>
+      getKpiTiles({
+        impressions: m.impressions,
+        clicks: m.clicks,
+        spend: m.spend,
+        sales: m.sales,
+        orders: m.orders,
+        units: m.orders,
+      }),
+    [m],
+  );
 
   const enabledCount = state.campaigns.filter((c) => c.status === 'Enabled').length;
   const acosHealthy = d.acos > 0 && d.acos <= 30;

@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { Table } from '@astryxdesign/core/Table';
 import type { Campaign } from '@/engine/ad-console/types';
 import { calc, formatMoney, formatWhole, formatPercent, formatBid, formatRoas, acosClass, isFilteredByNegative } from '@/engine/ad-console/core/engine';
@@ -10,10 +11,14 @@ interface Props {
 }
 
 export function ManagerSearchTermsTab({ campaigns }: Props) {
-  const rows = campaigns.flatMap((c) =>
-    (c.searchTerms || [])
-      .filter((st) => !isFilteredByNegative(st.term, c.negatives))
-      .map((st) => ({ c, st }))
+  const rows = useMemo(
+    () =>
+      campaigns.flatMap((c) =>
+        (c.searchTerms || [])
+          .filter((st) => !isFilteredByNegative(st.term, c.negatives))
+          .map((st) => ({ c, st }))
+      ),
+    [campaigns],
   );
 
   if (!rows.length) {
