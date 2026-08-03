@@ -179,7 +179,10 @@ describe('simulateDays', () => {
     });
     const [firstRun] = simulateDays([c], 7);
     const [secondRun] = simulateDays([firstRun], 7);
+    const firstTerms = firstRun.searchTerms.map(st => st.term);
     const terms = secondRun.searchTerms.map(st => st.term);
+    expect(firstTerms.length).toBeGreaterThan(0);
+    expect(terms).toEqual(expect.arrayContaining(firstTerms));
     const unique = new Set(terms);
     expect(terms.length).toBe(unique.size);
     // The second run should carry forward the first run's terms, not duplicate them.

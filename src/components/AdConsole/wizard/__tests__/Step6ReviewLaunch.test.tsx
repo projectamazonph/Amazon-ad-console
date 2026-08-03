@@ -54,7 +54,8 @@ describe('Step6ReviewLaunch — targeting/creative summary rows', () => {
     expect(screen.getByText('1 entered')).toBeTruthy();
   });
 
-  it('shows the SB/SD creative headline, brand, and destination when set', () => {
+  it.each(['SB', 'SD'] as const)('shows the %s creative headline, brand, and destination when set', (type) => {
+    useAdConsoleStore.getState().updateDraft('type', type);
     useAdConsoleStore.getState().updateDraft('creative', {
       headline: 'Discover your perfect brew',
       brandName: 'Acme Coffee',

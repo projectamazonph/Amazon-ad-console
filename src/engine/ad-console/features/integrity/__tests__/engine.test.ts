@@ -129,6 +129,7 @@ describe('runIntegrityCheck', () => {
         }),
       ]);
       const ids = report.issues.map((i) => i.id);
+      expect(ids.length).toBeGreaterThan(1);
       expect(new Set(ids).size).toBe(ids.length);
     } finally {
       nowSpy.mockRestore();

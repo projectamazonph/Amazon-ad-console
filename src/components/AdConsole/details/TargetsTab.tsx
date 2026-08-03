@@ -93,8 +93,13 @@ export function TargetsTab({ campaign: c }: Props) {
                   <td><span className={`pill ${t.status === 'Enabled' ? 'green' : 'orange'}`}>{t.status}</span></td>
                   <td>
                     <label htmlFor={`t-bid-${t.id}`} className="visually-hidden">Bid for {t.value}</label>
-                    <input id={`t-bid-${t.id}`} className="input" style={{ width: 72, padding: '4px 6px', fontSize: 12 }}
+                    <input id={`t-bid-${t.id}`} className="input" style={{
+                        width: 72, padding: '4px 6px', fontSize: 12,
+                        ...(Number(bidEdits[t.id] ?? t.bid) < MIN_BID ? { borderColor: 'var(--danger)' } : {}),
+                      }}
                       type="number" min="0.02" step="0.01" value={bidEdits[t.id] ?? t.bid}
+                      aria-invalid={Number(bidEdits[t.id] ?? t.bid) < MIN_BID || undefined}
+                      title={Number(bidEdits[t.id] ?? t.bid) < MIN_BID ? `Minimum bid is $${MIN_BID.toFixed(2)}.` : undefined}
                       onChange={(e) => setBidEdits({ ...bidEdits, [t.id]: e.target.value })} />
                   </td>
                   <td className="mono">{formatWhole(t.impressions)}</td>
