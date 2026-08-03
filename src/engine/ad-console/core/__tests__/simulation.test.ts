@@ -170,4 +170,14 @@ describe('simulateDays', () => {
     const unique = new Set(terms);
     expect(terms.length).toBe(unique.size);
   });
+
+  it('fails fast on a negative days value instead of corrupting metrics', () => {
+    const c = makeCampaign();
+    expect(() => simulateDays([c], -7)).toThrow();
+  });
+
+  it('fails fast on a NaN days value', () => {
+    const c = makeCampaign();
+    expect(() => simulateDays([c], NaN)).toThrow();
+  });
 });

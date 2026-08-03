@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { safeJsonParse } from '@/lib/json';
 
 export async function GET() {
   const session = await auth();
@@ -13,19 +14,20 @@ export async function GET() {
     orderBy: { createdAt: 'desc' },
   });
 
-  // Parse JSON fields
+  // Parse JSON fields — a corrupted value in one row falls back to an
+  // empty default instead of throwing and 500ing the entire list.
   const parsed = campaigns.map((c: any) => ({
     ...c,
-    placements: c.placements ? JSON.parse(c.placements) : null,
-    products: c.products ? JSON.parse(c.products) : [],
-    creative: c.creative ? JSON.parse(c.creative) : null,
-    metrics: c.metrics ? JSON.parse(c.metrics) : null,
-    adGroups: c.adGroups ? JSON.parse(c.adGroups) : [],
-    targets: c.targets ? JSON.parse(c.targets) : [],
-    searchTerms: c.searchTerms ? JSON.parse(c.searchTerms) : [],
-    negatives: c.negatives ? JSON.parse(c.negatives) : [],
-    budgetRules: c.budgetRules ? JSON.parse(c.budgetRules) : [],
-    history: c.history ? JSON.parse(c.history) : [],
+    placements: safeJsonParse(c.placements, null),
+    products: safeJsonParse(c.products, []),
+    creative: safeJsonParse(c.creative, null),
+    metrics: safeJsonParse(c.metrics, null),
+    adGroups: safeJsonParse(c.adGroups, []),
+    targets: safeJsonParse(c.targets, []),
+    searchTerms: safeJsonParse(c.searchTerms, []),
+    negatives: safeJsonParse(c.negatives, []),
+    budgetRules: safeJsonParse(c.budgetRules, []),
+    history: safeJsonParse(c.history, []),
   }));
 
   return NextResponse.json(parsed);

@@ -52,6 +52,14 @@ describe('ProfilesSlice', () => {
     expect(getStore().profiles.some((p) => p.name === 'to-delete')).toBe(false);
   });
 
+  it('deleteProfile reseeds a default profile instead of leaving an empty, dangling roster', () => {
+    const onlyProfileId = getStore().profiles[0].id;
+    getStore().deleteProfile(onlyProfileId);
+    expect(getStore().profiles).toHaveLength(1);
+    expect(getStore().activeProfileId).toBe(getStore().profiles[0].id);
+    expect(getStore().profiles.find((p) => p.id === getStore().activeProfileId)).toBeDefined();
+  });
+
   it('switchProfile switches', () => {
     getStore().createProfile('switchable');
     const id = getStore().profiles.find((p) => p.name === 'switchable')!.id;
@@ -65,6 +73,13 @@ describe('ProfilesSlice', () => {
     getStore().renameProfile(id, 'new-name');
     expect(getStore().profiles.some((p) => p.name === 'new-name')).toBe(true);
   });
+
+  it('renameProfile no-ops on a blank name instead of throwing', () => {
+    getStore().createProfile('keep-me');
+    const id = getStore().profiles.find((p) => p.name === 'keep-me')!.id;
+    expect(() => getStore().renameProfile(id, '   ')).not.toThrow();
+    expect(getStore().profiles.find((p) => p.id === id)!.name).toBe('keep-me');
+  });
 });
 
 describe('TrainerSlice', () => {
@@ -74,6 +89,12 @@ describe('TrainerSlice', () => {
     getStore().addNote('Test note');
     expect(getStore().notes.length).toBeGreaterThan(0);
     expect(getStore().notes[0].text).toBe('Test note');
+  });
+
+  it('addNote no-ops on blank/whitespace text instead of throwing', () => {
+    const before = getStore().notes.length;
+    expect(() => getStore().addNote('   ')).not.toThrow();
+    expect(getStore().notes).toHaveLength(before);
   });
 
   it('deleteNote deletes', () => {

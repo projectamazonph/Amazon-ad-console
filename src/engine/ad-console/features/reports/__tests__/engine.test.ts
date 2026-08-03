@@ -27,6 +27,16 @@ describe('generateReport', () => {
     expect(r.rows).toHaveLength(0);
   });
 
+  it('produces rows for searchTerm reports (previously silently empty)', () => {
+    const r = generateReport('searchTerm');
+    expect(r.rows).toHaveLength(5);
+  });
+
+  it('produces rows for placement reports (previously silently empty)', () => {
+    const r = generateReport('placement');
+    expect(r.rows).toHaveLength(5);
+  });
+
   it('computes derived KPIs per row', () => {
     const r = generateReport('campaign');
     const row = r.rows[0]!;

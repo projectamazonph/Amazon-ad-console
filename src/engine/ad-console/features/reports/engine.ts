@@ -26,7 +26,7 @@ export function generateReport(type: ReportType): Report {
   const rows: Report['rows'] = [];
   const now = new Date().toISOString();
 
-  if (type === 'campaign' || type === 'adGroup' || type === 'target') {
+  if (REPORT_TYPES.includes(type)) {
     // Generate simulated report data
     for (let i = 0; i < 5; i++) {
       const clicks = Math.round(100 + Math.random() * 500);

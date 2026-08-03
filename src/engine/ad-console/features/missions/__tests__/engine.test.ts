@@ -34,6 +34,12 @@ describe('mission session lifecycle', () => {
     expect(s.score).toBe(100);
   });
 
+  it('falls back to an empty session for an unknown mission id instead of an unresolvable session', () => {
+    const s = startMission('typo-id');
+    expect(s).toEqual(createMissionSession());
+    expect(s.missionId).toBeNull();
+  });
+
   it('lowers score by 10 per hint', () => {
     const s0 = startMission('sp-harvest-negate');
     const s1 = useHint(s0);

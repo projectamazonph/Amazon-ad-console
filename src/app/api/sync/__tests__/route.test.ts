@@ -220,4 +220,66 @@ describe('GET /api/sync', () => {
     const res = await GET();
     expect(res.status).toBe(401);
   });
+
+  it('falls back to empty defaults for a row with corrupted JSON instead of 500ing the whole list', async () => {
+    prismaMock.campaign.findMany.mockResolvedValueOnce([
+      {
+        campaignId: 'corrupted',
+        type: 'SP',
+        name: 'Corrupted Row',
+        portfolio: null,
+        status: 'Enabled',
+        dailyBudget: 25,
+        defaultBid: 0.75,
+        startDate: null,
+        endDate: null,
+        targetingMode: null,
+        adFormat: null,
+        campaignGoal: null,
+        bidStrategy: null,
+        placements: '{not valid json',
+        products: null,
+        creative: null,
+        metrics: null,
+        adGroups: '{also not valid',
+        targets: null,
+        searchTerms: null,
+        negatives: null,
+        budgetRules: null,
+        history: null,
+      },
+      {
+        campaignId: 'healthy',
+        type: 'SP',
+        name: 'Healthy Row',
+        portfolio: null,
+        status: 'Enabled',
+        dailyBudget: 25,
+        defaultBid: 0.75,
+        startDate: null,
+        endDate: null,
+        targetingMode: null,
+        adFormat: null,
+        campaignGoal: null,
+        bidStrategy: null,
+        placements: null,
+        products: null,
+        creative: null,
+        metrics: null,
+        adGroups: null,
+        targets: null,
+        searchTerms: null,
+        negatives: null,
+        budgetRules: null,
+        history: null,
+      },
+    ]);
+    const res = await GET();
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body).toHaveLength(2);
+    expect(body[0].placements).toEqual({ top: 0, product: 0, rest: 0 });
+    expect(body[0].adGroups).toEqual([]);
+    expect(body[1].id).toBe('healthy');
+  });
 });

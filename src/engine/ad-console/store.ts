@@ -132,9 +132,12 @@ export const useAdConsoleStore = create<AppStore>()(
     {
       name: PERSIST_KEY,
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
-        state: state.state,
-      }),
+      // Persist every non-function field so newly added slices are
+      // included automatically — a hardcoded key list silently drops
+      // whatever the next feature slice adds (see: this bug).
+      partialize: (state) => Object.fromEntries(
+        Object.entries(state).filter(([, value]) => typeof value !== 'function'),
+      ) as Partial<AppStore>,
       merge: (persisted, current) => ({
         ...current,
         ...(persisted as Partial<AppStore>),

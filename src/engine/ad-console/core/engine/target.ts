@@ -132,6 +132,7 @@ export function removeTarget(c: Campaign, targetId: string): Campaign {
 }
 
 export function setTargetBid(c: Campaign, targetId: string, newBid: number): Campaign {
+  assertFiniteNonNegative('bid', newBid);
   return {
     ...c,
     targets: c.targets.map((t) =>
@@ -158,19 +159,18 @@ export function adjustTargetBid(c: Campaign, targetId: string, multiplier: numbe
 }
 
 export function pauseTarget(c: Campaign, targetId: string): Campaign {
+  const t = c.targets.find((x) => x.id === targetId);
+  if (!t) return c;
   return {
     ...c,
-    targets: c.targets.map((t) =>
-      t.id === targetId
-        ? { ...t, status: (t.status === 'Paused' ? 'Enabled' : 'Paused') as CampaignStatus }
-        : t,
+    targets: c.targets.map((x) =>
+      x.id === targetId
+        ? { ...x, status: (x.status === 'Paused' ? 'Enabled' : 'Paused') as CampaignStatus }
+        : x,
     ),
     history: [
       ...c.history,
-      (() => {
-        const t = c.targets.find((x) => x.id === targetId);
-        return t ? `Target "${t.value}" (${t.type}) ${t.status === 'Paused' ? 'enabled' : 'paused'}` : '';
-      })(),
+      `Target "${t.value}" (${t.type}) ${t.status === 'Paused' ? 'enabled' : 'paused'}`,
     ],
   };
 }
