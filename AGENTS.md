@@ -4,10 +4,10 @@
 
 - **Framework**: Next.js 16, React 19, TypeScript ~5.8
 - **State**: Zustand 5
-- **Database**: Prisma 7 (SQLite dev)
+- **Database**: Prisma 7 + Postgres (via `@prisma/adapter-neon`)
 - **Auth**: NextAuth 5 (beta)
 - **Testing**: Vitest 4, Playwright 1.61
-- **Styling**: Tailwind CSS
+- **Styling**: `@astryxdesign/core` components + CSS custom-property tokens (no Tailwind compiler wired up despite the name appearing in some older docs)
 
 ## Build & Test
 

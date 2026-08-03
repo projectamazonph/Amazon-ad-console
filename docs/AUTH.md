@@ -17,7 +17,7 @@ The application supports multiple users with isolated campaign data. Each user c
 
 1. **NextAuth v5** — Authentication provider
 2. **Prisma** — Database ORM
-3. **SQLite** — Local development database
+3. **Postgres** — Database (via `@prisma/adapter-neon`), used in every environment
 4. **JWT Sessions** — Stateless session management
 
 ### Database Schema
@@ -61,7 +61,7 @@ npm install -D @types/bcryptjs
 ### 2. Initialize Prisma
 
 ```bash
-npx prisma init --datasource-provider sqlite
+npx prisma init --datasource-provider postgresql
 ```
 
 ### 3. Configure Environment Variables
@@ -69,12 +69,11 @@ npx prisma init --datasource-provider sqlite
 Create `.env` file:
 
 ```env
-# Prisma
-DATABASE_URL="file:./dev.db"
+# Prisma (Postgres — e.g. from Vercel Storage → Postgres, or Neon directly)
+DATABASE_URL="postgresql://user:password@host/dbname?sslmode=require"
 
-# NextAuth
-NEXTAUTH_SECRET="your-secret-key-here"
-NEXTAUTH_URL="http://localhost:3000"
+# NextAuth/Auth.js session secret — generate with: openssl rand -base64 32
+AUTH_SECRET="your-secret-key-here"
 ```
 
 ### 4. Run Migrations
@@ -295,25 +294,20 @@ export function SyncButton() {
 ## Production Deployment
 
 ### Database
-Replace SQLite with a production database:
+`prisma/schema.prisma` targets Postgres (via `@prisma/adapter-neon`) in every environment, not just production — see `.env.example`:
 
 ```env
-# PostgreSQL
-DATABASE_URL="postgresql://user:password@localhost:5432/adconsole"
-
-# MySQL
-DATABASE_URL="mysql://user:password@localhost:3306/adconsole"
+DATABASE_URL="postgresql://user:password@host/dbname?sslmode=require"
 ```
 
 ### Environment Variables
 ```env
-DATABASE_URL="your-production-db-url"
-NEXTAUTH_SECRET="strong-random-secret"
-NEXTAUTH_URL="https://your-domain.com"
+DATABASE_URL="your-postgres-connection-string"
+AUTH_SECRET="strong-random-secret"   # generate with: openssl rand -base64 32
 ```
 
 ### Security Checklist
-- [ ] Use strong NEXTAUTH_SECRET (32+ characters)
+- [ ] Use strong AUTH_SECRET (32+ characters)
 - [ ] Enable HTTPS in production
 - [ ] Set secure cookie flags
 - [ ] Add rate limiting to auth endpoints
@@ -333,18 +327,17 @@ NEXTAUTH_URL="https://your-domain.com"
 **"Unauthorized" error**
 - Ensure user is logged in
 - Check JWT token expiration
-- Verify NEXTAUTH_SECRET is set
+- Verify AUTH_SECRET is set
 
 **Database connection errors**
 - Run `npx prisma migrate dev`
-- Check DATABASE_URL in .env
-- Verify SQLite file exists
+- Check DATABASE_URL in .env points at a reachable Postgres instance
 
 ### Debug Mode
 Enable NextAuth debug logging:
 
 ```env
-NEXTAUTH_DEBUG=true
+AUTH_DEBUG=true
 ```
 
 ## Future Enhancements

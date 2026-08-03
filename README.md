@@ -16,7 +16,7 @@ Open [http://localhost:3000](http://localhost:3000) — the simulator loads with
 |---|---|---|---|
 | 1 | SP | Auto \| Coffee Filter \| Discovery | Automatic |
 | 2 | SP | Manual \| Coffee Filter \| Exact Winners | Manual keyword |
-| 3 | SB | Video \| Coffee Brand Awareness | Video creative |
+| 3 | SB | Video \| Coffee Brand Awareness | Keyword (Video ad format) |
 | 4 | SD | Views Remarketing \| 30 Day | Audience |
 | 5 | SB | Product Collection \| Coffee Variety | Product targeting |
 | 6 | SD | Contextual \| Coffee Accessories | Contextual |
@@ -75,11 +75,12 @@ Open [http://localhost:3000](http://localhost:3000) — the simulator loads with
 |-------|-----------|
 | Framework | Next.js 16 (App Router) |
 | UI | React 19 |
-| State | Zustand 5 (single store, 8 slices) |
+| State | Zustand 5 (single store, 8 core slices + 7 feature slices) |
 | Language | TypeScript 5.8 (strict mode) |
-| Styling | Global CSS (premium design system with Amazon-faithful tokens) |
+| UI components | `@astryxdesign/core` (153 components, theme via `@astryxdesign/theme-neutral`) |
+| Styling | Global CSS tokens bridging Astryx to the Amazon-faithful visual identity |
 | Engine | Pure TypeScript — zero React/UI dependencies |
-| Database | Prisma + SQLite (local development) |
+| Database | Prisma 7 + Postgres (via `@prisma/adapter-neon`) |
 | Authentication | NextAuth v5 (credentials provider) |
 | Password Hashing | bcryptjs |
 
@@ -131,9 +132,12 @@ Amazon-ad-console/
 │   │   └── ad-console/
 │   │       ├── core/               # Zero-dep engine
 │   │       │   ├── types.ts        # All domain interfaces
-│   │       │   ├── engine.ts       # Pure stateless functions
+│   │       │   ├── engine/         # Pure stateless functions, one module per domain concern
+│   │       │   │   └── (campaign, target, adgroup, negative, budget, portfolio, draft, id, metrics, responsive, search-term-generator).ts
+│   │       │   ├── simulation.ts   # 7-day performance simulator
+│   │       │   ├── slices/         # Zustand StateCreator slices wrapping the engine
 │   │       │   └── scenarios.ts    # Training data & product catalog
-│   │       ├── features/           # 7 SOLID feature modules
+│   │       ├── features/           # 7 self-contained feature modules
 │   │       │   ├── drills/         # Navigation coaching
 │   │       │   ├── profiles/       # Multi-user profiles
 │   │       │   ├── trainer/        # Certification & grading
@@ -142,27 +146,26 @@ Amazon-ad-console/
 │   │       │   ├── missions/       # Scenario challenges
 │   │       │   └── integrity/      # Data quality checks
 │   │       ├── store.ts            # Composed root Zustand store
-│   │       ├── index.ts            # Public API re-exports
-│   │       ├── engine.ts           # Backward-compat re-export
-│   │       └── types.ts            # Backward-compat re-export
+│   │       └── index.ts            # Public API re-exports
 │   ├── components/
 │   │   ├── AdConsole/              # React UI layer
 │   │   │   ├── AdConsole.tsx        # Root view router
 │   │   │   ├── Dashboard.tsx        # Aggregate metrics
 │   │   │   ├── CampaignManager.tsx  # Campaign list + filters
 │   │   │   ├── CampaignDetail.tsx   # Single campaign deep-dive
-│   │   │   ├── CreateCampaignWizard.tsx # Multi-step creation flow
 │   │   │   ├── PortfolioOverview.tsx # Portfolio grouping
+│   │   │   ├── wizard/              # 6-step campaign creation flow (per SP/SB/SD)
+│   │   │   │   └── CreateCampaignWizard.tsx
 │   │   │   ├── layout/
-│   │   │   │   ├── Sidebar.tsx      # Navigation rail
+│   │   │   │   ├── Sidebar.tsx      # Desktop navigation rail
 │   │   │   │   └── Topbar.tsx       # Header with actions + UserMenu
 │   │   │   ├── mobile/
-│   │   │   │   └── MobileNav.tsx    # Mobile drawer navigation
+│   │   │   │   └── MobileNav.tsx    # Mobile/tablet hamburger drawer navigation
 │   │   │   ├── nav/
 │   │   │   │   └── consoleNav.ts    # Amazon console nav model
 │   │   │   ├── metrics/
 │   │   │   │   └── MetricCard.tsx   # Reusable metric display
-│   │   │   ├── details/             # Tab components
+│   │   │   ├── details/             # Tab components + shared EmptyState
 │   │   │   └── features/            # Feature-specific pages
 │   │   │       ├── drills/DrillsPage.tsx
 │   │   │       ├── missions/MissionsPage.tsx
@@ -191,6 +194,9 @@ Amazon-ad-console/
 │   ├── TECH-SPECS.md
 │   ├── MOBILE_REDESIGN_PLAN.md
 │   └── AUTH.md                      # Multi-user authentication guide
+├── CLAUDE.md                        # Architecture + conventions guide for Claude Code
+├── CHANGELOG.md                     # Notable changes per release
+├── .env.example                     # DATABASE_URL / AUTH_SECRET template
 ├── package.json
 ├── tsconfig.json
 ├── next.config.ts
@@ -232,7 +238,9 @@ See [docs/INTEGRATION.md](docs/INTEGRATION.md) for the full porting guide.
 - [Tech Specs](docs/TECH-SPECS.md) — Dependencies, configuration, performance
 - [Mobile Redesign Plan](docs/MOBILE_REDESIGN_PLAN.md) — Mobile-first redesign strategy
 - [Authentication Guide](docs/AUTH.md) — Multi-user access setup and configuration
+- [Deployment](docs/DEPLOYMENT.md) — Vercel project setup and deploy process
 - [Audit Follow-Ups](docs/AUDIT-FOLLOWUPS.md) — Status of each finding from the 2026-07-21 audit, with PR links
+- [Changelog](CHANGELOG.md) — Notable changes per release, starting at 3.6.0
 
 ## License
 

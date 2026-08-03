@@ -85,23 +85,22 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 ```
+(The connection itself — `DATABASE_URL` plus the `@prisma/adapter-neon` driver adapter — is wired up in `prisma.config.ts` / `src/lib/prisma.ts`, not the `url` field here; Prisma 7's driver-adapter pattern moved that out of `schema.prisma`.)
 
 ### Environment Variables
 ```env
-# Prisma
-DATABASE_URL="file:./dev.db"
+# Prisma (Postgres — e.g. from Vercel Storage → Postgres, or Neon directly)
+DATABASE_URL="postgresql://user:password@host/dbname?sslmode=require"
 
-# NextAuth
-NEXTAUTH_SECRET="your-secret-key-here"
-NEXTAUTH_URL="http://localhost:3000"
+# NextAuth/Auth.js session secret — generate with: openssl rand -base64 32
+AUTH_SECRET="your-secret-key-here"
 ```
 
 ### Database Commands
 ```bash
-npx prisma init --datasource-provider sqlite
 npx prisma migrate dev --name init
 npx prisma generate
 npx prisma db push
@@ -109,33 +108,35 @@ npx prisma db push
 
 ## File Statistics
 
+*Point-in-time snapshot as of 2026-08-03 (v3.6.0) — expect drift; re-run the `find`/`wc -l` commands below rather than trusting these numbers long-term.*
+
 | Directory | Files | Total Lines |
 |-----------|-------|------------|
-| `src/engine/ad-console/core/` | 3 | ~800 |
-| `src/engine/ad-console/features/` | 21 | ~1,800 |
-| `src/engine/ad-console/` (root) | 4 | ~220 |
-| `src/components/AdConsole/` | 15 | ~1,800 |
-| `src/components/` (root) | 3 | ~200 |
-| `src/app/` | 8 | ~1,200 |
-| `src/lib/` | 4 | ~300 |
-| `prisma/` | 2 | ~100 |
-| **Total src/** | **60+** | **~7,500** |
+| `src/engine/ad-console/core/` (incl. `engine/`, `slices/`) | 25 | ~2,330 |
+| `src/engine/ad-console/features/` | 21 | ~1,180 |
+| `src/engine/ad-console/` (root: `index.ts`, `store.ts`, `scenarios.ts`, `types.ts`) | 4 | ~180 |
+| `src/components/AdConsole/` | 44 | ~3,930 |
+| `src/components/` (root) | 3 | ~160 |
+| `src/app/` (top-level, incl. `globals.css`) | 5 | ~4,530 |
+| `src/lib/` | 7 | ~260 |
+| **Total src/** | — | ~20,700 |
 
-### Source File Breakdown
+Note: `core/` was originally a 3-file module (`types.ts`, a single `engine.ts`, `scenarios.ts`); it's since been split into `core/engine/` (one file per domain concern — `campaign.ts`, `target.ts`, `adgroup.ts`, `negative.ts`, `budget.ts`, `portfolio.ts`, `draft.ts`, `id.ts`, `metrics.ts`, `responsive.ts`, `search-term-generator.ts`), `core/simulation.ts`, and `core/slices/` (the Zustand-dependent wrappers) — see `CLAUDE.md` for the current breakdown.
 
-| File | Lines | Responsibility |
-|------|-------|---------------|
-| `globals.css` | 1,377 | Design system tokens + responsive styles |
-| `store.ts` | 250 | Zustand root store composition |
-| `engine.ts` | 600 | Core business logic functions |
-| `types.ts` | 200 | Domain interfaces |
-| `scenarios.ts` | 400 | Training data & product catalog |
-| `CampaignManager.tsx` | 300 | Campaign list + filters |
-| `CampaignDetail.tsx` | 550 | Single campaign deep-dive |
-| `CreateCampaignWizard.tsx` | 200 | Multi-step creation flow |
-| `MobileNav.tsx` | 133 | Mobile drawer navigation |
-| `auth.ts` | 80 | NextAuth configuration |
-| `prisma.ts` | 15 | Prisma client singleton |
+### Selected File Sizes
+
+| File | Responsibility |
+|------|---------------|
+| `globals.css` | Design system tokens + responsive styles (largest single file in the repo) |
+| `store.ts` | Zustand root store composition |
+| `core/types.ts` | Domain interfaces |
+| `core/scenarios.ts` | Training data & product catalog |
+| `CampaignManager.tsx` | Campaign list + filters |
+| `CampaignDetail.tsx` | Single campaign deep-dive |
+| `wizard/CreateCampaignWizard.tsx` + `wizard/steps/**` | 6-step, per-ad-type creation flow |
+| `MobileNav.tsx` | Mobile/tablet hamburger drawer navigation |
+| `auth.ts` | NextAuth configuration |
+| `prisma.ts` | Prisma client singleton |
 
 ## Testing Configuration
 
@@ -210,6 +211,5 @@ CMD ["npm", "start"]
 ### Environment Variables for Production
 ```env
 DATABASE_URL="postgresql://user:password@host:5432/db"
-NEXTAUTH_SECRET="strong-random-secret"
-NEXTAUTH_URL="https://your-domain.com"
+AUTH_SECRET="strong-random-secret"
 ```
