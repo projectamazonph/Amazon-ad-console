@@ -405,13 +405,13 @@ When clicking a tab-mapped item:
 
 | Range | Label | Behavior |
 |-------|-------|----------|
-| < 768px | Mobile | Sidebar hidden, hamburger toggle + slide-out drawer |
-| 768–1100px | Tablet | Sidebar collapses to 200px, hamburger still available |
-| > 1100px | Desktop | Full Amazon Console layout |
+| < 768px | Mobile | Desktop sidebar hidden; hamburger toggle + slide-out drawer |
+| 768–1100px | Tablet | Same as mobile — desktop sidebar hidden, hamburger drawer takes over (both are `isMobileOrTablet` in `useBreakpoint`) |
+| > 1100px | Desktop | Full Amazon Console layout with the persistent left sidebar |
 
 ### Mobile Drawer
 - Hamburger button in the global nav toggles a slide-out drawer
-- Drawer contains all sidebar groups: Campaign Manager, Portfolios, Measurement
+- Drawer contains all sidebar groups for the active section: Campaign Manager, Portfolios, Measurement, or Training (Drills/Missions/Reports/Bulk ops/Trainer/Integrity)
 - Backdrop overlay with click-to-close
 - Escape key closes the drawer
 - Animation state machine: closed → open ↔ closing → closed
