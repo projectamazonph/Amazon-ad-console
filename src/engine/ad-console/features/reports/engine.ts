@@ -2,7 +2,7 @@
  * Reports — pure engine.
  */
 import type { Report, ReportRequest, ReportType } from './types';
-import { assertNonEmpty, ValidationError } from '../../../../lib/validation';
+import { ValidationError } from '../../../../lib/validation';
 import { generateId } from '../../core/engine/id';
 
 const REPORT_TYPES: ReportType[] = ['campaign', 'adGroup', 'target', 'searchTerm', 'placement'];
