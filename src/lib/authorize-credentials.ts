@@ -34,7 +34,7 @@ export async function authorizeCredentials(
   if (matches.length > 1) {
     console.error(
       '[auth] multiple users matched email case-insensitively; refusing to pick one',
-      { email: normalizedEmail, userIds: matches.map((u) => u.id) },
+      { userIds: matches.map((u) => u.id) },
     );
     return null;
   }
