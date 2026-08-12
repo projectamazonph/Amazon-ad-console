@@ -10,11 +10,14 @@
  *
  * Visual treatment owned by `.campaign-card*` classes in globals.css.
  */
+import { useState } from 'react';
 import type { Campaign, CampaignStatus, CampaignType } from '@/engine/ad-console/types';
 
 export interface CampaignCardProps {
   campaign: Campaign;
   onSelect: (id: string) => void;
+  onToggleStatus?: (id: string) => void;
+  onArchive?: (id: string) => void;
 }
 
 function formatMoney(n: number): string {
@@ -29,9 +32,11 @@ function formatRoas(sales: number, spend: number): string {
   return (sales / spend).toFixed(2);
 }
 
+function formatPercent(n: number): string {
+  return n.toFixed(2) + '%';
+}
+
 function statusPillClass(status: CampaignStatus): string {
-  // Reuse existing pill color system: green=Enabled, orange=Paused,
-  // red=Archived, bad=Draft. Matches Dashboard.tsx and CampaignManager.
   switch (status) {
     case 'Enabled':
       return 'pill green';
@@ -45,7 +50,6 @@ function statusPillClass(status: CampaignStatus): string {
 }
 
 function typePillClass(type: CampaignType): string {
-  // SP=info/active, SB=orange, SD=purple. Matches the table render.
   switch (type) {
     case 'SP':
       return 'pill active';
@@ -58,8 +62,19 @@ function typePillClass(type: CampaignType): string {
   }
 }
 
-export function CampaignCard({ campaign, onSelect }: CampaignCardProps) {
+export function CampaignCard({
+  campaign,
+  onSelect,
+  onToggleStatus,
+  onArchive,
+}: CampaignCardProps) {
   const { metrics } = campaign;
+  const [expanded, setExpanded] = useState(false);
+
+  const ctr = metrics.impressions > 0 ? (metrics.clicks / metrics.impressions) * 100 : 0;
+  const cpc = metrics.clicks > 0 ? metrics.spend / metrics.clicks : 0;
+  const acos = metrics.sales > 0 ? (metrics.spend / metrics.sales) * 100 : 0;
+
   return (
     <article
       className="campaign-card"
@@ -99,6 +114,65 @@ export function CampaignCard({ campaign, onSelect }: CampaignCardProps) {
           </span>
         </div>
       </button>
+
+      <button
+        type="button"
+        className="campaign-card__toggle"
+        aria-expanded={expanded}
+        aria-controls={`campaign-card-details-${campaign.id}`}
+        onClick={() => setExpanded((v) => !v)}
+      >
+        {expanded ? 'Hide details' : 'Show details'}
+      </button>
+
+      {expanded && (
+        <div
+          id={`campaign-card-details-${campaign.id}`}
+          className="campaign-card__details"
+        >
+          <dl className="campaign-card__metrics-grid">
+            <div>
+              <dt>CPC</dt>
+              <dd className="campaign-card__metric-value--num">{formatMoney(cpc)}</dd>
+            </div>
+            <div>
+              <dt>Orders</dt>
+              <dd className="campaign-card__metric-value--num">{metrics.orders}</dd>
+            </div>
+            <div>
+              <dt>ACOS</dt>
+              <dd className="campaign-card__metric-value--num">{formatPercent(acos)}</dd>
+            </div>
+            <div>
+              <dt>CTR</dt>
+              <dd className="campaign-card__metric-value--num">{formatPercent(ctr)}</dd>
+            </div>
+          </dl>
+
+          <div className="campaign-card__actions">
+            <button
+              type="button"
+              className="campaign-card__action"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleStatus?.(campaign.id);
+              }}
+            >
+              {campaign.status === 'Paused' ? 'Resume' : 'Pause'}
+            </button>
+            <button
+              type="button"
+              className="campaign-card__action campaign-card__action--danger"
+              onClick={(e) => {
+                e.stopPropagation();
+                onArchive?.(campaign.id);
+              }}
+            >
+              Archive
+            </button>
+          </div>
+        </div>
+      )}
     </article>
   );
 }

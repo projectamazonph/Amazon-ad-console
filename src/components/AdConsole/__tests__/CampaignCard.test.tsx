@@ -7,9 +7,14 @@
  *
  * Money is rendered with thousand separators and 2dp; ROAS is shown
  * to 2dp. Status uses the existing pill color system (green / orange).
+ *
+ * Secondary metrics (CPC, Orders, ACOS) live behind a `<details>`
+ * element with an aria-expanded toggle so screen readers and keyboard
+ * users can access them without losing context.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { CampaignCard } from '../mobile/CampaignCard';
 import type { Campaign } from '@/engine/ad-console/types';
 
@@ -78,7 +83,6 @@ describe('CampaignCard - primary metrics', () => {
 
   it('renders ROAS as a primary metric (sales/spend to 2dp)', () => {
     render(<CampaignCard campaign={makeCampaign()} onSelect={() => {}} />);
-    // sales=4567.89 / spend=1234.56 = 3.6999... -> "3.70"
     expect(screen.getByText(/3\.70/)).toBeTruthy();
   });
 
@@ -94,5 +98,55 @@ describe('CampaignCard - primary metrics', () => {
     const pill = screen.getByText('Paused');
     expect(pill.className).toMatch(/pill/);
     expect(pill.className).toMatch(/orange/);
+  });
+});
+
+describe('CampaignCard - expandable secondary', () => {
+  it('hides CPC / Orders / ACOS behind an expandable region', () => {
+    render(<CampaignCard campaign={makeCampaign()} onSelect={() => {}} />);
+    // ACOS = spend / sales * 100 = 27.02 (rounded to 2dp)
+    expect(screen.queryByText(/ACOS/i)).toBeNull();
+  });
+
+  it('renders a toggle button with aria-expanded', () => {
+    render(<CampaignCard campaign={makeCampaign()} onSelect={() => {}} />);
+    const toggle = screen.getByRole('button', { name: /show details|hide details|details/i });
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('reveals ACOS, CPC, Orders when expanded', async () => {
+    const user = userEvent.setup();
+    render(<CampaignCard campaign={makeCampaign()} onSelect={() => {}} />);
+    const toggle = screen.getByRole('button', { name: /show details|hide details|details/i });
+    await user.click(toggle);
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(screen.getByText(/ACOS/i)).toBeTruthy();
+    expect(screen.getByText(/CPC/i)).toBeTruthy();
+    expect(screen.getByText(/Orders/i)).toBeTruthy();
+  });
+
+  it('exposes Pause and Archive action buttons when expanded', async () => {
+    const user = userEvent.setup();
+    render(<CampaignCard campaign={makeCampaign()} onSelect={() => {}} />);
+    const toggle = screen.getByRole('button', { name: /show details|hide details|details/i });
+    await user.click(toggle);
+    expect(screen.getByRole('button', { name: /pause/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /archive/i })).toBeTruthy();
+  });
+
+  it('calls onToggleStatus with the campaign id when Pause is clicked', async () => {
+    const user = userEvent.setup();
+    const onToggleStatus = vi.fn();
+    render(
+      <CampaignCard
+        campaign={makeCampaign()}
+        onSelect={() => {}}
+        onToggleStatus={onToggleStatus}
+      />,
+    );
+    const toggle = screen.getByRole('button', { name: /show details|hide details|details/i });
+    await user.click(toggle);
+    await user.click(screen.getByRole('button', { name: /pause/i }));
+    expect(onToggleStatus).toHaveBeenCalledWith('camp-test');
   });
 });
