@@ -9,11 +9,14 @@ import { useAdConsoleStore } from '@/engine/ad-console/store';
 import { getKpiTiles } from './nav/consoleNav';
 import { calc, formatMoney, formatWhole, formatPercent, acosClass } from '@/engine/ad-console/core/engine';
 import type { Campaign, DerivedMetrics, ConsoleView, Metrics } from '@/engine/ad-console/types';
+import { useBreakpoint } from '@/lib/useBreakpoint';
+import { CampaignCard } from './mobile/CampaignCard';
 
 export function Dashboard() {
   const state = useAdConsoleStore((s) => s.state);
   const setView = useAdConsoleStore((s) => s.setView);
   const selectCampaign = useAdConsoleStore((s) => s.selectCampaign);
+  const { isMobile } = useBreakpoint();
   const totalMetrics = useAdConsoleStore((s) => s.totalMetricsCalc);
 
   // state.campaigns keeps the same array reference for any state change
@@ -78,7 +81,19 @@ export function Dashboard() {
             <h2>Campaigns</h2>
             <span className="meta">{enabledCount} enabled · {state.campaigns.length} total</span>
           </div>
-          {renderCampaignTable(state.campaigns.slice(0, 8), selectCampaign, calc, setView)}
+          {isMobile ? (
+            <div className="campaign-card-list">
+              {state.campaigns.slice(0, 8).map((c) => (
+                <CampaignCard
+                  key={c.id}
+                  campaign={c}
+                  onSelect={selectCampaign}
+                />
+              ))}
+            </div>
+          ) : (
+            renderCampaignTable(state.campaigns.slice(0, 8), selectCampaign, calc, setView)
+          )}
         </div>
         <div>
           <Card variant="default" padding={6} style={{ marginBottom: 'var(--space-4)' }}>
