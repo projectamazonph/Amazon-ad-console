@@ -3814,3 +3814,253 @@ textarea.input {
     transform: none;
   }
 }
+
+/* =====================================================
+   CampaignCard (mobile-first) - added per MOBILE_REDESIGN_PLAN Phase 1.
+   These classes drive the <CampaignCard /> mobile list view rendered
+   from src/components/AdConsole/mobile/CampaignCard.tsx when
+   useBreakpoint().isMobile is true. Desktop is unaffected; cards are
+   hidden (Dashboard renders the Table) and these rules never match.
+   ===================================================== */
+
+.campaign-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.campaign-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-1);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  gap: var(--space-3);
+  box-shadow: var(--shadow-xs);
+  transition: box-shadow var(--duration-fast) var(--ease-out),
+              transform var(--duration-fast) var(--ease-out);
+}
+
+.campaign-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--accent);
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  opacity: 0.85;
+}
+
+.campaign-card:hover {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+.campaign-card__select {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-height: 44px; /* Touch target: WCAG 2.1 / Apple HIG */
+}
+
+.campaign-card__select:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.campaign-card__row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.campaign-card__row--primary {
+  justify-content: space-between;
+}
+
+.campaign-card__name {
+  font-weight: 600;
+  font-size: var(--text-base);
+  color: var(--ink-900);
+  flex: 1 1 auto;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.campaign-card__row--metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border-light);
+}
+
+.campaign-card__metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.campaign-card__metric-label {
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  color: var(--ink-500);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.campaign-card__metric-value {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+}
+
+.campaign-card__metric-value--num {
+  /* Per spec: numerical data stays readable across viewports */
+  font-size: clamp(0.875rem, 2vw, 1rem);
+}
+
+.campaign-card__toggle {
+  appearance: none;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--ink-700);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+  align-self: flex-start;
+  min-height: 44px; /* Touch target */
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.campaign-card__toggle:hover {
+  background: var(--surface-3);
+}
+
+.campaign-card__details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-light);
+}
+
+.campaign-card__metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+}
+
+.campaign-card__metrics-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.campaign-card__metrics-grid dt {
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  color: var(--ink-500);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.campaign-card__metrics-grid dd {
+  margin: 0;
+  font-size: clamp(0.875rem, 2vw, 1rem);
+  font-weight: 700;
+  color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+}
+
+.campaign-card__actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.campaign-card__action {
+  appearance: none;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--ink-900);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  min-height: 44px; /* Touch target */
+  min-width: 44px;
+  flex: 1 1 auto;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.campaign-card__action:hover {
+  background: var(--surface-3);
+}
+
+.campaign-card__action--danger {
+  color: var(--danger);
+  border-color: var(--border);
+}
+
+.campaign-card__action--danger:hover {
+  background: var(--danger-soft);
+}
+
+/* Tablet: 2-column KPI grid, card list unchanged. */
+@media (min-width: 769px) and (max-width: 1100px) {
+  .kpi-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Phone: 1-column KPI grid; cards already full-width. */
+@media (max-width: 768px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .campaign-card__row--metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .campaign-card__row--primary {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .campaign-card__metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
