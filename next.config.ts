@@ -46,7 +46,7 @@ const nextConfig: NextConfig = {
             value: [
               "default-src 'self'",
               "img-src 'self' data: https:",
-              "script-src 'self' 'unsafe-inline'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
               "style-src 'self' 'unsafe-inline'",
               "font-src 'self' data:",
               "connect-src 'self' https://*.neon.tech",
