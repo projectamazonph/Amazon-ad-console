@@ -46,3 +46,4 @@ playwright-report/
 
 /src/generated/prisma
 *.db
+.loop/
