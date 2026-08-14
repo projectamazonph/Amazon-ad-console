@@ -4,14 +4,16 @@ import { useEffect } from "react";
 
 export default function ErrorBoundary({
   error,
-  reset,
+  unstable_retry,
 }: {
   error: Error & { digest?: string };
-  reset: () => void;
+  unstable_retry: () => void;
 }) {
   useEffect(() => {
     // Surface to the console for dev visibility; wire to real telemetry later.
-    console.error("[app/error] route error:", error);
+    if (process.env.NODE_ENV !== "production") {
+      console.error("[app/error] route error:", error);
+    }
   }, [error]);
 
   return (
@@ -37,7 +39,7 @@ export default function ErrorBoundary({
         <div className="mt-6 flex flex-wrap gap-3">
           <button
             type="button"
-            onClick={reset}
+            onClick={() => unstable_retry()}
             className="inline-flex h-10 items-center rounded-full bg-zinc-900 px-5 text-sm font-medium text-zinc-50 transition-colors hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
           >
             Try again
