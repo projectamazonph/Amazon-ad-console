@@ -1,251 +1,36 @@
-# Amazon Ads Console Training Simulator
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-> A pixel-faithful Next.js replica of the Amazon Ads Console for training Filipino VAs and eCommerce teams on PPC campaign management — risk-free, offline, with built-in coaching. The UI is a 1:1 reskin of `advertising.amazon.com` with dark slate global nav, grouped left rail, Amazon orange accent, 9 KPI tiles, and responsive mobile layout with hamburger drawer navigation.
+## Getting Started
 
-## Quick Start
+First, run the development server:
 
 ```bash
-cd Amazon-ad-console
-npm install
 npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) — the simulator loads with 6 pre-built training campaigns across SP, SB, and SD:
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-| # | Type | Name | Targeting |
-|---|---|---|---|
-| 1 | SP | Auto \| Coffee Filter \| Discovery | Automatic |
-| 2 | SP | Manual \| Coffee Filter \| Exact Winners | Manual keyword |
-| 3 | SB | Video \| Coffee Brand Awareness | Keyword (Video ad format) |
-| 4 | SD | Views Remarketing \| 30 Day | Audience |
-| 5 | SB | Product Collection \| Coffee Variety | Product targeting |
-| 6 | SD | Contextual \| Coffee Accessories | Contextual |
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## What You Can Do
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-### Campaign Management
-- **Create** Sponsored Products (SP), Sponsored Brands (SB), and Sponsored Display (SD) campaigns via step-by-step wizard
-- **Toggle** campaign status (Enable / Pause / Archive)
-- **Duplicate** campaigns to experiment without losing originals
-- **Delete** (archive) campaigns
-- **Adjust** daily budgets, default bids, bid strategies, and placement modifiers
+## Learn More
 
-### Keyword & Target Operations
-- **Add keywords** with Exact, Phrase, or Broad match types at custom bids
-- **Remove keywords** (pause / delete targets)
-- **Adjust bids** — set exact bid or use ±multiplier
-- **Add negative keywords** — Negative exact and Negative phrase
-- **Harvest** converting search terms into new targets
+To learn more about Next.js, take a look at the following resources:
 
-### Portfolios & Organizing
-- **View** campaigns grouped by portfolio
-- **Filter** by campaign type (SP/SB/SD), status, portfolio, and free-text search
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-### Metrics & Reporting
-- **Dashboard** — aggregate metrics across all enabled campaigns
-- **Campaign view** — metrics roll up from targets → ad groups → campaign
-- **Ad group view** — individual ad group performance
-- **Keyword/target view** — per-keyword metrics (impressions, clicks, spend, sales, orders)
-- **Derived KPIs** — CTR, CPC, ACoS, ROAS, CVR computed at every level
-- **Reports** — generate and export campaign / ad group / target / search term / placement reports as CSV
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-### Simulation
-- **Run 7-day simulation** — generates realistic performance data across all enabled campaigns
-- Metrics cascade correctly: keyword → ad group → campaign → dashboard
+## Deploy on Vercel
 
-### Training Features
-- **Training** global nav section in the topbar exposes all 6 training-product pages.
-- **Drills** — click-by-click navigation coaching with mistake tracking
-- **Missions** — scenario-based challenges (Beginner → Advanced) with scoring and hints
-- **Reports** — generate and export campaign / target / search-term / placement reports as CSV
-- **Bulk Operations** — paste Amazon Ads bulk CSV for validation and preview
-- **Trainer Dashboard** — certification checklist, action grading, notes
-- **Integrity Center** — automated data-quality checks (orphaned terms, duplicate IDs, creative issues)
-- **Multi-User Profiles** — separate training state per trainee
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-### Multi-User Access
-- **User Registration** — create account with email/password
-- **Login/Logout** — secure session management via NextAuth
-- **Cloud Sync** — save/load campaigns to database
-- **Per-User Data** — each user has isolated campaign data
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Framework | Next.js 16 (App Router) |
-| UI | React 19 |
-| State | Zustand 5 (single store, 8 core slices + 7 feature slices) |
-| Language | TypeScript 5.8 (strict mode) |
-| UI components | `@astryxdesign/core` (153 components, theme via `@astryxdesign/theme-neutral`) |
-| Styling | Global CSS tokens bridging Astryx to the Amazon-faithful visual identity |
-| Engine | Pure TypeScript — zero React/UI dependencies |
-| Database | Prisma 7 + Postgres (via `@prisma/adapter-neon`) |
-| Authentication | NextAuth v5 (credentials provider) |
-| Password Hashing | bcryptjs |
-
-## Testing
-
-This project uses **TDD** for the pure business logic in `src/engine/ad-console/core`.
-Tests live next to the code they cover (`*.test.ts`) and run on Vitest.
-
-```bash
-npm test          # run the suite once
-npm run test:watch
-```
-
-### Principles enforced by the suite
-- **Fail fast** — invalid inputs throw `ValidationError` instead of silently
-  clamping or producing `NaN` (see `src/lib/validation.ts`). Covered by tests
-  for `calc`, `normalizeCampaign`, and `addTarget`.
-- **Single responsibility** — each engine function transforms one thing and
-  returns new state; no hidden side effects.
-- **DRY / KISS / YAGNI** — shared guards live in one `validation.ts` module;
-  no duplicate clamping or re-validation across functions.
-
-To add a feature: write a failing test in `src/engine/ad-console/core/__tests__/`,
-then implement the function until green. Keep logic in the engine layer so it
-stays framework-free and unit-testable.
-
-## Project Structure
-
-```
-Amazon-ad-console/
-├── src/
-│   ├── app/                        # Next.js App Router
-│   │   ├── layout.tsx              # Root layout + metadata + SessionProvider
-│   │   ├── page.tsx                # Home → <AdConsole />
-│   │   ├── landing/page.tsx        # Landing page with auth links
-│   │   ├── auth/
-│   │   │   ├── login/page.tsx      # Login page
-│   │   │   └── register/page.tsx   # Registration page
-│   │   ├── api/
-│   │   │   ├── auth/               # NextAuth API routes
-│   │   │   │   ├── [...nextauth]/route.ts
-│   │   │   │   └── register/route.ts
-│   │   │   ├── campaigns/          # Campaign CRUD API
-│   │   │   │   ├── route.ts        # GET/POST campaigns
-│   │   │   │   └── [id]/route.ts   # GET/PUT/DELETE single campaign
-│   │   │   └── sync/route.ts       # Bulk sync campaigns to/from DB
-│   │   └── globals.css             # Premium design system tokens + styles
-│   ├── engine/                     # Portable business logic
-│   │   └── ad-console/
-│   │       ├── core/               # Zero-dep engine
-│   │       │   ├── types.ts        # All domain interfaces
-│   │       │   ├── engine/         # Pure stateless functions, one module per domain concern
-│   │       │   │   └── (campaign, target, adgroup, negative, budget, portfolio, draft, id, metrics, responsive, search-term-generator).ts
-│   │       │   ├── simulation.ts   # 7-day performance simulator
-│   │       │   ├── slices/         # Zustand StateCreator slices wrapping the engine
-│   │       │   └── scenarios.ts    # Training data & product catalog
-│   │       ├── features/           # 7 self-contained feature modules
-│   │       │   ├── drills/         # Navigation coaching
-│   │       │   ├── profiles/       # Multi-user profiles
-│   │       │   ├── trainer/        # Certification & grading
-│   │       │   ├── bulk/           # CSV import/validate
-│   │       │   ├── reports/        # Report generation & export
-│   │       │   ├── missions/       # Scenario challenges
-│   │       │   └── integrity/      # Data quality checks
-│   │       ├── store.ts            # Composed root Zustand store
-│   │       ├── index.ts            # Public API re-exports
-│   │       ├── types.ts            # Backward-compat re-export of core/types.ts
-│   │       └── scenarios.ts        # Backward-compat re-export of core/scenarios.ts
-│   ├── components/
-│   │   ├── AdConsole/              # React UI layer
-│   │   │   ├── AdConsole.tsx        # Root view router
-│   │   │   ├── Dashboard.tsx        # Aggregate metrics
-│   │   │   ├── CampaignManager.tsx  # Campaign list + filters
-│   │   │   ├── CampaignDetail.tsx   # Single campaign deep-dive
-│   │   │   ├── PortfolioOverview.tsx # Portfolio grouping
-│   │   │   ├── wizard/              # 6-step campaign creation flow (per SP/SB/SD)
-│   │   │   │   └── CreateCampaignWizard.tsx
-│   │   │   ├── layout/
-│   │   │   │   ├── Sidebar.tsx      # Desktop navigation rail
-│   │   │   │   └── Topbar.tsx       # Header with actions + UserMenu
-│   │   │   ├── mobile/
-│   │   │   │   └── MobileNav.tsx    # Mobile/tablet hamburger drawer navigation
-│   │   │   ├── nav/
-│   │   │   │   └── consoleNav.ts    # Amazon console nav model
-│   │   │   ├── metrics/
-│   │   │   │   └── MetricCard.tsx   # Reusable metric display
-│   │   │   ├── details/             # Tab components + shared EmptyState
-│   │   │   └── features/            # Feature-specific pages
-│   │   │       ├── drills/DrillsPage.tsx
-│   │   │       ├── missions/MissionsPage.tsx
-│   │   │       ├── reports/ReportsPage.tsx
-│   │   │       ├── bulk/BulkOpsPage.tsx
-│   │   │       ├── trainer/TrainerPage.tsx
-│   │   │       └── integrity/IntegrityPage.tsx
-│   │   ├── SessionProvider.tsx      # NextAuth session wrapper
-│   │   ├── UserMenu.tsx             # User dropdown menu
-│   │   └── SyncButton.tsx           # Cloud sync controls
-│   ├── lib/
-│   │   ├── auth.ts                  # NextAuth configuration
-│   │   ├── prisma.ts                # Prisma client singleton
-│   │   ├── validation.ts            # Input validation helpers
-│   │   └── useBreakpoint.ts         # Responsive breakpoint hook
-│   └── generated/prisma/            # Prisma generated client
-├── prisma/
-│   ├── schema.prisma                # Database schema (User, Campaign, Simulation)
-│   └── migrations/                  # Database migrations
-├── docs/                           # Project documentation
-│   ├── ARCHITECTURE.md
-│   ├── API.md
-│   ├── SCHEMA.md
-│   ├── FEATURES.md
-│   ├── INTEGRATION.md
-│   ├── TECH-SPECS.md
-│   ├── MOBILE_REDESIGN_PLAN.md
-│   ├── AUTH.md                      # Multi-user authentication guide
-│   ├── DEPLOYMENT.md                # Vercel project setup and deploy process
-│   └── AUDIT-FOLLOWUPS.md           # Status of each audit finding, with PR links
-├── CLAUDE.md                        # Architecture + conventions guide for Claude Code
-├── CHANGELOG.md                     # Notable changes per release
-├── .env.example                     # DATABASE_URL / AUTH_SECRET template
-├── package.json
-├── tsconfig.json
-├── next.config.ts
-└── prisma.config.ts                 # Prisma configuration
-```
-
-## Scripts
-
-| Command | Description |
-|---------|------------|
-| `npm run dev` | Start dev server on port 3000 |
-| `npm run build` | Production build |
-| `npm start` | Start production server |
-| `npm run lint` | Run Next.js linter |
-| `npm run type-check` | TypeScript type checking |
-| `npx prisma migrate dev` | Run database migrations |
-| `npx prisma generate` | Generate Prisma client |
-
-## Porting to amph-v2
-
-The entire engine layer (`src/engine/ad-console/`) is portable with zero changes:
-
-```ts
-// In amph-v2, copy the engine folder and import:
-import { useAdConsoleStore } from '@/engine/ad-console/store';
-// or use the core engine standalone:
-import { calc, simulateDays } from '@/engine/ad-console/core/engine';
-```
-
-See [docs/INTEGRATION.md](docs/INTEGRATION.md) for the full porting guide.
-
-## Documentation
-
-- [Architecture](docs/ARCHITECTURE.md) — SOLID design, slice composition, data flow
-- [API Reference](docs/API.md) — All engine functions with signatures
-- [Data Schema](docs/SCHEMA.md) — TypeScript interfaces and data shapes
-- [Features](docs/FEATURES.md) — Detailed feature documentation
-- [Integration Guide](docs/INTEGRATION.md) — Porting to amph-v2
-- [Tech Specs](docs/TECH-SPECS.md) — Dependencies, configuration, performance
-- [Mobile Redesign Plan](docs/MOBILE_REDESIGN_PLAN.md) — Mobile-first redesign strategy
-- [Authentication Guide](docs/AUTH.md) — Multi-user access setup and configuration
-- [Deployment](docs/DEPLOYMENT.md) — Vercel project setup and deploy process
-- [Audit Follow-Ups](docs/AUDIT-FOLLOWUPS.md) — Status of each finding from the 2026-07-21 audit, with PR links
-- [Changelog](CHANGELOG.md) — Notable changes per release, starting at 3.6.0
-
-## License
-
-MIT
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
